@@ -76,7 +76,7 @@
 - UNIQUE на `email`
 - UNIQUE на `phone`
 - INDEX на `role`
-- GIST на `(last_location_lat, last_location_lng)`
+- GIST на geography column (PostGIS)
 
 ---
 
@@ -107,7 +107,7 @@
 
 **Индексы:**
 - UNIQUE на `user_id`
-- GIST на `(base_location_lat, base_location_lng)`
+- GIST на geography column (PostGIS)
 - INDEX на `city`
 - INDEX на `country`
 
@@ -457,16 +457,31 @@
 
 ## Рекомендуемые индексы (сводка)
 
+**Примечание:** Используем PostGIS для геопространственных запросов.
+
 ```sql
+-- Включаем PostGIS расширение
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- users
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_location ON users USING GIST(ll_to_earth(last_location_lat, last_location_lng));
+-- PostGIS: создаем geography column и индекс
+-- Альтернатива 1: добавить computed column
+-- ALTER TABLE users ADD COLUMN location geography(POINT, 4326)
+--   GENERATED ALWAYS AS (ST_SetSRID(ST_MakePoint(last_location_lng, last_location_lat), 4326)::geography) STORED;
+-- CREATE INDEX idx_users_location ON users USING GIST(location);
+-- Альтернатива 2: функциональный индекс (рекомендуется)
+CREATE INDEX idx_users_location ON users USING GIST(
+  ST_SetSRID(ST_MakePoint(last_location_lng, last_location_lat), 4326)::geography
+);
 
 -- master_profiles
 CREATE INDEX idx_master_profiles_user_id ON master_profiles(user_id);
-CREATE INDEX idx_master_profiles_location ON master_profiles USING GIST(ll_to_earth(base_location_lat, base_location_lng));
+CREATE INDEX idx_master_profiles_location ON master_profiles USING GIST(
+  ST_SetSRID(ST_MakePoint(base_location_lng, base_location_lat), 4326)::geography
+);
 CREATE INDEX idx_master_profiles_city ON master_profiles(city);
 CREATE INDEX idx_master_profiles_country ON master_profiles(country);
 

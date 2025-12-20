@@ -1,0 +1,68 @@
+import '../../shared/models/service.dart';
+
+final List<Service> mockServices = [
+  Service(
+    id: '1',
+    name: 'Женская стрижка',
+    category: 'Парикмахерские услуги',
+    durationMinutes: 60,
+    price: '2500₽',
+    description: 'Стрижка любой сложности с укладкой',
+  ),
+  Service(
+    id: '2',
+    name: 'Окрашивание',
+    category: 'Парикмахерские услуги',
+    durationMinutes: 120,
+    price: '5000₽',
+    description: 'Полное окрашивание волос профессиональной косметикой',
+  ),
+  Service(
+    id: '3',
+    name: 'Укладка',
+    category: 'Парикмахерские услуги',
+    durationMinutes: 30,
+    price: '1500₽',
+    description: 'Профессиональная укладка',
+  ),
+  Service(
+    id: '4',
+    name: 'Маникюр с покрытием',
+    category: 'Ногтевой сервис',
+    durationMinutes: 90,
+    price: '1800₽',
+    description: 'Маникюр + гель-лак',
+  ),
+  Service(
+    id: '5',
+    name: 'Педикюр',
+    category: 'Ногтевой сервис',
+    durationMinutes: 60,
+    price: '2000₽',
+    description: 'Аппаратный педикюр с покрытием',
+  ),
+  Service(
+    id: '6',
+    name: 'Чистка лица',
+    category: 'Косметология',
+    durationMinutes: 90,
+    price: '3500₽',
+    description: 'Глубокая чистка лица',
+  ),
+  Service(
+    id: '7',
+    name: 'Массаж спины',
+    category: 'Массаж',
+    durationMinutes: 60,
+    price: '2500₽',
+    description: 'Расслабляющий массаж спины и шеи',
+  ),
+  Service(
+    id: '8',
+    name: 'Коррекция бровей',
+    category: 'Брови и ресницы',
+    durationMinutes: 30,
+    price: '800₽',
+    description: 'Коррекция формы бровей',
+  ),
+];
