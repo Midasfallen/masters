@@ -43,7 +43,7 @@
 
 ## Сводка endpoints
 
-**Всего:** 95 endpoints в 17 группах
+**Всего:** 110 endpoints в 18 групп
 
 | Группа | Endpoints |
 |--------|-----------|
@@ -64,6 +64,7 @@
 | Премиум и верификация | 5 |
 | Реферальная программа | 3 |
 | Загрузка файлов | 3 |
+| **Админ-панель** | **15** |
 
 ---
 
@@ -1895,6 +1896,466 @@ OAuth (Google, Apple)
   "filename": "certificate.pdf"
 }
 ```
+
+---
+
+## 18. Админ-панель
+
+**Требуется роль:** `admin`
+**Аутентификация:** Bearer Token с admin правами
+
+### GET /admin/dashboard
+Дашборд с метриками
+
+**Response:**
+```json
+{
+  "stats": {
+    "users": {
+      "total": 15420,
+      "clients": 14200,
+      "masters": 1220,
+      "verified": 340,
+      "premium": 580,
+      "new_this_month": 1250
+    },
+    "bookings": {
+      "total": 45230,
+      "pending": 125,
+      "confirmed": 230,
+      "completed": 44200,
+      "cancelled": 675,
+      "completion_rate": 0.97
+    },
+    "revenue": {
+      "total_gmv": 2500000,
+      "platform_fee": 125000,
+      "currency": "RUB",
+      "avg_booking_value": 1500
+    },
+    "content": {
+      "posts": 8920,
+      "pending_moderation": 45,
+      "flagged": 12
+    }
+  },
+  "charts": {
+    "daily_users": [/* array of daily data */],
+    "daily_bookings": [/* array of daily data */],
+    "daily_revenue": [/* array of daily data */]
+  }
+}
+```
+
+---
+
+### GET /admin/users
+Список всех пользователей
+
+**Query params:**
+- `role` - client/master/admin
+- `status` - active/banned
+- `premium` - true/false
+- `verified` - true/false
+- `search` - поиск по email/имени
+- `page`, `limit`
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "id": "uuid",
+      "email": "user@example.com",
+      "first_name": "John",
+      "last_name": "Doe",
+      "role": "master",
+      "is_premium": true,
+      "is_verified": true,
+      "is_banned": false,
+      "created_at": "2025-12-01T10:00:00Z",
+      "last_login": "2025-12-20T09:30:00Z"
+    }
+  ],
+  "total": 15420,
+  "has_more": true
+}
+```
+
+---
+
+### GET /admin/users/:id
+Детальная информация о пользователе
+
+**Response:**
+```json
+{
+  "user": {
+    /* full user object */
+  },
+  "master_profile": {
+    /* master profile if exists */
+  },
+  "stats": {
+    "total_bookings": 245,
+    "completed_bookings": 238,
+    "cancellations": 5,
+    "no_shows": 2,
+    "reviews_received": 230,
+    "average_rating": 4.8
+  },
+  "activity": {
+    "last_login": "2025-12-20T09:30:00Z",
+    "registration_date": "2025-06-15T10:00:00Z",
+    "devices": [
+      {"platform": "ios", "last_used": "2025-12-20T09:30:00Z"}
+    ]
+  },
+  "moderation": {
+    "reports_count": 0,
+    "warnings_count": 0,
+    "bans_count": 0
+  }
+}
+```
+
+---
+
+### PATCH /admin/users/:id/ban
+Заблокировать пользователя
+
+**Request:**
+```json
+{
+  "reason": "Violation of terms",
+  "duration_days": 30  // null = permanent
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "user": {
+    "is_banned": true,
+    "ban_until": "2026-01-20T00:00:00Z",
+    "ban_reason": "Violation of terms"
+  }
+}
+```
+
+---
+
+### PATCH /admin/users/:id/unban
+Разблокировать пользователя
+
+**Response:**
+```json
+{
+  "success": true,
+  "user": {
+    "is_banned": false
+  }
+}
+```
+
+---
+
+### GET /admin/content/posts
+Модерация постов
+
+**Query params:**
+- `status` - all/pending/approved/rejected/flagged
+- `master_id` - фильтр по мастеру
+- `page`, `limit`
+
+**Response:**
+```json
+{
+  "posts": [
+    {
+      "id": "uuid",
+      "master": {
+        "id": "uuid",
+        "display_name": "John's Barbershop"
+      },
+      "type": "photo",
+      "caption": "New haircut",
+      "media": [/* media objects */],
+      "moderation_status": "pending",
+      "reports_count": 0,
+      "created_at": "2025-12-20T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### PATCH /admin/content/posts/:id/approve
+Одобрить пост
+
+**Response:**
+```json
+{
+  "success": true,
+  "post": {
+    "moderation_status": "approved"
+  }
+}
+```
+
+---
+
+### PATCH /admin/content/posts/:id/reject
+Отклонить пост
+
+**Request:**
+```json
+{
+  "reason": "Inappropriate content"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "post": {
+    "moderation_status": "rejected",
+    "rejection_reason": "Inappropriate content"
+  }
+}
+```
+
+---
+
+### DELETE /admin/content/posts/:id
+Удалить пост
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+---
+
+### GET /admin/content/reports
+Жалобы от пользователей
+
+**Query params:**
+- `status` - pending/reviewed/resolved
+- `type` - post/user/review/message
+- `page`, `limit`
+
+**Response:**
+```json
+{
+  "reports": [
+    {
+      "id": "uuid",
+      "reporter": {
+        "id": "uuid",
+        "email": "reporter@example.com"
+      },
+      "type": "post",
+      "target_id": "uuid",
+      "reason": "spam",
+      "description": "Advertising external services",
+      "status": "pending",
+      "created_at": "2025-12-20T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### PATCH /admin/content/reports/:id/resolve
+Разрешить жалобу
+
+**Request:**
+```json
+{
+  "action": "delete_content",  // or "warn_user", "ban_user", "ignore"
+  "notes": "Content removed as spam"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "report": {
+    "status": "resolved",
+    "resolved_at": "2025-12-20T11:00:00Z"
+  }
+}
+```
+
+---
+
+### GET /admin/categories
+Управление каталогом
+
+**Response:**
+```json
+{
+  "categories": [/* full category tree */]
+}
+```
+
+---
+
+### POST /admin/categories
+Создать категорию
+
+**Request:**
+```json
+{
+  "parent_id": "uuid",  // null for top-level
+  "slug": "new-category",
+  "icon": "🎨",
+  "translations": {
+    "en": {"name": "New Category", "description": "Description"},
+    "ru": {"name": "Новая категория", "description": "Описание"}
+  }
+}
+```
+
+**Response:**
+```json
+{
+  /* created category */
+}
+```
+
+---
+
+### PATCH /admin/categories/:id
+Обновить категорию
+
+**Request:**
+```json
+{
+  "is_active": false
+}
+```
+
+**Response:**
+```json
+{
+  /* updated category */
+}
+```
+
+---
+
+### DELETE /admin/categories/:id
+Удалить категорию
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+---
+
+## Error Codes Reference
+
+### Формат ошибки
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": {
+      "field": "additional info"
+    }
+  }
+}
+```
+
+### Коды ошибок
+
+#### Общие ошибки (1000-1099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `INTERNAL_SERVER_ERROR` | 500 | Внутренняя ошибка сервера |
+| `SERVICE_UNAVAILABLE` | 503 | Сервис временно недоступен |
+| `INVALID_REQUEST` | 400 | Некорректный запрос |
+| `VALIDATION_ERROR` | 400 | Ошибка валидации данных |
+| `RATE_LIMIT_EXCEEDED` | 429 | Превышен лимит запросов |
+
+#### Аутентификация (2000-2099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `UNAUTHORIZED` | 401 | Требуется аутентификация |
+| `INVALID_TOKEN` | 401 | Невалидный токен |
+| `TOKEN_EXPIRED` | 401 | Токен истёк |
+| `INVALID_CREDENTIALS` | 401 | Неверный email/пароль |
+| `EMAIL_ALREADY_EXISTS` | 409 | Email уже зарегистрирован |
+| `PHONE_ALREADY_EXISTS` | 409 | Телефон уже зарегистрирован |
+| `VERIFICATION_REQUIRED` | 403 | Требуется верификация email/телефона |
+| `INVALID_VERIFICATION_CODE` | 400 | Неверный код верификации |
+
+#### Авторизация (2100-2199)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `FORBIDDEN` | 403 | Доступ запрещён |
+| `INSUFFICIENT_PERMISSIONS` | 403 | Недостаточно прав |
+| `ACCOUNT_BANNED` | 403 | Аккаунт заблокирован |
+| `PREMIUM_REQUIRED` | 403 | Требуется премиум подписка |
+
+#### Ресурсы (3000-3099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `NOT_FOUND` | 404 | Ресурс не найден |
+| `USER_NOT_FOUND` | 404 | Пользователь не найден |
+| `MASTER_NOT_FOUND` | 404 | Мастер не найден |
+| `BOOKING_NOT_FOUND` | 404 | Запись не найдена |
+| `POST_NOT_FOUND` | 404 | Пост не найден |
+| `CHAT_NOT_FOUND` | 404 | Чат не найден |
+
+#### Бронирование (4000-4099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `SLOT_NOT_AVAILABLE` | 409 | Слот недоступен |
+| `BOOKING_ALREADY_EXISTS` | 409 | Запись уже существует |
+| `CANNOT_CANCEL_BOOKING` | 400 | Невозможно отменить запись |
+| `BOOKING_TOO_LATE` | 400 | Слишком поздно для изменений |
+| `MASTER_NOT_ACCEPTING_BOOKINGS` | 400 | Мастер не принимает записи |
+| `CLIENT_BLACKLISTED` | 403 | Клиент в чёрном списке |
+
+#### Контент (5000-5099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `FILE_TOO_LARGE` | 413 | Файл слишком большой |
+| `INVALID_FILE_TYPE` | 400 | Неподдерживаемый тип файла |
+| `VIDEO_TOO_LONG` | 400 | Видео слишком длинное (>15 сек) |
+| `POST_REJECTED` | 403 | Пост отклонён модерацией |
+| `CONTENT_MODERATION_PENDING` | 202 | Контент на модерации |
+
+#### Платежи (6000-6099) - v1.0
+| Code | HTTP | Описание |
+|------|------|----------|
+| `PAYMENT_FAILED` | 402 | Платёж не прошёл |
+| `INSUFFICIENT_FUNDS` | 402 | Недостаточно средств |
+| `INVALID_PAYMENT_METHOD` | 400 | Неверный способ оплаты |
+| `REFUND_FAILED` | 500 | Возврат не удался |
+
+#### Бизнес-логика (7000-7099)
+| Code | HTTP | Описание |
+|------|------|----------|
+| `CANNOT_REVIEW_OWN_SERVICE` | 400 | Нельзя оставить отзыв себе |
+| `REVIEW_ALREADY_EXISTS` | 409 | Отзыв уже оставлен |
+| `CANNOT_MESSAGE_UNTIL_BOOKING` | 403 | Чат доступен после подтверждения |
+| `ALREADY_SUBSCRIBED` | 409 | Уже подписан |
+| `CANNOT_SUBSCRIBE_TO_SELF` | 400 | Нельзя подписаться на себя |
 
 ---
 

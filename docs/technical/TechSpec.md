@@ -40,52 +40,61 @@
 **Фреймворк:** Flutter 3.x
 - **Платформы:** iOS, Android, Web
 - **Единая кодовая база**
-- **State Management:** BLoC / Riverpod / Provider (выбор на этапе проектирования)
+- **State Management:** Riverpod 2.x
 - **Карты:** Google Maps API / Mapbox
 - **UI Kit:** Material Design 3 с кастомными компонентами
 
 **Основные библиотеки:**
-- `flutter_bloc` / `riverpod` - State Management
+- `riverpod` + `flutter_riverpod` - State Management
 - `dio` - HTTP клиент
-- `get_it` - Dependency Injection
-- `freezed` - Code generation для моделей
-- `google_maps_flutter` / `mapbox_gl` - Карты
+- `riverpod` - Dependency Injection (встроен)
+- `freezed` + `json_serializable` - Code generation для моделей
+- `google_maps_flutter` - Карты
 - `image_picker` - Работа с фото/видео
 - `video_player` - Проигрывание видео
 - `firebase_messaging` - Push уведомления
 - `web_socket_channel` - WebSocket
+- `go_router` - Навигация
 
 ### 2.2 Backend
 
-**Основные варианты (выбор один из):**
+**Выбранный стек: Node.js + NestJS**
 
-#### Вариант 1: Node.js + NestJS
-- **Язык:** TypeScript
-- **Фреймворк:** NestJS
-- **ORM:** Prisma / TypeORM
-- **Валидация:** class-validator
+- **Язык:** TypeScript 5.x
+- **Фреймворк:** NestJS 10.x
+- **ORM:** Prisma 5.x
+- **Валидация:** class-validator + class-transformer
+- **Документация API:** Swagger / OpenAPI
+- **Тестирование:** Jest + Supertest
 
-#### Вариант 2: Go + Fiber
-- **Язык:** Go 1.21+
-- **Фреймворк:** Fiber / Gin
-- **ORM:** GORM
-- **Производительность:** Высокая
+**Основные модули NestJS:**
+- `@nestjs/common` - Core функциональность
+- `@nestjs/config` - Конфигурация приложения
+- `@nestjs/jwt` - JWT аутентификация
+- `@nestjs/passport` - Стратегии аутентификации
+- `@nestjs/swagger` - API документация
+- `@nestjs/websockets` - WebSocket поддержка
+- `@nestjs/platform-socket.io` - Socket.IO
+- `@nestjs/schedule` - Cron jobs
+- `@nestjs/bull` - Background jobs (опционально)
 
-#### Вариант 3: Python + FastAPI
-- **Язык:** Python 3.11+
-- **Фреймворк:** FastAPI
-- **ORM:** SQLAlchemy / Tortoise ORM
-- **Async:** Full async support
-
-**Рекомендация:** Node.js + NestJS (для быстрого старта и большой экосистемы)
+**Дополнительные библиотеки:**
+- `prisma` - Database ORM
+- `bcrypt` - Хэширование паролей
+- `class-validator` - Валидация DTO
+- `@aws-sdk/client-s3` - S3 storage
+- `ioredis` - Redis клиент
+- `meilisearch` - Search engine клиент
+- `nodemailer` - Email отправка
+- `firebase-admin` - Push уведомления
 
 ### 2.3 База данных
 
 **Основная БД:** PostgreSQL 15+
 - Реляционная модель данных
-- PostGIS расширение для геолокации
+- **PostGIS 3.x** расширение для геолокации
 - JSONB для гибких данных
-- Full-text search
+- Full-text search (встроенный, для базовых задач)
 
 **Кэш:** Redis 7+
 - Кэширование часто запрашиваемых данных
@@ -110,9 +119,8 @@
 ### 2.5 Real-time коммуникации
 
 **WebSocket:**
-- Socket.IO / ws (Node.js)
-- Gorilla WebSocket (Go)
-- FastAPI WebSockets (Python)
+- Socket.IO (через @nestjs/platform-socket.io)
+- Redis adapter для масштабирования
 
 **Функции:**
 - Чат в реальном времени
@@ -154,8 +162,9 @@
 ### 2.8 Мониторинг и логирование
 
 **Логи:**
-- Winston (Node.js) / Zap (Go) / Loguru (Python)
-- Централизованное логирование
+- Winston (встроен в NestJS)
+- Структурированное логирование JSON
+- Централизованное логирование (будущее)
 
 **Мониторинг:**
 - Prometheus + Grafana (будущее)
