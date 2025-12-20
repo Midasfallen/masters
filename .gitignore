@@ -1,0 +1,66 @@
+# Service Platform - .gitignore
+
+# Original Word documents (already converted to Markdown)
+*.docx
+*.doc
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+*.code-workspace
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies (будут добавлены при создании backend/frontend)
+node_modules/
+vendor/
+venv/
+__pycache__/
+*.pyc
+
+# Build outputs (будут добавлены при создании backend/frontend)
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets
+*.pem
+*.key
+secrets/
+credentials/
+
+# Misc
+.cache/
+coverage/
+.pytest_cache/
