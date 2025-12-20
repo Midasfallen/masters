@@ -13,15 +13,14 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0
+  material_symbols_icons: ^4.2719.1
 
   # Navigation
   go_router: ^13.0.0
 
-  # Icons
-  material_symbols_icons: ^4.2719.1
-
   # Utils
   intl: ^0.19.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -34,14 +33,3 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
