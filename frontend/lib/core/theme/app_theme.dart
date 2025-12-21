@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../constants/app_sizes.dart';
 
 class AppTheme {
   // Цвета из Brand Book
@@ -11,6 +12,126 @@ class AppTheme {
   static const Color errorColor = Color(0xFFF44336);
   static const Color warningColor = Color(0xFFFF9800);
   static const Color infoColor = Color(0xFF2196F3);
+
+  // Градиенты из Brand Book
+  static const Gradient primaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primaryColor, secondaryColor],
+  );
+
+  static const Gradient successGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [successColor, tertiaryColor],
+  );
+
+  static const Gradient premiumGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFD700), Color(0xFFFF8C00)],
+  );
+
+  // Типографика из Brand Book (Material 3)
+  static TextTheme get textTheme {
+    return GoogleFonts.interTextTheme(
+      TextTheme(
+        // Display styles
+        displayLarge: const TextStyle(
+          fontSize: 57,
+          height: 64 / 57,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.25,
+        ),
+        displayMedium: const TextStyle(
+          fontSize: 45,
+          height: 52 / 45,
+          fontWeight: FontWeight.w700,
+        ),
+        displaySmall: const TextStyle(
+          fontSize: 36,
+          height: 44 / 36,
+          fontWeight: FontWeight.w700,
+        ),
+
+        // Headline styles
+        headlineLarge: const TextStyle(
+          fontSize: 32,
+          height: 40 / 32,
+          fontWeight: FontWeight.w700,
+        ),
+        headlineMedium: const TextStyle(
+          fontSize: 28,
+          height: 36 / 28,
+          fontWeight: FontWeight.w600,
+        ),
+        headlineSmall: const TextStyle(
+          fontSize: 24,
+          height: 32 / 24,
+          fontWeight: FontWeight.w600,
+        ),
+
+        // Title styles
+        titleLarge: const TextStyle(
+          fontSize: 22,
+          height: 28 / 22,
+          fontWeight: FontWeight.w600,
+        ),
+        titleMedium: const TextStyle(
+          fontSize: 16,
+          height: 24 / 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.15,
+        ),
+        titleSmall: const TextStyle(
+          fontSize: 14,
+          height: 20 / 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
+        ),
+
+        // Body styles
+        bodyLarge: const TextStyle(
+          fontSize: 16,
+          height: 24 / 16,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
+        ),
+        bodyMedium: const TextStyle(
+          fontSize: 14,
+          height: 20 / 14,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.25,
+        ),
+        bodySmall: const TextStyle(
+          fontSize: 12,
+          height: 16 / 12,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.4,
+        ),
+
+        // Label styles
+        labelLarge: const TextStyle(
+          fontSize: 14,
+          height: 20 / 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.1,
+        ),
+        labelMedium: const TextStyle(
+          fontSize: 12,
+          height: 16 / 12,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
+        ),
+        labelSmall: const TextStyle(
+          fontSize: 11,
+          height: 16 / 11,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
 
   // Светлая тема
   static ThemeData get lightTheme {
@@ -24,7 +145,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: GoogleFonts.interTextTheme(),
+      textTheme: textTheme,
 
       // AppBar
       appBarTheme: AppBarTheme(
@@ -48,7 +169,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -61,7 +182,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -190,7 +311,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -203,7 +324,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -303,7 +424,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: GoogleFonts.interTextTheme(),
+      textTheme: textTheme,
 
       appBarTheme: AppBarTheme(
         centerTitle: false,
@@ -324,7 +445,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -337,7 +458,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: BorderRadius.circular(AppSizes.radiusFull),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
