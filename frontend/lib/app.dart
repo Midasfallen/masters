@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
 
@@ -13,11 +15,17 @@ class ServicePlatformApp extends StatefulWidget {
 class _ServicePlatformAppState extends State<ServicePlatformApp> {
   ThemeMode _themeMode = ThemeMode.light;
   String _themeName = 'light';
+  final Set<String> _favoriteIds = {};
 
   @override
   void initState() {
     super.initState();
-    _loadThemePreference();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await initializeDateFormatting('ru', null);
+    await _loadThemePreference();
   }
 
   Future<void> _loadThemePreference() async {
@@ -49,6 +57,16 @@ class _ServicePlatformAppState extends State<ServicePlatformApp> {
     });
   }
 
+  void toggleFavorite(String masterId) {
+    setState(() {
+      if (_favoriteIds.contains(masterId)) {
+        _favoriteIds.remove(masterId);
+      } else {
+        _favoriteIds.add(masterId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -60,14 +78,49 @@ class _ServicePlatformAppState extends State<ServicePlatformApp> {
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
       routerConfig: AppRouter.router,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ru', 'RU'),
+      ],
+      locale: const Locale('ru', 'RU'),
       builder: (context, child) {
-        return ThemeNotifier(
-          changeTheme: changeTheme,
-          currentTheme: _themeName,
-          child: child!,
+        return FavoritesNotifier(
+          favoriteIds: _favoriteIds,
+          toggleFavorite: toggleFavorite,
+          child: ThemeNotifier(
+            changeTheme: changeTheme,
+            currentTheme: _themeName,
+            child: child!,
+          ),
         );
       },
     );
+  }
+}
+
+// Favorites notifier для управления избранным
+class FavoritesNotifier extends InheritedWidget {
+  final Set<String> favoriteIds;
+  final Function(String) toggleFavorite;
+
+  const FavoritesNotifier({
+    super.key,
+    required this.favoriteIds,
+    required this.toggleFavorite,
+    required super.child,
+  });
+
+  static FavoritesNotifier? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<FavoritesNotifier>();
+  }
+
+  @override
+  bool updateShouldNotify(FavoritesNotifier oldWidget) {
+    return favoriteIds != oldWidget.favoriteIds;
   }
 }
 

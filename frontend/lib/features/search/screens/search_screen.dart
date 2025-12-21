@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app.dart';
 import '../../../shared/models/master.dart';
 import '../../../shared/widgets/master_card.dart';
 import '../../../shared/widgets/search_bar_widget.dart';
@@ -15,7 +16,6 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Set<String> _favoriteIds = {};
   String? _selectedCategory;
   double _maxDistance = 50.0;
   double _minRating = 0.0;
@@ -29,7 +29,6 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Master> get _filteredMasters {
     var results = mockMasters;
 
-    // Filter by search query
     if (_searchQuery.isNotEmpty) {
       results = results.where((m) {
         return m.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -38,15 +37,11 @@ class _SearchScreenState extends State<SearchScreen> {
       }).toList();
     }
 
-    // Filter by category
     if (_selectedCategory != null) {
       results = results.where((m) => m.category == _selectedCategory).toList();
     }
 
-    // Filter by distance
     results = results.where((m) => m.distance <= _maxDistance).toList();
-
-    // Filter by rating
     results = results.where((m) => m.rating >= _minRating).toList();
 
     return results;
@@ -132,6 +127,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final favoritesNotifier = FavoritesNotifier.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -220,17 +216,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   final master = _filteredMasters[index];
                   return MasterCard(
                     master: master,
-                    isFavorite: _favoriteIds.contains(master.id),
+                    isFavorite: favoritesNotifier?.favoriteIds.contains(master.id) ?? false,
                     onTap: () => context.go('/master/${master.id}'),
-                    onFavorite: () {
-                      setState(() {
-                        if (_favoriteIds.contains(master.id)) {
-                          _favoriteIds.remove(master.id);
-                        } else {
-                          _favoriteIds.add(master.id);
-                        }
-                      });
-                    },
+                    onFavorite: () => favoritesNotifier?.toggleFavorite(master.id),
                   );
                 },
               ),

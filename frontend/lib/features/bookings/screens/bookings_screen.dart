@@ -67,11 +67,14 @@ class _BookingsScreenState extends State<BookingsScreen>
                       id: b.id,
                       masterId: b.masterId,
                       masterName: b.masterName,
+                      masterAvatar: b.masterAvatar,
                       dateTime: b.dateTime,
                       status: BookingStatus.cancelled,
+                      serviceId: b.serviceId,
                       serviceName: b.serviceName,
+                      durationMinutes: b.durationMinutes,
                       price: b.price,
-                      masterAvatar: b.masterAvatar,
+                      comment: b.comment,
                     );
                   }
                   return b;

@@ -11,11 +11,11 @@ class Booking {
   final String masterId;
   final String masterName;
   final String masterAvatar;
-  final String serviceId;
-  final String serviceName;
+  final String? serviceId;
+  final String? serviceName;
   final DateTime dateTime;
-  final int durationMinutes;
-  final String price;
+  final int? durationMinutes;
+  final String? price;
   final BookingStatus status;
   final String? comment;
 
@@ -24,11 +24,11 @@ class Booking {
     required this.masterId,
     required this.masterName,
     required this.masterAvatar,
-    required this.serviceId,
-    required this.serviceName,
+    this.serviceId,
+    this.serviceName,
     required this.dateTime,
-    required this.durationMinutes,
-    required this.price,
+    this.durationMinutes,
+    this.price,
     required this.status,
     this.comment,
   });
