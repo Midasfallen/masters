@@ -61,7 +61,7 @@ class _BookingsScreenState extends State<BookingsScreen>
           FilledButton(
             onPressed: () {
               setState(() {
-                _bookings = _bookings.map((b) {
+                _bookings = _bookings.map<Booking>((b) {
                   if (b.id == booking.id) {
                     return Booking(
                       id: b.id,
