@@ -1,12 +1,39 @@
 # TEST CASES - Платформа Service
 
-**Версия:** 1.0
+**Версия:** 2.0
 **Дата:** Декабрь 2025
-**Статус:** Актуальные тест-кейсы для Flutter прототипа и Backend API
+**Статус:** Актуальные тест-кейсы для платформы v2.0 (социальные функции + маркетплейс)
+
+---
+
+## Обзор v2.0
+
+Тест-кейсы расширены для покрытия социальной платформы с real-time функциями.
+
+**Категории тест-кейсов:**
+- **v1.0 Базовые (50 кейсов):** Авторизация, UI, Backend API (Auth, Users, Masters, Bookings, Search)
+- **v2.0 Новые (80 кейсов):** Feed, Посты, Лайки, Комментарии, Друзья, Подписки, Чаты, Уведомления, Автопредложения
+
+**Всего тест-кейсов:** 130 (50 базовых + 80 новых)
+
+### Новые секции v2.0:
+
+12. **Backend API - Posts/Feed** (TC-101 — TC-115): 15 тест-кейсов
+13. **Backend API - Likes** (TC-116 — TC-121): 6 тест-кейсов
+14. **Backend API - Comments** (TC-122 — TC-129): 8 тест-кейсов
+15. **Backend API - Friends** (TC-130 — TC-139): 10 тест-кейсов
+16. **Backend API - Subscriptions** (TC-140 — TC-147): 8 тест-кейсов
+17. **Backend API - Chats (WebSocket)** (TC-148 — TC-159): 12 тест-кейсов
+18. **Backend API - Notifications** (TC-160 — TC-167): 8 тест-кейсов
+19. **Backend API - Favorites** (TC-168 — TC-175): 8 тест-кейсов
+20. **Backend API - Auto Proposals** (TC-176 — TC-181): 6 тест-кейсов
+21. **Flutter UI - Feed & Social** (TC-182 — TC-195): 14 тест-кейсов
 
 ---
 
 ## Содержание
+
+### v1.0 Базовые тест-кейсы
 
 1. [Формат тест-кейса](#формат-тест-кейса)
 2. [Flutter UI - Авторизация](#1-flutter-ui---авторизация)
@@ -20,7 +47,20 @@
 10. [Backend API - Search](#9-backend-api---search)
 11. [Интеграционные тесты](#10-интеграционные-тесты)
 12. [E2E тесты](#11-e2e-тесты)
-13. [Тест-матрица](#тест-матрица)
+
+### v2.0 Новые тест-кейсы
+
+13. [Backend API - Posts/Feed](#12-backend-api---postsfeed-v20)
+14. [Backend API - Likes](#13-backend-api---likes-v20)
+15. [Backend API - Comments](#14-backend-api---comments-v20)
+16. [Backend API - Friends](#15-backend-api---friends-v20)
+17. [Backend API - Subscriptions](#16-backend-api---subscriptions-v20)
+18. [Backend API - Chats (WebSocket)](#17-backend-api---chats-websocket-v20)
+19. [Backend API - Notifications](#18-backend-api---notifications-v20)
+20. [Backend API - Favorites](#19-backend-api---favorites-v20)
+21. [Backend API - Auto Proposals](#20-backend-api---auto-proposals-v20)
+22. [Flutter UI - Feed & Social](#21-flutter-ui---feed--social-v20)
+23. [Тест-матрица v2.0](#тест-матрица-v20)
 
 ---
 
