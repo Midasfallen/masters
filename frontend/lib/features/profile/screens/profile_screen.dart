@@ -1,241 +1,412 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app.dart';
 
-class ProfileScreen extends StatelessWidget {
+import '../../../core/providers/mock_data_provider.dart';
+import '../../feed/widgets/post_card.dart';
+
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeNotifier = ThemeNotifier.of(context);
+    final currentUser = ref.watch(currentUserProvider);
+    final allPosts = ref.watch(mockPostsProvider);
+
+    // Filter user's posts
+    final userPosts = allPosts
+        .where((p) => p.masterId == currentUser.id)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Профиль'),
+        title: const Text(
+          'Профиль',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              _showSettingsSheet(context);
+            },
+          ),
+        ],
       ),
-      body: ListView(
-        children: [
-          const SizedBox(height: 24),
-          Center(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(
-                    'https://i.pravatar.cc/200?img=68',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Иван Петров',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'ivan.petrov@example.com',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-          _buildSection(
-            context,
-            title: 'Настройки',
-            items: [
-              _MenuItem(
-                icon: Icons.person_outline,
-                title: 'Редактировать профиль',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Редактирование профиля')),
-                  );
-                },
-              ),
-              _MenuItem(
-                icon: Icons.notifications_outlined,
-                title: 'Уведомления',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Настройки уведомлений')),
-                  );
-                },
-              ),
-              _MenuItem(
-                icon: Icons.language_outlined,
-                title: 'Язык',
-                subtitle: 'Русский',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Выбор языка')),
-                  );
-                },
-              ),
-            ],
-          ),
-          const Divider(),
-          _buildSection(
-            context,
-            title: 'Тема',
-            items: [
-              _MenuItem(
-                icon: Icons.light_mode_outlined,
-                title: 'Светлая',
-                trailing: themeNotifier?.currentTheme == 'light'
-                    ? const Icon(Icons.check)
-                    : null,
-                onTap: () => themeNotifier?.changeTheme('light'),
-              ),
-              _MenuItem(
-                icon: Icons.dark_mode_outlined,
-                title: 'Тёмная',
-                trailing: themeNotifier?.currentTheme == 'dark'
-                    ? const Icon(Icons.check)
-                    : null,
-                onTap: () => themeNotifier?.changeTheme('dark'),
-              ),
-              _MenuItem(
-                icon: Icons.palette_outlined,
-                title: 'Кастомная',
-                trailing: themeNotifier?.currentTheme == 'custom'
-                    ? const Icon(Icons.check)
-                    : null,
-                onTap: () => themeNotifier?.changeTheme('custom'),
-              ),
-            ],
-          ),
-          const Divider(),
-          _buildSection(
-            context,
-            title: 'Поддержка',
-            items: [
-              _MenuItem(
-                icon: Icons.help_outline,
-                title: 'Помощь и FAQ',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Помощь и FAQ')),
-                  );
-                },
-              ),
-              _MenuItem(
-                icon: Icons.privacy_tip_outlined,
-                title: 'Политика конфиденциальности',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Политика конфиденциальности')),
-                  );
-                },
-              ),
-              _MenuItem(
-                icon: Icons.description_outlined,
-                title: 'Условия использования',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Условия использования')),
-                  );
-                },
-              ),
-            ],
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: OutlinedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Выйти из аккаунта?'),
-                    content: const Text(
-                      'Вы уверены, что хотите выйти?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Отмена'),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+
+                  // Avatar
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: CachedNetworkImageProvider(
+                          currentUser.avatar,
+                        ),
                       ),
-                      FilledButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context.go('/login');
-                        },
-                        child: const Text('Выйти'),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2,
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Изменить фото (в разработке)'),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: theme.colorScheme.error,
-                minimumSize: const Size(double.infinity, 48),
+                  const SizedBox(height: 16),
+
+                  // Name
+                  Text(
+                    currentUser.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Bio
+                  if (currentUser.bio != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        currentUser.bio!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+
+                  // Stats
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStat('Посты', userPosts.length.toString()),
+                      _buildStat(
+                        'Подписчики',
+                        currentUser.followersCount?.toString() ?? '0',
+                      ),
+                      _buildStat(
+                        'Подписки',
+                        currentUser.followingCount?.toString() ?? '0',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Edit Profile Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: OutlinedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Редактировать профиль (в разработке)'),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 36),
+                      ),
+                      child: const Text('Редактировать профиль'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Tabs
+                  TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      Tab(
+                        icon: Icon(Icons.grid_on),
+                        text: 'Посты',
+                      ),
+                      Tab(
+                        icon: Icon(Icons.bookmark_border),
+                        text: 'Сохраненное',
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.logout),
-              label: const Text('Выйти из аккаунта'),
             ),
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            // Posts tab
+            _buildPostsTab(userPosts),
+
+            // Saved tab
+            _buildSavedTab(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStat(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostsTab(List posts) {
+    if (posts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.photo_library_outlined,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Нет постов',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Поделитесь своими работами',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return MasonryGridView.count(
+      crossAxisCount: 3,
+      mainAxisSpacing: 4,
+      crossAxisSpacing: 4,
+      padding: const EdgeInsets.all(4),
+      itemCount: posts.length,
+      itemBuilder: (context, index) => PostCard(post: posts[index]),
+    );
+  }
+
+  Widget _buildSavedTab() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.bookmark_border,
+            size: 64,
+            color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Center(
-            child: Text(
-              'Версия 1.0.0',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+          Text(
+            'Нет сохраненных постов',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildSection(
-    BuildContext context, {
-    required String title,
-    required List<_MenuItem> items,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+  void _showSettingsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: const Text('Редактировать профиль'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Редактирование профиля (в разработке)'),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.notifications_outlined),
+                title: const Text('Уведомления'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/notifications');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.bookmark_outline),
+                title: const Text('Сохраненное'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _tabController.animateTo(1);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Настройки'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Настройки (в разработке)'),
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.help_outline),
+                title: const Text('Помощь'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Помощь (в разработке)'),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: const Text('Политика конфиденциальности'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Политика конфиденциальности'),
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: Icon(Icons.logout, color: Colors.red[700]),
+                title: Text(
+                  'Выйти',
+                  style: TextStyle(color: Colors.red[700]),
                 ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLogoutDialog(context);
+                },
+              ),
+            ],
           ),
-        ),
-        ...items.map((item) => ListTile(
-              leading: Icon(item.icon),
-              title: Text(item.title),
-              subtitle: item.subtitle != null ? Text(item.subtitle!) : null,
-              trailing: item.trailing ?? const Icon(Icons.chevron_right),
-              onTap: item.onTap,
-            )),
-      ],
+        );
+      },
     );
   }
-}
 
-class _MenuItem {
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final VoidCallback onTap;
-
-  _MenuItem({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    required this.onTap,
-  });
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Выйти из аккаунта?'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/login');
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red[700],
+            ),
+            child: const Text('Выйти'),
+          ),
+        ],
+      ),
+    );
+  }
 }

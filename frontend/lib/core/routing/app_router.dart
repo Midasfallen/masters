@@ -8,6 +8,7 @@ import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/feed/screens/feed_screen.dart';
+import '../../features/feed/screens/post_detail_screen.dart';
 import '../../features/search/screens/search_screen.dart';
 import '../../features/chats/screens/chats_list_screen.dart';
 import '../../features/chats/screens/chat_screen.dart';
@@ -56,10 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'postDetail',
             builder: (context, state) {
               final postId = state.pathParameters['id']!;
-              return Scaffold(
-                appBar: AppBar(title: const Text('Post')),
-                body: Center(child: Text('Post Detail: $postId')),
-              );
+              return PostDetailScreen(postId: postId);
             },
           ),
 

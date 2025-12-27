@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 void main() {
+  // Configure timeago for Russian locale
+  timeago.setLocaleMessages('ru', timeago.RuMessages());
+
   runApp(
     const ProviderScope(
       child: ServicePlatformApp(),
