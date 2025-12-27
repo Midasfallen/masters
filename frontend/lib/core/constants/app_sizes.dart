@@ -37,8 +37,11 @@ class AppSizes {
   // Bottom navigation
   static const double bottomNavHeight = 80.0;
 
-  // Card elevation
-  static const double elevationSm = 1.0;
-  static const double elevationMd = 2.0;
-  static const double elevationLg = 3.0;
+  // Elevation levels (Material Design)
+  static const double elevation0 = 0.0;
+  static const double elevation1 = 1.0;
+  static const double elevation2 = 3.0;
+  static const double elevation3 = 6.0;
+  static const double elevation4 = 8.0;
+  static const double elevation5 = 12.0;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app.dart';
 import '../../../shared/models/master.dart';
 import '../../../shared/widgets/master_card.dart';
 import '../../../shared/widgets/category_chip.dart';
@@ -14,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _selectedCategory;
-  final Set<String> _favoriteIds = {};
 
   List<Master> get _filteredMasters {
     if (_selectedCategory == null) return mockMasters;
@@ -140,19 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final master = _filteredMasters[index];
+                    final favoritesNotifier = FavoritesNotifier.of(context);
                     return MasterCard(
                       master: master,
-                      isFavorite: _favoriteIds.contains(master.id),
+                      isFavorite: favoritesNotifier?.favoriteIds.contains(master.id) ?? false,
                       onTap: () => context.go('/master/${master.id}'),
-                      onFavorite: () {
-                        setState(() {
-                          if (_favoriteIds.contains(master.id)) {
-                            _favoriteIds.remove(master.id);
-                          } else {
-                            _favoriteIds.add(master.id);
-                          }
-                        });
-                      },
+                      onFavorite: () => favoritesNotifier?.toggleFavorite(master.id),
                     );
                   },
                   childCount: _filteredMasters.length,

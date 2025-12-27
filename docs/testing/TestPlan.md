@@ -1,30 +1,53 @@
 # TEST PLAN - Платформа Service
 
-**Версия:** 1.0
+**Версия:** 2.0
 **Дата:** Декабрь 2025
+
+---
+
+## Обзор v2.0
+
+Тестовый план расширен для покрытия **социальной платформы** с real-time функциями.
+
+**Новые области тестирования v2.0:**
+- 📱 Feed с алгоритмом ранжирования (производительность, персонализация)
+- 💬 WebSocket чаты с real-time доставкой (8 типов сообщений)
+- ❤️ Социальные взаимодействия (лайки, комментарии, репосты)
+- 👥 Друзья и подписки (двусторонние/односторонние связи)
+- 🔔 Система уведомлений (11 типов, FCM/APNs)
+- 🤖 Автопредложения мастеров (алгоритм Match %)
+- ⭐ Обязательные отзывы с блокировкой
+
+**Увеличение тест-кейсов:** 50 базовых (v1.0) + 80 новых (v2.0) = **130 тест-кейсов**
 
 ---
 
 ## 1. Цели тестирования
 
 ### 1.1 Основные цели
-- Обеспечить качество продукта перед MVP запуском
-- Верифицировать все функциональные требования
-- Гарантировать производительность и безопасность
+- Обеспечить качество продукта перед запуском v2.0
+- Верифицировать все функциональные требования (v1.0 + v2.0)
+- Гарантировать производительность Feed и WebSocket под нагрузкой
+- Протестировать real-time функции на стабильность
 - Минимизировать критические баги в production
 
-### 1.2 Целевые метрики качества
+### 1.2 Целевые метрики качества v2.0
 
-| Метрика | Цель MVP | Метод измерения |
-|---------|----------|-----------------|
-| **Backend Test Coverage** | > 80% | Jest coverage report |
+| Метрика | Цель v2.0 | Метод измерения |
+|---------|-----------|-----------------|
+| **Backend Test Coverage** | > 85% | Jest coverage report |
 | **Critical Paths Coverage** | 100% | Manual tracking |
-| **Flutter Test Coverage** | > 70% | Flutter test coverage |
-| **E2E Tests** | 10+ scenarios | Automated E2E suite |
+| **Flutter Test Coverage** | > 75% | Flutter test coverage |
+| **E2E Tests** | 18+ scenarios | Automated E2E suite |
 | **Critical Bugs** | 0 | Bug tracking |
-| **Major Bugs** | < 5 | Bug tracking |
-| **API Response Time** | < 200ms (95th percentile) | Load testing |
+| **Major Bugs** | < 3 | Bug tracking |
+| **API Response Time** | < 200ms (p95) | Load testing |
+| **Feed Load Time** | < 200ms (p95) | Performance monitoring |
+| **WebSocket Latency** | < 100ms (p95) | Real-time monitoring |
+| **WebSocket Uptime** | > 99.5% | Monitoring |
+| **Message Delivery Rate** | > 99.9% | Message tracking |
 | **UI Performance** | 60 FPS | Profiling |
+| **Feed Scroll FPS** | > 55 FPS | Performance profiling |
 
 ---
 
@@ -95,6 +118,67 @@
 - ✅ Content moderation
 - ✅ Dashboard stats calculation
 
+**Posts/Feed Module (v2.0):**
+- ✅ Создание постов с медиафайлами
+- ✅ Валидация лимитов (макс 10 фото, 3 видео)
+- ✅ Алгоритм ранжирования Feed
+- ✅ Персонализация Feed по геолокации
+- ✅ Кэширование Feed в Redis
+- ✅ Упоминания (@mentions)
+- ✅ Теги услуг в постах
+
+**Likes Module (v2.0):**
+- ✅ Лайк/анлайк постов
+- ✅ Подсчет лайков
+- ✅ Проверка дублей (один лайк на пост)
+- ✅ Уведомления о лайках
+
+**Comments Module (v2.0):**
+- ✅ Создание комментариев
+- ✅ Вложенные комментарии (replies)
+- ✅ Упоминания в комментариях
+- ✅ Удаление комментариев
+- ✅ Подсчет комментариев
+
+**Friends/Subscriptions Module (v2.0):**
+- ✅ Отправка запроса в друзья
+- ✅ Принятие/отклонение запроса
+- ✅ Двусторонняя связь друзей
+- ✅ Подписки (односторонние)
+- ✅ Отписка
+- ✅ Блокировка пользователей
+
+**Real-time Chat Module (v2.0):**
+- ✅ WebSocket подключение и авторизация
+- ✅ Отправка 8 типов сообщений
+- ✅ Доставка сообщений (sent → delivered → read)
+- ✅ Typing indicator
+- ✅ Online/offline статусы
+- ✅ Redis Pub/Sub для масштабирования
+- ✅ Reconnection logic
+
+**Notifications Module (v2.0):**
+- ✅ Создание 11 типов уведомлений
+- ✅ Приоритизация (важные vs обычные)
+- ✅ Батчинг неважных уведомлений
+- ✅ Отправка через FCM/APNs
+- ✅ Fallback chain (WebSocket → Push → Email)
+- ✅ Дедупликация
+- ✅ Настройки уведомлений пользователя
+
+**Auto Proposals Module (v2.0):**
+- ✅ Алгоритм Match % (категория, гео, цена, рейтинг)
+- ✅ Генерация предложений для клиента
+- ✅ Принятие/отклонение предложений
+- ✅ Feedback loop для улучшения алгоритма
+- ✅ Премиум-подписка проверка
+
+**Favorites Module (v2.0):**
+- ✅ Добавление в избранное
+- ✅ Удаление из избранного
+- ✅ Список избранных мастеров
+- ✅ Уведомления об избранных мастерах
+
 #### Примеры Unit Tests:
 
 ```typescript
@@ -140,6 +224,101 @@ describe('BookingService', () => {
       { start: '09:30', end: '10:00', available: false },  // booked
       // ...
     ]);
+  });
+});
+
+// feed.service.spec.ts (v2.0)
+describe('FeedService', () => {
+  describe('calculateFeedScore', () => {
+    it('should rank posts by algorithm correctly', () => {
+      const score = feedService.calculateScore({
+        post_created_at: new Date('2026-01-15T10:00:00Z'),
+        user_city: 'Moscow',
+        master_city: 'Moscow',
+        likes_count: 50,
+        comments_count: 10,
+        is_subscribed: true,
+        user_interests: ['beauty', 'nails'],
+        post_categories: ['nails']
+      });
+
+      // Score = 0.4*geo + 0.25*freshness + 0.2*popularity + 0.1*subscription + 0.05*category
+      expect(score).toBeGreaterThan(0.7);
+    });
+  });
+
+  describe('getFeed', () => {
+    it('should return cached feed if available', async () => {
+      const userId = 'user-123';
+      await redisClient.set(`feed:${userId}`, JSON.stringify(mockFeed));
+
+      const feed = await feedService.getFeed(userId, { page: 1, limit: 20 });
+
+      expect(feed).toEqual(mockFeed);
+      expect(redisClient.get).toHaveBeenCalledWith(`feed:${userId}`);
+    });
+  });
+});
+
+// websocket.service.spec.ts (v2.0)
+describe('WebSocketService', () => {
+  it('should deliver message with status tracking', async () => {
+    const message = await websocketService.sendMessage({
+      chat_id: 'chat-uuid',
+      sender_id: 'user-1',
+      type: 'text',
+      content: 'Hello!'
+    });
+
+    expect(message.status).toBe('sent');
+
+    // Simulate delivery
+    await websocketService.markAsDelivered(message.id);
+    const updated = await messageRepo.findOne(message.id);
+
+    expect(updated.status).toBe('delivered');
+    expect(updated.delivered_at).toBeDefined();
+  });
+
+  it('should send typing indicator to room', async () => {
+    const spy = jest.spyOn(socketServer.to('chat-uuid'), 'emit');
+
+    await websocketService.sendTypingIndicator({
+      chat_id: 'chat-uuid',
+      user_id: 'user-1',
+      is_typing: true
+    });
+
+    expect(spy).toHaveBeenCalledWith('typing:start', {
+      chat_id: 'chat-uuid',
+      user_id: 'user-1'
+    });
+  });
+});
+
+// notifications.service.spec.ts (v2.0)
+describe('NotificationsService', () => {
+  it('should batch non-urgent notifications', async () => {
+    // Create 5 non-urgent notifications
+    for (let i = 0; i < 5; i++) {
+      await notificationService.create({
+        user_id: 'user-1',
+        type: 'like',
+        priority: 'normal'
+      });
+    }
+
+    // Should not send immediately
+    expect(fcmService.send).not.toHaveBeenCalled();
+
+    // After 1 hour, should batch and send
+    jest.advanceTimersByTime(60 * 60 * 1000);
+
+    expect(fcmService.send).toHaveBeenCalledTimes(1);
+    expect(fcmService.send).toHaveBeenCalledWith({
+      title: 'You have 5 new notifications',
+      body: '...'
+    });
   });
 });
 ```
@@ -348,6 +527,92 @@ testWidgets('Complete booking flow', (tester) async {
 4. Verify categories translated
 5. Search works in Russian
 
+**Scenario 11: Feed Scrolling & Liking (v2.0)**
+1. Login as client
+2. Open Feed (main screen)
+3. Scroll through posts
+4. Like a post
+5. Verify like count increased
+6. Unlike the post
+7. Verify like count decreased
+8. Tap on post to view details
+9. Leave comment
+10. Verify comment appears
+
+**Scenario 12: Friends Request Flow (v2.0)**
+1. Login as User A
+2. Search for User B
+3. Send friend request
+4. Logout
+5. Login as User B
+6. See friend request notification
+7. Accept friend request
+8. Verify friendship status = "friends"
+9. Check User A's friend list
+10. Verify User B appears as friend
+
+**Scenario 13: Real-time Chat (v2.0)**
+1. Login as Client (Device 1)
+2. Login as Master (Device 2)
+3. Client opens chat with Master
+4. Client sends text message
+5. Verify Master receives message in real-time
+6. Master starts typing
+7. Verify Client sees "typing..." indicator
+8. Master sends image message
+9. Verify Client sees image
+10. Check message statuses: sent → delivered → read
+
+**Scenario 14: Mandatory Review Blocking (v2.0)**
+1. Client has completed booking
+2. Try to create new booking
+3. Verify blocked with "Leave review first" message
+4. Leave review for completed booking
+5. Try to create new booking again
+6. Verify booking created successfully
+
+**Scenario 15: Auto Proposals (v2.0)**
+1. Client subscribes to Premium
+2. Enable auto-proposals in settings
+3. System generates 3 proposals
+4. Client receives notification
+5. View proposals list
+6. Accept one proposal
+7. Verify booking created with accepted master
+8. Decline another proposal
+9. Verify proposal removed from list
+
+**Scenario 16: Feed → Booking Conversion (v2.0)**
+1. Client scrolls Feed
+2. Sees master's post with great work
+3. Taps "Book" button on post
+4. Select service
+5. Choose time slot
+6. Complete booking
+7. Verify booking created
+8. Verify master receives notification
+
+**Scenario 17: Notifications Settings (v2.0)**
+1. Open Settings
+2. Navigate to Notifications
+3. Disable "Likes" notifications
+4. Someone likes user's post
+5. Verify NO push notification sent
+6. Enable "Messages" notifications
+7. Receive new message
+8. Verify push notification sent
+
+**Scenario 18: Post Creation with Media (v2.0)**
+1. Login as Master
+2. Tap "Create Post"
+3. Upload 5 photos
+4. Add description
+5. Tag 2 services
+6. Mention another master
+7. Publish post
+8. Verify post appears in Feed
+9. Verify mentioned user receives notification
+
 ---
 
 ## 3. Нефункциональное тестирование
@@ -366,10 +631,31 @@ testWidgets('Complete booking flow', (tester) async {
 | **Stress Test** | 2000 | 3 min | 300+ | Identify breaking point |
 
 **Key Endpoints to Test:**
-- `GET /search/masters` - Most frequent
+- `GET /posts/feed` - Most frequent (v2.0, critical performance)
+- `GET /search/masters` - Frequent
 - `POST /bookings` - Critical path
-- `GET /feed` - Heavy query
-- `WebSocket /ws` - Concurrent connections
+- `POST /posts/:id/like` - High volume (v2.0)
+- `POST /posts/:id/comments` - Moderate volume (v2.0)
+- `WebSocket /ws` - Concurrent connections (v2.0, stress test)
+
+**WebSocket Load Testing (v2.0):**
+
+| Scenario | Connections | Duration | Messages/sec | Success Criteria |
+|----------|-------------|----------|--------------|------------------|
+| **Baseline** | 1,000 | 10 min | 50 | < 100ms latency, 0 drops |
+| **Normal** | 5,000 | 15 min | 200 | < 150ms latency, < 0.1% drops |
+| **Peak** | 10,000 | 10 min | 500 | < 200ms latency, < 1% drops |
+| **Stress** | 20,000 | 5 min | 1000+ | Identify breaking point |
+
+**Feed Performance Testing (v2.0):**
+
+| Test | Target | Tools | Success Criteria |
+|------|--------|-------|------------------|
+| **Algorithm Speed** | Score calculation | Benchmarks | < 50ms per post |
+| **Feed Load** | GET /posts/feed | k6 | < 200ms (p95) |
+| **Cache Hit Rate** | Redis cache | Monitoring | > 80% hits |
+| **DB Query Time** | PostgreSQL | Explain Analyze | < 100ms |
+| **Scroll Performance** | Infinite scroll | Flutter DevTools | > 55 FPS |
 
 **Frontend Performance:**
 - Lighthouse score > 90
@@ -577,55 +863,77 @@ Critical / High / Medium / Low
 
 ---
 
-## 7. Acceptance Criteria (MVP Launch)
+## 7. Acceptance Criteria (v2.0 Launch)
 
 ### 7.1 Functional Criteria
 
-✅ **All Must-Have Features Working:**
-- [ ] 45/45 Must-have user stories completed
+✅ **All Must-Have Features Working (v1.0 + v2.0):**
+- [ ] 98/98 Must-have user stories completed
 - [ ] All critical user flows tested and working
 - [ ] No blockers for core functionality
+- [ ] Feed algorithm working and personalized
+- [ ] WebSocket real-time messaging stable
+- [ ] Notifications delivered reliably
 
 ### 7.2 Quality Criteria
 
 ✅ **Test Coverage:**
-- [ ] Backend coverage > 80%
-- [ ] Frontend coverage > 70%
-- [ ] 10+ E2E scenarios passing
+- [ ] Backend coverage > 85%
+- [ ] Frontend coverage > 75%
+- [ ] 18+ E2E scenarios passing
+- [ ] 130+ test cases executed
 
 ✅ **Bugs:**
 - [ ] 0 critical bugs
-- [ ] < 5 high severity bugs
-- [ ] < 20 medium severity bugs
+- [ ] < 3 high severity bugs
+- [ ] < 15 medium severity bugs
 - [ ] Low bugs documented in backlog
 
 ✅ **Performance:**
 - [ ] API p95 < 200ms
+- [ ] Feed load < 200ms (p95)
+- [ ] WebSocket latency < 100ms (p95)
+- [ ] Message delivery rate > 99.9%
 - [ ] Search < 100ms
 - [ ] Frontend 60 FPS
+- [ ] Feed scroll > 55 FPS
 - [ ] Lighthouse score > 90
 
 ✅ **Security:**
 - [ ] All OWASP Top 10 mitigated
 - [ ] Security audit passed
 - [ ] No HIGH vulnerabilities in dependencies
+- [ ] WebSocket connections secured (JWT)
+- [ ] Rate limiting on all endpoints
 
 ✅ **Compatibility:**
 - [ ] Works on iOS 13+
 - [ ] Works on Android 8+
 - [ ] Works on Chrome, Safari, Firefox, Edge
 
+✅ **Real-time (v2.0):**
+- [ ] WebSocket uptime > 99.5%
+- [ ] Message delivery < 1 sec
+- [ ] Typing indicators working
+- [ ] Online/offline status accurate
+- [ ] Reconnection logic tested
+
 ---
 
 ## 8. Связанные документы
 
-- [Requirements](../analysis/Requirements.md) - Требования
-- [Technical Specification](../technical/TechSpec.md) - Техническое задание
-- [API Specification](../technical/API.md) - API спецификация
-- [Roadmap](../analysis/Roadmap.md) - Дорожная карта
+- [Requirements](../analysis/Requirements.md) - Требования v2.0
+- [Technical Specification](../technical/TechSpec.md) - Техническая спецификация v2.0
+- [API Specification](../technical/API.md) - API спецификация v2.0 (165 endpoints)
+- [Database Schema](../technical/Database.md) - Схема БД v2.0 (29 таблиц)
+- [User Stories](../business/UserStories.md) - User Stories v2.0 (148 историй)
+- [Test Cases](./TestCases.md) - Детальные тест-кейсы v2.0
+- [Roadmap](../analysis/Roadmap.md) - Дорожная карта v2.0
 
 ---
 
-**Статус:** Утверждён
+**Статус:** ✅ Утверждён (v2.0)
 **Последнее обновление:** Декабрь 2025
-**Следующий пересмотр:** Перед началом Phase 5 (Testing)
+**Следующий пересмотр:** Перед началом Phase 5 (Testing v2.0)
+**Тест-кейсов:** 130 (50 v1.0 + 80 v2.0)
+**E2E сценариев:** 18 (10 v1.0 + 8 v2.0)

@@ -11,11 +11,17 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  int get _currentIndex {
+    final location = GoRouterState.of(context).matchedLocation;
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/search')) return 1;
+    if (location.startsWith('/favorites')) return 2;
+    if (location.startsWith('/bookings')) return 3;
+    if (location.startsWith('/profile')) return 4;
+    return 0;
+  }
 
   void _onDestinationSelected(int index) {
-    setState(() => _currentIndex = index);
-
     switch (index) {
       case 0:
         context.go('/home');

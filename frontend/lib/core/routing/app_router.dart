@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
 import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
-import '../../features/home/screens/home_screen.dart';
+import '../../features/feed/screens/feed_screen.dart';
+import '../../features/feed/screens/post_detail_screen.dart';
 import '../../features/search/screens/search_screen.dart';
+import '../../features/chats/screens/chats_list_screen.dart';
+import '../../features/chats/screens/chat_screen.dart';
+import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/favorites/screens/favorites_screen.dart';
 import '../../features/bookings/screens/bookings_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/master/screens/master_profile_screen.dart';
-import '../../shared/widgets/main_navigation.dart';
+import '../../shared/widgets/main_navigation_screen.dart';
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
-    initialLocation: '/splash',
+final appRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/', // v2.0: сразу на Feed
+    debugLogDiagnostics: true,
     routes: [
       // Auth routes
       GoRoute(
@@ -39,41 +46,74 @@ class AppRouter {
         builder: (context, state) => const RegisterScreen(),
       ),
 
-      // Main app routes with bottom navigation
-      ShellRoute(
-        builder: (context, state, child) => MainNavigation(child: child),
+      // Main app route (v2.0 with bottom navigation)
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const MainNavigationScreen(),
         routes: [
+          // Post detail
           GoRoute(
-            path: '/home',
-            builder: (context, state) => const HomeScreen(),
+            path: 'post/:id',
+            name: 'postDetail',
+            builder: (context, state) {
+              final postId = state.pathParameters['id']!;
+              return PostDetailScreen(postId: postId);
+            },
           ),
+
+          // Chat
           GoRoute(
-            path: '/search',
-            builder: (context, state) => const SearchScreen(),
+            path: 'chat/:id',
+            name: 'chat',
+            builder: (context, state) {
+              final chatId = state.pathParameters['id']!;
+              return ChatScreen(chatId: chatId);
+            },
           ),
+
+          // Notifications
           GoRoute(
-            path: '/favorites',
-            builder: (context, state) => const FavoritesScreen(),
+            path: 'notifications',
+            name: 'notifications',
+            builder: (context, state) => const NotificationsScreen(),
           ),
+
+          // User profile
           GoRoute(
-            path: '/bookings',
-            builder: (context, state) => const BookingsScreen(),
+            path: 'user/:id',
+            name: 'userProfile',
+            builder: (context, state) {
+              final userId = state.pathParameters['id']!;
+              return Scaffold(
+                appBar: AppBar(title: const Text('Profile')),
+                body: Center(child: Text('User Profile: $userId')),
+              );
+            },
           ),
+
+          // Master profile
           GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
+            path: 'master/:id',
+            name: 'masterProfile',
+            builder: (context, state) {
+              final masterId = state.pathParameters['id']!;
+              return MasterProfileScreen(masterId: masterId);
+            },
           ),
         ],
       ),
-
-      // Master profile (outside navigation)
-      GoRoute(
-        path: '/master/:id',
-        builder: (context, state) {
-          final masterId = state.pathParameters['id']!;
-          return MasterProfileScreen(masterId: masterId);
-        },
-      ),
     ],
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64),
+            const SizedBox(height: 16),
+            Text('Page not found: ${state.uri}'),
+          ],
+        ),
+      ),
+    ),
   );
-}
+});

@@ -1,37 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app.dart';
 import '../../../shared/models/master.dart';
 import '../../../shared/widgets/master_card.dart';
 import '../../../data/mock/mock_masters.dart';
 
-class FavoritesScreen extends StatefulWidget {
+class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
-
-  @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
-}
-
-class _FavoritesScreenState extends State<FavoritesScreen> {
-  // Mock favorites - first 3 masters
-  final Set<String> _favoriteIds = {
-    mockMasters[0].id,
-    mockMasters[1].id,
-    mockMasters[2].id,
-  };
-
-  List<Master> get _favoriteMasters {
-    return mockMasters.where((m) => _favoriteIds.contains(m.id)).toList();
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final favoritesNotifier = FavoritesNotifier.of(context);
+    final favoriteIds = favoritesNotifier?.favoriteIds ?? {};
+
+    final favoriteMasters = mockMasters
+        .where((m) => favoriteIds.contains(m.id))
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Избранное'),
       ),
-      body: _favoriteMasters.isEmpty
+      body: favoriteMasters.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -66,27 +57,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _favoriteMasters.length,
+              itemCount: favoriteMasters.length,
               itemBuilder: (context, index) {
-                final master = _favoriteMasters[index];
+                final master = favoriteMasters[index];
                 return MasterCard(
                   master: master,
                   isFavorite: true,
                   onTap: () => context.go('/master/${master.id}'),
                   onFavorite: () {
-                    setState(() {
-                      _favoriteIds.remove(master.id);
-                    });
+                    favoritesNotifier?.toggleFavorite(master.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${master.name} удален из избранного'),
                         action: SnackBarAction(
                           label: 'Отменить',
-                          onPressed: () {
-                            setState(() {
-                              _favoriteIds.add(master.id);
-                            });
-                          },
+                          onPressed: () => favoritesNotifier?.toggleFavorite(master.id),
                         ),
                       ),
                     );

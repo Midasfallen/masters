@@ -12,6 +12,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
@@ -22,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -109,6 +111,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Телефон',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    hintText: '+7 (XXX) XXX-XX-XX',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Введите номер телефона';
+                    }
+                    if (value.length < 10) {
+                      return 'Введите корректный номер телефона';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
@@ -131,8 +152,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Введите пароль';
                     }
-                    if (value.length < 6) {
-                      return 'Пароль должен быть не менее 6 символов';
+                    if (value.length < 8) {
+                      return 'Пароль должен быть не менее 8 символов';
+                    }
+                    if (!RegExp(r'[0-9]').hasMatch(value)) {
+                      return 'Пароль должен содержать хотя бы одну цифру';
+                    }
+                    if (!RegExp(r'[a-zA-Z]').hasMatch(value)) {
+                      return 'Пароль должен содержать хотя бы одну букву';
                     }
                     return null;
                   },
