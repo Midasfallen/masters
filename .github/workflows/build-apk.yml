@@ -43,31 +43,30 @@ jobs:
             echo "✅ Android platform files already exist"
           fi
 
-      - name: Update Kotlin version
+      - name: Update Kotlin and Gradle versions
         working-directory: ./frontend
         run: |
-          echo "Updating Kotlin to 1.9.22 for compatibility..."
+          echo "Updating Kotlin and Gradle for compatibility..."
 
-          # Update settings.gradle (Flutter 3.19+)
+          # Update Kotlin in settings.gradle (Flutter 3.19+)
           if [ -f "android/settings.gradle" ]; then
             sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/g' android/settings.gradle
             echo "✅ Updated Kotlin in settings.gradle"
           fi
 
-          # Update build.gradle (older Flutter versions)
+          # Update Kotlin in build.gradle (older Flutter versions)
           if [ -f "android/build.gradle" ]; then
             sed -i "s/ext.kotlin_version = '[^']*'/ext.kotlin_version = '1.9.22'/g" android/build.gradle
             echo "✅ Updated Kotlin in build.gradle"
           fi
 
-          echo "✅ Kotlin version updated successfully"
+          # Update Gradle wrapper to 8.3
+          if [ -f "android/gradle/wrapper/gradle-wrapper.properties" ]; then
+            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.3-all.zip|g' android/gradle/wrapper/gradle-wrapper.properties
+            echo "✅ Updated Gradle wrapper to 8.3"
+          fi
 
-      - name: Update Gradle version
-        working-directory: ./frontend/android
-        run: |
-          echo "Updating Gradle wrapper to 8.3..."
-          ./gradlew wrapper --gradle-version 8.3 --distribution-type all
-          echo "✅ Gradle wrapper updated to 8.3"
+          echo "✅ Kotlin and Gradle versions updated successfully"
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
