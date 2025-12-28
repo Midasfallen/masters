@@ -5,6 +5,17 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF405DE6);
   static const Color secondaryColor = Color(0xFF5851DB);
 
+  // Gradient for splash screen and other decorative elements
+  static const LinearGradient primaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      primaryColor,
+      secondaryColor,
+      Color(0xFF833AB4),
+    ],
+  );
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -228,4 +239,7 @@ class AppTheme {
       scaffoldBackgroundColor: Colors.black,
     );
   }
+
+  // Custom theme (same as light theme for now)
+  static ThemeData get customTheme => lightTheme;
 }
