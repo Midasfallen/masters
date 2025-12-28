@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
 
-class ServicePlatformApp extends StatefulWidget {
+class ServicePlatformApp extends ConsumerStatefulWidget {
   const ServicePlatformApp({super.key});
 
   @override
-  State<ServicePlatformApp> createState() => _ServicePlatformAppState();
+  ConsumerState<ServicePlatformApp> createState() => _ServicePlatformAppState();
 }
 
-class _ServicePlatformAppState extends State<ServicePlatformApp> {
+class _ServicePlatformAppState extends ConsumerState<ServicePlatformApp> {
   ThemeMode _themeMode = ThemeMode.light;
   String _themeName = 'light';
   final Set<String> _favoriteIds = {};
@@ -69,6 +70,8 @@ class _ServicePlatformAppState extends State<ServicePlatformApp> {
 
   @override
   Widget build(BuildContext context) {
+    final router = ref.watch(appRouterProvider);
+
     return MaterialApp.router(
       title: 'Service Platform',
       debugShowCheckedModeBanner: false,
@@ -77,7 +80,7 @@ class _ServicePlatformAppState extends State<ServicePlatformApp> {
           : AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
-      routerConfig: AppRouter.router,
+      routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
