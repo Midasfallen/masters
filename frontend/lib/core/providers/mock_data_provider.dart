@@ -84,6 +84,7 @@ final mockChatsProvider = Provider<List<Chat>>((ref) {
       unreadCount: random.nextInt(5),
       updatedAt: lastMessageTime,
       isOnline: random.nextBool(),
+      isPinned: index < 2, // First 2 chats are pinned
     );
   });
 });

@@ -15,6 +15,7 @@ class Chat with _$Chat {
     required int unreadCount,
     required DateTime updatedAt,
     bool? isOnline,
+    @Default(false) bool isPinned,
   }) = _Chat;
 
   factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
