@@ -11,6 +11,7 @@ import { MastersModule } from './modules/masters/masters.module';
 import { ServicesModule } from './modules/services/services.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -33,6 +34,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     ServicesModule,
     BookingsModule,
     CategoriesModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [
