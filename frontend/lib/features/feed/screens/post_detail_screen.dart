@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../core/models/post.dart';
@@ -19,420 +20,520 @@ class PostDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
-  final PageController _pageController = PageController();
-  int _currentImageIndex = 0;
+  final PageController _mediaController = PageController();
+  final PageController _postsController = PageController();
+  int _currentMediaIndex = 0;
+  int _currentPostIndex = 0;
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _mediaController.dispose();
+    _postsController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(mockPostsProvider);
-    final post = posts.firstWhere(
-      (p) => p.id == widget.postId,
-      orElse: () => posts.first,
-    );
+    final initialIndex = posts.indexWhere((p) => p.id == widget.postId);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          // AppBar
-          SliverAppBar(
-            title: Text(post.masterName),
-            pinned: true,
-          ),
-
-          // Post content
-          SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Images carousel
-                _buildImagesCarousel(post),
-
-                // Actions (like, comment, share)
-                _buildActions(post),
-
-                // Likes count
-                if (post.likesCount > 0)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '${post.likesCount} ${_pluralizeLikes(post.likesCount)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-
-                // Master info + description
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundImage: CachedNetworkImageProvider(
-                          post.masterAvatar,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: post.masterName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const TextSpan(text: ' '),
-                              TextSpan(text: post.description),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Tags
-                if (post.tags != null && post.tags!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: post.tags!
-                          .map((tag) => Text(
-                                '#$tag',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blue[700],
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-
-                // Time
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    timeago.format(post.createdAt, locale: 'ru'),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                const Divider(height: 1),
-
-                // Comments header
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Комментарии (${post.commentsCount})',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Comments list (mock)
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return _buildCommentTile(index);
-              },
-              childCount: post.commentsCount.clamp(0, 10),
-            ),
-          ),
-
-          // Bottom padding
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 80),
-          ),
-        ],
-      ),
-
-      // Comment input
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 12,
-          bottom: 12 + MediaQuery.of(context).padding.bottom,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Добавить комментарий...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(
-                Icons.send,
-                color: Theme.of(context).primaryColor,
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Комментарий (в разработке)'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+      backgroundColor: Colors.black,
+      body: PageView.builder(
+        controller: _postsController,
+        scrollDirection: Axis.vertical,
+        itemCount: posts.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentPostIndex = index;
+            _currentMediaIndex = 0;
+          });
+        },
+        itemBuilder: (context, postIndex) {
+          final post = posts[postIndex];
+          return _buildPostPage(post);
+        },
       ),
     );
   }
 
-  Widget _buildImagesCarousel(Post post) {
-    if (post.mediaUrls.length == 1) {
-      return CachedNetworkImage(
-        imageUrl: post.mediaUrls.first,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: 400,
-      );
-    }
-
-    return Column(
+  Widget _buildPostPage(Post post) {
+    return Stack(
       children: [
-        SizedBox(
-          height: 400,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: post.mediaUrls.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentImageIndex = index;
-              });
-            },
-            itemBuilder: (context, index) {
-              return CachedNetworkImage(
-                imageUrl: post.mediaUrls[index],
-                fit: BoxFit.cover,
-                width: double.infinity,
-              );
-            },
-          ),
+        // Full-screen media
+        Positioned.fill(
+          child: post.mediaUrls.length > 1
+              ? PageView.builder(
+                  controller: _mediaController,
+                  itemCount: post.mediaUrls.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentMediaIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return _buildMediaItem(post.mediaUrls[index]);
+                  },
+                )
+              : _buildMediaItem(post.mediaUrls.first),
         ),
-        const SizedBox(height: 8),
-        // Image indicator
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            post.mediaUrls.length,
-            (index) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: 6,
-              height: 6,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _currentImageIndex == index
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey[300],
+
+        // Top gradient overlay
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: 120,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.6),
+                  Colors.transparent,
+                ],
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8),
+
+        // Back button
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 8,
+          left: 8,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+        ),
+
+        // Media indicator (if multiple images)
+        if (post.mediaUrls.length > 1)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_currentMediaIndex + 1}/${post.mediaUrls.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+        // Right action buttons (vertical)
+        Positioned(
+          right: 12,
+          bottom: 160,
+          child: Column(
+            children: [
+              _buildActionButton(
+                icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
+                label: '${post.likesCount}',
+                color: post.isLiked ? Colors.red : Colors.white,
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(post.isLiked ? 'Лайк убран' : 'Лайк'),
+                      duration: const Duration(milliseconds: 500),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: Icons.chat_bubble_outline,
+                label: '${post.commentsCount}',
+                onTap: _showComments,
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: Icons.share_outlined,
+                label: '',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Поделиться'),
+                      duration: Duration(milliseconds: 500),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: Icons.bookmark_border,
+                label: '',
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Сохранено'),
+                      duration: Duration(milliseconds: 500),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // Bottom gradient overlay
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.9),
+                  Colors.black.withValues(alpha: 0.7),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 80,
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Master info
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: CachedNetworkImageProvider(
+                        post.masterAvatar,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        post.masterName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Подписались на ${post.masterName}'),
+                            duration: const Duration(milliseconds: 800),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        minimumSize: Size.zero,
+                      ),
+                      child: const Text('Подписаться'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Description
+                Text(
+                  post.description,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (post.tags != null && post.tags!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    post.tags!.map((tag) => '#$tag').join(' '),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 16),
+
+                // CTA buttons
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          context.push('/master/${post.masterId}');
+                        },
+                        icon: const Icon(Icons.calendar_today, size: 18),
+                        label: const Text('Записаться'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          context.push('/master/${post.masterId}');
+                        },
+                        icon: const Icon(Icons.person_outline, size: 18),
+                        label: const Text('Мастер'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.white),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildActions(Post post) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
+  Widget _buildMediaItem(String mediaUrl) {
+    return CachedNetworkImage(
+      imageUrl: mediaUrl,
+      fit: BoxFit.contain,
+      width: double.infinity,
+      height: double.infinity,
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      ),
+      errorWidget: (context, url, error) => const Center(
+        child: Icon(Icons.error, color: Colors.white, size: 48),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    Color color = Colors.white,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
         children: [
-          IconButton(
-            icon: Icon(
-              post.isLiked ? Icons.favorite : Icons.favorite_border,
-              color: post.isLiked ? Colors.red : Colors.black,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
             ),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(post.isLiked ? 'Лайк убран' : 'Лайк поставлен'),
-                  duration: const Duration(milliseconds: 500),
-                ),
-              );
-            },
+            child: Icon(
+              icon,
+              color: color,
+              size: 28,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.chat_bubble_outline),
-            onPressed: () {
-              // Scroll to comments
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Поделиться (в разработке)'),
-                ),
-              );
-            },
-          ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.bookmark_border),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Сохранено'),
-                  duration: Duration(milliseconds: 500),
-                ),
-              );
-            },
-          ),
+          if (label.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4,
+                    color: Colors.black,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildCommentTile(int index) {
-    final users = ref.watch(mockUsersProvider);
-    final user = users[index % users.length];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundImage: CachedNetworkImageProvider(user.avatar),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
+  void _showComments() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      user.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${index + 1}ч',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  _getMockComment(index),
-                  style: const TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      'Ответить',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Комментарии',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: 10,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              radius: 18,
+                              backgroundColor: Colors.grey,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Пользователь ${index + 1}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text('Отличная работа! 👏'),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${index + 1}ч',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 12,
+                    bottom: 12 + MediaQuery.of(context).padding.bottom,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Добавить комментарий...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(
+                          Icons.send,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Комментарий отправлен'),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border, size: 16),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onPressed: () {},
-          ),
-        ],
+          );
+        },
       ),
     );
-  }
-
-  String _pluralizeLikes(int count) {
-    if (count % 10 == 1 && count % 100 != 11) {
-      return 'лайк';
-    } else if ([2, 3, 4].contains(count % 10) &&
-        ![12, 13, 14].contains(count % 100)) {
-      return 'лайка';
-    } else {
-      return 'лайков';
-    }
-  }
-
-  String _getMockComment(int index) {
-    final comments = [
-      'Отличная работа! 👏',
-      'Как всегда на высоте!',
-      'Мне очень нравится!',
-      'Где можно записаться?',
-      'Сколько стоит такая услуга?',
-      'Очень профессионально',
-      'Восхитительно! 😍',
-      'А в каком районе работаете?',
-      'Давно искала такого мастера!',
-      'Шикарный результат!',
-    ];
-    return comments[index % comments.length];
   }
 }
