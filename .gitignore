@@ -44,6 +44,31 @@ build/
 *.so
 *.dylib
 
+# Flutter/Dart specific
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/*.g.dart
+frontend/*.freezed.dart
+
+# Flutter coverage
+frontend/coverage/
+
+# Android local files (keep android/ folder itself)
+frontend/android/local.properties
+frontend/android/.gradle/
+frontend/android/captures/
+frontend/android/gradlew
+frontend/android/gradlew.bat
+frontend/android/gradle/wrapper/gradle-wrapper.jar
+frontend/android/app/debug/
+frontend/android/app/profile/
+frontend/android/app/release/
+
 # Temporary files
 tmp/
 temp/
