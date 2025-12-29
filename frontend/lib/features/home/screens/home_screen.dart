@@ -62,12 +62,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          final messenger = ScaffoldMessenger.of(context);
           await Future.delayed(const Duration(seconds: 1));
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Обновлено')),
-            );
-          }
+          if (!mounted) return;
+          messenger.showSnackBar(
+            const SnackBar(content: Text('Обновлено')),
+          );
         },
         child: CustomScrollView(
           slivers: [
