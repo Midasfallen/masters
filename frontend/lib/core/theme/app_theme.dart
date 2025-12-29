@@ -55,7 +55,7 @@ class AppTheme {
       ),
 
       // Tab Bar
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: primaryColor,
         unselectedLabelColor: Colors.grey,
         indicatorColor: primaryColor,
@@ -133,7 +133,7 @@ class AppTheme {
       ),
 
       // Card
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -206,7 +206,7 @@ class AppTheme {
       ),
 
       // Tab Bar
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: primaryColor,
         unselectedLabelColor: Colors.grey,
         indicatorColor: primaryColor,
