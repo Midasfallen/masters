@@ -9,6 +9,7 @@ import '../../../core/models/post.dart';
 import '../../../core/providers/mock_data_provider.dart';
 import '../../../shared/models/service.dart';
 import '../../feed/widgets/post_card.dart';
+import 'category_browser_screen.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -85,6 +86,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           'Поиск',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          // Category browser button
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Каталог услуг',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CategoryBrowserScreen(),
+                ),
+              );
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(100),
           child: Column(
@@ -253,7 +269,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.search,
+              Icons.category_outlined,
               size: 64,
               color: Colors.grey[400],
             ),
@@ -263,6 +279,33 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'или воспользуйтесь каталогом',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CategoryBrowserScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.category),
+              label: const Text('Открыть каталог услуг'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
