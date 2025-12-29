@@ -4,7 +4,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/mock_data_provider.dart';
-import '../../../shared/models/post.dart';
+import '../../../core/models/post.dart';
 import '../widgets/post_card.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
@@ -41,7 +41,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final allPosts = ref.watch(mockPostsProvider);
     final posts = _getFilteredPosts(allPosts);
 
