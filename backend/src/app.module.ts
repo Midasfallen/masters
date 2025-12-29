@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { MastersModule } from './modules/masters/masters.module';
 import { ServicesModule } from './modules/services/services.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -29,6 +30,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     UsersModule,
     MastersModule,
     ServicesModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,0 +1,18 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BookingsService } from './bookings.service';
+import { BookingsController } from './bookings.controller';
+import { Booking } from './entities/booking.entity';
+import { Service } from '../services/entities/service.entity';
+import { User } from '../users/entities/user.entity';
+import { MasterProfile } from '../masters/entities/master-profile.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Booking, Service, User, MasterProfile]),
+  ],
+  controllers: [BookingsController],
+  providers: [BookingsService],
+  exports: [BookingsService],
+})
+export class BookingsModule {}
