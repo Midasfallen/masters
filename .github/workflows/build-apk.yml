@@ -66,6 +66,15 @@ jobs:
             echo "✅ Updated Gradle wrapper to 8.3"
           fi
 
+          # Update compileSdk and targetSdk to 34 (stable version)
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 34/g' android/app/build.gradle
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' android/app/build.gradle
+            sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 34/g' android/app/build.gradle
+            sed -i 's/targetSdkVersion flutter.targetSdkVersion/targetSdkVersion 34/g' android/app/build.gradle
+            echo "✅ Updated compileSdk and targetSdk to 34"
+          fi
+
           echo "✅ Kotlin and Gradle versions updated successfully"
 
       - name: Cache Gradle dependencies
