@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/models/user.dart';
 import '../../../core/models/post.dart';
 import '../../../core/providers/mock_data_provider.dart';
+import '../../../shared/models/service.dart';
 import '../../feed/widgets/post_card.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -25,7 +26,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -60,8 +61,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }).toList();
   }
 
+  List<Service> _getFilteredServices() {
+    final services = ref.watch(mockServicesProvider);
+
+    if (_searchQuery.isEmpty) return services;
+
+    return services.where((s) {
+      return s.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          s.category.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (s.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filteredServices = _getFilteredServices();
     final filteredMasters = _getFilteredMasters();
     final filteredPosts = _getFilteredPosts();
 
@@ -81,7 +95,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Поиск мастеров или постов...',
+                    hintText: 'Поиск услуг, мастеров или постов...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -121,9 +135,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const Icon(Icons.room_service_outlined, size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Услуги'),
+                        if (_searchQuery.isNotEmpty) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${filteredServices.length}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                         const Icon(Icons.people_outline, size: 20),
                         const SizedBox(width: 8),
-                        const Text('Мастера'),
+                        const Text('Пользователи'),
                         if (_searchQuery.isNotEmpty) ...[
                           const SizedBox(width: 4),
                           Container(
@@ -188,13 +233,73 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Masters tab
+          // Services tab
+          _buildServicesTab(filteredServices),
+
+          // Users/Masters tab
           _buildMastersTab(filteredMasters),
 
           // Posts tab
           _buildPostsTab(filteredPosts),
         ],
       ),
+    );
+  }
+
+  Widget _buildServicesTab(List<Service> services) {
+    if (_searchQuery.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Начните поиск услуг',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (services.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Услуги не найдены',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: services.length,
+      itemBuilder: (context, index) {
+        final service = services[index];
+        return _ServiceTile(service: service);
+      },
     );
   }
 
@@ -211,7 +316,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Начните поиск мастеров',
+              'Начните поиск пользователей',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
@@ -234,7 +339,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Мастера не найдены',
+              'Пользователи не найдены',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
@@ -309,6 +414,124 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       padding: const EdgeInsets.all(4),
       itemCount: posts.length,
       itemBuilder: (context, index) => PostCard(post: posts[index]),
+    );
+  }
+}
+
+class _ServiceTile extends StatelessWidget {
+  final Service service;
+
+  const _ServiceTile({required this.service});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        // Navigate to service details or show booking dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Просмотр услуги: ${service.name}')),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            // Service icon
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.room_service,
+                color: Theme.of(context).primaryColor,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name
+                  Text(
+                    service.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+
+                  // Category
+                  Text(
+                    service.category,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+
+                  // Duration and price
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${service.durationMinutes} мин',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        service.price,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Book button
+            FilledButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Запись на услугу: ${service.name}'),
+                  ),
+                );
+              },
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Записаться',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -7,6 +7,8 @@ import '../models/user.dart';
 import '../models/message.dart';
 import '../models/chat.dart';
 import '../models/notification.dart';
+import '../../shared/models/service.dart';
+import '../../data/mock/mock_services.dart';
 
 final faker = Faker();
 final random = Random();
@@ -228,4 +230,9 @@ final unreadMessagesCountProvider = Provider<int>((ref) {
 final unreadNotificationsCountProvider = Provider<int>((ref) {
   final notifications = ref.watch(mockNotificationsProvider);
   return notifications.where((n) => !n.isRead).length;
+});
+
+// Mock Services Provider
+final mockServicesProvider = Provider<List<Service>>((ref) {
+  return mockServices;
 });
