@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/feed/screens/feed_screen.dart';
 import '../../features/search/screens/search_screen.dart';
 import '../../features/chats/screens/chats_list_screen.dart';
 import '../../features/bookings/screens/bookings_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../core/providers/mock_data_provider.dart';
 
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen> {
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
 
   // v2.0 Bottom Navigation: Feed, Search, Chats, Bookings, Profile
@@ -27,6 +29,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final unreadMessages = ref.watch(unreadMessagesCountProvider);
+    final unreadNotifications = ref.watch(unreadNotificationsCountProvider);
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -39,28 +44,44 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             _currentIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),
             selectedIcon: Icon(Icons.grid_view),
             label: 'Feed',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.search_outlined),
             selectedIcon: Icon(Icons.search),
             label: 'Поиск',
           ),
           NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble),
+            icon: Badge(
+              label: Text('$unreadMessages'),
+              isLabelVisible: unreadMessages > 0,
+              child: const Icon(Icons.chat_bubble_outline),
+            ),
+            selectedIcon: Badge(
+              label: Text('$unreadMessages'),
+              isLabelVisible: unreadMessages > 0,
+              child: const Icon(Icons.chat_bubble),
+            ),
             label: 'Чаты',
           ),
           NavigationDestination(
-            icon: Icon(Icons.calendar_today_outlined),
-            selectedIcon: Icon(Icons.calendar_today),
+            icon: Badge(
+              label: Text('$unreadNotifications'),
+              isLabelVisible: unreadNotifications > 0,
+              child: const Icon(Icons.calendar_today_outlined),
+            ),
+            selectedIcon: Badge(
+              label: Text('$unreadNotifications'),
+              isLabelVisible: unreadNotifications > 0,
+              child: const Icon(Icons.calendar_today),
+            ),
             label: 'Записи',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Профиль',

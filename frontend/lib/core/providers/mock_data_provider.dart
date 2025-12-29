@@ -217,3 +217,15 @@ final currentUserProvider = Provider<User>((ref) {
     isFriend: false,
   );
 });
+
+// Unread Messages Count Provider
+final unreadMessagesCountProvider = Provider<int>((ref) {
+  final chats = ref.watch(mockChatsProvider);
+  return chats.fold<int>(0, (sum, chat) => sum + chat.unreadCount);
+});
+
+// Unread Notifications Count Provider
+final unreadNotificationsCountProvider = Provider<int>((ref) {
+  final notifications = ref.watch(mockNotificationsProvider);
+  return notifications.where((n) => !n.isRead).length;
+});
