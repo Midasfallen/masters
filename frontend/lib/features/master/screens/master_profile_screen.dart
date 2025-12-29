@@ -17,8 +17,11 @@ class MasterProfileScreen extends StatefulWidget {
   State<MasterProfileScreen> createState() => _MasterProfileScreenState();
 }
 
-class _MasterProfileScreenState extends State<MasterProfileScreen> {
+class _MasterProfileScreenState extends State<MasterProfileScreen>
+    with SingleTickerProviderStateMixin {
   bool _isFavorite = false;
+  bool _isSubscribed = false;
+  late TabController _tabController;
 
   Master? get _master {
     try {
@@ -26,6 +29,18 @@ class _MasterProfileScreenState extends State<MasterProfileScreen> {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
