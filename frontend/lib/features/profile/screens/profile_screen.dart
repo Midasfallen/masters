@@ -5,6 +5,9 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/mock_data_provider.dart';
+import '../../../shared/widgets/service_card.dart';
+import '../../../shared/widgets/review_card.dart';
+import '../../../data/mock/mock_services.dart';
 import '../../feed/widgets/post_card.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -17,17 +20,34 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _isMaster = false; // Имитация: можно поменять на true для теста
+
+  int get _tabCount => _isMaster ? 4 : 2;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: _tabCount, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _becomeMaster() {
+    setState(() {
+      _isMaster = true;
+      _tabController.dispose();
+      _tabController = TabController(length: _tabCount, vsync: this);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Поздравляем! Теперь вы мастер 🎉'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -151,21 +171,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   ),
                   const SizedBox(height: 20),
 
-                  // Edit Profile Button
+                  // Edit Profile Button or Become Master Button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: OutlinedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Редактировать профиль (в разработке)'),
+                    child: Column(
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Редактировать профиль (в разработке)'),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 36),
                           ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 36),
-                      ),
-                      child: const Text('Редактировать профиль'),
+                          child: const Text('Редактировать профиль'),
+                        ),
+                        if (!_isMaster) ...[
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            onPressed: _becomeMaster,
+                            icon: const Icon(Icons.work_outline),
+                            label: const Text('Стать мастером'),
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 48),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -173,16 +208,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   // Tabs
                   TabBar(
                     controller: _tabController,
-                    tabs: const [
-                      Tab(
-                        icon: Icon(Icons.grid_on),
-                        text: 'Посты',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.bookmark_border),
-                        text: 'Сохраненное',
-                      ),
-                    ],
+                    isScrollable: _isMaster,
+                    tabs: _isMaster
+                        ? const [
+                            Tab(text: 'Посты'),
+                            Tab(text: 'Портфолио'),
+                            Tab(text: 'Услуги'),
+                            Tab(text: 'Отзывы'),
+                          ]
+                        : const [
+                            Tab(
+                              icon: Icon(Icons.grid_on),
+                              text: 'Посты',
+                            ),
+                            Tab(
+                              icon: Icon(Icons.bookmark_border),
+                              text: 'Сохраненное',
+                            ),
+                          ],
                   ),
                 ],
               ),
@@ -191,13 +234,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         },
         body: TabBarView(
           controller: _tabController,
-          children: [
-            // Posts tab
-            _buildPostsTab(userPosts),
-
-            // Saved tab
-            _buildSavedTab(),
-          ],
+          children: _isMaster
+              ? [
+                  // Posts tab
+                  _buildPostsTab(userPosts),
+                  // Portfolio tab
+                  _buildPortfolioTab(),
+                  // Services tab
+                  _buildServicesTab(),
+                  // Reviews tab
+                  _buildReviewsTab(),
+                ]
+              : [
+                  // Posts tab
+                  _buildPostsTab(userPosts),
+                  // Saved tab
+                  _buildSavedTab(),
+                ],
         ),
       ),
     );
@@ -267,6 +320,91 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
+  Widget _buildPortfolioTab() {
+    // Mock portfolio images
+    final portfolio = List.generate(
+      6,
+      (index) => 'https://picsum.photos/400/600?random=${index + 100}',
+    );
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(4),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+      ),
+      itemCount: portfolio.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Просмотр фото ${index + 1}')),
+            );
+          },
+          child: Image.network(
+            portfolio[index],
+            fit: BoxFit.cover,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildServicesTab() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: mockServices.length,
+      itemBuilder: (context, index) {
+        final service = mockServices[index];
+        return ServiceCard(
+          service: service,
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Редактировать: ${service.name}')),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildReviewsTab() {
+    // Mock reviews
+    final reviews = [
+      {
+        'name': 'Мария Иванова',
+        'avatar': 'https://i.pravatar.cc/100?img=10',
+        'rating': 5.0,
+        'comment':
+            'Отличный мастер! Очень профессионально выполнила работу. Обязательно вернусь снова!',
+        'date': DateTime.now().subtract(const Duration(days: 5)),
+      },
+      {
+        'name': 'Анна Петрова',
+        'avatar': 'https://i.pravatar.cc/100?img=20',
+        'rating': 4.5,
+        'comment': 'Хорошее качество работы, приятная атмосфера. Рекомендую!',
+        'date': DateTime.now().subtract(const Duration(days: 15)),
+      },
+    ];
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: reviews.length,
+      itemBuilder: (context, index) {
+        final review = reviews[index];
+        return ReviewCard(
+          userName: review['name'] as String,
+          userAvatar: review['avatar'] as String,
+          rating: review['rating'] as double,
+          comment: review['comment'] as String,
+          date: review['date'] as DateTime,
+        );
+      },
+    );
+  }
+
   Widget _buildSavedTab() {
     return Center(
       child: Column(
@@ -312,6 +450,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   );
                 },
               ),
+              if (_isMaster)
+                ListTile(
+                  leading: const Icon(Icons.settings_applications_outlined),
+                  title: const Text('Настроить профиль мастера'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Настройка профиля мастера (в разработке)'),
+                      ),
+                    );
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.notifications_outlined),
                 title: const Text('Уведомления'),
@@ -325,7 +476,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 title: const Text('Сохраненное'),
                 onTap: () {
                   Navigator.pop(context);
-                  _tabController.animateTo(1);
+                  _tabController.animateTo(_isMaster ? 0 : 1);
                 },
               ),
               ListTile(
