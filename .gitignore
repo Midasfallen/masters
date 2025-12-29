@@ -36,38 +36,14 @@ venv/
 __pycache__/
 *.pyc
 
-# Build outputs (будут добавлены при создании backend/frontend)
-dist/
-build/
-*.exe
-*.dll
-*.so
-*.dylib
-
-# Flutter/Dart specific
+# Flutter/Dart - только временные файлы сборки
 frontend/.dart_tool/
-frontend/.flutter-plugins
-frontend/.flutter-plugins-dependencies
-frontend/.packages
-frontend/.pub-cache/
-frontend/.pub/
 frontend/build/
-frontend/*.g.dart
-frontend/*.freezed.dart
 
-# Flutter coverage
-frontend/coverage/
-
-# Android local files (keep android/ folder itself)
-frontend/android/local.properties
+# Android - только кэш и временные файлы
 frontend/android/.gradle/
+frontend/android/local.properties
 frontend/android/captures/
-frontend/android/gradlew
-frontend/android/gradlew.bat
-frontend/android/gradle/wrapper/gradle-wrapper.jar
-frontend/android/app/debug/
-frontend/android/app/profile/
-frontend/android/app/release/
 
 # Temporary files
 tmp/
