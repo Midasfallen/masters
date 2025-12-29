@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { MastersModule } from './modules/masters/masters.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -25,6 +26,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     // Feature modules
     AuthModule,
     UsersModule,
+    MastersModule,
   ],
   controllers: [AppController],
   providers: [
