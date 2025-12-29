@@ -37,7 +37,7 @@ class AppTheme {
         height: 60,
         elevation: 0,
         backgroundColor: Colors.white,
-        indicatorColor: primaryColor.withOpacity(0.1),
+        indicatorColor: primaryColor.withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
           (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) {
@@ -186,7 +186,7 @@ class AppTheme {
         height: 60,
         elevation: 0,
         backgroundColor: Colors.grey[900],
-        indicatorColor: primaryColor.withOpacity(0.3),
+        indicatorColor: primaryColor.withValues(alpha: 0.3),
         labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
           (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) {

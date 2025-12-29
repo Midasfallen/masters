@@ -81,7 +81,7 @@ class MessageBubble extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           color: isMyMessage
-                              ? Colors.white.withOpacity(0.7)
+                              ? Colors.white.withValues(alpha: 0.7)
                               : Colors.grey[600],
                         ),
                       ),
@@ -96,7 +96,7 @@ class MessageBubble extends StatelessWidget {
                           size: 14,
                           color: message.status == 'read'
                               ? Colors.blue[300]
-                              : Colors.white.withOpacity(0.7),
+                              : Colors.white.withValues(alpha: 0.7),
                         ),
                       ],
                     ],

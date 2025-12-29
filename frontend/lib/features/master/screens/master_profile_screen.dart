@@ -304,7 +304,7 @@ class _MasterProfileScreenState extends State<MasterProfileScreen> {
           color: theme.colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -454,19 +454,21 @@ class _BookingSheetState extends State<_BookingSheet> {
             ),
           ),
           const SizedBox(height: 8),
-          ...mockServices.map((service) {
-            return RadioListTile<Service>(
-              value: service,
-              groupValue: _selectedService,
-              onChanged: (value) {
-                setState(() {
-                  _selectedService = value;
-                });
-              },
-              title: Text(service.name),
-              subtitle: Text('${service.durationMinutes} мин • ${service.price}'),
-            );
-          }),
+          RadioGroup<Service>(
+            value: _selectedService,
+            onChanged: (value) {
+              setState(() {
+                _selectedService = value;
+              });
+            },
+            children: mockServices.map((service) {
+              return RadioListTile<Service>(
+                value: service,
+                title: Text(service.name),
+                subtitle: Text('${service.durationMinutes} мин • ${service.price}'),
+              );
+            }).toList(),
+          ),
           const SizedBox(height: 16),
           Text(
             'Выберите дату',
