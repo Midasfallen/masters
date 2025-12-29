@@ -454,21 +454,19 @@ class _BookingSheetState extends State<_BookingSheet> {
             ),
           ),
           const SizedBox(height: 8),
-          RadioGroup<Service>(
-            value: _selectedService,
-            onChanged: (value) {
-              setState(() {
-                _selectedService = value;
-              });
-            },
-            children: mockServices.map((service) {
-              return RadioListTile<Service>(
-                value: service,
-                title: Text(service.name),
-                subtitle: Text('${service.durationMinutes} мин • ${service.price}'),
-              );
-            }).toList(),
-          ),
+          ...mockServices.map((service) {
+            return RadioListTile<Service>(
+              value: service,
+              groupValue: _selectedService,
+              onChanged: (value) {
+                setState(() {
+                  _selectedService = value;
+                });
+              },
+              title: Text(service.name),
+              subtitle: Text('${service.durationMinutes} мин • ${service.price}'),
+            );
+          }),
           const SizedBox(height: 16),
           Text(
             'Выберите дату',
