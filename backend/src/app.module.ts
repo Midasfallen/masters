@@ -13,6 +13,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SearchModule } from './modules/search/search.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -37,6 +38,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     CategoriesModule,
     ReviewsModule,
     NotificationsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [
