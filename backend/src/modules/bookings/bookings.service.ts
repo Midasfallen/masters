@@ -51,7 +51,7 @@ export class BookingsService {
 
     // 2. Получаем мастера
     const masterProfile = await this.masterProfileRepository.findOne({
-      where: { id: service.master_profile_id },
+      where: { user_id: service.master_id },
     });
 
     if (!masterProfile || !masterProfile.is_active) {
