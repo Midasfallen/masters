@@ -265,12 +265,12 @@ export class SearchService implements OnModuleInit {
       first_name: user.first_name,
       last_name: user.last_name,
       avatar_url: user.avatar_url,
-      average_rating: user.average_rating,
+      average_rating: Number(user.rating),
       reviews_count: user.reviews_count,
-      description: masterProfile.description,
+      description: masterProfile.bio,
       category_ids: masterProfile.category_ids,
       category_names: [], // TODO: Загрузить из Category
-      tags: masterProfile.tags,
+      tags: [], // TODO: Add tags field to MasterProfile entity
       location_address: masterProfile.location_address,
       location_lat: masterProfile.location_lat,
       location_lng: masterProfile.location_lng,
@@ -295,7 +295,7 @@ export class SearchService implements OnModuleInit {
     if (!service) return;
 
     const masterProfile = await this.masterProfileRepository.findOne({
-      where: { id: service.master_profile_id },
+      where: { id: service.master_id },
     });
 
     const master = masterProfile
@@ -321,7 +321,7 @@ export class SearchService implements OnModuleInit {
       master_first_name: master?.first_name,
       master_last_name: master?.last_name,
       master_avatar_url: master?.avatar_url,
-      master_average_rating: master?.average_rating,
+      master_average_rating: master ? Number(master.rating) : 0,
     };
 
     try {
@@ -333,6 +333,7 @@ export class SearchService implements OnModuleInit {
 
   /**
    * Fallback поиск по БД (если Meilisearch недоступен)
+   * Использует PostgreSQL full-text search с to_tsvector для оптимальной производительности
    */
   private async fallbackSearchMasters(
     searchDto: SearchMastersDto,
@@ -350,17 +351,21 @@ export class SearchService implements OnModuleInit {
         .where('user.is_master = :isMaster', { isMaster: true })
         .andWhere('profile.is_active = :isActive', { isActive: true });
 
-      // Text search using ILIKE
+      // Text search using PostgreSQL full-text search (to_tsvector)
       if (query) {
-        qb.andWhere(
-          `(
-            user.first_name ILIKE :query
-            OR user.last_name ILIKE :query
-            OR profile.bio ILIKE :query
-            OR profile.business_name ILIKE :query
-          )`,
-          { query: `%${query}%` },
-        );
+        // Clean query for tsquery (remove special characters that could break query)
+        const cleanQuery = query.replace(/[&|!():]/g, ' ').trim();
+
+        if (cleanQuery) {
+          qb.andWhere(
+            `(
+              to_tsvector('russian', COALESCE(user.first_name, '') || ' ' || COALESCE(user.last_name, '')) @@ plainto_tsquery('russian', :query)
+              OR to_tsvector('russian', COALESCE(profile.bio, '')) @@ plainto_tsquery('russian', :query)
+              OR to_tsvector('russian', COALESCE(profile.business_name, '')) @@ plainto_tsquery('russian', :query)
+            )`,
+            { query: cleanQuery },
+          );
+        }
       }
 
       // Category filter
@@ -377,18 +382,31 @@ export class SearchService implements OnModuleInit {
         });
       }
 
-      // Tags filter
-      if (searchDto.tags && searchDto.tags.length > 0) {
-        qb.andWhere('profile.tags && :tags', { tags: searchDto.tags });
-      }
+      // Tags filter - DISABLED: MasterProfile doesn't have tags field yet
+      // TODO: Add tags field to MasterProfile entity
+      // if (searchDto.tags && searchDto.tags.length > 0) {
+      //   qb.andWhere('profile.tags && :tags', { tags: searchDto.tags });
+      // }
 
       // Sorting
       if (sort === 'rating') {
         qb.orderBy('user.rating', 'DESC');
       } else if (sort === 'reviews_count') {
         qb.orderBy('user.reviews_count', 'DESC');
+      } else if (query) {
+        // Sort by text search relevance when query exists
+        const cleanQuery = query.replace(/[&|!():]/g, ' ').trim();
+        if (cleanQuery) {
+          qb.orderBy(
+            `ts_rank(
+              to_tsvector('russian', COALESCE(user.first_name, '') || ' ' || COALESCE(user.last_name, '') || ' ' || COALESCE(profile.bio, '') || ' ' || COALESCE(profile.business_name, '')),
+              plainto_tsquery('russian', :query)
+            )`,
+            'DESC',
+          );
+        }
       } else {
-        // Default sorting by created_at for relevance
+        // Default sorting by created_at
         qb.orderBy('user.created_at', 'DESC');
       }
 
@@ -415,7 +433,7 @@ export class SearchService implements OnModuleInit {
             reviews_count: user.reviews_count,
             category_names: [], // TODO: Load from Category
             description: profile?.bio || '',
-            tags: profile?.tags || [],
+            tags: [], // TODO: Add tags field to MasterProfile entity
             location_address: profile?.location_address || '',
             distance_km: this.calculateDistance(
               searchDto.lat,
@@ -429,6 +447,10 @@ export class SearchService implements OnModuleInit {
 
       const processingTimeMs = Date.now() - startTime;
 
+      console.log(
+        `✅ Fallback search completed: ${total} results in ${processingTimeMs}ms`,
+      );
+
       return {
         data,
         total,
@@ -438,7 +460,7 @@ export class SearchService implements OnModuleInit {
         query,
       };
     } catch (error) {
-      console.error('Fallback search error:', error);
+      console.error('❌ Fallback search error:', error);
       return {
         data: [],
         total: 0,
@@ -452,6 +474,7 @@ export class SearchService implements OnModuleInit {
 
   /**
    * Fallback поиск услуг по БД
+   * Использует PostgreSQL full-text search с to_tsvector для оптимальной производительности
    */
   private async fallbackSearchServices(
     searchDto: SearchServicesDto,
@@ -467,15 +490,20 @@ export class SearchService implements OnModuleInit {
         .createQueryBuilder('service')
         .where('service.is_active = :isActive', { isActive: true });
 
-      // Text search using ILIKE
+      // Text search using PostgreSQL full-text search (to_tsvector)
       if (query) {
-        qb.andWhere(
-          `(
-            service.name ILIKE :query
-            OR service.description ILIKE :query
-          )`,
-          { query: `%${query}%` },
-        );
+        // Clean query for tsquery (remove special characters that could break query)
+        const cleanQuery = query.replace(/[&|!():]/g, ' ').trim();
+
+        if (cleanQuery) {
+          qb.andWhere(
+            `(
+              to_tsvector('russian', COALESCE(service.name, '')) @@ plainto_tsquery('russian', :query)
+              OR to_tsvector('russian', COALESCE(service.description, '')) @@ plainto_tsquery('russian', :query)
+            )`,
+            { query: cleanQuery },
+          );
+        }
       }
 
       // Category filter
@@ -511,7 +539,7 @@ export class SearchService implements OnModuleInit {
         });
       }
 
-      // Tags filter
+      // Tags filter (array overlap operator)
       if (searchDto.tags && searchDto.tags.length > 0) {
         qb.andWhere('service.tags && :tags', { tags: searchDto.tags });
       }
@@ -525,8 +553,20 @@ export class SearchService implements OnModuleInit {
         qb.orderBy('service.duration_minutes', 'ASC');
       } else if (sort === 'duration_desc') {
         qb.orderBy('service.duration_minutes', 'DESC');
+      } else if (query) {
+        // Sort by text search relevance when query exists
+        const cleanQuery = query.replace(/[&|!():]/g, ' ').trim();
+        if (cleanQuery) {
+          qb.orderBy(
+            `ts_rank(
+              to_tsvector('russian', COALESCE(service.name, '') || ' ' || COALESCE(service.description, '')),
+              plainto_tsquery('russian', :query)
+            )`,
+            'DESC',
+          );
+        }
       } else {
-        // Default sorting
+        // Default sorting by popularity
         qb.orderBy('service.bookings_count', 'DESC');
       }
 
@@ -540,7 +580,7 @@ export class SearchService implements OnModuleInit {
       // Transform to response format
       const data: ServiceSearchResultDto[] = await Promise.all(
         services.map(async (service) => {
-          // Get master profile
+          // Get master profile by master_id (Service.master_id references MasterProfile.id)
           const masterProfile = await this.masterProfileRepository.findOne({
             where: { id: service.master_id },
           });
@@ -582,6 +622,10 @@ export class SearchService implements OnModuleInit {
 
       const processingTimeMs = Date.now() - startTime;
 
+      console.log(
+        `✅ Fallback search completed: ${total} results in ${processingTimeMs}ms`,
+      );
+
       return {
         data,
         total,
@@ -591,7 +635,7 @@ export class SearchService implements OnModuleInit {
         query,
       };
     } catch (error) {
-      console.error('Fallback search error:', error);
+      console.error('❌ Fallback search error:', error);
       return {
         data: [],
         total: 0,
