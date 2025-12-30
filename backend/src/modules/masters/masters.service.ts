@@ -1,0 +1,323 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MasterProfile } from './entities/master-profile.entity';
+import { User } from '../users/entities/user.entity';
+import { Step1CategoriesDto } from './dto/step1-categories.dto';
+import { Step2ProfileInfoDto } from './dto/step2-profile-info.dto';
+import { Step3PortfolioDto } from './dto/step3-portfolio.dto';
+import { Step4LocationDto } from './dto/step4-location.dto';
+import { Step5ScheduleDto } from './dto/step5-schedule.dto';
+
+@Injectable()
+export class MastersService {
+  constructor(
+    @InjectRepository(MasterProfile)
+    private readonly masterProfileRepository: Repository<MasterProfile>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  /**
+   * Инициализация профиля мастера
+   * Создает пустой профиль с setup_step = 0
+   */
+  async initializeProfile(userId: string): Promise<MasterProfile> {
+    // Проверка, нет ли уже профиля
+    const existingProfile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (existingProfile) {
+      throw new BadRequestException('Профиль мастера уже создан');
+    }
+
+    // Создание профиля
+    const masterProfile = this.masterProfileRepository.create({
+      user_id: userId,
+      setup_step: 0,
+      is_active: false, // Профиль неактивен до завершения настройки
+      is_approved: false,
+    });
+
+    return this.masterProfileRepository.save(masterProfile);
+  }
+
+  /**
+   * ШАГ 1: Выбор категорий
+   */
+  async updateStep1(
+    userId: string,
+    step1Dto: Step1CategoriesDto,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    // Проверка последовательности шагов
+    if (profile.setup_step > 1) {
+      throw new BadRequestException(
+        'Шаг 1 уже завершен. Используйте обновление профиля.',
+      );
+    }
+
+    // Обновление данных
+    profile.category_ids = step1Dto.category_ids;
+    if (step1Dto.subcategory_ids) {
+      profile.subcategory_ids = step1Dto.subcategory_ids;
+    }
+    profile.setup_step = 1;
+
+    return this.masterProfileRepository.save(profile);
+  }
+
+  /**
+   * ШАГ 2: Базовая информация профиля
+   */
+  async updateStep2(
+    userId: string,
+    step2Dto: Step2ProfileInfoDto,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    if (profile.setup_step < 1) {
+      throw new BadRequestException('Сначала завершите шаг 1 (категории)');
+    }
+
+    // Обновление данных
+    if (step2Dto.business_name) {
+      profile.business_name = step2Dto.business_name;
+    }
+    profile.bio = step2Dto.bio;
+    if (step2Dto.years_of_experience) {
+      profile.years_of_experience = step2Dto.years_of_experience;
+    }
+    if (step2Dto.languages) {
+      profile.languages = step2Dto.languages;
+    }
+    if (step2Dto.is_mobile !== undefined) {
+      profile.is_mobile = step2Dto.is_mobile;
+    }
+    if (step2Dto.has_location !== undefined) {
+      profile.has_location = step2Dto.has_location;
+    }
+    if (step2Dto.is_online_only !== undefined) {
+      profile.is_online_only = step2Dto.is_online_only;
+    }
+
+    profile.setup_step = Math.max(profile.setup_step, 2);
+
+    return this.masterProfileRepository.save(profile);
+  }
+
+  /**
+   * ШАГ 3: Портфолио
+   */
+  async updateStep3(
+    userId: string,
+    step3Dto: Step3PortfolioDto,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    if (profile.setup_step < 2) {
+      throw new BadRequestException('Сначала завершите шаг 2 (информация о профиле)');
+    }
+
+    // Обновление портфолио
+    if (step3Dto.portfolio_urls) {
+      profile.portfolio_urls = step3Dto.portfolio_urls;
+    }
+    if (step3Dto.video_urls) {
+      profile.video_urls = step3Dto.video_urls;
+    }
+    if (step3Dto.certificates) {
+      profile.certificates = step3Dto.certificates;
+    }
+
+    profile.setup_step = Math.max(profile.setup_step, 3);
+
+    return this.masterProfileRepository.save(profile);
+  }
+
+  /**
+   * ШАГ 4: География работы
+   */
+  async updateStep4(
+    userId: string,
+    step4Dto: Step4LocationDto,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    if (profile.setup_step < 3) {
+      throw new BadRequestException('Сначала завершите шаг 3 (портфолио)');
+    }
+
+    // Обновление локации
+    if (step4Dto.location_lat !== undefined) {
+      profile.location_lat = step4Dto.location_lat;
+    }
+    if (step4Dto.location_lng !== undefined) {
+      profile.location_lng = step4Dto.location_lng;
+    }
+    if (step4Dto.location_address) {
+      profile.location_address = step4Dto.location_address;
+    }
+    if (step4Dto.location_name) {
+      profile.location_name = step4Dto.location_name;
+    }
+    if (step4Dto.service_radius_km !== undefined) {
+      profile.service_radius_km = step4Dto.service_radius_km;
+    }
+    if (step4Dto.is_mobile !== undefined) {
+      profile.is_mobile = step4Dto.is_mobile;
+    }
+    if (step4Dto.has_location !== undefined) {
+      profile.has_location = step4Dto.has_location;
+    }
+
+    profile.setup_step = Math.max(profile.setup_step, 4);
+
+    return this.masterProfileRepository.save(profile);
+  }
+
+  /**
+   * ШАГ 5: Расписание (ФИНАЛЬНЫЙ ШАГ)
+   * После завершения:
+   * - user.is_master = true
+   * - user.master_profile_completed = true
+   * - master_profile.setup_step = 5
+   * - master_profile.is_active = true
+   */
+  async updateStep5(
+    userId: string,
+    step5Dto: Step5ScheduleDto,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    if (profile.setup_step < 4) {
+      throw new BadRequestException('Сначала завершите шаг 4 (локация)');
+    }
+
+    // Обновление расписания
+    if (step5Dto.working_hours) {
+      profile.working_hours = step5Dto.working_hours;
+    }
+    if (step5Dto.min_booking_hours !== undefined) {
+      profile.min_booking_hours = step5Dto.min_booking_hours;
+    }
+    if (step5Dto.max_bookings_per_day !== undefined) {
+      profile.max_bookings_per_day = step5Dto.max_bookings_per_day;
+    }
+    if (step5Dto.auto_confirm !== undefined) {
+      profile.auto_confirm = step5Dto.auto_confirm;
+    }
+    if (step5Dto.social_links) {
+      profile.social_links = step5Dto.social_links;
+    }
+
+    // ФИНАЛИЗАЦИЯ ПРОФИЛЯ
+    profile.setup_step = 5;
+    profile.is_active = true; // Профиль становится активным
+
+    await this.masterProfileRepository.save(profile);
+
+    // Обновление статуса пользователя
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (user) {
+      user.is_master = true;
+      user.master_profile_completed = true;
+      await this.userRepository.save(user);
+    }
+
+    return profile;
+  }
+
+  /**
+   * Получить профиль мастера текущего пользователя
+   */
+  async getMyProfile(userId: string): Promise<MasterProfile> {
+    return this.getProfileByUserId(userId);
+  }
+
+  /**
+   * Получить профиль мастера по ID профиля
+   */
+  async getProfileById(profileId: string): Promise<MasterProfile> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { id: profileId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден');
+    }
+
+    return profile;
+  }
+
+  /**
+   * Получить профиль мастера по user_id
+   */
+  async getProfileByUserId(userId: string): Promise<MasterProfile> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException(
+        'Профиль мастера не найден. Начните создание профиля.',
+      );
+    }
+
+    return profile;
+  }
+
+  /**
+   * Обновить профиль мастера (только после завершения всех 5 шагов)
+   */
+  async updateProfile(
+    userId: string,
+    updateData: Partial<MasterProfile>,
+  ): Promise<MasterProfile> {
+    const profile = await this.getProfileByUserId(userId);
+
+    if (profile.setup_step < 5) {
+      throw new ForbiddenException(
+        'Завершите все 5 шагов создания профиля перед обновлением',
+      );
+    }
+
+    // Запрещаем изменение критических полей
+    delete updateData.user_id;
+    delete updateData.setup_step;
+    delete updateData.id;
+
+    Object.assign(profile, updateData);
+
+    return this.masterProfileRepository.save(profile);
+  }
+
+  /**
+   * Удалить профиль мастера
+   */
+  async deleteProfile(userId: string): Promise<void> {
+    const profile = await this.getProfileByUserId(userId);
+    await this.masterProfileRepository.remove(profile);
+
+    // Обновляем статус пользователя
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (user) {
+      user.is_master = false;
+      user.master_profile_completed = false;
+      await this.userRepository.save(user);
+    }
+  }
+}
