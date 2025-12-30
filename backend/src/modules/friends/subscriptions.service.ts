@@ -1,0 +1,154 @@
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Subscription } from './entities/subscription.entity';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
+
+@Injectable()
+export class SubscriptionsService {
+  constructor(
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async create(userId: string, createSubscriptionDto: CreateSubscriptionDto) {
+    const { target_id, notifications_enabled = true } = createSubscriptionDto;
+
+    if (userId === target_id) {
+      throw new BadRequestException('Cannot subscribe to yourself');
+    }
+
+    // Проверка существования пользователя
+    const target = await this.userRepository.findOne({
+      where: { id: target_id },
+    });
+
+    if (!target) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Проверка на существующую подписку
+    const existingSubscription = await this.subscriptionRepository.findOne({
+      where: {
+        subscriber_id: userId,
+        target_id,
+      },
+    });
+
+    if (existingSubscription) {
+      throw new ConflictException('Already subscribed');
+    }
+
+    const subscription = this.subscriptionRepository.create({
+      subscriber_id: userId,
+      target_id,
+      notifications_enabled,
+    });
+
+    const savedSubscription = await this.subscriptionRepository.save(subscription);
+
+    // Обновляем счетчики
+    await this.userRepository.increment({ id: userId }, 'following_count', 1);
+    await this.userRepository.increment({ id: target_id }, 'followers_count', 1);
+
+    return savedSubscription;
+  }
+
+  async getFollowing(userId: string, paginationDto: PaginationDto) {
+    const { page = 1, limit = 20 } = paginationDto;
+
+    const queryBuilder = this.subscriptionRepository
+      .createQueryBuilder('subscription')
+      .leftJoinAndSelect('subscription.target', 'target')
+      .where('subscription.subscriber_id = :userId', { userId })
+      .orderBy('subscription.created_at', 'DESC');
+
+    const [subscriptions, total] = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data: subscriptions,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getFollowers(userId: string, paginationDto: PaginationDto) {
+    const { page = 1, limit = 20 } = paginationDto;
+
+    const queryBuilder = this.subscriptionRepository
+      .createQueryBuilder('subscription')
+      .leftJoinAndSelect('subscription.subscriber', 'subscriber')
+      .where('subscription.target_id = :userId', { userId })
+      .orderBy('subscription.created_at', 'DESC');
+
+    const [subscriptions, total] = await queryBuilder
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data: subscriptions,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async update(userId: string, targetId: string, updateSubscriptionDto: UpdateSubscriptionDto) {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: {
+        subscriber_id: userId,
+        target_id: targetId,
+      },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    await this.subscriptionRepository.update(subscription.id, updateSubscriptionDto);
+
+    return this.subscriptionRepository.findOne({ where: { id: subscription.id } });
+  }
+
+  async remove(userId: string, targetId: string) {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: {
+        subscriber_id: userId,
+        target_id: targetId,
+      },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    await this.subscriptionRepository.remove(subscription);
+
+    // Обновляем счетчики
+    await this.userRepository.decrement({ id: userId }, 'following_count', 1);
+    await this.userRepository.decrement({ id: targetId }, 'followers_count', 1);
+
+    return { message: 'Unsubscribed successfully' };
+  }
+}

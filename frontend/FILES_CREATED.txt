@@ -1,0 +1,56 @@
+FLUTTER BACKEND INTEGRATION - Созданные файлы
+===============================================
+
+КОНФИГУРАЦИЯ (1 файл)
+---------------------
+lib/core/config/app_config.dart
+
+API LAYER (4 файла)
+-------------------
+lib/core/api/api_endpoints.dart
+lib/core/api/api_exceptions.dart
+lib/core/api/api_interceptors.dart
+lib/core/api/dio_client.dart
+
+МОДЕЛИ (7 файлов)
+-----------------
+lib/core/models/api/user_model.dart
+lib/core/models/api/master_model.dart
+lib/core/models/api/service_model.dart
+lib/core/models/api/booking_model.dart
+lib/core/models/api/review_model.dart
+lib/core/models/api/post_model.dart
+lib/core/models/api/chat_model.dart
+
+РЕПОЗИТОРИИ (7 файлов)
+----------------------
+lib/core/repositories/auth_repository.dart
+lib/core/repositories/user_repository.dart
+lib/core/repositories/master_repository.dart
+lib/core/repositories/booking_repository.dart
+lib/core/repositories/search_repository.dart
+lib/core/repositories/post_repository.dart
+lib/core/repositories/chat_repository.dart
+
+PROVIDERS (6 файлов)
+--------------------
+lib/core/providers/api/auth_provider.dart
+lib/core/providers/api/user_provider.dart
+lib/core/providers/api/masters_provider.dart
+lib/core/providers/api/bookings_provider.dart
+lib/core/providers/api/feed_provider.dart
+lib/core/providers/api/chats_provider.dart
+
+ЗАВИСИМОСТИ
+-----------
+pubspec.yaml (обновлен)
++ dio: ^5.4.0
++ flutter_secure_storage: ^9.0.0
+
+ДОКУМЕНТАЦИЯ
+------------
+INTEGRATION_SETUP.md
+FLUTTER_INTEGRATION_COMPLETED.md
+FILES_CREATED.txt (этот файл)
+
+ИТОГО: 26+ файлов

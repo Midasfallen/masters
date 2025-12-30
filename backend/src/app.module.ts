@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeOrmConfig } from './config/typeorm.config';
+import { LoggerModule } from './common/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { MastersModule } from './modules/masters/masters.module';
@@ -14,6 +15,11 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SearchModule } from './modules/search/search.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { SocialModule } from './modules/social/social.module';
+import { FriendsModule } from './modules/friends/friends.module';
+import { ChatsModule } from './modules/chats/chats.module';
+import { WebSocketModule } from './modules/websocket/websocket.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -23,6 +29,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    // Logger
+    LoggerModule,
 
     // Database
     TypeOrmModule.forRootAsync({
@@ -39,6 +48,13 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     ReviewsModule,
     NotificationsModule,
     SearchModule,
+
+    // Social Platform modules (v2.0)
+    PostsModule,
+    SocialModule,
+    FriendsModule,
+    ChatsModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [
