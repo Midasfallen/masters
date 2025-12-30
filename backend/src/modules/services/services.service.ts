@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Service } from './entities/service.entity';
 import { User } from '../users/entities/user.entity';
-import { MasterProfile } from '../modules/masters/entities/master-profile.entity';
+import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { FilterServicesDto } from './dto/filter-services.dto';
