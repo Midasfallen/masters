@@ -2,23 +2,34 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Notification, NotificationType } from './entities/notification.entity';
+import { DeviceToken } from './entities/device-token.entity';
 import { NotificationResponseDto } from './dto/notification-response.dto';
 import { FilterNotificationsDto } from './dto/filter-notifications.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
+import { RegisterDeviceDto } from './dto/register-device.dto';
+import { FCMService } from './fcm.service';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(DeviceToken)
+    private readonly deviceTokenRepository: Repository<DeviceToken>,
+    private readonly fcmService: FCMService,
   ) {}
 
   /**
    * Создание уведомления (вызывается из других модулей)
+   * Автоматически отправляет push-уведомление на все зарегистрированные устройства пользователя
    */
   async create(
     userId: string,
@@ -30,6 +41,7 @@ export class NotificationsService {
       related_type?: string;
       metadata?: Record<string, any>;
       action_url?: string;
+      send_push?: boolean; // Default: true
     },
   ): Promise<Notification> {
     const notification = this.notificationRepository.create({
@@ -44,7 +56,18 @@ export class NotificationsService {
       action_url: options?.action_url,
     });
 
-    return this.notificationRepository.save(notification);
+    const saved = await this.notificationRepository.save(notification);
+
+    // Send push notification (enabled by default)
+    const sendPush = options?.send_push !== false;
+    if (sendPush) {
+      // Fire and forget - don't wait for push delivery
+      this.sendPushNotification(userId, title, message, options?.metadata).catch((error) => {
+        this.logger.error(`Failed to send push notification to user ${userId}:`, error);
+      });
+    }
+
+    return saved;
   }
 
   /**
@@ -292,6 +315,115 @@ export class NotificationsService {
         related_type: 'review',
         action_url: `/reviews/${reviewId}`,
       },
+    );
+  }
+
+  // ============ DEVICE TOKEN MANAGEMENT ============
+
+  /**
+   * Регистрация нового device token
+   */
+  async registerDeviceToken(
+    userId: string,
+    registerDto: RegisterDeviceDto,
+  ): Promise<DeviceToken> {
+    try {
+      // Check if token already exists
+      let existingToken = await this.deviceTokenRepository.findOne({
+        where: { token: registerDto.token },
+      });
+
+      if (existingToken) {
+        // Update existing token
+        existingToken.user_id = userId;
+        existingToken.platform = registerDto.platform;
+        existingToken.device_model = registerDto.device_model;
+        existingToken.os_version = registerDto.os_version;
+        existingToken.app_version = registerDto.app_version;
+        existingToken.is_active = true;
+        existingToken.last_used_at = new Date();
+
+        return this.deviceTokenRepository.save(existingToken);
+      }
+
+      // Create new token
+      const deviceToken = this.deviceTokenRepository.create({
+        user_id: userId,
+        token: registerDto.token,
+        platform: registerDto.platform,
+        device_model: registerDto.device_model,
+        os_version: registerDto.os_version,
+        app_version: registerDto.app_version,
+        is_active: true,
+        last_used_at: new Date(),
+      });
+
+      return this.deviceTokenRepository.save(deviceToken);
+    } catch (error) {
+      this.logger.error('Failed to register device token:', error);
+      throw new ConflictException('Failed to register device token');
+    }
+  }
+
+  /**
+   * Удаление device token (при выходе из аккаунта)
+   */
+  async unregisterDeviceToken(userId: string, token: string): Promise<void> {
+    const deviceToken = await this.deviceTokenRepository.findOne({
+      where: { token, user_id: userId },
+    });
+
+    if (deviceToken) {
+      await this.deviceTokenRepository.remove(deviceToken);
+      this.logger.log(`Device token unregistered for user ${userId}`);
+    }
+  }
+
+  /**
+   * Получение всех активных device tokens пользователя
+   */
+  async getUserDeviceTokens(userId: string): Promise<string[]> {
+    const tokens = await this.deviceTokenRepository.find({
+      where: { user_id: userId, is_active: true },
+    });
+
+    return tokens.map((t) => t.token);
+  }
+
+  /**
+   * Отправка push-уведомления пользователю
+   */
+  private async sendPushNotification(
+    userId: string,
+    title: string,
+    body: string,
+    data?: Record<string, any>,
+  ): Promise<void> {
+    // Get all active device tokens for user
+    const tokens = await this.getUserDeviceTokens(userId);
+
+    if (tokens.length === 0) {
+      this.logger.debug(`No device tokens found for user ${userId}`);
+      return;
+    }
+
+    // Convert metadata to string format for FCM
+    const dataPayload = data
+      ? Object.entries(data).reduce((acc, [key, value]) => {
+          acc[key] = typeof value === 'string' ? value : JSON.stringify(value);
+          return acc;
+        }, {} as Record<string, string>)
+      : undefined;
+
+    // Send push to all devices
+    const successCount = await this.fcmService.sendToMultipleDevices(tokens, {
+      title,
+      body,
+      data: dataPayload,
+    });
+
+    this.logger.log(
+      `Push notification sent to ${successCount}/${tokens.length} devices for user ${userId}`,
     );
   }
 
