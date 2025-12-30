@@ -8,22 +8,22 @@ part 'post_model.g.dart';
 class PostModel with _$PostModel {
   const factory PostModel({
     required String id,
-    required String authorId,
+    @JsonKey(name: 'author_id') required String authorId,
     UserModel? author,
     required String content,
-    required List<String> mediaUrls,
+    @JsonKey(name: 'media_urls') required List<String> mediaUrls,
     required List<String> tags,
-    required int likesCount,
-    required int commentsCount,
-    required int sharesCount,
-    required bool isLiked,
-    String? locationName,
-    double? locationLat,
-    double? locationLng,
-    required bool isPinned,
-    required bool isArchived,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'likes_count') required int likesCount,
+    @JsonKey(name: 'comments_count') required int commentsCount,
+    @JsonKey(name: 'shares_count') required int sharesCount,
+    @JsonKey(name: 'is_liked') required bool isLiked,
+    @JsonKey(name: 'location_name') String? locationName,
+    @JsonKey(name: 'location_lat') double? locationLat,
+    @JsonKey(name: 'location_lng') double? locationLng,
+    @JsonKey(name: 'is_pinned') required bool isPinned,
+    @JsonKey(name: 'is_archived') required bool isArchived,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _PostModel;
 
   factory PostModel.fromJson(Map<String, dynamic> json) =>
@@ -35,11 +35,11 @@ class PostModel with _$PostModel {
 class CreatePostRequest with _$CreatePostRequest {
   const factory CreatePostRequest({
     required String content,
-    List<String>? mediaUrls,
+    @JsonKey(name: 'media_urls') List<String>? mediaUrls,
     List<String>? tags,
-    String? locationName,
-    double? locationLat,
-    double? locationLng,
+    @JsonKey(name: 'location_name') String? locationName,
+    @JsonKey(name: 'location_lat') double? locationLat,
+    @JsonKey(name: 'location_lng') double? locationLng,
   }) = _CreatePostRequest;
 
   factory CreatePostRequest.fromJson(Map<String, dynamic> json) =>
@@ -52,8 +52,8 @@ class UpdatePostRequest with _$UpdatePostRequest {
   const factory UpdatePostRequest({
     String? content,
     List<String>? tags,
-    bool? isPinned,
-    bool? isArchived,
+    @JsonKey(name: 'is_pinned') bool? isPinned,
+    @JsonKey(name: 'is_archived') bool? isArchived,
   }) = _UpdatePostRequest;
 
   factory UpdatePostRequest.fromJson(Map<String, dynamic> json) =>
@@ -65,15 +65,15 @@ class UpdatePostRequest with _$UpdatePostRequest {
 class CommentModel with _$CommentModel {
   const factory CommentModel({
     required String id,
-    required String postId,
-    required String authorId,
+    @JsonKey(name: 'post_id') required String postId,
+    @JsonKey(name: 'author_id') required String authorId,
     UserModel? author,
     required String content,
-    String? parentId,
-    required int likesCount,
-    required bool isLiked,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'parent_id') String? parentId,
+    @JsonKey(name: 'likes_count') required int likesCount,
+    @JsonKey(name: 'is_liked') required bool isLiked,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _CommentModel;
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>
@@ -85,7 +85,7 @@ class CommentModel with _$CommentModel {
 class CreateCommentRequest with _$CreateCommentRequest {
   const factory CreateCommentRequest({
     required String content,
-    String? parentId,
+    @JsonKey(name: 'parent_id') String? parentId,
   }) = _CreateCommentRequest;
 
   factory CreateCommentRequest.fromJson(Map<String, dynamic> json) =>
