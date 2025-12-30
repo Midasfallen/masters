@@ -14,20 +14,20 @@ enum ReviewerType {
 class ReviewModel with _$ReviewModel {
   const factory ReviewModel({
     required String id,
-    required String bookingId,
-    required String reviewerId,
-    required String reviewedUserId,
-    required ReviewerType reviewerType,
+    @JsonKey(name: 'booking_id') required String bookingId,
+    @JsonKey(name: 'reviewer_id') required String reviewerId,
+    @JsonKey(name: 'reviewed_user_id') required String reviewedUserId,
+    @JsonKey(name: 'reviewer_type') required ReviewerType reviewerType,
     required int rating,
     String? comment,
-    required List<String> photoUrls,
+    @JsonKey(name: 'photo_urls') required List<String> photoUrls,
     String? response,
-    DateTime? responseAt,
-    required bool isVisible,
-    required int reportsCount,
-    required bool isApproved,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'response_at') DateTime? responseAt,
+    @JsonKey(name: 'is_visible') required bool isVisible,
+    @JsonKey(name: 'reports_count') required int reportsCount,
+    @JsonKey(name: 'is_approved') required bool isApproved,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _ReviewModel;
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) =>
@@ -38,10 +38,10 @@ class ReviewModel with _$ReviewModel {
 @freezed
 class CreateReviewRequest with _$CreateReviewRequest {
   const factory CreateReviewRequest({
-    required String bookingId,
+    @JsonKey(name: 'booking_id') required String bookingId,
     required int rating,
     String? comment,
-    List<String>? photoUrls,
+    @JsonKey(name: 'photo_urls') List<String>? photoUrls,
   }) = _CreateReviewRequest;
 
   factory CreateReviewRequest.fromJson(Map<String, dynamic> json) =>
