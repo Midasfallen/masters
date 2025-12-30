@@ -337,15 +337,117 @@ export class SearchService implements OnModuleInit {
   private async fallbackSearchMasters(
     searchDto: SearchMastersDto,
   ): Promise<SearchResponseDto<MasterSearchResultDto>> {
-    // TODO: Реализовать поиск через TypeORM
-    return {
-      data: [],
-      total: 0,
-      page: searchDto.page || 1,
-      limit: searchDto.limit || 20,
-      processing_time_ms: 0,
-      query: searchDto.query,
-    };
+    const { query = '', page = 1, limit = 20, sort = 'relevance' } = searchDto;
+    const startTime = Date.now();
+
+    console.warn('⚠️  Using fallback PostgreSQL search (Meilisearch unavailable)');
+
+    try {
+      // Build query
+      const qb = this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect(MasterProfile, 'profile', 'profile.user_id = user.id')
+        .where('user.is_master = :isMaster', { isMaster: true })
+        .andWhere('profile.is_active = :isActive', { isActive: true });
+
+      // Text search using ILIKE
+      if (query) {
+        qb.andWhere(
+          `(
+            user.first_name ILIKE :query
+            OR user.last_name ILIKE :query
+            OR profile.bio ILIKE :query
+            OR profile.business_name ILIKE :query
+          )`,
+          { query: `%${query}%` },
+        );
+      }
+
+      // Category filter
+      if (searchDto.category_id) {
+        qb.andWhere(':categoryId = ANY(profile.category_ids)', {
+          categoryId: searchDto.category_id,
+        });
+      }
+
+      // Rating filter
+      if (searchDto.min_rating) {
+        qb.andWhere('user.rating >= :minRating', {
+          minRating: searchDto.min_rating,
+        });
+      }
+
+      // Tags filter
+      if (searchDto.tags && searchDto.tags.length > 0) {
+        qb.andWhere('profile.tags && :tags', { tags: searchDto.tags });
+      }
+
+      // Sorting
+      if (sort === 'rating') {
+        qb.orderBy('user.rating', 'DESC');
+      } else if (sort === 'reviews_count') {
+        qb.orderBy('user.reviews_count', 'DESC');
+      } else {
+        // Default sorting by created_at for relevance
+        qb.orderBy('user.created_at', 'DESC');
+      }
+
+      // Pagination
+      const offset = (page - 1) * limit;
+      qb.skip(offset).take(limit);
+
+      // Execute query
+      const [users, total] = await qb.getManyAndCount();
+
+      // Transform to response format
+      const data: MasterSearchResultDto[] = await Promise.all(
+        users.map(async (user) => {
+          const profile = await this.masterProfileRepository.findOne({
+            where: { user_id: user.id },
+          });
+
+          return {
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            avatar_url: user.avatar_url,
+            average_rating: Number(user.rating),
+            reviews_count: user.reviews_count,
+            category_names: [], // TODO: Load from Category
+            description: profile?.bio || '',
+            tags: profile?.tags || [],
+            location_address: profile?.location_address || '',
+            distance_km: this.calculateDistance(
+              searchDto.lat,
+              searchDto.lng,
+              profile?.location_lat,
+              profile?.location_lng,
+            ),
+          };
+        }),
+      );
+
+      const processingTimeMs = Date.now() - startTime;
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        processing_time_ms: processingTimeMs,
+        query,
+      };
+    } catch (error) {
+      console.error('Fallback search error:', error);
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        processing_time_ms: Date.now() - startTime,
+        query,
+      };
+    }
   }
 
   /**
@@ -354,15 +456,151 @@ export class SearchService implements OnModuleInit {
   private async fallbackSearchServices(
     searchDto: SearchServicesDto,
   ): Promise<SearchResponseDto<ServiceSearchResultDto>> {
-    // TODO: Реализовать поиск через TypeORM
-    return {
-      data: [],
-      total: 0,
-      page: searchDto.page || 1,
-      limit: searchDto.limit || 20,
-      processing_time_ms: 0,
-      query: searchDto.query,
-    };
+    const { query = '', page = 1, limit = 20, sort = 'relevance' } = searchDto;
+    const startTime = Date.now();
+
+    console.warn('⚠️  Using fallback PostgreSQL search (Meilisearch unavailable)');
+
+    try {
+      // Build query
+      const qb = this.serviceRepository
+        .createQueryBuilder('service')
+        .where('service.is_active = :isActive', { isActive: true });
+
+      // Text search using ILIKE
+      if (query) {
+        qb.andWhere(
+          `(
+            service.name ILIKE :query
+            OR service.description ILIKE :query
+          )`,
+          { query: `%${query}%` },
+        );
+      }
+
+      // Category filter
+      if (searchDto.category_id) {
+        qb.andWhere('service.category_id = :categoryId', {
+          categoryId: searchDto.category_id,
+        });
+      }
+
+      // Price filters
+      if (searchDto.min_price !== undefined) {
+        qb.andWhere('service.price >= :minPrice', {
+          minPrice: searchDto.min_price,
+        });
+      }
+
+      if (searchDto.max_price !== undefined) {
+        qb.andWhere('service.price <= :maxPrice', {
+          maxPrice: searchDto.max_price,
+        });
+      }
+
+      // Duration filters
+      if (searchDto.min_duration !== undefined) {
+        qb.andWhere('service.duration_minutes >= :minDuration', {
+          minDuration: searchDto.min_duration,
+        });
+      }
+
+      if (searchDto.max_duration !== undefined) {
+        qb.andWhere('service.duration_minutes <= :maxDuration', {
+          maxDuration: searchDto.max_duration,
+        });
+      }
+
+      // Tags filter
+      if (searchDto.tags && searchDto.tags.length > 0) {
+        qb.andWhere('service.tags && :tags', { tags: searchDto.tags });
+      }
+
+      // Sorting
+      if (sort === 'price_asc') {
+        qb.orderBy('service.price', 'ASC');
+      } else if (sort === 'price_desc') {
+        qb.orderBy('service.price', 'DESC');
+      } else if (sort === 'duration_asc') {
+        qb.orderBy('service.duration_minutes', 'ASC');
+      } else if (sort === 'duration_desc') {
+        qb.orderBy('service.duration_minutes', 'DESC');
+      } else {
+        // Default sorting
+        qb.orderBy('service.bookings_count', 'DESC');
+      }
+
+      // Pagination
+      const offset = (page - 1) * limit;
+      qb.skip(offset).take(limit);
+
+      // Execute query
+      const [services, total] = await qb.getManyAndCount();
+
+      // Transform to response format
+      const data: ServiceSearchResultDto[] = await Promise.all(
+        services.map(async (service) => {
+          // Get master profile
+          const masterProfile = await this.masterProfileRepository.findOne({
+            where: { id: service.master_id },
+          });
+
+          // Get master user
+          const master = masterProfile
+            ? await this.userRepository.findOne({
+                where: { id: masterProfile.user_id },
+              })
+            : null;
+
+          return {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            price: Number(service.price),
+            duration_minutes: service.duration_minutes,
+            category_name: '', // TODO: Load from Category
+            tags: service.tags,
+            photo_urls: service.photo_urls,
+            master: master
+              ? {
+                  id: master.id,
+                  first_name: master.first_name,
+                  last_name: master.last_name,
+                  avatar_url: master.avatar_url,
+                  average_rating: Number(master.rating),
+                }
+              : {
+                  id: '',
+                  first_name: '',
+                  last_name: '',
+                  avatar_url: '',
+                  average_rating: 0,
+                },
+          };
+        }),
+      );
+
+      const processingTimeMs = Date.now() - startTime;
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        processing_time_ms: processingTimeMs,
+        query,
+      };
+    } catch (error) {
+      console.error('Fallback search error:', error);
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        processing_time_ms: Date.now() - startTime,
+        query,
+      };
+    }
   }
 
   /**
