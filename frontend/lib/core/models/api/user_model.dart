@@ -9,25 +9,25 @@ class UserModel with _$UserModel {
     required String id,
     required String email,
     String? phone,
-    required String firstName,
-    required String lastName,
-    required String fullName,
-    String? avatarUrl,
-    required bool isMaster,
-    required bool masterProfileCompleted,
-    required bool isVerified,
-    required bool isPremium,
-    DateTime? premiumUntil,
+    @JsonKey(name: 'first_name') required String firstName,
+    @JsonKey(name: 'last_name') required String lastName,
+    @JsonKey(name: 'full_name') required String fullName,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'is_master') required bool isMaster,
+    @JsonKey(name: 'master_profile_completed') required bool masterProfileCompleted,
+    @JsonKey(name: 'is_verified') required bool isVerified,
+    @JsonKey(name: 'is_premium') required bool isPremium,
+    @JsonKey(name: 'premium_until') DateTime? premiumUntil,
     required double rating,
-    required int reviewsCount,
-    required int postsCount,
-    required int friendsCount,
-    required int followersCount,
-    required int followingCount,
+    @JsonKey(name: 'reviews_count') required int reviewsCount,
+    @JsonKey(name: 'posts_count') required int postsCount,
+    @JsonKey(name: 'friends_count') required int friendsCount,
+    @JsonKey(name: 'followers_count') required int followersCount,
+    @JsonKey(name: 'following_count') required int followingCount,
     required String language,
     required String timezone,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -38,10 +38,10 @@ class UserModel with _$UserModel {
 @freezed
 class AuthResponseModel with _$AuthResponseModel {
   const factory AuthResponseModel({
-    required String accessToken,
-    required String refreshToken,
-    required String tokenType,
-    required int expiresIn,
+    @JsonKey(name: 'access_token') required String accessToken,
+    @JsonKey(name: 'refresh_token') required String refreshToken,
+    @JsonKey(name: 'token_type') required String tokenType,
+    @JsonKey(name: 'expires_in') required int expiresIn,
     required AuthUserModel user,
   }) = _AuthResponseModel;
 
@@ -55,12 +55,12 @@ class AuthUserModel with _$AuthUserModel {
   const factory AuthUserModel({
     required String id,
     required String email,
-    required String firstName,
-    required String lastName,
-    String? avatarUrl,
-    required bool isMaster,
-    required bool isVerified,
-    required bool isPremium,
+    @JsonKey(name: 'first_name') required String firstName,
+    @JsonKey(name: 'last_name') required String lastName,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'is_master') required bool isMaster,
+    @JsonKey(name: 'is_verified') required bool isVerified,
+    @JsonKey(name: 'is_premium') required bool isPremium,
   }) = _AuthUserModel;
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) =>
@@ -85,8 +85,8 @@ class RegisterRequest with _$RegisterRequest {
   const factory RegisterRequest({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
+    @JsonKey(name: 'first_name') required String firstName,
+    @JsonKey(name: 'last_name') required String lastName,
     String? phone,
   }) = _RegisterRequest;
 
@@ -98,8 +98,8 @@ class RegisterRequest with _$RegisterRequest {
 @freezed
 class UpdateUserRequest with _$UpdateUserRequest {
   const factory UpdateUserRequest({
-    String? firstName,
-    String? lastName,
+    @JsonKey(name: 'first_name') String? firstName,
+    @JsonKey(name: 'last_name') String? lastName,
     String? phone,
     String? language,
     String? timezone,

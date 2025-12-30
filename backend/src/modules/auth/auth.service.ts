@@ -8,18 +8,28 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
+  // Temporary in-memory storage for reset tokens
+  // TODO: Replace with Redis in production
+  private resetTokens = new Map<string, { userId: string; expires: Date }>();
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    // Clean expired tokens every hour
+    setInterval(() => this.cleanExpiredTokens(), 60 * 60 * 1000);
+  }
 
   /**
    * Регистрация нового пользователя
@@ -127,6 +137,89 @@ export class AuthService {
   }
 
   /**
+   * Forgot Password - отправка токена сброса
+   */
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+    const { email } = forgotPasswordDto;
+
+    // Поиск пользователя
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    // Всегда возвращаем success, даже если пользователь не найден (security best practice)
+    if (!user) {
+      return {
+        message: 'Если email существует в системе, на него будет отправлено письмо с инструкциями',
+      };
+    }
+
+    // Генерация токена сброса
+    const resetToken = uuidv4();
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1); // Токен действителен 1 час
+
+    // Сохранение токена
+    this.resetTokens.set(resetToken, {
+      userId: user.id,
+      expires,
+    });
+
+    // TODO: Отправка email с токеном через MailHog/SMTP
+    // В реальной системе здесь будет:
+    // await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+
+    console.log(`[AUTH] Password reset token for ${email}: ${resetToken}`);
+    console.log(`[AUTH] Reset link: ${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`);
+
+    return {
+      message: 'Если email существует в системе, на него будет отправлено письмо с инструкциями',
+    };
+  }
+
+  /**
+   * Reset Password - сброс пароля по токену
+   */
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+    const { reset_token, new_password } = resetPasswordDto;
+
+    // Проверка токена
+    const tokenData = this.resetTokens.get(reset_token);
+
+    if (!tokenData) {
+      throw new BadRequestException('Неверный или истекший токен сброса пароля');
+    }
+
+    // Проверка времени истечения
+    if (new Date() > tokenData.expires) {
+      this.resetTokens.delete(reset_token);
+      throw new BadRequestException('Токен истек. Пожалуйста, запросите новый');
+    }
+
+    // Поиск пользователя
+    const user = await this.userRepository.findOne({
+      where: { id: tokenData.userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Пользователь не найден');
+    }
+
+    // Обновление пароля
+    user.password_hash = await this.hashPassword(new_password);
+    await this.userRepository.save(user);
+
+    // Удаление использованного токена
+    this.resetTokens.delete(reset_token);
+
+    console.log(`[AUTH] Password reset successful for user ${user.email}`);
+
+    return {
+      message: 'Пароль успешно изменен. Теперь вы можете войти с новым паролем',
+    };
+  }
+
+  /**
    * Валидация пользователя по ID (для JWT Strategy)
    */
   async validateUser(userId: string): Promise<User> {
@@ -139,6 +232,18 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Очистка истекших токенов сброса
+   */
+  private cleanExpiredTokens(): void {
+    const now = new Date();
+    for (const [token, data] of this.resetTokens.entries()) {
+      if (now > data.expires) {
+        this.resetTokens.delete(token);
+      }
+    }
   }
 
   /**
@@ -187,14 +292,11 @@ export class AuthService {
       },
     );
 
-    // Время жизни токена в секундах (7 дней = 604800 секунд)
-    const expires_in = 7 * 24 * 60 * 60;
-
     return {
       access_token,
       refresh_token,
       token_type: 'Bearer',
-      expires_in,
+      expires_in: 7 * 24 * 60 * 60, // 7 дней в секундах
       user: {
         id: user.id,
         email: user.email,

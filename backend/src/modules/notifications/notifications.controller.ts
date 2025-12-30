@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Param,
@@ -8,6 +9,8 @@ import {
   Body,
   UseGuards,
   Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +23,7 @@ import { NotificationsService } from './notifications.service';
 import { NotificationResponseDto } from './dto/notification-response.dto';
 import { FilterNotificationsDto } from './dto/filter-notifications.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
+import { RegisterDeviceDto } from './dto/register-device.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Notifications')
@@ -172,5 +176,56 @@ export class NotificationsController {
   })
   async removeAllRead(@Request() req): Promise<void> {
     return this.notificationsService.removeAllRead(req.user.sub);
+  }
+
+  // ============ DEVICE TOKEN ENDPOINTS ============
+
+  @Post('devices/register')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Регистрация device token для push-уведомлений',
+    description: 'Регистрирует FCM/APNs токен устройства для отправки push-уведомлений',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Device token успешно зарегистрирован',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Device token registered successfully' },
+      },
+    },
+  })
+  @ApiResponse({ status: 409, description: 'Ошибка регистрации токена' })
+  async registerDevice(
+    @Request() req,
+    @Body() registerDto: RegisterDeviceDto,
+  ): Promise<{ message: string }> {
+    await this.notificationsService.registerDeviceToken(req.user.sub, registerDto);
+    return { message: 'Device token registered successfully' };
+  }
+
+  @Delete('devices/:token')
+  @ApiOperation({
+    summary: 'Удаление device token',
+    description: 'Удаляет токен устройства (при выходе из аккаунта)',
+  })
+  @ApiParam({ name: 'token', description: 'FCM/APNs токен устройства' })
+  @ApiResponse({
+    status: 200,
+    description: 'Device token успешно удален',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Device token unregistered successfully' },
+      },
+    },
+  })
+  async unregisterDevice(
+    @Request() req,
+    @Param('token') token: string,
+  ): Promise<{ message: string }> {
+    await this.notificationsService.unregisterDeviceToken(req.user.sub, token);
+    return { message: 'Device token unregistered successfully' };
   }
 }
