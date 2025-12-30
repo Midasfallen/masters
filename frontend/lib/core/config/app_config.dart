@@ -5,11 +5,11 @@ class AppConfig {
   AppConfig._();
 
   /// API Configuration
-  static const String apiVersion = 'v1';
+  static const String apiVersion = 'v2';
 
   /// Base URL for API requests
   /// Change this to your backend URL
-  static const String apiBaseUrl = 'http://localhost:8000';
+  static const String apiBaseUrl = 'http://localhost:3000';
 
   /// Full API URL with version
   static String get apiUrl => '$apiBaseUrl/api/$apiVersion';
