@@ -192,8 +192,73 @@ export class MessagesService {
     return { message: 'Message deleted successfully' };
   }
 
+  async markAsRead(messageId: string, userId: string) {
+    const message = await this.messageRepository.findOne({
+      where: { id: messageId },
+    });
+
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    // Проверка участия в чате
+    const participant = await this.participantRepository.findOne({
+      where: { chat_id: message.chat_id, user_id: userId },
+    });
+
+    if (!participant || participant.is_removed) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    // Не нужно отмечать свои сообщения как прочитанные
+    if (message.sender_id === userId) {
+      return { message: 'Cannot mark own message as read' };
+    }
+
+    // Увеличить счетчик прочитавших
+    await this.messageRepository.update(messageId, {
+      read_count: () => 'read_count + 1',
+    });
+
+    // Уменьшить счетчик непрочитанных для участника
+    if (participant.unread_count > 0) {
+      await this.participantRepository.update(participant.id, {
+        unread_count: () => 'unread_count - 1',
+      });
+    }
+
+    return { message: 'Message marked as read' };
+  }
+
+  async markChatAsRead(chatId: string, userId: string) {
+    // Проверка участия в чате
+    const participant = await this.participantRepository.findOne({
+      where: { chat_id: chatId, user_id: userId },
+    });
+
+    if (!participant || participant.is_removed) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    // Сбросить счетчик непрочитанных
+    await this.participantRepository.update(participant.id, {
+      unread_count: 0,
+    });
+
+    return { message: 'Chat marked as read' };
+  }
+
   private validateMessageContent(dto: CreateMessageDto) {
-    const { type, content, media_url, location_lat, location_lng } = dto;
+    const {
+      type,
+      content,
+      media_url,
+      location_lat,
+      location_lng,
+      shared_profile_id,
+      shared_post_id,
+      booking_proposal_id,
+    } = dto;
 
     switch (type) {
       case MessageType.TEXT:
@@ -204,10 +269,14 @@ export class MessagesService {
 
       case MessageType.PHOTO:
       case MessageType.VIDEO:
-      case MessageType.AUDIO:
-      case MessageType.DOCUMENT:
         if (!media_url) {
           throw new BadRequestException(`${type} message must have media_url`);
+        }
+        break;
+
+      case MessageType.VOICE:
+        if (!media_url) {
+          throw new BadRequestException('Voice message must have media_url');
         }
         break;
 
@@ -217,9 +286,24 @@ export class MessagesService {
         }
         break;
 
-      case MessageType.CONTACT:
-      case MessageType.SYSTEM:
-        // Дополнительная валидация может быть добавлена
+      case MessageType.PROFILE_SHARE:
+        if (!shared_profile_id) {
+          throw new BadRequestException('Profile share must have shared_profile_id');
+        }
+        break;
+
+      case MessageType.POST_SHARE:
+        if (!shared_post_id) {
+          throw new BadRequestException('Post share must have shared_post_id');
+        }
+        break;
+
+      case MessageType.BOOKING_PROPOSAL:
+        if (!booking_proposal_id) {
+          throw new BadRequestException(
+            'Booking proposal must have booking_proposal_id',
+          );
+        }
         break;
 
       default:

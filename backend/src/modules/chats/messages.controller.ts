@@ -57,4 +57,16 @@ export class MessagesController {
   remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.messagesService.remove(id, userId);
   }
+
+  @Patch(':id/read')
+  @ApiOperation({ summary: 'Отметить сообщение как прочитанное' })
+  markAsRead(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.messagesService.markAsRead(id, userId);
+  }
+
+  @Patch('chats/:chatId/read')
+  @ApiOperation({ summary: 'Отметить все сообщения чата как прочитанные' })
+  markChatAsRead(@Param('chatId') chatId: string, @CurrentUser('id') userId: string) {
+    return this.messagesService.markChatAsRead(chatId, userId);
+  }
 }

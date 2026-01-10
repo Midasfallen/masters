@@ -11,6 +11,8 @@ import {
   Point,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
+import { Service } from '../../services/entities/service.entity';
 
 @Entity('master_profiles')
 @Index(['user_id'], { unique: true })
@@ -24,7 +26,6 @@ export class MasterProfile {
 
   @ApiProperty({ description: 'Ссылка на пользователя' })
   @Column({ type: 'uuid' })
-  @Index()
   user_id: string;
 
   @ApiProperty({ example: 'Салон красоты "Элита"', required: false })
@@ -163,11 +164,11 @@ export class MasterProfile {
   @UpdateDateColumn()
   updated_at: Date;
 
-  // Relations will be added later:
-  // @OneToOne(() => User)
-  // @JoinColumn({ name: 'user_id' })
-  // user: User;
-  //
-  // @OneToMany(() => Service, service => service.master)
-  // services: Service[];
+  // Relations
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @OneToMany(() => Service, (service) => service.master_id)
+  services: Service[];
 }

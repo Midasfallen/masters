@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -20,6 +21,7 @@ import { SocialModule } from './modules/social/social.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
+import { AutoProposalsModule } from './modules/auto-proposals/auto-proposals.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -29,6 +31,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    // Scheduler (для cron jobs)
+    ScheduleModule.forRoot(),
 
     // Logger
     LoggerModule,
@@ -55,6 +60,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     FriendsModule,
     ChatsModule,
     WebSocketModule,
+
+    // Auto Proposals (Premium feature)
+    AutoProposalsModule,
   ],
   controllers: [AppController],
   providers: [

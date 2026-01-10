@@ -16,11 +16,11 @@ export enum MessageType {
   TEXT = 'text',
   PHOTO = 'photo',
   VIDEO = 'video',
-  AUDIO = 'audio',
-  DOCUMENT = 'document',
+  VOICE = 'voice',
   LOCATION = 'location',
-  CONTACT = 'contact',
-  SYSTEM = 'system',
+  PROFILE_SHARE = 'profile_share',
+  POST_SHARE = 'post_share',
+  BOOKING_PROPOSAL = 'booking_proposal',
 }
 
 @Entity('messages')
@@ -81,6 +81,18 @@ export class Message {
   @ApiProperty({ description: 'Название места', nullable: true })
   @Column({ type: 'varchar', length: 255, nullable: true })
   location_name: string;
+
+  @ApiProperty({ description: 'ID расшаренного профиля (для type=profile_share)', nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  shared_profile_id: string;
+
+  @ApiProperty({ description: 'ID расшаренного поста (для type=post_share)', nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  shared_post_id: string;
+
+  @ApiProperty({ description: 'ID предложения бронирования (для type=booking_proposal)', nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  booking_proposal_id: string;
 
   @ApiProperty({ description: 'ID ответа на сообщение', nullable: true })
   @Column({ type: 'uuid', nullable: true })

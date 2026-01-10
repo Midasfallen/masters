@@ -318,6 +318,188 @@ export class NotificationsService {
     );
   }
 
+  /**
+   * Уведомление об ответе на отзыв
+   */
+  async notifyReviewResponse(
+    userId: string,
+    reviewId: string,
+    responderName: string,
+  ): Promise<void> {
+    await this.create(
+      userId,
+      NotificationType.REVIEW_RESPONSE,
+      'Ответ на отзыв',
+      `${responderName} ответил на ваш отзыв`,
+      {
+        related_id: reviewId,
+        related_type: 'review',
+        action_url: `/reviews/${reviewId}`,
+      },
+    );
+  }
+
+  /**
+   * Уведомление об отклонении бронирования (для клиента)
+   */
+  async notifyBookingRejected(
+    clientId: string,
+    bookingId: string,
+    masterName: string,
+    reason?: string,
+  ): Promise<void> {
+    const message = reason
+      ? `${masterName} отклонил ваше бронирование. Причина: ${reason}`
+      : `${masterName} отклонил ваше бронирование`;
+
+    await this.create(
+      clientId,
+      NotificationType.BOOKING_REJECTED,
+      'Бронирование отклонено',
+      message,
+      {
+        related_id: bookingId,
+        related_type: 'booking',
+        action_url: `/bookings/${bookingId}`,
+        metadata: { reason },
+      },
+    );
+  }
+
+  /**
+   * Уведомление об отмене бронирования
+   */
+  async notifyBookingCancelled(
+    userId: string,
+    bookingId: string,
+    cancellerName: string,
+    isMaster: boolean,
+  ): Promise<void> {
+    const role = isMaster ? 'Мастер' : 'Клиент';
+    await this.create(
+      userId,
+      NotificationType.BOOKING_CANCELLED,
+      'Бронирование отменено',
+      `${role} ${cancellerName} отменил бронирование`,
+      {
+        related_id: bookingId,
+        related_type: 'booking',
+        action_url: `/bookings/${bookingId}`,
+      },
+    );
+  }
+
+  /**
+   * Уведомление о начале сессии (за 15 минут)
+   */
+  async notifyBookingStarting(
+    userId: string,
+    bookingId: string,
+    serviceName: string,
+    startTime: Date,
+    partnerName: string,
+  ): Promise<void> {
+    await this.create(
+      userId,
+      NotificationType.BOOKING_STARTED,
+      'Скоро начало сессии',
+      `Услуга "${serviceName}" начнется через 15 минут (${startTime.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}). ${partnerName} ждёт вас!`,
+      {
+        related_id: bookingId,
+        related_type: 'booking',
+        action_url: `/bookings/${bookingId}`,
+      },
+    );
+  }
+
+  /**
+   * Уведомление о завершении бронирования
+   */
+  async notifyBookingCompleted(
+    userId: string,
+    bookingId: string,
+    serviceName: string,
+    partnerName: string,
+    isMaster: boolean,
+  ): Promise<void> {
+    const message = isMaster
+      ? `Сессия "${serviceName}" с ${partnerName} завершена. Ожидайте отзыва от клиента.`
+      : `Сессия "${serviceName}" с мастером ${partnerName} завершена. Пожалуйста, оставьте отзыв!`;
+
+    await this.create(
+      userId,
+      NotificationType.BOOKING_COMPLETED,
+      'Сессия завершена',
+      message,
+      {
+        related_id: bookingId,
+        related_type: 'booking',
+        action_url: isMaster ? `/bookings/${bookingId}` : `/bookings/${bookingId}/review`,
+      },
+    );
+  }
+
+  /**
+   * Уведомление-напоминание о бронировании (за 24 часа)
+   */
+  async notifyBookingReminder(
+    userId: string,
+    bookingId: string,
+    serviceName: string,
+    startTime: Date,
+    partnerName: string,
+  ): Promise<void> {
+    await this.create(
+      userId,
+      NotificationType.BOOKING_REMINDER,
+      'Напоминание о записи',
+      `Напоминаем: услуга "${serviceName}" с ${partnerName} завтра в ${startTime.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}`,
+      {
+        related_id: bookingId,
+        related_type: 'booking',
+        action_url: `/bookings/${bookingId}`,
+      },
+    );
+  }
+
+  /**
+   * Уведомление о новом сообщении в чате
+   */
+  async notifyNewMessage(
+    userId: string,
+    chatId: string,
+    senderName: string,
+    messagePreview: string,
+  ): Promise<void> {
+    await this.create(
+      userId,
+      NotificationType.NEW_MESSAGE,
+      `Новое сообщение от ${senderName}`,
+      messagePreview.length > 100
+        ? messagePreview.substring(0, 100) + '...'
+        : messagePreview,
+      {
+        related_id: chatId,
+        related_type: 'chat',
+        action_url: `/chats/${chatId}`,
+      },
+    );
+  }
+
+  /**
+   * Системное уведомление
+   */
+  async notifySystem(
+    userId: string,
+    title: string,
+    message: string,
+    actionUrl?: string,
+  ): Promise<void> {
+    await this.create(userId, NotificationType.SYSTEM, title, message, {
+      action_url: actionUrl,
+    });
+  }
+
   // ============ DEVICE TOKEN MANAGEMENT ============
 
   /**

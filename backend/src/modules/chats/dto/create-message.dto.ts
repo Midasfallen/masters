@@ -90,6 +90,21 @@ export class CreateMessageDto {
   @MaxLength(255)
   location_name?: string;
 
+  @ApiPropertyOptional({ description: 'ID расшаренного профиля (для type=profile_share)' })
+  @IsOptional()
+  @IsUUID()
+  shared_profile_id?: string;
+
+  @ApiPropertyOptional({ description: 'ID расшаренного поста (для type=post_share)' })
+  @IsOptional()
+  @IsUUID()
+  shared_post_id?: string;
+
+  @ApiPropertyOptional({ description: 'ID предложения бронирования (для type=booking_proposal)' })
+  @IsOptional()
+  @IsUUID()
+  booking_proposal_id?: string;
+
   @ApiPropertyOptional({ description: 'ID сообщения, на которое отвечаем' })
   @IsOptional()
   @IsUUID()
