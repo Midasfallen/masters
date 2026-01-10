@@ -184,8 +184,19 @@ describe('BookingsService', () => {
 
       mockServiceRepository.findOne.mockResolvedValue(mockService);
       mockMasterProfileRepository.findOne.mockResolvedValue(mockMasterProfile);
-      // Есть пересечение с существующим бронированием
-      mockBookingRepository.createQueryBuilder().getCount.mockResolvedValue(1);
+
+      // Override the default mock behavior for getCount
+      mockBookingRepository.createQueryBuilder.mockReturnValueOnce({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(1), // Has overlapping bookings
+        getMany: jest.fn().mockResolvedValue([]),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+      });
 
       await expect(service.create('client-1', createDto)).rejects.toThrow(
         BadRequestException,
@@ -194,26 +205,71 @@ describe('BookingsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all bookings for a user', async () => {
+    it('should return paginated bookings for a user', async () => {
       const mockBookings = [mockBooking];
-      mockBookingRepository
-        .createQueryBuilder()
-        .getMany.mockResolvedValue(mockBookings);
+
+      mockBookingRepository.createQueryBuilder.mockReturnValueOnce({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([mockBookings, 1]),
+        getCount: jest.fn().mockResolvedValue(0),
+        getMany: jest.fn().mockResolvedValue([]),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+      });
 
       const result = await service.findAll('client-1', {});
 
-      expect(result).toEqual(mockBookings);
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('total');
+      expect(result).toHaveProperty('page');
+      expect(result).toHaveProperty('limit');
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
       expect(mockBookingRepository.createQueryBuilder).toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
-    it('should return a booking by id', async () => {
+    it('should return a booking by id for client', async () => {
       // Booking где client_id совпадает с userId
-      const booking = { ...mockBooking, client_id: 'client-1' };
+      const booking = {
+        ...mockBooking,
+        client_id: 'client-1',
+        master_id: 'master-user-1',
+        service: mockService,
+        client: { id: 'client-1', first_name: 'Client' },
+        master: { id: 'master-user-1', first_name: 'Master' },
+      };
       mockBookingRepository.findOne.mockResolvedValue(booking);
 
-      const result = await service.findOne('booking-1', 'client-1');
+      const result = await service.findOne('client-1', 'booking-1');
+
+      expect(result).toBeDefined();
+      expect(mockBookingRepository.findOne).toHaveBeenCalled();
+    });
+
+    it('should return a booking by id for master', async () => {
+      // Booking где master_id совпадает с userId
+      const masterUserId = 'master-user-1';
+      const booking = {
+        id: 'booking-1',
+        master_id: masterUserId, // Ensure explicit matching
+        client_id: 'client-1',
+        service_id: 'service-1',
+        start_time: new Date('2026-01-15T10:00:00'),
+        end_time: new Date('2026-01-15T11:00:00'),
+        status: BookingStatus.PENDING,
+        total_price: 5000,
+        service: mockService,
+        client: { id: 'client-1', first_name: 'Client' },
+        master: { id: masterUserId, first_name: 'Master' },
+      };
+      mockBookingRepository.findOne.mockResolvedValue(booking);
+
+      const result = await service.findOne(masterUserId, 'booking-1');
 
       expect(result).toBeDefined();
       expect(mockBookingRepository.findOne).toHaveBeenCalled();
@@ -222,7 +278,7 @@ describe('BookingsService', () => {
     it('should throw NotFoundException when booking not found', async () => {
       mockBookingRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent', 'client-1')).rejects.toThrow(
+      await expect(service.findOne('client-1', 'nonexistent')).rejects.toThrow(
         NotFoundException,
       );
     });
