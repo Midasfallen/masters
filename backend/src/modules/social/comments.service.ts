@@ -11,6 +11,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { FilterCommentsDto } from './dto/filter-comments.dto';
 import { Post } from '../posts/entities/post.entity';
+import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class CommentsService {
@@ -19,6 +20,7 @@ export class CommentsService {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
   async create(userId: string, createCommentDto: CreateCommentDto) {
@@ -72,7 +74,32 @@ export class CommentsService {
       );
     }
 
-    return this.findOne(savedComment.id);
+    // Получаем полный комментарий с автором
+    const fullComment = await this.findOne(savedComment.id);
+
+    // Отправляем WebSocket событие
+    const updatedPost = await this.postRepository.findOne({
+      where: { id: createCommentDto.post_id },
+      relations: ['author'],
+    });
+
+    if (updatedPost) {
+      this.websocketGateway.broadcastPostCommented(createCommentDto.post_id, {
+        comment_id: fullComment.id,
+        user_id: userId,
+        user_name: fullComment.author
+          ? `${fullComment.author.first_name} ${fullComment.author.last_name}`
+          : 'Unknown User',
+        user_avatar: fullComment.author?.avatar_url || null,
+        content: fullComment.content,
+        comments_count: updatedPost.comments_count,
+        is_reply: !!createCommentDto.parent_comment_id,
+        parent_comment_id: createCommentDto.parent_comment_id || null,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return fullComment;
   }
 
   async findAll(filterDto: FilterCommentsDto) {

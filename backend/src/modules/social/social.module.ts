@@ -10,9 +10,13 @@ import { Like } from './entities/like.entity';
 import { Comment } from './entities/comment.entity';
 import { Repost } from './entities/repost.entity';
 import { Post } from '../posts/entities/post.entity';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Like, Comment, Repost, Post])],
+  imports: [
+    TypeOrmModule.forFeature([Like, Comment, Repost, Post]),
+    WebSocketModule,
+  ],
   controllers: [LikesController, CommentsController, RepostsController],
   providers: [LikesService, CommentsService, RepostsService],
   exports: [LikesService, CommentsService, RepostsService],

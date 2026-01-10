@@ -12,6 +12,7 @@ import { ChatParticipant } from './entities/chat-participant.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { FilterMessagesDto } from './dto/filter-messages.dto';
+import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class MessagesService {
@@ -22,6 +23,7 @@ export class MessagesService {
     private readonly chatRepository: Repository<Chat>,
     @InjectRepository(ChatParticipant)
     private readonly participantRepository: Repository<ChatParticipant>,
+    private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
   async create(userId: string, createMessageDto: CreateMessageDto) {
@@ -73,7 +75,35 @@ export class MessagesService {
       .andWhere('is_removed = :isRemoved', { isRemoved: false })
       .execute();
 
-    return this.findOne(savedMessage.id, userId);
+    // Получаем полное сообщение с sender для WebSocket
+    const fullMessage = await this.findOne(savedMessage.id, userId);
+
+    // Отправляем WebSocket событие всем участникам чата
+    this.websocketGateway.sendMessageToChat(chat_id, 'chat:message:new', {
+      id: fullMessage.id,
+      chat_id: fullMessage.chat_id,
+      sender_id: fullMessage.sender_id,
+      sender_name: fullMessage.sender
+        ? `${fullMessage.sender.first_name} ${fullMessage.sender.last_name}`
+        : 'Unknown',
+      sender_avatar: fullMessage.sender?.avatar_url || null,
+      type: fullMessage.type,
+      content: fullMessage.content,
+      media_url: fullMessage.media_url,
+      thumbnail_url: fullMessage.thumbnail_url,
+      location_lat: fullMessage.location_lat,
+      location_lng: fullMessage.location_lng,
+      location_name: fullMessage.location_name,
+      shared_profile_id: fullMessage.shared_profile_id,
+      shared_post_id: fullMessage.shared_post_id,
+      booking_proposal_id: fullMessage.booking_proposal_id,
+      reply_to_id: fullMessage.reply_to_id,
+      created_at: fullMessage.created_at.toISOString(),
+      is_edited: fullMessage.is_edited,
+      is_deleted: fullMessage.is_deleted,
+    });
+
+    return fullMessage;
   }
 
   async findAll(userId: string, filterDto: FilterMessagesDto) {
@@ -226,6 +256,18 @@ export class MessagesService {
         unread_count: () => 'unread_count - 1',
       });
     }
+
+    // Отправляем WebSocket событие о прочтении
+    this.websocketGateway.sendMessageToChat(
+      message.chat_id,
+      'chat:message:read',
+      {
+        message_id: messageId,
+        chat_id: message.chat_id,
+        read_by: userId,
+        read_at: new Date().toISOString(),
+      },
+    );
 
     return { message: 'Message marked as read' };
   }

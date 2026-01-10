@@ -9,6 +9,7 @@ import { Like, LikableType } from './entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { Post } from '../posts/entities/post.entity';
 import { Comment } from './entities/comment.entity';
+import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class LikesService {
@@ -19,6 +20,7 @@ export class LikesService {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
   async create(userId: string, createLikeDto: CreateLikeDto) {
@@ -50,6 +52,23 @@ export class LikesService {
 
     // Увеличиваем счетчик лайков
     await this.incrementLikesCount(likable_type, likable_id);
+
+    // Отправляем WebSocket событие для постов
+    if (likable_type === LikableType.POST) {
+      const post = await this.postRepository.findOne({
+        where: { id: likable_id },
+        relations: ['author'],
+      });
+
+      if (post) {
+        this.websocketGateway.broadcastPostLiked(likable_id, {
+          user_id: userId,
+          user_name: 'User', // TODO: получить имя из userId
+          likes_count: post.likes_count + 1,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
 
     return savedLike;
   }

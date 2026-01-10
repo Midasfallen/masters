@@ -8,9 +8,13 @@ import { Chat } from './entities/chat.entity';
 import { Message } from './entities/message.entity';
 import { ChatParticipant } from './entities/chat-participant.entity';
 import { User } from '../users/entities/user.entity';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message, ChatParticipant, User])],
+  imports: [
+    TypeOrmModule.forFeature([Chat, Message, ChatParticipant, User]),
+    WebSocketModule,
+  ],
   controllers: [ChatsController, MessagesController],
   providers: [ChatsService, MessagesService],
   exports: [ChatsService, MessagesService],

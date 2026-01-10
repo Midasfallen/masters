@@ -14,6 +14,7 @@ import { FilterNotificationsDto } from './dto/filter-notifications.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
 import { RegisterDeviceDto } from './dto/register-device.dto';
 import { FCMService } from './fcm.service';
+import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class NotificationsService {
@@ -25,6 +26,7 @@ export class NotificationsService {
     @InjectRepository(DeviceToken)
     private readonly deviceTokenRepository: Repository<DeviceToken>,
     private readonly fcmService: FCMService,
+    private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
   /**
@@ -57,6 +59,22 @@ export class NotificationsService {
     });
 
     const saved = await this.notificationRepository.save(notification);
+
+    // Send WebSocket notification (real-time)
+    this.websocketGateway.sendNotification(userId, {
+      id: saved.id,
+      type: saved.type,
+      title: saved.title,
+      body: saved.message,
+      data: {
+        related_id: saved.related_id,
+        related_type: saved.related_type,
+        metadata: saved.metadata,
+      },
+      action_url: saved.action_url,
+      created_at: saved.created_at.toISOString(),
+      is_read: saved.is_read,
+    });
 
     // Send push notification (enabled by default)
     const sendPush = options?.send_push !== false;
