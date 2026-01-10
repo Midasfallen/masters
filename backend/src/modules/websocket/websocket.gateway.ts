@@ -103,6 +103,16 @@ export class AppWebSocketGateway
         user_id: userId,
         timestamp: new Date().toISOString(),
       });
+
+      // Сообщаем клиенту, что нужно синхронизировать данные
+      // Клиент должен запросить GET /api/v2/chats для получения
+      // списка чатов с актуальным unread_count
+      // Это hybrid подход: WebSocket для real-time, REST API для истории
+      client.emit('sync:required', {
+        user_id: userId,
+        reason: 'connection_established',
+        timestamp: new Date().toISOString(),
+      });
     } catch (error) {
       this.logger.error(`Error handling connection: ${error.message}`);
       client.emit('error', {
