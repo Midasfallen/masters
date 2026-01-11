@@ -1,49 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/models/booking.dart';
-import '../../../shared/widgets/booking_card.dart';
-import '../../../data/mock/mock_bookings.dart';
 
-enum BookingMode { client, master, all }
+import '../../../core/models/api/booking_model.dart';
+import '../../../core/providers/api/auth_provider.dart';
+import '../../../core/providers/api/bookings_provider.dart';
 
-class BookingsScreen extends StatefulWidget {
+enum BookingMode { client, master }
+
+/// State providers for bookings screen
+final bookingsModeProvider = StateProvider<BookingMode>((ref) => BookingMode.client);
+
+class BookingsScreen extends ConsumerStatefulWidget {
   const BookingsScreen({super.key});
 
   @override
-  State<BookingsScreen> createState() => _BookingsScreenState();
+  ConsumerState<BookingsScreen> createState() => _BookingsScreenState();
 }
 
-class _BookingsScreenState extends State<BookingsScreen>
-    with SingleTickerProviderStateMixin {
+class _BookingsScreenState extends ConsumerState<BookingsScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
-  List<Booking> _bookings = mockBookings;
-  BookingMode _currentMode = BookingMode.client;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _getTabLength(), vsync: this);
-  }
-
-  int _getTabLength() {
-    switch (_currentMode) {
-      case BookingMode.client:
-        return 2; // Предстоящие, История
-      case BookingMode.master:
-        return 3; // Неподтвержденные, Подтвержденные, История
-      case BookingMode.all:
-        return 2; // Предстоящие, История
-    }
-  }
-
-  void _switchMode(BookingMode newMode) {
-    if (_currentMode != newMode) {
-      setState(() {
-        _currentMode = newMode;
-        _tabController.dispose();
-        _tabController = TabController(length: _getTabLength(), vsync: this);
-      });
-    }
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -52,284 +34,139 @@ class _BookingsScreenState extends State<BookingsScreen>
     super.dispose();
   }
 
-  List<Booking> get _upcomingBookings {
-    return _bookings
-        .where((b) =>
-            b.status == BookingStatus.pending ||
-            b.status == BookingStatus.confirmed ||
-            b.status == BookingStatus.inProgress)
-        .toList();
+  int _getTabLength(BookingMode mode) {
+    switch (mode) {
+      case BookingMode.client:
+        return 2; // Предстоящие, История
+      case BookingMode.master:
+        return 3; // Неподтвержденные, Подтвержденные, История
+    }
   }
 
-  List<Booking> get _pastBookings {
-    return _bookings
-        .where((b) =>
-            b.status == BookingStatus.completed ||
-            b.status == BookingStatus.cancelled)
-        .toList();
+  void _switchMode(BookingMode newMode) {
+    final currentMode = ref.read(bookingsModeProvider);
+    if (currentMode != newMode) {
+      ref.read(bookingsModeProvider.notifier).state = newMode;
+      _tabController.dispose();
+      _tabController = TabController(length: _getTabLength(newMode), vsync: this);
+      setState(() {});
+    }
   }
 
-  // Master mode getters
-  List<Booking> get _pendingMasterBookings {
-    return _bookings.where((b) => b.status == BookingStatus.pending).toList();
+  Future<void> _confirmBooking(String bookingId) async {
+    try {
+      await ref.read(bookingNotifierProvider.notifier).confirmBooking(bookingId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Запись подтверждена')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    }
   }
 
-  List<Booking> get _confirmedMasterBookings {
-    return _bookings
-        .where((b) =>
-            b.status == BookingStatus.confirmed ||
-            b.status == BookingStatus.inProgress)
-        .toList();
-  }
-
-  List<Booking> get _completedMasterBookings {
-    return _bookings
-        .where((b) =>
-            b.status == BookingStatus.completed ||
-            b.status == BookingStatus.cancelled)
-        .toList();
-  }
-
-  void _cancelBooking(Booking booking) {
-    showDialog(
+  Future<void> _cancelBooking(BookingModel booking) async {
+    final reason = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Отменить запись?'),
-        content: const Text(
-          'Вы уверены, что хотите отменить эту запись?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Нет'),
+      builder: (context) {
+        String cancelReason = '';
+        return AlertDialog(
+          title: const Text('Отменить запись?'),
+          content: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Причина отмены (необязательно)',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+            onChanged: (value) => cancelReason = value,
           ),
-          FilledButton(
-            onPressed: () {
-              setState(() {
-                _bookings = _bookings.map<Booking>((b) {
-                  if (b.id == booking.id) {
-                    return Booking(
-                      id: b.id,
-                      masterId: b.masterId,
-                      masterName: b.masterName,
-                      masterAvatar: b.masterAvatar,
-                      dateTime: b.dateTime,
-                      status: BookingStatus.cancelled,
-                      serviceId: b.serviceId,
-                      serviceName: b.serviceName,
-                      durationMinutes: b.durationMinutes,
-                      price: b.price,
-                      comment: b.comment,
-                    );
-                  }
-                  return b;
-                }).toList();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Запись отменена')),
-              );
-            },
-            child: const Text('Да, отменить'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Master actions
-  void _confirmBooking(Booking booking) {
-    setState(() {
-      _bookings = _bookings.map<Booking>((b) {
-        if (b.id == booking.id) {
-          return Booking(
-            id: b.id,
-            masterId: b.masterId,
-            masterName: b.masterName,
-            masterAvatar: b.masterAvatar,
-            dateTime: b.dateTime,
-            status: BookingStatus.confirmed,
-            serviceId: b.serviceId,
-            serviceName: b.serviceName,
-            durationMinutes: b.durationMinutes,
-            price: b.price,
-            comment: b.comment,
-          );
-        }
-        return b;
-      }).toList();
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Запись подтверждена')),
-    );
-  }
-
-  void _rejectBooking(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Отклонить запись?'),
-        content: const Text(
-          'Вы уверены, что хотите отклонить эту запись?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Нет'),
-          ),
-          FilledButton(
-            onPressed: () {
-              setState(() {
-                _bookings = _bookings.map<Booking>((b) {
-                  if (b.id == booking.id) {
-                    return Booking(
-                      id: b.id,
-                      masterId: b.masterId,
-                      masterName: b.masterName,
-                      masterAvatar: b.masterAvatar,
-                      dateTime: b.dateTime,
-                      status: BookingStatus.cancelled,
-                      serviceId: b.serviceId,
-                      serviceName: b.serviceName,
-                      durationMinutes: b.durationMinutes,
-                      price: b.price,
-                      comment: b.comment,
-                    );
-                  }
-                  return b;
-                }).toList();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Запись отклонена')),
-              );
-            },
-            child: const Text('Да, отклонить'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _suggestAlternativeTime(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Предложить другое время'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Выберите альтернативное время для записи:'),
-            const SizedBox(height: 16),
-            // TODO: Add date/time picker
-            Text(
-              'Текущее время: ${booking.dateTime.day}.${booking.dateTime.month}.${booking.dateTime.year} ${booking.dateTime.hour}:${booking.dateTime.minute.toString().padLeft(2, '0')}',
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, cancelReason.isEmpty ? 'Отменено клиентом' : cancelReason),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red[700]),
+              child: const Text('Отменить запись'),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Предложение отправлено клиенту')),
-              );
-            },
-            child: const Text('Отправить'),
-          ),
-        ],
-      ),
+        );
+      },
     );
+
+    if (reason == null) return;
+
+    try {
+      await ref.read(bookingNotifierProvider.notifier).cancelBooking(booking.id, reason);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Запись отменена')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    }
   }
 
-  void _completeBooking(Booking booking) {
-    showDialog(
+  Future<void> _completeBooking(String bookingId) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Завершить запись'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('После завершения клиент должен оставить отзыв.'),
-            SizedBox(height: 16),
-            Text('Завершить запись?'),
-          ],
+        content: const Text(
+          'После завершения клиент должен оставить отзыв. Завершить запись?',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Отмена'),
           ),
           FilledButton(
-            onPressed: () {
-              setState(() {
-                _bookings = _bookings.map<Booking>((b) {
-                  if (b.id == booking.id) {
-                    return Booking(
-                      id: b.id,
-                      masterId: b.masterId,
-                      masterName: b.masterName,
-                      masterAvatar: b.masterAvatar,
-                      dateTime: b.dateTime,
-                      status: BookingStatus.completed,
-                      serviceId: b.serviceId,
-                      serviceName: b.serviceName,
-                      durationMinutes: b.durationMinutes,
-                      price: b.price,
-                      comment: b.comment,
-                    );
-                  }
-                  return b;
-                }).toList();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Запись завершена. Ожидание отзыва клиента')),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Завершить'),
           ),
         ],
       ),
     );
+
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(bookingNotifierProvider.notifier).completeBooking(bookingId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Запись завершена. Ожидание отзыва клиента')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    }
   }
 
-  void _offerBookingToClient(Booking booking) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Предложить запись клиенту'),
-        content: const Text(
-          'Отправить предложение о записи этому клиенту?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Предложение отправлено')),
-              );
-            },
-            child: const Text('Отправить'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildBookingsList({
+    required List<BookingModel> bookings,
+    BookingStatus? filterStatus,
+    String? masterActionType,
+  }) {
+    final filteredBookings = filterStatus == null
+        ? bookings
+        : bookings.where((b) => b.status == filterStatus).toList();
 
-  Widget _buildBookingsList(List<Booking> bookings,
-      {String? masterActionType}) {
-    if (bookings.isEmpty) {
+    if (filteredBookings.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -337,192 +174,307 @@ class _BookingsScreenState extends State<BookingsScreen>
             Icon(
               Icons.calendar_today_outlined,
               size: 80,
-              color: Theme.of(context).colorScheme.outline,
+              color: Colors.grey[400],
             ),
             const SizedBox(height: 16),
             Text(
               'Нет записей',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: bookings.length,
-      itemBuilder: (context, index) {
-        final booking = bookings[index];
-
-        // Build action buttons for master mode
-        Widget? masterActions;
-        if (_currentMode == BookingMode.master && masterActionType != null) {
-          if (masterActionType == 'pending') {
-            masterActions = Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () => _confirmBooking(booking),
-                      icon: const Icon(Icons.check, size: 18),
-                      label: const Text('Подтвердить'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _rejectBooking(booking),
-                      icon: const Icon(Icons.close, size: 18),
-                      label: const Text('Отклонить'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () => _suggestAlternativeTime(booking),
-                    icon: const Icon(Icons.schedule),
-                    tooltip: 'Предложить другое время',
-                  ),
-                ],
-              ),
-            );
-          } else if (masterActionType == 'confirmed') {
-            masterActions = Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: FilledButton.icon(
-                onPressed: () => _completeBooking(booking),
-                icon: const Icon(Icons.check_circle, size: 18),
-                label: const Text('Завершить'),
-              ),
-            );
-          } else if (masterActionType == 'history') {
-            masterActions = Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: OutlinedButton.icon(
-                onPressed: () => _offerBookingToClient(booking),
-                icon: const Icon(Icons.replay, size: 18),
-                label: const Text('Предложить запись клиенту'),
-              ),
-            );
-          }
-        }
-
-        return Column(
-          children: [
-            BookingCard(
-              booking: booking,
-              onTap: () {
-                // Show booking details
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Запись #${booking.id}')),
-                );
-              },
-              onCancel: _currentMode == BookingMode.client &&
-                      (booking.status == BookingStatus.pending ||
-                          booking.status == BookingStatus.confirmed)
-                  ? () => _cancelBooking(booking)
-                  : null,
-            ),
-            if (masterActions != null) masterActions,
-          ],
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(myBookingsProvider);
       },
-    );
-  }
-
-  Widget _buildModeSwitcher() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: SegmentedButton<BookingMode>(
-        segments: const [
-          ButtonSegment<BookingMode>(
-            value: BookingMode.client,
-            label: Text('Клиент'),
-            icon: Icon(Icons.person_outline, size: 18),
-          ),
-          ButtonSegment<BookingMode>(
-            value: BookingMode.master,
-            label: Text('Мастер'),
-            icon: Icon(Icons.work_outline, size: 18),
-          ),
-          ButtonSegment<BookingMode>(
-            value: BookingMode.all,
-            label: Text('Все записи'),
-            icon: Icon(Icons.list, size: 18),
-          ),
-        ],
-        selected: {_currentMode},
-        onSelectionChanged: (Set<BookingMode> selected) {
-          _switchMode(selected.first);
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: filteredBookings.length,
+        itemBuilder: (context, index) {
+          final booking = filteredBookings[index];
+          return _buildBookingCard(booking, masterActionType);
         },
       ),
     );
   }
 
-  List<Tab> _getTabs() {
-    switch (_currentMode) {
-      case BookingMode.client:
-        return const [
-          Tab(text: 'Предстоящие'),
-          Tab(text: 'История'),
-        ];
-      case BookingMode.master:
-        return const [
-          Tab(text: 'Неподтвержденные'),
-          Tab(text: 'Подтвержденные'),
-          Tab(text: 'История'),
-        ];
-      case BookingMode.all:
-        return const [
-          Tab(text: 'Предстоящие'),
-          Tab(text: 'История'),
-        ];
-    }
+  Widget _buildBookingCard(BookingModel booking, String? masterActionType) {
+    final currentMode = ref.watch(bookingsModeProvider);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: 20,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _formatDateTime(booking.startTime),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                _buildStatusChip(booking.status),
+              ],
+            ),
+            const Divider(height: 24),
+            Row(
+              children: [
+                const Icon(Icons.access_time, size: 18),
+                const SizedBox(width: 8),
+                Text('${booking.durationMinutes} мин'),
+                const SizedBox(width: 24),
+                const Icon(Icons.attach_money, size: 18),
+                const SizedBox(width: 8),
+                Text('${booking.price.toStringAsFixed(0)} ₽'),
+              ],
+            ),
+            if (booking.comment != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                booking.comment!,
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+            if (booking.locationAddress != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.location_on, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(booking.locationAddress!)),
+                ],
+              ),
+            ],
+
+            // Master actions
+            if (currentMode == BookingMode.master && masterActionType != null) ...[
+              const SizedBox(height: 16),
+              if (masterActionType == 'pending') ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => _confirmBooking(booking.id),
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('Подтвердить'),
+                        style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _cancelBooking(booking),
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('Отклонить'),
+                      ),
+                    ),
+                  ],
+                ),
+              ] else if (masterActionType == 'confirmed') ...[
+                FilledButton.icon(
+                  onPressed: () => _completeBooking(booking.id),
+                  icon: const Icon(Icons.check_circle, size: 18),
+                  label: const Text('Завершить'),
+                ),
+              ],
+            ],
+
+            // Client actions
+            if (currentMode == BookingMode.client &&
+                (booking.status == BookingStatus.pending ||
+                    booking.status == BookingStatus.confirmed)) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => _cancelBooking(booking),
+                icon: const Icon(Icons.cancel, size: 18),
+                label: const Text('Отменить запись'),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.red[700]),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
-  List<Widget> _getTabViews() {
-    switch (_currentMode) {
-      case BookingMode.client:
-        return [
-          _buildBookingsList(_upcomingBookings),
-          _buildBookingsList(_pastBookings),
-        ];
-      case BookingMode.master:
-        return [
-          _buildBookingsList(_pendingMasterBookings,
-              masterActionType: 'pending'),
-          _buildBookingsList(_confirmedMasterBookings,
-              masterActionType: 'confirmed'),
-          _buildBookingsList(_completedMasterBookings,
-              masterActionType: 'history'),
-        ];
-      case BookingMode.all:
-        return [
-          _buildBookingsList(_upcomingBookings),
-          _buildBookingsList(_pastBookings),
-        ];
+  Widget _buildStatusChip(BookingStatus status) {
+    Color color;
+    String label;
+    switch (status) {
+      case BookingStatus.pending:
+        color = Colors.orange;
+        label = 'Ожидание';
+        break;
+      case BookingStatus.confirmed:
+        color = Colors.blue;
+        label = 'Подтверждено';
+        break;
+      case BookingStatus.inProgress:
+        color = Colors.purple;
+        label = 'В процессе';
+        break;
+      case BookingStatus.completed:
+        color = Colors.green;
+        label = 'Завершено';
+        break;
+      case BookingStatus.cancelled:
+        color = Colors.red;
+        label = 'Отменено';
+        break;
     }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dt) {
+    final months = [
+      'янв', 'фев', 'мар', 'апр', 'май', 'июн',
+      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'
+    ];
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year}, ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  List<Widget> _buildTabViews(BookingMode mode, AsyncValue<List<BookingModel>> bookingsAsync) {
+    return bookingsAsync.when(
+      data: (bookings) {
+        if (mode == BookingMode.client) {
+          final upcoming = bookings.where((b) =>
+              b.status == BookingStatus.pending ||
+              b.status == BookingStatus.confirmed ||
+              b.status == BookingStatus.inProgress).toList();
+          final past = bookings.where((b) =>
+              b.status == BookingStatus.completed ||
+              b.status == BookingStatus.cancelled).toList();
+
+          return [
+            _buildBookingsList(bookings: upcoming),
+            _buildBookingsList(bookings: past),
+          ];
+        } else {
+          // Master mode
+          final pending = bookings.where((b) => b.status == BookingStatus.pending).toList();
+          final confirmed = bookings.where((b) =>
+              b.status == BookingStatus.confirmed ||
+              b.status == BookingStatus.inProgress).toList();
+          final completed = bookings.where((b) =>
+              b.status == BookingStatus.completed ||
+              b.status == BookingStatus.cancelled).toList();
+
+          return [
+            _buildBookingsList(bookings: pending, masterActionType: 'pending'),
+            _buildBookingsList(bookings: confirmed, masterActionType: 'confirmed'),
+            _buildBookingsList(bookings: completed, masterActionType: 'history'),
+          ];
+        }
+      },
+      loading: () => List.generate(
+        mode == BookingMode.client ? 2 : 3,
+        (_) => const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => List.generate(
+        mode == BookingMode.client ? 2 : 3,
+        (_) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Ошибка: ${error.toString()}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(myBookingsProvider),
+                child: const Text('Повторить'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentMode = ref.watch(bookingsModeProvider);
+    final authState = ref.watch(authNotifierProvider);
+    final isMaster = authState.value?.user?.isMaster ?? false;
+
+    // Get bookings with appropriate role filter
+    final role = currentMode == BookingMode.client ? 'client' : 'master';
+    final bookingsAsync = ref.watch(myBookingsProvider(role: role));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Записи'),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(96),
+          preferredSize: Size.fromHeight(isMaster ? 96 : 48),
           child: Column(
             children: [
-              _buildModeSwitcher(),
+              if (isMaster)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: SegmentedButton<BookingMode>(
+                    segments: const [
+                      ButtonSegment<BookingMode>(
+                        value: BookingMode.client,
+                        label: Text('Клиент'),
+                        icon: Icon(Icons.person_outline, size: 18),
+                      ),
+                      ButtonSegment<BookingMode>(
+                        value: BookingMode.master,
+                        label: Text('Мастер'),
+                        icon: Icon(Icons.work_outline, size: 18),
+                      ),
+                    ],
+                    selected: {currentMode},
+                    onSelectionChanged: (Set<BookingMode> selected) {
+                      _switchMode(selected.first);
+                    },
+                  ),
+                ),
               TabBar(
                 controller: _tabController,
-                tabs: _getTabs(),
+                tabs: currentMode == BookingMode.client
+                    ? const [
+                        Tab(text: 'Предстоящие'),
+                        Tab(text: 'История'),
+                      ]
+                    : const [
+                        Tab(text: 'Неподтвержденные'),
+                        Tab(text: 'Подтвержденные'),
+                        Tab(text: 'История'),
+                      ],
               ),
             ],
           ),
@@ -530,11 +482,11 @@ class _BookingsScreenState extends State<BookingsScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: _getTabViews(),
+        children: _buildTabViews(currentMode, bookingsAsync),
       ),
-      floatingActionButton: _currentMode == BookingMode.client
+      floatingActionButton: currentMode == BookingMode.client
           ? FloatingActionButton.extended(
-              onPressed: () => context.go('/search'),
+              onPressed: () => context.push('/search'),
               icon: const Icon(Icons.add),
               label: const Text('Новая запись'),
             )
