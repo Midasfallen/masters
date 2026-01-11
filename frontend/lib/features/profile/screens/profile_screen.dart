@@ -1,14 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../../../core/providers/mock_data_provider.dart';
-import '../../../shared/widgets/service_card.dart';
-import '../../../shared/widgets/review_card.dart';
-import '../../../data/mock/mock_services.dart';
-import '../../feed/widgets/post_card.dart';
+import '../../../core/providers/api/auth_provider.dart';
+import '../../../core/providers/api/user_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -20,14 +17,11 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isMaster = false; // Имитация: можно поменять на true для теста
-
-  int get _tabCount => _isMaster ? 4 : 2;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabCount, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -36,29 +30,60 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     super.dispose();
   }
 
-  void _becomeMaster() {
-    setState(() {
-      _isMaster = true;
-      _tabController.dispose();
-      _tabController = TabController(length: _tabCount, vsync: this);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Поздравляем! Теперь вы мастер 🎉'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  Future<void> _handleAvatarChange() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+
+    try {
+      await ref
+          .read(userNotifierProvider.notifier)
+          .uploadAvatar(image.path);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Аватар успешно обновлен'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Refresh auth state
+        ref.invalidate(authNotifierProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки аватара: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await ref.read(authNotifierProvider.notifier).logout();
+      if (mounted) {
+        context.go('/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка выхода: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.watch(currentUserProvider);
-    final allPosts = ref.watch(mockPostsProvider);
-
-    // Filter user's posts
-    final userPosts = allPosts
-        .where((p) => p.masterId == currentUser.id)
-        .toList();
+    final currentUserAsync = ref.watch(authNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,182 +100,242 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ),
         ],
       ),
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
+      body: currentUserAsync.when(
+        data: (authState) {
+          final user = authState.user;
+          if (user == null) {
+            return const Center(child: Text('Пользователь не найден'));
+          }
 
-                  // Avatar
-                  Stack(
+          return NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverToBoxAdapter(
+                  child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: CachedNetworkImageProvider(
-                          currentUser.avatar,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
+                      const SizedBox(height: 20),
+
+                      // Avatar
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage: user.avatarUrl != null
+                                ? CachedNetworkImageProvider(user.avatarUrl!)
+                                : null,
+                            child: user.avatarUrl == null
+                                ? Text(
+                                    user.firstName[0].toUpperCase(),
+                                    style: const TextStyle(fontSize: 32),
+                                  )
+                                : null,
                           ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Изменить фото (в разработке)'),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Name
-                  Text(
-                    currentUser.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Bio
-                  if (currentUser.bio != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        currentUser.bio!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-
-                  // Stats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildStat('Посты', userPosts.length.toString()),
-                      _buildStat(
-                        'Подписчики',
-                        currentUser.followersCount?.toString() ?? '0',
-                      ),
-                      _buildStat(
-                        'Подписки',
-                        currentUser.followingCount?.toString() ?? '0',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Edit Profile Button or Become Master Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Редактировать профиль (в разработке)'),
                               ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 36),
-                          ),
-                          child: const Text('Редактировать профиль'),
-                        ),
-                        if (!_isMaster) ...[
-                          const SizedBox(height: 12),
-                          FilledButton.icon(
-                            onPressed: _becomeMaster,
-                            icon: const Icon(Icons.work_outline),
-                            label: const Text('Стать мастером'),
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 48),
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: 32,
+                                  minHeight: 32,
+                                ),
+                                onPressed: _handleAvatarChange,
+                              ),
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                      ),
+                      const SizedBox(height: 16),
 
-                  // Tabs
-                  TabBar(
-                    controller: _tabController,
-                    isScrollable: _isMaster,
-                    tabs: _isMaster
-                        ? const [
-                            Tab(text: 'Посты'),
-                            Tab(text: 'Портфолио'),
-                            Tab(text: 'Услуги'),
-                            Tab(text: 'Отзывы'),
-                          ]
-                        : const [
-                            Tab(
-                              icon: Icon(Icons.grid_on),
-                              text: 'Посты',
+                      // Name
+                      Text(
+                        user.fullName,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Email
+                      Text(
+                        user.email,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Stats
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStat('Посты', user.postsCount.toString()),
+                          _buildStat('Друзья', user.friendsCount.toString()),
+                          _buildStat('Подписчики', user.followersCount.toString()),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Badges
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (user.isMaster)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.verified, color: Colors.white, size: 16),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Мастер',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            Tab(
-                              icon: Icon(Icons.bookmark_border),
-                              text: 'Сохраненное',
+                          if (user.isPremium) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.amber[700]!, Colors.amber[400]!],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.star, color: Colors.white, size: 16),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Premium',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Edit Profile Button or Become Master Button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            OutlinedButton(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Редактировать профиль (в разработке)'),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 36),
+                              ),
+                              child: const Text('Редактировать профиль'),
+                            ),
+                            if (!user.isMaster) ...[
+                              const SizedBox(height: 12),
+                              FilledButton.icon(
+                                onPressed: () {
+                                  context.push('/create-master-profile');
+                                },
+                                icon: const Icon(Icons.work_outline),
+                                label: const Text('Стать мастером'),
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(double.infinity, 48),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Tabs
+                      TabBar(
+                        controller: _tabController,
+                        tabs: const [
+                          Tab(
+                            icon: Icon(Icons.grid_on),
+                            text: 'Посты',
+                          ),
+                          Tab(
+                            icon: Icon(Icons.bookmark_border),
+                            text: 'Сохраненное',
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ];
+            },
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                // Posts tab
+                _buildPostsTab(user.postsCount),
+                // Saved tab
+                _buildSavedTab(),
+              ],
             ),
-          ];
+          );
         },
-        body: TabBarView(
-          controller: _tabController,
-          children: _isMaster
-              ? [
-                  // Posts tab
-                  _buildPostsTab(userPosts),
-                  // Portfolio tab
-                  _buildPortfolioTab(),
-                  // Services tab
-                  _buildServicesTab(),
-                  // Reviews tab
-                  _buildReviewsTab(),
-                ]
-              : [
-                  // Posts tab
-                  _buildPostsTab(userPosts),
-                  // Saved tab
-                  _buildSavedTab(),
-                ],
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Ошибка: ${error.toString()}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(authNotifierProvider),
+                child: const Text('Повторить'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -278,8 +363,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  Widget _buildPostsTab(List posts) {
-    if (posts.isEmpty) {
+  Widget _buildPostsTab(int postsCount) {
+    if (postsCount == 0) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -310,98 +395,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       );
     }
 
-    return MasonryGridView.count(
-      crossAxisCount: 3,
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
-      padding: const EdgeInsets.all(4),
-      itemCount: posts.length,
-      itemBuilder: (context, index) => PostCard(post: posts[index]),
-    );
-  }
-
-  Widget _buildPortfolioTab() {
-    // Mock portfolio images
-    final portfolio = List.generate(
-      6,
-      (index) => 'https://picsum.photos/400/600?random=${index + 100}',
-    );
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(4),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-      ),
-      itemCount: portfolio.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Просмотр фото ${index + 1}')),
-            );
-          },
-          child: Image.network(
-            portfolio[index],
-            fit: BoxFit.cover,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildServicesTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: mockServices.length,
-      itemBuilder: (context, index) {
-        final service = mockServices[index];
-        return ServiceCard(
-          service: service,
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Редактировать: ${service.name}')),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildReviewsTab() {
-    // Mock reviews
-    final reviews = [
-      {
-        'name': 'Мария Иванова',
-        'avatar': 'https://i.pravatar.cc/100?img=10',
-        'rating': 5.0,
-        'comment':
-            'Отличный мастер! Очень профессионально выполнила работу. Обязательно вернусь снова!',
-        'date': DateTime.now().subtract(const Duration(days: 5)),
-      },
-      {
-        'name': 'Анна Петрова',
-        'avatar': 'https://i.pravatar.cc/100?img=20',
-        'rating': 4.5,
-        'comment': 'Хорошее качество работы, приятная атмосфера. Рекомендую!',
-        'date': DateTime.now().subtract(const Duration(days: 15)),
-      },
-    ];
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: reviews.length,
-      itemBuilder: (context, index) {
-        final review = reviews[index];
-        return ReviewCard(
-          userName: review['name'] as String,
-          userAvatar: review['avatar'] as String,
-          rating: review['rating'] as double,
-          comment: review['comment'] as String,
-          date: review['date'] as DateTime,
-        );
-      },
+    // TODO: Load posts from API
+    return Center(
+      child: Text('$postsCount постов (загрузка в разработке)'),
     );
   }
 
@@ -450,19 +446,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   );
                 },
               ),
-              if (_isMaster)
-                ListTile(
-                  leading: const Icon(Icons.settings_applications_outlined),
-                  title: const Text('Настроить профиль мастера'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Настройка профиля мастера (в разработке)'),
-                      ),
-                    );
-                  },
-                ),
               ListTile(
                 leading: const Icon(Icons.notifications_outlined),
                 title: const Text('Уведомления'),
@@ -476,7 +459,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 title: const Text('Сохраненное'),
                 onTap: () {
                   Navigator.pop(context);
-                  _tabController.animateTo(_isMaster ? 0 : 1);
+                  _tabController.animateTo(1);
                 },
               ),
               ListTile(
@@ -549,7 +532,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              context.go('/login');
+              _handleLogout();
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red[700],

@@ -24,8 +24,8 @@ class AppConfig {
   static const String refreshTokenKey = 'refresh_token';
   static const String userIdKey = 'user_id';
 
-  /// WebSocket configuration (for future use)
-  static String get wsUrl => 'ws://localhost:8000/ws';
+  /// WebSocket configuration
+  static String get wsUrl => 'ws://localhost:3000';
 
   /// Pagination
   static const int defaultPageSize = 20;

@@ -91,6 +91,32 @@ class ApiEndpoints {
   static const String favoriteAdd = '/favorites';
   static String favoriteRemove(int masterId) => '/favorites/$masterId';
 
+  // ==================== FRIENDS (v2.0) ====================
+  static const String friendships = '/friendships';
+  static String friendshipById(String id) => '/friendships/$id';
+  static String friendshipRequest(String userId) => '/friendships/$userId';
+  static String friendshipAccept(String id) => '/friendships/$id/accept';
+  static String friendshipDecline(String id) => '/friendships/$id/decline';
+  static String friendshipRemove(String userId) => '/friendships/$userId';
+  static const String friendsList = '/friendships/friends';
+  static const String friendsIncoming = '/friendships/incoming';
+  static const String friendsOutgoing = '/friendships/outgoing';
+
+  // ==================== SUBSCRIPTIONS (v2.0) ====================
+  static const String subscriptions = '/subscriptions';
+  static String subscriptionCreate(String userId) => '/subscriptions/$userId';
+  static String subscriptionRemove(String userId) => '/subscriptions/$userId';
+  static const String subscriptionsList = '/subscriptions/my';
+  static const String subscribersList = '/subscriptions/followers';
+
+  // ==================== AUTO PROPOSALS (v2.0) ====================
+  static const String autoProposals = '/auto-proposals';
+  static String autoProposalById(String id) => '/auto-proposals/$id';
+  static const String autoProposalsSettings = '/auto-proposals/settings';
+  static const String autoProposalsGenerate = '/auto-proposals/generate';
+  static String autoProposalAccept(String id) => '/auto-proposals/$id/accept';
+  static String autoProposalReject(String id) => '/auto-proposals/$id/reject';
+
   // ==================== UPLOAD ====================
   static const String upload = '/upload';
   static const String uploadImage = '/upload/image';

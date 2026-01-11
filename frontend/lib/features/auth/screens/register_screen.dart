@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:service_platform/core/providers/api/auth_provider.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -18,10 +21,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreedToTerms = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
@@ -29,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() {
+  Future<void> _handleRegister() async {
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -39,9 +44,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    if (_formKey.currentState?.validate() ?? false) {
-      // Mock registration - just navigate to home
-      context.go('/home');
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(authNotifierProvider.notifier).register(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+            firstName: _firstNameController.text.trim(),
+            lastName: _lastNameController.text.trim(),
+            phone: _phoneController.text.trim().isNotEmpty
+                ? _phoneController.text.trim()
+                : null,
+          );
+
+      if (mounted) {
+        // Navigate to home on successful registration
+        context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка регистрации: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -79,7 +115,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
-                  controller: _nameController,
+                  controller: _firstNameController,
+                  enabled: !_isLoading,
                   decoration: const InputDecoration(
                     labelText: 'Имя',
                     prefixIcon: Icon(Icons.person_outlined),
@@ -93,8 +130,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _lastNameController,
+                  enabled: !_isLoading,
+                  decoration: const InputDecoration(
+                    labelText: 'Фамилия',
+                    prefixIcon: Icon(Icons.person_outlined),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Введите фамилию';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  enabled: !_isLoading,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
@@ -113,25 +166,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  enabled: !_isLoading,
                   decoration: const InputDecoration(
-                    labelText: 'Телефон',
+                    labelText: 'Телефон (опционально)',
                     prefixIcon: Icon(Icons.phone_outlined),
                     hintText: '+7 (XXX) XXX-XX-XX',
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Введите номер телефона';
-                    }
-                    if (value.length < 10) {
-                      return 'Введите корректный номер телефона';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  enabled: !_isLoading,
                   decoration: InputDecoration(
                     labelText: 'Пароль',
                     prefixIcon: const Icon(Icons.lock_outlined),
@@ -168,6 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
+                  enabled: !_isLoading,
                   decoration: InputDecoration(
                     labelText: 'Подтвердите пароль',
                     prefixIcon: const Icon(Icons.lock_outlined),
@@ -199,19 +246,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Checkbox(
                       value: _agreedToTerms,
-                      onChanged: (value) {
-                        setState(() {
-                          _agreedToTerms = value ?? false;
-                        });
-                      },
+                      onChanged: _isLoading
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _agreedToTerms = value ?? false;
+                              });
+                            },
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _agreedToTerms = !_agreedToTerms;
-                          });
-                        },
+                        onTap: _isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _agreedToTerms = !_agreedToTerms;
+                                });
+                              },
                         child: Text.rich(
                           TextSpan(
                             text: 'Я принимаю ',
@@ -241,11 +292,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: _handleRegister,
+                  onPressed: _isLoading ? null : _handleRegister,
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),
                   ),
-                  child: const Text('Зарегистрироваться'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Зарегистрироваться'),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -256,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: theme.textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: () => context.go('/login'),
+                      onPressed: _isLoading ? null : () => context.go('/login'),
                       child: const Text('Войти'),
                     ),
                   ],

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
@@ -124,39 +125,89 @@ class RefreshTokenInterceptor extends Interceptor {
 class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('┌──────────────────────────────────────────────────────────');
-    print('│ REQUEST: ${options.method} ${options.uri}');
-    print('│ Headers: ${options.headers}');
+    debugPrint('┌──────────────────────────────────────────────────────────');
+    debugPrint('│ REQUEST: ${options.method} ${options.uri}');
+    debugPrint('│ Headers: ${options.headers}');
     if (options.data != null) {
-      print('│ Data: ${options.data}');
+      debugPrint('│ Data: ${options.data}');
     }
     if (options.queryParameters.isNotEmpty) {
-      print('│ Query: ${options.queryParameters}');
+      debugPrint('│ Query: ${options.queryParameters}');
     }
-    print('└──────────────────────────────────────────────────────────');
+    debugPrint('└──────────────────────────────────────────────────────────');
     return handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('┌──────────────────────────────────────────────────────────');
-    print('│ RESPONSE: ${response.statusCode} ${response.requestOptions.uri}');
-    print('│ Data: ${response.data}');
-    print('└──────────────────────────────────────────────────────────');
+    debugPrint('┌──────────────────────────────────────────────────────────');
+    debugPrint('│ RESPONSE: ${response.statusCode} ${response.requestOptions.uri}');
+    debugPrint('│ Data: ${response.data}');
+    debugPrint('└──────────────────────────────────────────────────────────');
     return handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print('┌──────────────────────────────────────────────────────────');
-    print('│ ERROR: ${err.message}');
-    print('│ URI: ${err.requestOptions.uri}');
+    debugPrint('┌──────────────────────────────────────────────────────────');
+    debugPrint('│ ERROR: ${err.message}');
+    debugPrint('│ URI: ${err.requestOptions.uri}');
     if (err.response != null) {
-      print('│ Status: ${err.response?.statusCode}');
-      print('│ Data: ${err.response?.data}');
+      debugPrint('│ Status: ${err.response?.statusCode}');
+      debugPrint('│ Data: ${err.response?.data}');
     }
-    print('└──────────────────────────────────────────────────────────');
+    debugPrint('└──────────────────────────────────────────────────────────');
     return handler.next(err);
+  }
+}
+
+/// Retry Interceptor
+/// Automatically retries failed requests
+class RetryInterceptor extends Interceptor {
+  final int maxRetries;
+  final Duration retryDelay;
+
+  RetryInterceptor({
+    this.maxRetries = 3,
+    this.retryDelay = const Duration(seconds: 1),
+  });
+
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    // Only retry on connection errors
+    if (!_shouldRetry(err)) {
+      return handler.next(err);
+    }
+
+    final retryCount = err.requestOptions.extra['retryCount'] as int? ?? 0;
+
+    if (retryCount >= maxRetries) {
+      return handler.next(err);
+    }
+
+    // Wait before retrying
+    await Future.delayed(retryDelay * (retryCount + 1));
+
+    // Increment retry count
+    err.requestOptions.extra['retryCount'] = retryCount + 1;
+
+    try {
+      // Retry the request
+      final response = await Dio().fetch(err.requestOptions);
+      return handler.resolve(response);
+    } catch (e) {
+      return handler.next(err);
+    }
+  }
+
+  bool _shouldRetry(DioException err) {
+    return err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.sendTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        err.type == DioExceptionType.connectionError;
   }
 }
 

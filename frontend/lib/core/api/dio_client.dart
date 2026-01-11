@@ -49,7 +49,10 @@ Dio dio(DioRef ref) {
     // 3. Refresh token (handle 401 errors)
     RefreshTokenInterceptor(dio, storage),
 
-    // 4. Error handler (convert errors to custom exceptions)
+    // 4. Retry (retry failed requests)
+    RetryInterceptor(maxRetries: 3, retryDelay: const Duration(seconds: 1)),
+
+    // 5. Error handler (convert errors to custom exceptions)
     ErrorHandlerInterceptor(),
   ]);
 
