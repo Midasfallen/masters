@@ -403,92 +403,209 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      builder: (context) => _CommentsSheet(postId: widget.postId),
+    );
+  }
+}
+
+/// Comments Sheet Widget with real API integration
+class _CommentsSheet extends ConsumerStatefulWidget {
+  final String postId;
+
+  const _CommentsSheet({required this.postId});
+
+  @override
+  ConsumerState<_CommentsSheet> createState() => _CommentsSheetState();
+}
+
+class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
+  final TextEditingController _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSendComment() async {
+    if (_commentController.text.trim().isEmpty) return;
+
+    try {
+      await ref.read(postNotifierProvider.notifier).createComment(
+            widget.postId,
+            CreateCommentRequest(content: _commentController.text.trim()),
+          );
+
+      _commentController.clear();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Комментарий отправлен')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inMinutes < 1) {
+      return 'только что';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} мин. назад';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} ч. назад';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} д. назад';
+    } else {
+      return '${date.day}.${date.month}.${date.year}';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final commentsAsync = ref.watch(postCommentsProvider(widget.postId));
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      const Text(
-                        'Комментарии',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Комментарии',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
                 ),
-                const Divider(height: 1),
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: commentsAsync.when(
+                  data: (comments) {
+                    if (comments.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircleAvatar(
-                              radius: 18,
-                              backgroundColor: Colors.grey,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Пользователь ${index + 1}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text('Отличная работа! 👏'),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${index + 1}ч',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            Icon(Icons.chat_bubble_outline,
+                                size: 64, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Пока нет комментариев',
+                              style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],
                         ),
                       );
-                    },
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: comments.length,
+                      itemBuilder: (context, index) {
+                        final comment = comments[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundImage: comment.userAvatar != null
+                                    ? CachedNetworkImageProvider(
+                                        comment.userAvatar!)
+                                    : null,
+                                child: comment.userAvatar == null
+                                    ? Text(comment.userName[0].toUpperCase())
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      comment.userName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(comment.content),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _formatDate(comment.createdAt),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (error, stack) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 64),
+                        const SizedBox(height: 16),
+                        Text('Ошибка: ${error.toString()}'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              ref.invalidate(postCommentsProvider(widget.postId)),
+                          child: const Text('Повторить'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ),
                 Container(
                   padding: EdgeInsets.only(
                     left: 16,
@@ -510,6 +627,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: _commentController,
                           decoration: InputDecoration(
                             hintText: 'Добавить комментарий...',
                             border: OutlineInputBorder(
@@ -531,14 +649,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           Icons.send,
                           color: Theme.of(context).primaryColor,
                         ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Комментарий отправлен'),
-                            ),
-                          );
-                        },
+                        onPressed: _handleSendComment,
                       ),
                     ],
                   ),

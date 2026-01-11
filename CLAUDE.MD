@@ -1,9 +1,9 @@
 # CLAUDE.MD - Инструкции для Claude при работе с проектом Service Platform
 
-**Версия:** 2.1
+**Версия:** 2.2
 **Проект:** Service Platform (masters)
 **Дата создания:** 9 января 2026
-**Последнее обновление:** 11 января 2026
+**Последнее обновление:** 12 января 2026
 
 ---
 
@@ -31,9 +31,9 @@
 - **ORM:** TypeORM 0.3.x
 - **Code Generation:** Freezed, JSON Serializable
 
-### Текущий статус разработки (11 января 2026)
+### Текущий статус разработки (12 января 2026)
 
-**📊 Общий прогресс MVP:** 225 / 485 очков (46%)
+**📊 Общий прогресс MVP:** 305 / 485 очков (63%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -42,6 +42,9 @@
 - ✅ **ФАЗА 2:** Social & Real-time (80/80 очков) - 100%
   - Week 6: WebSocket Gateway реализован (Socket.IO + Redis Pub/Sub)
   - Week 7: Backend Testing завершено (129 unit тестов, покрытие 27.38%)
+- ✅ **ФАЗА 3:** Frontend Integration (80/100 очков) - 80%
+  - Week 8: Auth + User Profile интеграция (40 очков) ✅
+  - Week 9: Feed + Posts интеграция (40 очков) ✅
 
 **🚀 Ключевые достижения:**
 - ✅ 8 backend модулей реализованы (Auth, Users, Masters, Bookings, Posts, Friends, Subscriptions, Reviews)
@@ -53,17 +56,27 @@
 - ✅ JWT аутентификация с refresh tokens
 - ✅ PostgreSQL database с PostGIS
 - ✅ Redis Pub/Sub для WebSocket scaling
+- ✅ **Frontend Auth интеграция** - Login, Register, Auto-login, Logout
+- ✅ **Frontend Profile интеграция** - Avatar upload, User stats, Settings
+- ✅ **Frontend Feed интеграция** - Infinite scroll, Pull-to-refresh, 3-колоночная сетка
+- ✅ **Frontend Posts интеграция** - Post detail, Like/Unlike, Comments
 
 **⏳ В разработке:**
-- 🔄 ФАЗА 3: Frontend Integration (0/100 очков) - следующий этап
+- 🔄 ФАЗА 3: Frontend Integration (80/100 очков) - остались интеграции Friends, Subscriptions, Search
 - 🔄 ФАЗА 4: Advanced Features (0/85 очков)
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
 - ✅ Flutter прототип реализован (11 экранов)
 - ✅ Brand Book и UX/UI Guide v2.0 созданы
-- 🔄 Требуется интеграция с Backend API
-- 🔄 WebSocket интеграция в планах
+- ✅ **Dio HTTP Client** с interceptors (Auth, Refresh Token, Retry, Error Handler)
+- ✅ **Auth Flow интегрирован** - Login, Register, JWT storage, Auto-login
+- ✅ **Profile Screen интегрирован** - Avatar upload, User info, Logout
+- ✅ **Feed Screen интегрирован** - Infinite scroll, Pagination (20 posts/page)
+- ✅ **Post Detail Screen интегрирован** - Full-screen view, Like/Unlike, Comments
+- ✅ **Comments интегрированы** - Load comments, Create comment, Real-time display
+- ✅ API endpoints v2.0 добавлены (19 новых: Friends, Subscriptions, Auto Proposals)
+- 🔄 WebSocket интеграция - следующий этап
 
 ---
 
@@ -1106,6 +1119,16 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 
 ## 🔄 Changelog
 
+### v2.2 (12 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (63%)
+- ✅ Отражено завершение Week 8 (Auth + User Profile Integration)
+- ✅ Отражено завершение Week 9 (Feed + Posts Integration)
+- ✅ Добавлена информация о Dio HTTP Client с 4 interceptors
+- ✅ Добавлена информация о Frontend интеграциях (Auth, Profile, Feed, Posts, Comments)
+- ✅ ФАЗА 3: Frontend Integration теперь 80% завершена (80/100 очков)
+- ✅ Добавлены 19 новых API endpoints v2.0 (Friends, Subscriptions, Auto Proposals)
+- ✅ Добавлена информация о Infinite scroll и Pull-to-refresh
+
 ### v2.1 (11 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (46%)
 - ✅ Отражено завершение ФАЗА 2 (Social & Real-time)
@@ -1123,6 +1146,6 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 
 ---
 
-**Последнее обновление:** 11 января 2026
-**Версия:** 2.1
+**Последнее обновление:** 12 января 2026
+**Версия:** 2.2
 **Автор:** Claude (по запросу пользователя)
