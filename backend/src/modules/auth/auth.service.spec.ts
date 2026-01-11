@@ -188,5 +188,57 @@ describe('AuthService', () => {
         UnauthorizedException,
       );
     });
+
+    it('should throw UnauthorizedException when token type is not refresh', async () => {
+      const payload = {
+        sub: mockUser.id,
+        email: mockUser.email,
+        is_master: false,
+        type: 'access', // Wrong type - должен быть refresh
+      };
+
+      mockJwtService.verify.mockReturnValue(payload);
+
+      await expect(service.refreshToken('access_token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw UnauthorizedException when user not found', async () => {
+      const payload = {
+        sub: 'nonexistent-id',
+        email: 'nonexistent@example.com',
+        is_master: false,
+        type: 'refresh',
+      };
+
+      mockJwtService.verify.mockReturnValue(payload);
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.refreshToken('valid_refresh_token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
+
+  describe('validateUser', () => {
+    it('should return user when found', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await service.validateUser(mockUser.id);
+
+      expect(result).toEqual(mockUser);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockUser.id },
+      });
+    });
+
+    it('should throw UnauthorizedException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.validateUser('nonexistent-id')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
   });
 });
