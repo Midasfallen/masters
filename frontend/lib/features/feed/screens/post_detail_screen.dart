@@ -2,10 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../core/models/post.dart';
-import '../../../core/providers/mock_data_provider.dart';
+import '../../../core/models/api/post_model.dart';
+import '../../../core/providers/api/feed_provider.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   final String postId;
@@ -21,43 +20,65 @@ class PostDetailScreen extends ConsumerStatefulWidget {
 
 class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   final PageController _mediaController = PageController();
-  final PageController _postsController = PageController();
   int _currentMediaIndex = 0;
-  int _currentPostIndex = 0;
 
   @override
   void dispose() {
     _mediaController.dispose();
-    _postsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLike(String postId, bool isLiked) async {
+    try {
+      if (isLiked) {
+        await ref.read(postNotifierProvider.notifier).unlikePost(postId);
+      } else {
+        await ref.read(postNotifierProvider.notifier).likePost(postId);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final posts = ref.watch(mockPostsProvider);
-    final initialIndex = posts.indexWhere((p) => p.id == widget.postId);
+    final postAsync = ref.watch(postByIdProvider(widget.postId));
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: PageView.builder(
-        controller: _postsController,
-        scrollDirection: Axis.vertical,
-        itemCount: posts.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPostIndex = index;
-            _currentMediaIndex = 0;
-          });
-        },
-        itemBuilder: (context, postIndex) {
-          final post = posts[postIndex];
-          return _buildPostPage(post);
-        },
+      body: postAsync.when(
+        data: (post) => _buildPostPage(post),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 64),
+              const SizedBox(height: 16),
+              Text(
+                'Ошибка: ${error.toString()}',
+                style: const TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(postByIdProvider(widget.postId)),
+                child: const Text('Повторить'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildPostPage(Post post) {
+  Widget _buildPostPage(PostModel post) {
     return Stack(
       children: [
         // Full-screen media
@@ -143,14 +164,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
                 label: '${post.likesCount}',
                 color: post.isLiked ? Colors.red : Colors.white,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(post.isLiked ? 'Лайк убран' : 'Лайк'),
-                      duration: const Duration(milliseconds: 500),
-                    ),
-                  );
-                },
+                onTap: () => _handleLike(post.id, post.isLiked),
               ),
               const SizedBox(height: 24),
               _buildActionButton(
