@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -18,6 +18,15 @@ describe('UsersService', () => {
     language: 'en',
     is_master: false,
     master_profile_completed: false,
+    avatar_url: 'https://example.com/avatar.jpg',
+    posts_count: 10,
+    friends_count: 5,
+    followers_count: 20,
+    following_count: 15,
+    reviews_count: 3,
+    rating: 4.5,
+    is_verified: false,
+    is_premium: false,
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -26,6 +35,7 @@ describe('UsersService', () => {
     findOne: jest.fn(),
     save: jest.fn(),
     create: jest.fn(),
+    remove: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -88,6 +98,140 @@ describe('UsersService', () => {
       expect(result.first_name).toBe('Updated');
       expect(result.last_name).toBe('Name');
       expect(mockRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw ConflictException when phone already exists', async () => {
+      const updateDto = {
+        phone: '+9876543210',
+      };
+
+      const existingUser = {
+        ...mockUser,
+        id: 'different-id',
+        phone: '+9876543210',
+      };
+
+      mockRepository.findOne
+        .mockResolvedValueOnce(mockUser) // First call for findById
+        .mockResolvedValueOnce(existingUser); // Second call for phone check
+
+      await expect(service.update(mockUser.id, updateDto)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('should allow updating own phone', async () => {
+      const updateDto = {
+        phone: '+1234567890', // Same phone as mockUser
+      };
+
+      const updatedUser = { ...mockUser, ...updateDto };
+      mockRepository.findOne.mockResolvedValue(mockUser);
+      mockRepository.save.mockResolvedValue(updatedUser);
+
+      const result = await service.update(mockUser.id, updateDto);
+
+      expect(result.phone).toBe('+1234567890');
+      expect(mockRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update('nonexistent-id', { first_name: 'Test' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('should return user when found by email', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await service.findByEmail('test@example.com');
+
+      expect(result).toEqual(mockUser);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' },
+      });
+    });
+
+    it('should return null when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      const result = await service.findByEmail('nonexistent@example.com');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('updateAvatar', () => {
+    it('should update user avatar', async () => {
+      const newAvatarUrl = 'https://example.com/new-avatar.jpg';
+      const updatedUser = { ...mockUser, avatar_url: newAvatarUrl };
+
+      mockRepository.findOne.mockResolvedValue(mockUser);
+      mockRepository.save.mockResolvedValue(updatedUser);
+
+      const result = await service.updateAvatar(mockUser.id, newAvatarUrl);
+
+      expect(result.avatar_url).toBe(newAvatarUrl);
+      expect(mockRepository.save).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.updateAvatar('nonexistent-id', 'https://example.com/avatar.jpg'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove user', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+      mockRepository.remove.mockResolvedValue(mockUser);
+
+      await service.remove(mockUser.id);
+
+      expect(mockRepository.remove).toHaveBeenCalledWith(mockUser);
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.remove('nonexistent-id')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getUserStats', () => {
+    it('should return user statistics', async () => {
+      mockRepository.findOne.mockResolvedValue(mockUser);
+
+      const result = await service.getUserStats(mockUser.id);
+
+      expect(result).toEqual({
+        posts_count: 10,
+        friends_count: 5,
+        followers_count: 20,
+        following_count: 15,
+        reviews_count: 3,
+        rating: 4.5,
+        is_master: false,
+        is_verified: false,
+        is_premium: false,
+      });
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.getUserStats('nonexistent-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
