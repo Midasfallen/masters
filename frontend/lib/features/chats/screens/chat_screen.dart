@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
-import '../../../core/providers/mock_data_provider.dart';
+import '../../../core/models/api/chat_model.dart';
+import '../../../core/providers/api/chats_provider.dart';
+import '../../../core/services/websocket_service.dart';
 import '../widgets/message_bubble.dart';
 
+/// Chat Screen с real API и WebSocket интеграцией
 class ChatScreen extends ConsumerStatefulWidget {
   final String chatId;
 
@@ -21,93 +25,258 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _messageFocusNode = FocusNode();
+
+  Timer? _typingTimer;
+  bool _isTyping = false;
+  final List<ChatMessageModel> _messages = [];
+  bool _isLoadingMessages = false;
+  final Set<String> _typingUsers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+    _setupMessageListener();
+    _setupTypingListener();
+
+    // Отправка typing indicator при наборе текста
+    _messageController.addListener(_onTextChanged);
+  }
 
   @override
   void dispose() {
+    _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
     _scrollController.dispose();
+    _messageFocusNode.dispose();
+    _typingTimer?.cancel();
+
+    // Выходим из комнаты чата при уходе с экрана
+    final wsService = ref.read(webSocketServiceProvider);
+    wsService.leaveChat(widget.chatId);
+
     super.dispose();
   }
 
-  void _sendMessage() {
+  /// Инициализация чата
+  Future<void> _initialize() async {
+    try {
+      final wsService = ref.read(webSocketServiceProvider);
+
+      // Присоединяемся к комнате чата
+      await wsService.joinChat(widget.chatId);
+
+      // Загружаем сообщения из API
+      await _loadMessages();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка инициализации: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  /// Загрузка сообщений из API
+  Future<void> _loadMessages() async {
+    if (_isLoadingMessages) return;
+
+    setState(() => _isLoadingMessages = true);
+
+    try {
+      final messages = await ref.read(chatMessagesProvider(widget.chatId).future);
+
+      if (mounted) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(messages);
+        });
+
+        // Прокручиваем к последнему сообщению
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
+
+        // Отмечаем сообщения как прочитанные
+        _markMessagesAsRead();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingMessages = false);
+      }
+    }
+  }
+
+  /// Настройка слушателя WebSocket сообщений
+  void _setupMessageListener() {
+    final wsService = ref.read(webSocketServiceProvider);
+
+    wsService.messages.listen((wsMessage) {
+      if (wsMessage.event == 'chat:message:new') {
+        final data = wsMessage.data as Map<String, dynamic>;
+
+        // Проверяем, что сообщение для этого чата
+        if (data['chat_id'] == widget.chatId) {
+          final newMessage = ChatMessageModel.fromJson(data);
+
+          if (mounted) {
+            setState(() {
+              _messages.add(newMessage);
+            });
+
+            _scrollToBottom();
+
+            // Отмечаем как прочитанное если не мы отправили
+            if (newMessage.senderId != ref.read(currentUserIdProvider)) {
+              wsService.markAsRead(
+                messageId: newMessage.id,
+                chatId: widget.chatId,
+              );
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /// Настройка слушателя typing indicator
+  void _setupTypingListener() {
+    final wsService = ref.read(webSocketServiceProvider);
+
+    wsService.messages.listen((wsMessage) {
+      if (wsMessage.event == 'chat:typing') {
+        final data = wsMessage.data as Map<String, dynamic>;
+
+        if (data['chat_id'] == widget.chatId) {
+          final userId = data['user_id'] as String;
+          final isTyping = data['is_typing'] as bool;
+
+          if (mounted) {
+            setState(() {
+              if (isTyping) {
+                _typingUsers.add(userId);
+              } else {
+                _typingUsers.remove(userId);
+              }
+            });
+          }
+        }
+      }
+    });
+  }
+
+  /// Обработчик изменения текста (для typing indicator)
+  void _onTextChanged() {
+    if (_messageController.text.trim().isEmpty) {
+      if (_isTyping) {
+        _sendTypingIndicator(false);
+        _isTyping = false;
+      }
+      return;
+    }
+
+    if (!_isTyping) {
+      _sendTypingIndicator(true);
+      _isTyping = true;
+    }
+
+    // Сбрасываем таймер
+    _typingTimer?.cancel();
+    _typingTimer = Timer(const Duration(seconds: 2), () {
+      if (_isTyping) {
+        _sendTypingIndicator(false);
+        _isTyping = false;
+      }
+    });
+  }
+
+  /// Отправка typing indicator
+  void _sendTypingIndicator(bool isTyping) {
+    final wsService = ref.read(webSocketServiceProvider);
+    wsService.sendTypingIndicator(chatId: widget.chatId, isTyping: isTyping);
+  }
+
+  /// Отправка сообщения
+  Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    // В прототипе просто показываем SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Отправлено: ${_messageController.text}')),
-    );
+    final content = _messageController.text.trim();
     _messageController.clear();
+
+    // Останавливаем typing indicator
+    if (_isTyping) {
+      _sendTypingIndicator(false);
+      _isTyping = false;
+    }
+
+    try {
+      final wsService = ref.read(webSocketServiceProvider);
+
+      // Отправляем через WebSocket
+      await wsService.sendMessage(
+        chatId: widget.chatId,
+        type: 'text',
+        content: content,
+      );
+
+      // Сообщение будет добавлено в список когда придет событие chat:message:new
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка отправки: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  /// Прокрутка к последнему сообщению
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  /// Отметить сообщения как прочитанные
+  void _markMessagesAsRead() {
+    final wsService = ref.read(webSocketServiceProvider);
+    final currentUserId = ref.read(currentUserIdProvider);
+
+    for (final message in _messages) {
+      if (message.senderId != currentUserId) {
+        wsService.markAsRead(
+          messageId: message.id,
+          chatId: widget.chatId,
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final messages = ref.watch(mockMessagesProvider(widget.chatId));
-    final chats = ref.watch(mockChatsProvider);
-    final chat = chats.firstWhere(
-      (c) => c.id == widget.chatId,
-      orElse: () => chats.first,
-    );
+    final chatAsync = ref.watch(chatByIdProvider(widget.chatId));
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Row(
-          children: [
-            Stack(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundImage: CachedNetworkImageProvider(
-                    chat.participantAvatar,
-                  ),
-                ),
-                if (chat.isOnline ?? false)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    chat.participantName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (chat.isOnline ?? false)
-                    const Text(
-                      'В сети',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.green,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+        title: chatAsync.when(
+          data: (chat) => _buildAppBarTitle(chat),
+          loading: () => const Text('Загрузка...'),
+          error: (_, __) => const Text('Ошибка'),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.videocam_outlined),
+            icon: const Icon(Icons.videocam),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Видеозвонок (в разработке)')),
@@ -115,10 +284,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.phone_outlined),
+            icon: const Icon(Icons.call),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Звонок (в разработке)')),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Меню (в разработке)')),
               );
             },
           ),
@@ -126,72 +303,82 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Messages list
+          // Список сообщений
           Expanded(
-            child: messages.isEmpty
-                ? const Center(
-                    child: Text('Нет сообщений'),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    reverse: true,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[messages.length - 1 - index];
-                      final isNextMessageSameSender = index < messages.length - 1
-                          ? messages[messages.length - 2 - index].senderId ==
-                              message.senderId
-                          : false;
+            child: _isLoadingMessages
+                ? const Center(child: CircularProgressIndicator())
+                : _messages.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message = _messages[index];
+                          final currentUserId = ref.read(currentUserIdProvider);
+                          final isMe = message.senderId == currentUserId;
 
-                      return MessageBubble(
-                        message: message,
-                        isNextMessageSameSender: isNextMessageSameSender,
-                      );
-                    },
-                  ),
+                          return MessageBubble(
+                            message: message,
+                            isMe: isMe,
+                          );
+                        },
+                      ),
           ),
 
-          // Message input
+          // Typing indicator
+          if (_typingUsers.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Печатает...',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+
+          // Поле ввода сообщения
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
               ],
             ),
             padding: EdgeInsets.only(
               left: 16,
-              right: 16,
+              right: 8,
               top: 12,
               bottom: 12 + MediaQuery.of(context).padding.bottom,
             ),
             child: Row(
               children: [
-                // Attachments button
+                // Кнопка прикрепления
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: Icon(Icons.add_circle_outline,
+                      color: Theme.of(context).primaryColor),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Вложения (в разработке)'),
-                      ),
+                          content: Text('Прикрепление файлов (в разработке)')),
                     );
                   },
                 ),
                 const SizedBox(width: 8),
 
-                // Text input
+                // Поле ввода
                 Expanded(
                   child: TextField(
                     controller: _messageController,
+                    focusNode: _messageFocusNode,
                     decoration: InputDecoration(
                       hintText: 'Сообщение...',
                       border: OutlineInputBorder(
@@ -212,7 +399,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
                 const SizedBox(width: 8),
 
-                // Send button
+                // Кнопка отправки
                 IconButton(
                   icon: Icon(
                     Icons.send,
@@ -227,4 +414,98 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
     );
   }
+
+  Widget _buildAppBarTitle(ChatModel chat) {
+    // TODO: Получить информацию о собеседнике
+    return Row(
+      children: [
+        Stack(
+          children: [
+            const CircleAvatar(
+              radius: 18,
+              child: Icon(Icons.person),
+            ),
+            // TODO: Показывать online статус на основе WebSocket событий
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                chat.id, // TODO: Показывать имя собеседника
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'Оффлайн', // TODO: Статус на основе WebSocket
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Нет сообщений',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Начните общение с собеседником',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+/// Временный provider для получения ID текущего пользователя
+/// TODO: Заменить на реальный из auth provider
+final currentUserIdProvider = Provider<String>((ref) {
+  // Получаем из auth state
+  final authState = ref.watch(authNotifierProvider);
+  return authState.value?.user?.id ?? '';
+});
