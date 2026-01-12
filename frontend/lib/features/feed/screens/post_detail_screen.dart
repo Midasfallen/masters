@@ -606,7 +606,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                   ),
                 ),
               ),
-                Container(
+              Container(
                   padding: EdgeInsets.only(
                     left: 16,
                     right: 16,
@@ -656,9 +656,8 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                 ),
               ],
             ),
-          );
-        },
-      ),
+        );
+      },
     );
   }
 }
