@@ -22,6 +22,7 @@ import { FriendsModule } from './modules/friends/friends.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { AutoProposalsModule } from './modules/auto-proposals/auto-proposals.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -63,6 +64,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
     // Auto Proposals (Premium feature)
     AutoProposalsModule,
+
+    // Admin Panel
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

@@ -22,12 +22,10 @@ export class User {
 
   @ApiProperty({ example: 'user@example.com' })
   @Column({ type: 'varchar', length: 255, unique: true })
-  @Index()
   email: string;
 
   @ApiProperty({ example: '+79001234567' })
   @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
-  @Index()
   phone: string;
 
   @ApiHideProperty()
@@ -66,6 +64,18 @@ export class User {
   @ApiProperty({ example: '2025-12-31T23:59:59Z', required: false })
   @Column({ type: 'timestamp', nullable: true })
   premium_until: Date;
+
+  @ApiProperty({ description: 'Является ли пользователь администратором', default: false })
+  @Column({ type: 'boolean', default: false })
+  is_admin: boolean;
+
+  @ApiProperty({ description: 'Активен ли пользователь', default: true })
+  @Column({ type: 'boolean', default: true })
+  is_active: boolean;
+
+  @ApiProperty({ example: '2025-01-13T10:30:00Z', required: false })
+  @Column({ type: 'timestamp', nullable: true })
+  last_login_at: Date;
 
   @ApiProperty({ example: 4.75 })
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 0 })
