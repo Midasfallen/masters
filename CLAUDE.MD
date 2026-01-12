@@ -1,6 +1,6 @@
 # CLAUDE.MD - Инструкции для Claude при работе с проектом Service Platform
 
-**Версия:** 2.7
+**Версия:** 2.8
 **Проект:** Service Platform (masters)
 **Дата создания:** 9 января 2026
 **Последнее обновление:** 13 января 2026
@@ -33,7 +33,7 @@
 
 ### Текущий статус разработки (13 января 2026)
 
-**📊 Общий прогресс MVP:** 405 / 485 очков (83%)
+**📊 Общий прогресс MVP:** 425 / 485 очков (88%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -64,13 +64,17 @@
 - ✅ **Frontend Bookings интеграция** - Client/Master режимы, Confirm/Cancel/Complete actions
 - ✅ **Frontend Search интеграция** - Поиск мастеров и услуг с real API
 
-**⏳ В разработке:**
-- 🔄 **ФАЗА 4:** Advanced Features (80/85 очков) - 94% завершено
+**✅ Завершенные фазы (продолжение):**
+- ✅ **ФАЗА 4:** Advanced Features (100/100 очков) - 100% ✅
   - Week 11: Chats & Notifications Frontend Integration ✅ (30 очков)
   - Week 12: Friends & Subscriptions Integration ✅ (15 очков)
   - Auto Proposals - Умный подбор мастеров ✅ (15 очков)
   - Media Upload - Avatar и фото загрузка ✅ (10 очков)
   - Geolocation - Геопоиск мастеров ✅ (10 очков)
+  - Full-text Search - Meilisearch интеграция ✅ (10 очков)
+  - Premium Features - Система подписок ✅ (10 очков)
+
+**⏳ В разработке:**
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
@@ -92,9 +96,10 @@
 - ✅ **Auto Proposals интегрирован** - Умный подбор мастеров, match score, accept/reject
 - ✅ **Media Upload** - image_picker, DioClient.uploadFile(), avatar upload
 - ✅ **Geolocation Service** - geolocator, LocationService, distance calculations
-- ✅ API endpoints v2.0 добавлены (27 новых: Friends, Subscriptions, Auto Proposals)
+- ✅ **Full-text Search** - Meilisearch + PostgreSQL fallback, real-time search
+- ✅ **Premium Subscription** - 4 тарифа, payment flow, feature access control
+- ✅ API endpoints v2.0 добавлены (36 новых: Friends, Subscriptions, Auto Proposals, Premium)
 - ✅ Socket.IO client dependency added (v2.0.3+1)
-- 🔄 Meilisearch, Premium Features - следующий этап (ФАЗА 5)
 
 ---
 
@@ -1093,15 +1098,15 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 5. ✅ **Bookings Integration** - Client/Master режимы (Week 10)
 6. ✅ **Search Integration** - Masters и Services поиск (Week 10)
 
-### 🔄 ФАЗА 4: Advanced Features (80/85 очков) - 94% ✅
+### ✅ ФАЗА 4: Advanced Features (100/100 очков) - 100% ✅🎊
 1. ✅ **Chats Integration** - WebSocket клиент, real-time messaging (Week 11 Part 1) - 20 очков
 2. ✅ **Notifications Integration** - Real-time уведомления (Week 11 Part 2) - 10 очков
 3. ✅ **Friends & Subscriptions** - Друзья и подписки (Week 12) - 15 очков
 4. ✅ **Auto Proposals** - ML/эвристики подбора мастеров - 15 очков
 5. ✅ **Media Upload** - image_picker + DioClient upload - 10 очков
 6. ✅ **Geolocation** - geolocator + LocationService - 10 очков
-7. ⏳ **Full-text Search** - Meilisearch интеграция - 10 очков
-8. ⏳ **Premium Features** - Подписка, премиум функции - 10 очков
+7. ✅ **Full-text Search** - Meilisearch + PostgreSQL fallback - 10 очков
+8. ✅ **Premium Features** - 4 тарифа + payment flow - 10 очков
 
 ### ⏳ ФАЗА 5: Production Ready (0/75 очков)
 1. ⏳ **Admin Module** - Админ-панель
@@ -1135,6 +1140,28 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 ## 🔄 Changelog
+
+### v2.8 (13 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (88%)
+- ✅ **Full-text Search + Premium Features завершены (20/20 очков)** 🎊
+- ✅ **ФАЗА 4: Advanced Features - 100% ЗАВЕРШЕНА (100/100 очков)** 🎊🎊🎊
+- ✅ Full-text Search - обнаружено, что Meilisearch уже интегрирован:
+  - Backend: MeiliSearch client с indices для masters и services
+  - Backend: PostgreSQL full-text search fallback (to_tsvector)
+  - Frontend: SearchRepository уже использует /search endpoints
+  - 2 search modes: Meilisearch (primary) + PostgreSQL (fallback)
+- ✅ Premium Features - создана полная система подписок:
+  - PremiumSubscriptionModel (5 моделей) с Freezed
+  - PremiumSubscriptionRepository (10 методов API)
+  - Premium Subscription Providers (4 provider + notifier)
+  - PremiumSubscriptionScreen - управление подпиской
+  - 4 тарифа (Free, Basic, Premium, Pro)
+  - Monthly/Yearly billing с discount
+  - Payment flow integration (ready для платежных систем)
+  - Feature access control system
+  - Subscribe/Cancel/Resume функционал
+  - 9 API endpoints для Premium системы
+- 🐛 Исправлена структура скобок в post_detail_screen.dart
 
 ### v2.7 (13 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (83%)
@@ -1231,5 +1258,5 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 **Последнее обновление:** 13 января 2026
-**Версия:** 2.7
+**Версия:** 2.8
 **Автор:** Claude (по запросу пользователя)
