@@ -151,6 +151,15 @@ class WebSocketService {
       ));
     });
 
+    // Новое уведомление
+    _socket!.on('notification:new', (data) {
+      _messageController.add(WebSocketMessage(
+        event: 'notification:new',
+        data: data,
+        timestamp: DateTime.now(),
+      ));
+    });
+
     // Ошибка
     _socket!.on('error', (data) {
       _connectionStateController.add(ConnectionState.error);
@@ -266,6 +275,15 @@ class WebSocketService {
         data: response,
         timestamp: DateTime.now(),
       ));
+    });
+  }
+
+  /// Отметить уведомление как прочитанное
+  void markNotificationAsRead(String notificationId) {
+    if (_socket?.connected != true) return;
+
+    _socket!.emit('notification:read', {
+      'notification_id': notificationId,
     });
   }
 
