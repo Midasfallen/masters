@@ -1,6 +1,6 @@
 # CLAUDE.MD - Инструкции для Claude при работе с проектом Service Platform
 
-**Версия:** 2.3
+**Версия:** 2.4
 **Проект:** Service Platform (masters)
 **Дата создания:** 9 января 2026
 **Последнее обновление:** 12 января 2026
@@ -33,7 +33,7 @@
 
 ### Текущий статус разработки (12 января 2026)
 
-**📊 Общий прогресс MVP:** 325 / 485 очков (67%)
+**📊 Общий прогресс MVP:** 355 / 485 очков (73%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -65,7 +65,8 @@
 - ✅ **Frontend Search интеграция** - Поиск мастеров и услуг с real API
 
 **⏳ В разработке:**
-- 🔄 ФАЗА 4: Advanced Features (0/85 очков) - следующий этап
+- 🔄 **ФАЗА 4:** Advanced Features (30/85 очков) - 35% завершено
+  - Week 11: Chats & Notifications Frontend Integration ✅ (30 очков)
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
@@ -79,9 +80,12 @@
 - ✅ **Comments интегрированы** - Load comments, Create comment, Real-time display
 - ✅ **Bookings Screen интегрирован** - Client/Master modes, Status управление
 - ✅ **Search Screen интегрирован** - Masters и Services search
+- ✅ **WebSocket Service** - Socket.IO client, auto-reconnection, event handling
+- ✅ **Chats Screen интегрирован** - Real-time messaging, typing indicators, read receipts
+- ✅ **Notifications Screen интегрирован** - Real-time notifications, unread count, mark as read
 - ✅ API endpoints v2.0 добавлены (19 новых: Friends, Subscriptions, Auto Proposals)
-- ✅ Chats и Notifications providers готовы для интеграции
-- 🔄 WebSocket client integration - следующий этап
+- ✅ Socket.IO client dependency added (v2.0.3+1)
+- 🔄 Auto Proposals, Media Upload, Meilisearch - следующий этап
 
 ---
 
@@ -1079,17 +1083,15 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 4. ✅ **Post Detail Screen** - Полноэкранный просмотр (Week 9)
 5. ✅ **Bookings Integration** - Client/Master режимы (Week 10)
 6. ✅ **Search Integration** - Masters и Services поиск (Week 10)
-7. ⏳ **Chats Integration** - WebSocket клиент (PHASE 4)
-8. ⏳ **Notifications** - Real-time уведомления (PHASE 4)
 
-### ⏳ ФАЗА 4: Advanced Features (0/85 очков)
-1. ⏳ **Chats Module (Backend)** - 8 типов сообщений
-2. ⏳ **Notifications Module (Backend)** - 11 типов, FCM/APNs
-3. ⏳ **Auto Proposals** - ML/эвристики подбора мастеров
-4. ⏳ **Media Upload** - MinIO интеграция
-5. ⏳ **Full-text Search** - Meilisearch интеграция
-6. ⏳ **Geolocation** - PostGIS интеграция
-7. ⏳ **Premium Features** - Подписка, премиум функции
+### 🔄 ФАЗА 4: Advanced Features (30/85 очков) - 35%
+1. ✅ **Chats Integration** - WebSocket клиент, real-time messaging (Week 11 Part 1) - 20 очков
+2. ✅ **Notifications Integration** - Real-time уведомления (Week 11 Part 2) - 10 очков
+3. ⏳ **Auto Proposals** - ML/эвристики подбора мастеров - 15 очков
+4. ⏳ **Media Upload** - MinIO интеграция - 10 очков
+5. ⏳ **Full-text Search** - Meilisearch интеграция - 10 очков
+6. ⏳ **Geolocation** - PostGIS интеграция - 10 очков
+7. ⏳ **Premium Features** - Подписка, премиум функции - 10 очков
 
 ### ⏳ ФАЗА 5: Production Ready (0/75 очков)
 1. ⏳ **Admin Module** - Админ-панель
@@ -1123,6 +1125,18 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 ## 🔄 Changelog
+
+### v2.4 (12 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (73%)
+- ✅ **Week 11: Chats & Notifications Integration завершена (30/30 очков)** 🎊
+- ✅ **ФАЗА 4: Advanced Features начата (30/85 очков - 35%)**
+- ✅ Добавлена информация о WebSocket Service (Socket.IO client)
+- ✅ Добавлена информация о Chats Screen integration
+- ✅ Добавлена информация о Notifications Screen integration
+- ✅ Real-time messaging с typing indicators и read receipts
+- ✅ Real-time notifications с unread count
+- ✅ Создан notification_model.dart, notification_repository.dart, notifications_provider.dart
+- ✅ Socket.IO client dependency added (v2.0.3+1)
 
 ### v2.3 (12 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (67%)
@@ -1162,5 +1176,5 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 **Последнее обновление:** 12 января 2026
-**Версия:** 2.3
+**Версия:** 2.4
 **Автор:** Claude (по запросу пользователя)
