@@ -1,6 +1,6 @@
 # CLAUDE.MD - Инструкции для Claude при работе с проектом Service Platform
 
-**Версия:** 2.4
+**Версия:** 2.5
 **Проект:** Service Platform (masters)
 **Дата создания:** 9 января 2026
 **Последнее обновление:** 12 января 2026
@@ -33,7 +33,7 @@
 
 ### Текущий статус разработки (12 января 2026)
 
-**📊 Общий прогресс MVP:** 355 / 485 очков (73%)
+**📊 Общий прогресс MVP:** 370 / 485 очков (76%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -65,8 +65,9 @@
 - ✅ **Frontend Search интеграция** - Поиск мастеров и услуг с real API
 
 **⏳ В разработке:**
-- 🔄 **ФАЗА 4:** Advanced Features (30/85 очков) - 35% завершено
+- 🔄 **ФАЗА 4:** Advanced Features (45/85 очков) - 53% завершено
   - Week 11: Chats & Notifications Frontend Integration ✅ (30 очков)
+  - Week 12: Friends & Subscriptions Integration ✅ (15 очков)
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
@@ -83,6 +84,8 @@
 - ✅ **WebSocket Service** - Socket.IO client, auto-reconnection, event handling
 - ✅ **Chats Screen интегрирован** - Real-time messaging, typing indicators, read receipts
 - ✅ **Notifications Screen интегрирован** - Real-time notifications, unread count, mark as read
+- ✅ **Friends Screen интегрирован** - 3 tabs (Friends, Incoming, Outgoing), send/accept/decline requests
+- ✅ **Subscriptions интегрированы** - Follow/Unfollow, subscription management
 - ✅ API endpoints v2.0 добавлены (19 новых: Friends, Subscriptions, Auto Proposals)
 - ✅ Socket.IO client dependency added (v2.0.3+1)
 - 🔄 Auto Proposals, Media Upload, Meilisearch - следующий этап
@@ -1125,6 +1128,20 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 ## 🔄 Changelog
+
+### v2.5 (12 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (76%)
+- ✅ **Week 12: Friends & Subscriptions Integration завершена (15/15 очков)** 🎊
+- ✅ **ФАЗА 4: Advanced Features - 53% завершено (45/85 очков)**
+- ✅ Создан friend_model.dart (FriendshipModel, FriendModel, SubscriptionModel)
+- ✅ Создан friend_repository.dart с полным CRUD для друзей
+- ✅ Создан subscription_repository.dart с CRUD для подписок
+- ✅ Создан friends_provider.dart (friendsList, incoming/outgoing requests, FriendNotifier)
+- ✅ Создан subscriptions_provider.dart (subscriptions, subscribers, SubscriptionNotifier)
+- ✅ Friends Screen с 3 табами (Friends, Incoming, Outgoing)
+- ✅ Real API integration для send/accept/decline friend requests
+- ✅ Pull-to-refresh, error handling, empty states
+- ✅ Automatic provider invalidation после мутаций
 
 ### v2.4 (12 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (73%)
