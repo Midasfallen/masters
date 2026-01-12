@@ -33,7 +33,7 @@
 
 ### Текущий статус разработки (12 января 2026)
 
-**📊 Общий прогресс MVP:** 370 / 485 очков (76%)
+**📊 Общий прогресс MVP:** 385 / 485 очков (79%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -65,9 +65,10 @@
 - ✅ **Frontend Search интеграция** - Поиск мастеров и услуг с real API
 
 **⏳ В разработке:**
-- 🔄 **ФАЗА 4:** Advanced Features (45/85 очков) - 53% завершено
+- 🔄 **ФАЗА 4:** Advanced Features (60/85 очков) - 71% завершено
   - Week 11: Chats & Notifications Frontend Integration ✅ (30 очков)
   - Week 12: Friends & Subscriptions Integration ✅ (15 очков)
+  - Auto Proposals - Умный подбор мастеров ✅ (15 очков)
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
@@ -86,9 +87,10 @@
 - ✅ **Notifications Screen интегрирован** - Real-time notifications, unread count, mark as read
 - ✅ **Friends Screen интегрирован** - 3 tabs (Friends, Incoming, Outgoing), send/accept/decline requests
 - ✅ **Subscriptions интегрированы** - Follow/Unfollow, subscription management
-- ✅ API endpoints v2.0 добавлены (19 новых: Friends, Subscriptions, Auto Proposals)
+- ✅ **Auto Proposals интегрирован** - Умный подбор мастеров, match score, accept/reject
+- ✅ API endpoints v2.0 добавлены (27 новых: Friends, Subscriptions, Auto Proposals)
 - ✅ Socket.IO client dependency added (v2.0.3+1)
-- 🔄 Auto Proposals, Media Upload, Meilisearch - следующий этап
+- 🔄 Media Upload, Meilisearch, Geolocation, Premium - следующий этап
 
 ---
 
@@ -1128,6 +1130,20 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 ## 🔄 Changelog
+
+### v2.6 (13 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (79%)
+- ✅ **Auto Proposals - Умный подбор мастеров завершен (15/15 очков)** 🎊
+- ✅ **ФАЗА 4: Advanced Features - 71% завершено (60/85 очков)**
+- ✅ Создан auto_proposal_model.dart (7 моделей: AutoProposal, Settings, MatchReasons, ProposalMaster/Service)
+- ✅ Создан auto_proposal_repository.dart с полным CRUD
+- ✅ Создан auto_proposals_provider.dart (settings, proposals, mutations)
+- ✅ AutoProposalsScreen с 2 табами (Active, All)
+- ✅ Match score visualization (0-100%)
+- ✅ Accept/Reject proposals с date/time picker
+- ✅ Auto-generation support (manual trigger)
+- ✅ Settings screen (заглушка для будущей реализации)
+- ✅ 8 API endpoints подключены
 
 ### v2.5 (12 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (76%)
