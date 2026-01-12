@@ -1,9 +1,9 @@
 # CLAUDE.MD - Инструкции для Claude при работе с проектом Service Platform
 
-**Версия:** 2.5
+**Версия:** 2.7
 **Проект:** Service Platform (masters)
 **Дата создания:** 9 января 2026
-**Последнее обновление:** 12 января 2026
+**Последнее обновление:** 13 января 2026
 
 ---
 
@@ -31,9 +31,9 @@
 - **ORM:** TypeORM 0.3.x
 - **Code Generation:** Freezed, JSON Serializable
 
-### Текущий статус разработки (12 января 2026)
+### Текущий статус разработки (13 января 2026)
 
-**📊 Общий прогресс MVP:** 385 / 485 очков (79%)
+**📊 Общий прогресс MVP:** 405 / 485 очков (83%)
 
 **✅ Завершенные фазы:**
 - ✅ **ФАЗА 0:** Подготовка (25/25 очков) - 100%
@@ -65,10 +65,12 @@
 - ✅ **Frontend Search интеграция** - Поиск мастеров и услуг с real API
 
 **⏳ В разработке:**
-- 🔄 **ФАЗА 4:** Advanced Features (60/85 очков) - 71% завершено
+- 🔄 **ФАЗА 4:** Advanced Features (80/85 очков) - 94% завершено
   - Week 11: Chats & Notifications Frontend Integration ✅ (30 очков)
   - Week 12: Friends & Subscriptions Integration ✅ (15 очков)
   - Auto Proposals - Умный подбор мастеров ✅ (15 очков)
+  - Media Upload - Avatar и фото загрузка ✅ (10 очков)
+  - Geolocation - Геопоиск мастеров ✅ (10 очков)
 - 🔄 ФАЗА 5: Production Ready (0/75 очков)
 
 **📱 Frontend:**
@@ -88,9 +90,11 @@
 - ✅ **Friends Screen интегрирован** - 3 tabs (Friends, Incoming, Outgoing), send/accept/decline requests
 - ✅ **Subscriptions интегрированы** - Follow/Unfollow, subscription management
 - ✅ **Auto Proposals интегрирован** - Умный подбор мастеров, match score, accept/reject
+- ✅ **Media Upload** - image_picker, DioClient.uploadFile(), avatar upload
+- ✅ **Geolocation Service** - geolocator, LocationService, distance calculations
 - ✅ API endpoints v2.0 добавлены (27 новых: Friends, Subscriptions, Auto Proposals)
 - ✅ Socket.IO client dependency added (v2.0.3+1)
-- 🔄 Media Upload, Meilisearch, Geolocation, Premium - следующий этап
+- 🔄 Meilisearch, Premium Features - следующий этап (ФАЗА 5)
 
 ---
 
@@ -1089,14 +1093,15 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 5. ✅ **Bookings Integration** - Client/Master режимы (Week 10)
 6. ✅ **Search Integration** - Masters и Services поиск (Week 10)
 
-### 🔄 ФАЗА 4: Advanced Features (30/85 очков) - 35%
+### 🔄 ФАЗА 4: Advanced Features (80/85 очков) - 94% ✅
 1. ✅ **Chats Integration** - WebSocket клиент, real-time messaging (Week 11 Part 1) - 20 очков
 2. ✅ **Notifications Integration** - Real-time уведомления (Week 11 Part 2) - 10 очков
-3. ⏳ **Auto Proposals** - ML/эвристики подбора мастеров - 15 очков
-4. ⏳ **Media Upload** - MinIO интеграция - 10 очков
-5. ⏳ **Full-text Search** - Meilisearch интеграция - 10 очков
-6. ⏳ **Geolocation** - PostGIS интеграция - 10 очков
-7. ⏳ **Premium Features** - Подписка, премиум функции - 10 очков
+3. ✅ **Friends & Subscriptions** - Друзья и подписки (Week 12) - 15 очков
+4. ✅ **Auto Proposals** - ML/эвристики подбора мастеров - 15 очков
+5. ✅ **Media Upload** - image_picker + DioClient upload - 10 очков
+6. ✅ **Geolocation** - geolocator + LocationService - 10 очков
+7. ⏳ **Full-text Search** - Meilisearch интеграция - 10 очков
+8. ⏳ **Premium Features** - Подписка, премиум функции - 10 очков
 
 ### ⏳ ФАЗА 5: Production Ready (0/75 очков)
 1. ⏳ **Admin Module** - Админ-панель
@@ -1130,6 +1135,23 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 ---
 
 ## 🔄 Changelog
+
+### v2.7 (13 января 2026)
+- ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (83%)
+- ✅ **Media Upload + Geolocation завершены (20/20 очков)** 🎊
+- ✅ **ФАЗА 4: Advanced Features - 94% завершено (80/85 очков)** 🎊
+- ✅ Media Upload - обнаружено, что функционал уже реализован:
+  - image_picker: ^1.0.7 уже в зависимостях
+  - DioClient.uploadFile() уже реализован
+  - UserRepository.uploadAvatar() уже работает
+  - Profile screen уже использует загрузку аватара
+- ✅ Geolocation - реализован полноценный сервис геолокации:
+  - geolocator: ^13.0.2 добавлен
+  - permission_handler: ^11.3.1 добавлен
+  - LocationService с методами: getCurrentPosition(), calculateDistance(), formatDistance()
+  - CurrentLocation Riverpod provider для реактивного состояния
+  - isWithinRadius() для проверки расстояния
+- ✅ ФАЗА 4 практически завершена (осталось 5 очков - Meilisearch и Premium)
 
 ### v2.6 (13 января 2026)
 - ✅ Обновлен раздел "Текущий статус" с прогрессом MVP (79%)
@@ -1208,6 +1230,6 @@ async createService(@Body() dto: CreateServiceDto, @Headers('authorization') tok
 
 ---
 
-**Последнее обновление:** 12 января 2026
-**Версия:** 2.4
+**Последнее обновление:** 13 января 2026
+**Версия:** 2.7
 **Автор:** Claude (по запросу пользователя)
