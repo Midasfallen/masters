@@ -110,10 +110,11 @@ class ApiEndpoints {
   static const String subscribersList = '/subscriptions/followers';
 
   // ==================== AUTO PROPOSALS (v2.0) ====================
-  static const String autoProposals = '/auto-proposals';
+  static const String autoProposalsList = '/auto-proposals';
+  static const String autoProposalsActive = '/auto-proposals/active';
   static String autoProposalById(String id) => '/auto-proposals/$id';
-  static const String autoProposalsSettings = '/auto-proposals/settings';
-  static const String autoProposalsGenerate = '/auto-proposals/generate';
+  static const String autoProposalSettings = '/auto-proposals/settings';
+  static const String autoProposalGenerate = '/auto-proposals/generate';
   static String autoProposalAccept(String id) => '/auto-proposals/$id/accept';
   static String autoProposalReject(String id) => '/auto-proposals/$id/reject';
 
