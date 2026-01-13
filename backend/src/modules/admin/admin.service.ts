@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Booking } from '../bookings/entities/booking.entity';
 import { Review } from '../reviews/entities/review.entity';
@@ -58,19 +58,19 @@ export class AdminService {
       this.postRepository.count(),
       this.serviceRepository.count(),
       this.userRepository.count({
-        where: { created_at: Repository.moreThanOrEqual(weekStart) as any },
+        where: { created_at: MoreThanOrEqual(weekStart) },
       }),
       this.userRepository.count({
-        where: { created_at: Repository.moreThanOrEqual(monthStart) as any },
+        where: { created_at: MoreThanOrEqual(monthStart) },
       }),
       this.bookingRepository.count({
-        where: { created_at: Repository.moreThanOrEqual(todayStart) as any },
+        where: { created_at: MoreThanOrEqual(todayStart) },
       }),
       this.bookingRepository.count({
-        where: { created_at: Repository.moreThanOrEqual(weekStart) as any },
+        where: { created_at: MoreThanOrEqual(weekStart) },
       }),
       this.bookingRepository.count({
-        where: { created_at: Repository.moreThanOrEqual(monthStart) as any },
+        where: { created_at: MoreThanOrEqual(monthStart) },
       }),
     ]);
 
@@ -146,28 +146,52 @@ export class AdminService {
    * Get recent bookings
    */
   async getRecentBookings(limit: number = 50): Promise<BookingStatsDto[]> {
-    const bookings = await this.bookingRepository
-      .createQueryBuilder('booking')
-      .leftJoinAndSelect('booking.client', 'client')
-      .leftJoinAndSelect('booking.master_profile', 'master_profile')
-      .leftJoinAndSelect('master_profile.user', 'master')
-      .leftJoinAndSelect('booking.service', 'service')
-      .orderBy('booking.created_at', 'DESC')
-      .take(limit)
-      .getMany();
+    const bookings = await this.bookingRepository.find({
+      order: { created_at: 'DESC' },
+      take: limit,
+    });
 
-    return bookings.map((booking) => ({
-      id: booking.id,
-      clientName: `${booking.client?.first_name} ${booking.client?.last_name}`,
-      masterName: booking.master_profile?.user
-        ? `${booking.master_profile.user.first_name} ${booking.master_profile.user.last_name}`
-        : 'Unknown',
-      serviceName: booking.service?.name || 'Unknown',
-      status: booking.status,
-      amount: parseFloat(booking.total_price?.toString() || '0'),
-      scheduledFor: booking.scheduled_for,
-      createdAt: booking.created_at,
-    }));
+    // Fetch related data manually
+    const clientIds = [...new Set(bookings.map((b) => b.client_id))];
+    const masterIds = [...new Set(bookings.map((b) => b.master_id))];
+    const serviceIds = [...new Set(bookings.map((b) => b.service_id))];
+
+    const [clients, masters, services] = await Promise.all([
+      clientIds.length > 0
+        ? this.userRepository.findByIds(clientIds)
+        : Promise.resolve([]),
+      masterIds.length > 0
+        ? this.userRepository.findByIds(masterIds)
+        : Promise.resolve([]),
+      serviceIds.length > 0
+        ? this.serviceRepository.findByIds(serviceIds)
+        : Promise.resolve([]),
+    ]);
+
+    const clientMap = new Map(clients.map((c) => [c.id, c]));
+    const masterMap = new Map(masters.map((m) => [m.id, m]));
+    const serviceMap = new Map(services.map((s) => [s.id, s]));
+
+    return bookings.map((booking) => {
+      const client = clientMap.get(booking.client_id);
+      const master = masterMap.get(booking.master_id);
+      const service = serviceMap.get(booking.service_id);
+
+      return {
+        id: booking.id,
+        clientName: client
+          ? `${client.first_name} ${client.last_name}`
+          : 'Unknown',
+        masterName: master
+          ? `${master.first_name} ${master.last_name}`
+          : 'Unknown',
+        serviceName: service?.name || 'Unknown',
+        status: booking.status,
+        amount: parseFloat(booking.price?.toString() || '0'),
+        scheduledFor: booking.start_time,
+        createdAt: booking.created_at,
+      };
+    });
   }
 
   /**
