@@ -19,7 +19,6 @@ export class AdminGuard implements CanActivate {
     }
 
     // Check if user has admin role
-    // Assuming user entity has 'is_admin' field
     if (!user.is_admin) {
       throw new ForbiddenException('Admin access required');
     }

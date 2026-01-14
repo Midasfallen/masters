@@ -12,7 +12,8 @@ const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.random()
 describe('AdminController (e2e)', () => {
   let app: INestApplication;
   let adminToken: string;
-  let userToken: string;
+  let userToken: string; // Regular user (may be promoted to admin in tests)
+  let nonAdminToken: string; // Always regular user (for negative tests)
   let regularUserId: string;
   let userRepository: Repository<User>;
 
@@ -75,6 +76,18 @@ describe('AdminController (e2e)', () => {
         password: 'AdminPass123',
       });
     adminToken = adminLoginResponse.body.access_token; // Update with new token
+
+    // Create another regular user (never promoted, for negative tests)
+    const nonAdminResponse = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        email: uniqueEmail('nonadmin'),
+        password: 'Password123',
+        first_name: 'NonAdmin',
+        last_name: 'User',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
+      });
+    nonAdminToken = nonAdminResponse.body.access_token;
   }, 30000);
 
   afterAll(async () => {
@@ -107,7 +120,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .get('/admin/stats')
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
 
@@ -156,7 +169,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .get('/admin/users')
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
   });
@@ -185,7 +198,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .get('/admin/bookings/recent')
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
   });
@@ -237,7 +250,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .post(`/admin/users/${regularUserId}/status`)
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .send({
           isActive: false, // Changed to camelCase
           reason: 'Test',
@@ -279,7 +292,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .get('/admin/health')
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
   });
@@ -320,7 +333,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .get('/admin/analytics')
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
   });
@@ -357,7 +370,7 @@ describe('AdminController (e2e)', () => {
     it('should fail for regular user', () => {
       return request(app.getHttpServer())
         .delete(`/admin/users/${regularUserId}`)
-        .set('Authorization', `Bearer ${userToken}`)
+        .set('Authorization', `Bearer ${nonAdminToken}`)
         .expect(403);
     });
   });

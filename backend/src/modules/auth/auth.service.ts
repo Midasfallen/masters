@@ -226,6 +226,7 @@ export class AuthService {
   async validateUser(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
+      select: ['id', 'email', 'first_name', 'last_name', 'avatar_url', 'is_master', 'is_verified', 'is_premium', 'is_admin', 'is_active'], // Explicitly select is_admin and is_active for AdminGuard
     });
 
     if (!user) {
