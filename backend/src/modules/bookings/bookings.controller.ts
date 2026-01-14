@@ -22,6 +22,7 @@ import { CancelBookingDto } from './dto/cancel-booking.dto';
 import { BookingResponseDto } from './dto/booking-response.dto';
 import { FilterBookingsDto } from './dto/filter-bookings.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PendingReviewsGuard } from '../../common/guards/pending-reviews.guard';
 
 @ApiTags('Bookings')
 @ApiBearerAuth()
@@ -31,6 +32,7 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
+  @UseGuards(PendingReviewsGuard)
   @ApiOperation({ summary: 'Создать новое бронирование' })
   @ApiResponse({
     status: 201,
@@ -38,12 +40,13 @@ export class BookingsController {
     type: BookingResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Невалидные данные' })
+  @ApiResponse({ status: 403, description: 'Необходимо оставить отзыв о предыдущей записи' })
   @ApiResponse({ status: 404, description: 'Услуга не найдена' })
   async create(
     @Request() req,
     @Body() createBookingDto: CreateBookingDto,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.create(req.user.sub, createBookingDto);
+    return this.bookingsService.create(req.user.id, createBookingDto);
   }
 
   @Get()
@@ -57,7 +60,7 @@ export class BookingsController {
     @Request() req,
     @Query() filterDto: FilterBookingsDto,
   ): Promise<{ data: BookingResponseDto[]; total: number; page: number; limit: number }> {
-    return this.bookingsService.findAll(req.user.sub, filterDto);
+    return this.bookingsService.findAll(req.user.id, filterDto);
   }
 
   @Get('needs-review')
@@ -74,7 +77,31 @@ export class BookingsController {
   async getBookingsNeedingReview(
     @Request() req,
   ): Promise<BookingResponseDto[]> {
-    return this.bookingsService.getBookingsNeedingReview(req.user.sub);
+    return this.bookingsService.getBookingsNeedingReview(req.user.id);
+  }
+
+  @Get('my')
+  @ApiOperation({
+    summary: 'Получить мои бронирования',
+    description: 'Получить бронирования пользователя в роли клиента или мастера',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список бронирований',
+    type: [BookingResponseDto],
+  })
+  async getMyBookings(
+    @Request() req,
+    @Query('role') role: 'client' | 'master',
+    @Query() filterDto: FilterBookingsDto,
+  ): Promise<{ data: BookingResponseDto[]; total: number; page: number; limit: number }> {
+    if (role === 'client') {
+      return this.bookingsService.findAll(req.user.id, { ...filterDto, client_id: req.user.id });
+    } else if (role === 'master') {
+      return this.bookingsService.findAll(req.user.id, { ...filterDto, master_id: req.user.id });
+    }
+    // Default to client role
+    return this.bookingsService.findAll(req.user.id, { ...filterDto, client_id: req.user.id });
   }
 
   @Get(':id')
@@ -91,10 +118,10 @@ export class BookingsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.findOne(req.user.sub, id);
+    return this.bookingsService.findOne(req.user.id, id);
   }
 
-  @Patch(':id/confirm')
+  @Post(':id/confirm')
   @ApiOperation({
     summary: 'Подтвердить бронирование (мастер)',
     description: 'Мастер подтверждает запрос на бронирование от клиента',
@@ -115,7 +142,7 @@ export class BookingsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.confirmBooking(req.user.sub, id);
+    return this.bookingsService.confirmBooking(req.user.id, id);
   }
 
   @Patch(':id/reject')
@@ -140,10 +167,10 @@ export class BookingsController {
     @Param('id') id: string,
     @Body() body: { reason: string },
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.rejectBooking(req.user.sub, id, body.reason);
+    return this.bookingsService.rejectBooking(req.user.id, id, body.reason);
   }
 
-  @Patch(':id/cancel')
+  @Post(':id/cancel')
   @ApiOperation({
     summary: 'Отменить бронирование',
     description:
@@ -169,7 +196,7 @@ export class BookingsController {
     @Param('id') id: string,
     @Body() cancelDto: CancelBookingDto,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.cancelBooking(req.user.sub, id, cancelDto);
+    return this.bookingsService.cancelBooking(req.user.id, id, cancelDto);
   }
 
   @Patch(':id/start')
@@ -194,10 +221,10 @@ export class BookingsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.startBooking(req.user.sub, id);
+    return this.bookingsService.startBooking(req.user.id, id);
   }
 
-  @Patch(':id/complete')
+  @Post(':id/complete')
   @ApiOperation({
     summary: 'Завершить работу (мастер)',
     description:
@@ -222,6 +249,6 @@ export class BookingsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<BookingResponseDto> {
-    return this.bookingsService.completeBooking(req.user.sub, id);
+    return this.bookingsService.completeBooking(req.user.id, id);
   }
 }

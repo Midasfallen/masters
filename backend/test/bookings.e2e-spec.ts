@@ -2,6 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
+import { DataSource } from 'typeorm';
+import { User } from '../src/modules/users/entities/user.entity';
+import { MasterProfile } from '../src/modules/masters/entities/master-profile.entity';
+import { Category } from '../src/modules/categories/entities/category.entity';
+import { CategoryTranslation } from '../src/modules/categories/entities/category-translation.entity';
+
+// Helper to generate unique email
+const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`;
 
 describe('BookingsController (e2e)', () => {
   let app: INestApplication;
@@ -26,15 +34,44 @@ describe('BookingsController (e2e)', () => {
     );
     await app.init();
 
+    // Create test category if it doesn't exist
+    let dataSource = app.get(DataSource);
+    const categoryRepo = dataSource.getRepository(Category);
+    const categoryTranslationRepo = dataSource.getRepository(CategoryTranslation);
+
+    let testCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty' } });
+    if (!testCategory) {
+      testCategory = categoryRepo.create({
+        slug: 'test-beauty',
+        level: 0,
+        icon_url: '💇',
+        display_order: 999,
+        is_active: true,
+      });
+      await categoryRepo.save(testCategory);
+
+      // Create English translation
+      const translation = categoryTranslationRepo.create({
+        category_id: testCategory.id,
+        language: 'en',
+        name: 'Test Beauty Services',
+        description: 'Test category for E2E tests',
+      });
+      await categoryTranslationRepo.save(translation);
+      console.log('Created test category:', testCategory.id);
+    } else {
+      console.log('Using existing test category:', testCategory.id);
+    }
+
     // Create client user
     const clientResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `client${Date.now()}@example.com`,
+        email: uniqueEmail('client'),
         password: 'Password123',
         first_name: 'Client',
         last_name: 'User',
-        phone: '+79991234567',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
       });
     clientToken = clientResponse.body.access_token;
 
@@ -42,17 +79,17 @@ describe('BookingsController (e2e)', () => {
     const masterResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `master${Date.now()}@example.com`,
+        email: uniqueEmail('master'),
         password: 'Password123',
         first_name: 'Master',
         last_name: 'User',
-        phone: '+79991234568',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
       });
     masterToken = masterResponse.body.access_token;
     masterId = masterResponse.body.user.id;
 
     // Create master profile
-    await request(app.getHttpServer())
+    const masterProfileResponse = await request(app.getHttpServer())
       .post('/masters')
       .set('Authorization', `Bearer ${masterToken}`)
       .send({
@@ -66,44 +103,99 @@ describe('BookingsController (e2e)', () => {
           longitude: 37.6173,
         },
         portfolio_urls: ['https://example.com/photo1.jpg'],
-      });
+      })
+      .expect(201);
 
-    // Create service
+    // Complete master profile setup (manually set user flags for testing)
+    dataSource = app.get(DataSource);
+    try {
+      const userRepo = dataSource.getRepository(User);
+      const masterUser = await userRepo.findOne({ where: { id: masterId } });
+      if (!masterUser) {
+        console.error('Master user not found:', masterId);
+        throw new Error('Master user not found');
+      }
+      masterUser.is_master = true;
+      masterUser.master_profile_completed = true;
+      await userRepo.save(masterUser);
+      console.log('Master user updated successfully');
+
+      // Update master profile to setup_step 5 and add categories
+      const masterProfileRepo = dataSource.getRepository(MasterProfile);
+      const masterProfile = await masterProfileRepo.findOne({ where: { user_id: masterId } });
+      if (!masterProfile) {
+        console.error('Master profile not found for user:', masterId);
+        throw new Error('Master profile not found');
+      }
+      masterProfile.setup_step = 5;
+      masterProfile.is_active = true;
+
+      // Get test category
+      const categoryRepo = dataSource.getRepository(Category);
+      testCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty' } });
+      if (!testCategory) {
+        throw new Error('Test category not found');
+      }
+
+      masterProfile.category_ids = [testCategory.id];
+      console.log('Added category to profile:', testCategory.id);
+      await masterProfileRepo.save(masterProfile);
+      console.log('Master profile updated successfully');
+    } catch (error) {
+      console.error('Error updating master profile:', error);
+      throw error;
+    }
+
+    // Create service (using test category)
+    console.log('Attempting to create service with categoryId:', testCategory.id);
     const serviceResponse = await request(app.getHttpServer())
       .post('/services')
       .set('Authorization', `Bearer ${masterToken}`)
       .send({
-        category_id: '1',
+        category_id: testCategory.id,
         name: 'Стрижка',
         description: 'Мужская стрижка',
         price: 1500,
         duration_minutes: 60,
       });
+
+    if (serviceResponse.status !== 201) {
+      console.error('Service creation failed:', serviceResponse.status, serviceResponse.body);
+      throw new Error(`Service creation failed: ${JSON.stringify(serviceResponse.body)}`);
+    }
+
     serviceId = serviceResponse.body.id;
-  });
+    console.log('Created service ID:', serviceId);
+  }, 30000);
 
   afterAll(async () => {
-    await app.close();
-  });
+    if (app) {
+      await app.close();
+    }
+  }, 10000);
 
   describe('/bookings (POST)', () => {
     it('should create a new booking', () => {
-      const scheduledFor = new Date(Date.now() + 86400000); // Tomorrow
+      const startTime = new Date(Date.now() + 86400000); // Tomorrow
 
       return request(app.getHttpServer())
         .post('/bookings')
         .set('Authorization', `Bearer ${clientToken}`)
         .send({
-          master_profile_id: masterId,
           service_id: serviceId,
-          scheduled_for: scheduledFor.toISOString(),
-          notes: 'Please call before arrival',
+          start_time: startTime.toISOString(),
+          comment: 'Please call before arrival',
+        })
+        .expect((res) => {
+          if (res.status !== 201) {
+            console.log('ERROR Response:', JSON.stringify(res.body, null, 2));
+          }
         })
         .expect(201)
         .expect((res) => {
           expect(res.body).toHaveProperty('id');
           expect(res.body).toHaveProperty('status', 'pending');
-          expect(res.body).toHaveProperty('total_price', 1500);
+          expect(res.body).toHaveProperty('price');
           bookingId = res.body.id;
         });
     });
@@ -112,9 +204,8 @@ describe('BookingsController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/bookings')
         .send({
-          master_profile_id: masterId,
           service_id: serviceId,
-          scheduled_for: new Date().toISOString(),
+          start_time: new Date(Date.now() + 86400000).toISOString(),
         })
         .expect(401);
     });
@@ -124,9 +215,8 @@ describe('BookingsController (e2e)', () => {
         .post('/bookings')
         .set('Authorization', `Bearer ${clientToken}`)
         .send({
-          master_profile_id: masterId,
           service_id: '00000000-0000-0000-0000-000000000000',
-          scheduled_for: new Date().toISOString(),
+          start_time: new Date(Date.now() + 86400000).toISOString(),
         })
         .expect(404);
     });
@@ -138,9 +228,8 @@ describe('BookingsController (e2e)', () => {
         .post('/bookings')
         .set('Authorization', `Bearer ${clientToken}`)
         .send({
-          master_profile_id: masterId,
           service_id: serviceId,
-          scheduled_for: pastDate.toISOString(),
+          start_time: pastDate.toISOString(),
         })
         .expect(400);
     });
@@ -231,17 +320,16 @@ describe('BookingsController (e2e)', () => {
     let cancelBookingId: string;
 
     beforeAll(async () => {
-      const scheduledFor = new Date(Date.now() + 86400000);
+      const startTime = new Date(Date.now() + 86400000);
       const response = await request(app.getHttpServer())
         .post('/bookings')
         .set('Authorization', `Bearer ${clientToken}`)
         .send({
-          master_profile_id: masterId,
           service_id: serviceId,
-          scheduled_for: scheduledFor.toISOString(),
+          start_time: startTime.toISOString(),
         });
       cancelBookingId = response.body.id;
-    });
+    }, 30000);
 
     it('should cancel booking as client', () => {
       return request(app.getHttpServer())

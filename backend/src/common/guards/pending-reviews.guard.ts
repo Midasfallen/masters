@@ -17,7 +17,7 @@ export class PendingReviewsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const userId = request.user?.id;
+    const userId = request.user?.id || request.user?.sub;
 
     if (!userId) {
       // Если нет userId, пропускаем проверку (JwtAuthGuard должен обработать это)
