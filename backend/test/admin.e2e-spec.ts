@@ -49,10 +49,11 @@ describe('AdminController (e2e)', () => {
     regularUserId = userResponse.body.user.id;
 
     // Create admin user
+    const adminEmail = uniqueEmail('admin');
     const adminResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: uniqueEmail('admin'),
+        email: adminEmail,
         password: 'AdminPass123',
         first_name: 'Admin',
         last_name: 'User',
@@ -65,6 +66,15 @@ describe('AdminController (e2e)', () => {
       { id: adminResponse.body.user.id },
       { is_admin: true },
     );
+
+    // Re-login to get new JWT with updated is_admin flag
+    const adminLoginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: adminEmail, // Use saved email
+        password: 'AdminPass123',
+      });
+    adminToken = adminLoginResponse.body.access_token; // Update with new token
   }, 30000);
 
   afterAll(async () => {
@@ -119,16 +129,16 @@ describe('AdminController (e2e)', () => {
           expect(res.body).toHaveProperty('limit', 50);
           expect(res.body.users.length).toBeGreaterThan(0);
 
-          // Verify user structure
+          // Verify user structure (camelCase from DTO)
           const user = res.body.users[0];
           expect(user).toHaveProperty('id');
           expect(user).toHaveProperty('email');
-          expect(user).toHaveProperty('first_name');
-          expect(user).toHaveProperty('last_name');
-          expect(user).toHaveProperty('is_master');
-          expect(user).toHaveProperty('is_admin');
-          expect(user).toHaveProperty('is_active');
-          expect(user).toHaveProperty('created_at');
+          expect(user).toHaveProperty('firstName'); // Changed to camelCase
+          expect(user).toHaveProperty('lastName'); // Changed to camelCase
+          expect(user).toHaveProperty('isMaster'); // Changed to camelCase
+          expect(user).toHaveProperty('isAdmin'); // Changed to camelCase
+          expect(user).toHaveProperty('isActive'); // Changed to camelCase
+          expect(user).toHaveProperty('createdAt'); // Changed to camelCase
         });
     });
 
@@ -164,10 +174,10 @@ describe('AdminController (e2e)', () => {
             const booking = res.body[0];
             expect(booking).toHaveProperty('id');
             expect(booking).toHaveProperty('status');
-            expect(booking).toHaveProperty('total_price');
-            expect(booking).toHaveProperty('scheduled_for');
-            expect(booking).toHaveProperty('client');
-            expect(booking).toHaveProperty('master');
+            expect(booking).toHaveProperty('amount'); // Changed from total_price to amount
+            expect(booking).toHaveProperty('scheduledFor'); // Changed to camelCase
+            expect(booking).toHaveProperty('clientName'); // Changed to match DTO
+            expect(booking).toHaveProperty('masterName'); // Changed to match DTO
           }
         });
     });
@@ -229,7 +239,8 @@ describe('AdminController (e2e)', () => {
         .post(`/admin/users/${regularUserId}/status`)
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          is_active: false,
+          isActive: false, // Changed to camelCase
+          reason: 'Test',
         })
         .expect(403);
     });

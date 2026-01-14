@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -52,6 +53,7 @@ export class AdminController {
   }
 
   @Post('users/:id/status')
+  @HttpCode(200) // Return 200 OK instead of 201 Created
   @ApiOperation({ summary: 'Update user status' })
   async updateUserStatus(
     @Param('id') userId: string,

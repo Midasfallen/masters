@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -204,7 +204,7 @@ export class AdminService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     if (dto.isActive !== undefined) {
@@ -257,6 +257,12 @@ export class AdminService {
    * Delete user (admin action)
    */
   async deleteUser(userId: string): Promise<void> {
+    // Check if user exists
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
     await this.userRepository.delete(userId);
   }
 

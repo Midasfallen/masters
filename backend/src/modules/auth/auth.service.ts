@@ -85,7 +85,7 @@ export class AuthService {
     // Поиск пользователя (с password_hash для проверки)
     const user = await this.userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'password_hash', 'first_name', 'last_name', 'avatar_url', 'is_master', 'is_verified', 'is_premium'],
+      select: ['id', 'email', 'password_hash', 'first_name', 'last_name', 'avatar_url', 'is_master', 'is_verified', 'is_premium', 'is_admin'], // Added is_admin for AdminGuard
     });
 
     if (!user) {
