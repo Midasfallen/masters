@@ -1,1 +1,10 @@
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Suppress invalid_annotation_target warnings (false positives from Freezed)
+    invalid_annotation_target: ignore
+
+    # Suppress deprecated warnings for Riverpod 2.x compatibility
+    deprecated_member_use_from_same_package: ignore
+    deprecated_member_use: warning

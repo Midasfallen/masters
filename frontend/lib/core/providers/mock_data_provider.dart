@@ -21,7 +21,7 @@ final mockPostsProvider = Provider<List<Post>>((ref) {
       id: faker.guid.guid(),
       masterId: faker.guid.guid(),
       masterName: faker.person.name(),
-      masterAvatar: 'https://i.pravatar.cc/150?img=$index',
+      masterAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
       description: faker.lorem.sentence(),
       mediaUrls: List.generate(
         imageCount,
@@ -47,7 +47,7 @@ final mockUsersProvider = Provider<List<User>>((ref) {
       id: faker.guid.guid(),
       name: faker.person.name(),
       email: faker.internet.email(),
-      avatar: 'https://i.pravatar.cc/150?img=${index + 50}',
+      avatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
       role: isMaster ? 'master' : 'client',
       bio: isMaster ? 'Профессиональный мастер с опытом ${random.nextInt(10) + 1} лет' : null,
       phone: faker.phoneNumber.us(),
@@ -69,13 +69,13 @@ final mockChatsProvider = Provider<List<Chat>>((ref) {
       id: 'chat_$index',
       participantId: faker.guid.guid(),
       participantName: faker.person.name(),
-      participantAvatar: 'https://i.pravatar.cc/150?img=${index + 100}',
+      participantAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
       lastMessage: Message(
         id: faker.guid.guid(),
         chatId: 'chat_$index',
         senderId: random.nextBool() ? 'me' : 'other',
         senderName: faker.person.name(),
-        senderAvatar: 'https://i.pravatar.cc/150?img=${index + 100}',
+        senderAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
         type: 'text',
         content: faker.lorem.sentence(),
         createdAt: lastMessageTime,
@@ -99,8 +99,8 @@ final mockMessagesProvider = Provider.family<List<Message>, String>((ref, chatId
       senderId: isMine ? 'me' : 'other',
       senderName: isMine ? 'Вы' : faker.person.name(),
       senderAvatar: isMine
-          ? 'https://i.pravatar.cc/150?img=1'
-          : 'https://i.pravatar.cc/150?img=${index + 100}',
+          ? 'https://ui-avatars.com/api/?name=You&size=150&background=4F46E5'
+          : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
       type: 'text',
       content: faker.lorem.sentence(),
       createdAt: DateTime.now().subtract(Duration(minutes: (20 - index) * 5)),
@@ -138,7 +138,7 @@ final mockNotificationsProvider = Provider<List<AppNotification>>((ref) {
       createdAt: DateTime.now().subtract(Duration(hours: index)),
       isRead: random.nextBool(),
       userId: faker.guid.guid(),
-      userAvatar: 'https://i.pravatar.cc/150?img=${index + 200}',
+      userAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
       actionUrl: '/post/${faker.guid.guid()}',
     );
   });
@@ -209,7 +209,7 @@ final currentUserProvider = Provider<User>((ref) {
     id: 'current_user_id',
     name: 'Анна Иванова',
     email: 'anna@example.com',
-    avatar: 'https://i.pravatar.cc/150?img=1',
+    avatar: 'https://ui-avatars.com/api/?name=Anna+Ivanova&size=150&background=4F46E5',
     role: 'client',
     bio: 'Люблю красоту и стиль',
     phone: '+7 999 123 45 67',

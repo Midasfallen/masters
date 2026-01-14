@@ -101,18 +101,22 @@ export class PostsController {
   @Post(':id/like')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Поставить лайк посту' })
-  likePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
-    return this.likesService.create(userId, {
+  async likePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    await this.likesService.create(userId, {
       likable_type: LikableType.POST,
       likable_id: id,
     });
+    // Return updated post with likes_count
+    return this.postsService.findOne(id);
   }
 
   @Delete(':id/unlike')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Убрать лайк с поста' })
-  unlikePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
-    return this.likesService.remove(userId, LikableType.POST, id);
+  async unlikePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    await this.likesService.remove(userId, LikableType.POST, id);
+    // Return updated post with likes_count
+    return this.postsService.findOne(id);
   }
 
   @Post(':id/comments')
@@ -120,7 +124,7 @@ export class PostsController {
   createComment(
     @Param('id') postId: string,
     @CurrentUser('id') userId: string,
-    @Body() body: { content: string; parent_comment_id?: string },
+    @Body() body: Pick<CreateCommentDto, 'content' | 'parent_comment_id'>,
   ) {
     const createCommentDto: CreateCommentDto = {
       post_id: postId,

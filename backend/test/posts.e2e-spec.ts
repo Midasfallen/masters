@@ -217,7 +217,14 @@ describe('PostsController (e2e)', () => {
           content: 'Post to be deleted',
           media_urls: ['https://example.com/temp.jpg'],
         });
+
+      if (response.status !== 201) {
+        console.error('Failed to create delete post:', response.status, response.body);
+        throw new Error(`Failed to create delete post: ${JSON.stringify(response.body)}`);
+      }
+
       deletePostId = response.body.id;
+      console.log('Created delete post ID:', deletePostId);
     }, 30000);
 
     it('should delete own post', () => {
@@ -250,7 +257,7 @@ describe('PostsController (e2e)', () => {
       return request(app.getHttpServer())
         .post(`/posts/${postId}/like`)
         .set('Authorization', `Bearer ${userToken}`)
-        .expect(400);
+        .expect(409); // Conflict - already liked
     });
 
     it('should fail without authentication', () => {
@@ -275,7 +282,7 @@ describe('PostsController (e2e)', () => {
       return request(app.getHttpServer())
         .delete(`/posts/${postId}/unlike`)
         .set('Authorization', `Bearer ${userToken}`)
-        .expect(400);
+        .expect(404); // Like not found
     });
   });
 

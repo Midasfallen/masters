@@ -7,16 +7,13 @@ import '../../features/auth/screens/onboarding_screen.dart';
 import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
-import '../../features/feed/screens/feed_screen.dart';
 import '../../features/feed/screens/post_detail_screen.dart';
-import '../../features/search/screens/search_screen.dart';
-import '../../features/chats/screens/chats_list_screen.dart';
 import '../../features/chats/screens/chat_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
-import '../../features/favorites/screens/favorites_screen.dart';
-import '../../features/bookings/screens/bookings_screen.dart';
-import '../../features/profile/screens/profile_screen.dart';
 import '../../features/master/screens/master_profile_screen.dart';
+import '../../features/master/screens/create_profile/create_master_profile_screen.dart';
+import '../../features/friends/screens/friends_screen.dart';
+import '../../features/subscriptions/screens/subscriptions_screen.dart';
 import '../../shared/widgets/main_navigation_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -99,6 +96,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final masterId = state.pathParameters['id']!;
               return MasterProfileScreen(masterId: masterId);
             },
+          ),
+
+          // Friends
+          GoRoute(
+            path: 'friends',
+            name: 'friends',
+            builder: (context, state) => const FriendsScreen(),
+          ),
+
+          // Subscriptions
+          GoRoute(
+            path: 'subscriptions',
+            name: 'subscriptions',
+            builder: (context, state) => const SubscriptionsScreen(),
+          ),
+
+          // Create Master Profile
+          GoRoute(
+            path: 'create-master-profile',
+            name: 'createMasterProfile',
+            builder: (context, state) => const CreateMasterProfileScreen(),
           ),
         ],
       ),
