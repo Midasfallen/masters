@@ -86,7 +86,12 @@
       "Bash(timeout 5 tail:*)",
       "Bash(timeout 45 npm run test:e2e:*)",
       "Bash(timeout 20 npm run test:e2e:*)",
-      "Bash(timeout 90 npm run test:e2e:*)"
+      "Bash(timeout 90 npm run test:e2e:*)",
+      "Bash(timeout 120 npm run test:e2e:*)",
+      "Bash(timeout 120 npm run test:e2e -- posts.e2e-spec.ts)",
+      "Bash(powershell.exe -Command \"Get-Process docker* -ErrorAction SilentlyContinue | Select-Object Name, Id\")",
+      "Bash(powershell.exe -Command \"Start-Process ''C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe''\")",
+      "Bash(timeout 180 npm run test:e2e:*)"
     ]
   }
 }

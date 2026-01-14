@@ -14,10 +14,12 @@ const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.random()
 describe('BookingsController (e2e)', () => {
   let app: INestApplication;
   let clientToken: string;
+  let client2Token: string; // Second client for cancel tests (to avoid review conflicts)
   let masterToken: string;
   let masterId: string;
   let serviceId: string;
   let bookingId: string;
+  let completeBookingId: string; // Shared between complete and cancel tests
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -74,6 +76,18 @@ describe('BookingsController (e2e)', () => {
         phone: `+7999${Math.floor(Math.random() * 10000000)}`,
       });
     clientToken = clientResponse.body.access_token;
+
+    // Create second client user (for cancel tests, to avoid review requirement conflicts)
+    const client2Response = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        email: uniqueEmail('client2'),
+        password: 'Password123',
+        first_name: 'Client2',
+        last_name: 'User',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
+      });
+    client2Token = client2Response.body.access_token;
 
     // Create master user
     const masterResponse = await request(app.getHttpServer())
@@ -313,8 +327,6 @@ describe('BookingsController (e2e)', () => {
   });
 
   describe('/bookings/:id/complete (POST)', () => {
-    let completeBookingId: string;
-
     beforeAll(async () => {
       // Create new booking for complete test
       const startTime = new Date(Date.now() + 86400000 * 2); // Day after tomorrow to avoid conflicts
@@ -332,9 +344,9 @@ describe('BookingsController (e2e)', () => {
         .post(`/bookings/${completeBookingId}/confirm`)
         .set('Authorization', `Bearer ${masterToken}`);
 
-      // Start booking (IN_PROGRESS)
+      // Start booking (IN_PROGRESS) - use PATCH, not POST
       await request(app.getHttpServer())
-        .post(`/bookings/${completeBookingId}/start`)
+        .patch(`/bookings/${completeBookingId}/start`)
         .set('Authorization', `Bearer ${masterToken}`);
     }, 30000);
 
@@ -342,7 +354,7 @@ describe('BookingsController (e2e)', () => {
       return request(app.getHttpServer())
         .post(`/bookings/${completeBookingId}/complete`)
         .set('Authorization', `Bearer ${masterToken}`)
-        .expect(200)
+        .expect(201) // Changed from 200 to 201 (complete creates review requirement)
         .expect((res) => {
           expect(res.body).toHaveProperty('status', 'completed');
         });
@@ -353,10 +365,12 @@ describe('BookingsController (e2e)', () => {
     let cancelBookingId: string;
 
     beforeAll(async () => {
+      // Use client2Token (second client) to avoid review requirement conflicts
+      // This client has no completed bookings, so can create new bookings freely
       const startTime = new Date(Date.now() + 86400000 * 3); // 3 days from now to avoid conflicts
       const response = await request(app.getHttpServer())
         .post('/bookings')
-        .set('Authorization', `Bearer ${clientToken}`)
+        .set('Authorization', `Bearer ${client2Token}`) // Use client2Token instead of clientToken
         .send({
           service_id: serviceId,
           start_time: startTime.toISOString(),
@@ -374,7 +388,7 @@ describe('BookingsController (e2e)', () => {
     it('should cancel booking as client', () => {
       return request(app.getHttpServer())
         .post(`/bookings/${cancelBookingId}/cancel`)
-        .set('Authorization', `Bearer ${clientToken}`)
+        .set('Authorization', `Bearer ${client2Token}`) // Use client2Token
         .send({
           cancellation_reason: 'Changed my mind',
         })
@@ -388,7 +402,7 @@ describe('BookingsController (e2e)', () => {
     it('should fail to cancel already cancelled booking', () => {
       return request(app.getHttpServer())
         .post(`/bookings/${cancelBookingId}/cancel`)
-        .set('Authorization', `Bearer ${clientToken}`)
+        .set('Authorization', `Bearer ${client2Token}`) // Use client2Token
         .send({
           cancellation_reason: 'Trying again',
         })

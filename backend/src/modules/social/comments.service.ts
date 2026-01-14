@@ -195,6 +195,11 @@ export class CommentsService {
       );
     }
 
+    // If comment has replies, delete them first (cascade)
+    if (comment.replies_count > 0) {
+      await this.commentRepository.delete({ parent_comment_id: comment.id });
+    }
+
     await this.commentRepository.remove(comment);
 
     return { message: 'Comment deleted successfully' };

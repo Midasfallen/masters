@@ -186,7 +186,7 @@ describe('AdminController (e2e)', () => {
         .post(`/admin/users/${regularUserId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          is_active: false,
+          isActive: false, // Changed to camelCase
           reason: 'Suspicious activity detected',
         })
         .expect(200)
@@ -201,7 +201,7 @@ describe('AdminController (e2e)', () => {
         .post(`/admin/users/${regularUserId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          is_active: true,
+          isActive: true, // Changed to camelCase
           reason: 'Issue resolved',
         })
         .expect(200)
@@ -215,7 +215,7 @@ describe('AdminController (e2e)', () => {
         .post(`/admin/users/${regularUserId}/status`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          is_admin: true,
+          isAdmin: true, // Changed to camelCase
           reason: 'Promoted to admin role',
         })
         .expect(200)
@@ -239,7 +239,8 @@ describe('AdminController (e2e)', () => {
         .post('/admin/users/00000000-0000-0000-0000-000000000000/status')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          is_active: false,
+          isActive: false, // Changed to camelCase
+          reason: 'Test',
         })
         .expect(404);
     });

@@ -25,6 +25,7 @@ import { CreateCommentDto } from '../social/dto/create-comment.dto';
 import { FilterCommentsDto } from '../social/dto/filter-comments.dto';
 import { CreateRepostDto } from '../social/dto/create-repost.dto';
 import { LikableType } from '../social/entities/like.entity';
+import { CreateCommentBodyDto } from './dto/create-comment-body.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
@@ -124,7 +125,7 @@ export class PostsController {
   createComment(
     @Param('id') postId: string,
     @CurrentUser('id') userId: string,
-    @Body() body: Pick<CreateCommentDto, 'content' | 'parent_comment_id'>,
+    @Body() body: CreateCommentBodyDto,
   ) {
     const createCommentDto: CreateCommentDto = {
       post_id: postId,

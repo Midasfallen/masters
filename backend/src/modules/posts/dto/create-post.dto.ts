@@ -7,6 +7,7 @@ import {
   ValidateNested,
   IsNumber,
   IsUUID,
+  MinLength,
   MaxLength,
   IsBoolean,
 } from 'class-validator';
@@ -57,6 +58,7 @@ export class CreatePostDto {
   @ApiPropertyOptional({ example: 'Привет, мир! Это мой первый пост.' })
   @IsOptional()
   @IsString()
+  @MinLength(1, { message: 'Content cannot be empty string' })
   @MaxLength(5000)
   content?: string;
 

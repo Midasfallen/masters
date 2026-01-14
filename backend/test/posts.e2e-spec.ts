@@ -214,8 +214,8 @@ describe('PostsController (e2e)', () => {
         .post('/posts')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
+          type: 'text', // Required field - PostType enum
           content: 'Post to be deleted',
-          media_urls: ['https://example.com/temp.jpg'],
         });
 
       if (response.status !== 201) {

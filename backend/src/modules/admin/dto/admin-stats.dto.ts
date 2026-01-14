@@ -1,3 +1,6 @@
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
+
 export class AdminStatsDto {
   totalUsers: number;
   totalMasters: number;
@@ -41,9 +44,19 @@ export class BookingStatsDto {
 }
 
 export class UpdateUserStatusDto {
+  @ApiPropertyOptional({ description: 'Active status', example: true })
+  @IsOptional()
+  @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({ description: 'Admin status', example: false })
+  @IsOptional()
+  @IsBoolean()
   isAdmin?: boolean;
-  reason?: string;
+
+  @ApiProperty({ description: 'Reason for status change', example: 'Suspicious activity detected' })
+  @IsString()
+  reason: string;
 }
 
 export class SystemHealthDto {
