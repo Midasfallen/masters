@@ -230,6 +230,7 @@ describe('AuthService', () => {
       expect(result).toEqual(mockUser);
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockUser.id },
+        select: ['id', 'email', 'first_name', 'last_name', 'avatar_url', 'is_master', 'is_verified', 'is_premium', 'is_admin', 'is_active'],
       });
     });
 
