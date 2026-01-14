@@ -30,22 +30,18 @@ export class Booking {
 
   @ApiProperty({ description: 'ID клиента' })
   @Column({ type: 'uuid' })
-  @Index()
   client_id: string;
 
   @ApiProperty({ description: 'ID мастера' })
   @Column({ type: 'uuid' })
-  @Index()
   master_id: string;
 
   @ApiProperty({ description: 'ID услуги' })
   @Column({ type: 'uuid' })
-  @Index()
   service_id: string;
 
   @ApiProperty({ example: '2025-01-06T14:00:00Z' })
   @Column({ type: 'timestamp' })
-  @Index()
   start_time: Date;
 
   @ApiProperty({ example: '2025-01-06T15:30:00Z' })
@@ -66,7 +62,6 @@ export class Booking {
     enum: BookingStatus,
     default: BookingStatus.PENDING,
   })
-  @Index()
   status: BookingStatus;
 
   @ApiProperty({ description: 'Комментарий клиента', required: false })

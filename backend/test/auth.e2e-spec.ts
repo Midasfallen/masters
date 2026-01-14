@@ -3,6 +3,9 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
+// Helper to generate unique email
+const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`;
+
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let accessToken: string;
@@ -22,22 +25,24 @@ describe('AuthController (e2e)', () => {
       }),
     );
     await app.init();
-  });
+  }, 30000);
 
   afterAll(async () => {
-    await app.close();
-  });
+    if (app) {
+      await app.close();
+    }
+  }, 10000);
 
   describe('/auth/register (POST)', () => {
     it('should register a new user', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: `test${Date.now()}@example.com`,
+          email: uniqueEmail('test'),
           password: 'Password123',
           first_name: 'Test',
           last_name: 'User',
-          phone: '+79991234567',
+          phone: `+7999${Math.floor(Math.random() * 10000000)}`,
         })
         .expect(201)
         .expect((res) => {
@@ -160,7 +165,7 @@ describe('AuthController (e2e)', () => {
       const registerResponse = await request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: `refresh${Date.now()}@example.com`,
+          email: uniqueEmail('refresh'),
           password: 'Password123',
           first_name: 'Refresh',
           last_name: 'Test',

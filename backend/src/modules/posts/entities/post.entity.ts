@@ -37,7 +37,6 @@ export class Post {
 
   @ApiProperty({ description: 'ID автора поста' })
   @Column({ type: 'uuid' })
-  @Index()
   author_id: string;
 
   @ApiProperty({ enum: PostType, example: PostType.TEXT })

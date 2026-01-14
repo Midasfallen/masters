@@ -151,10 +151,10 @@ async function seed() {
   const dataSource = new DataSource({
     type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    username: process.env.DB_USERNAME || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_NAME || 'service_platform',
+    port: parseInt(process.env.DB_PORT || '5433'),
+    username: process.env.DB_USERNAME || 'service_user',
+    password: process.env.DB_PASSWORD || 'service_password',
+    database: process.env.DB_DATABASE || 'service_db',
     entities: [User, MasterProfile, Category, Service, Booking, Review],
     synchronize: false,
   });
@@ -240,7 +240,7 @@ async function seed() {
       master_profile_completed: true,
       is_verified: faker.datatype.boolean(),
       is_premium: faker.datatype.boolean(),
-      rating: faker.number.float({ min: 3.5, max: 5.0, precision: 0.1 }),
+      rating: faker.number.float({ min: 3.5, max: 5.0, fractionDigits: 1 }),
       reviews_count: faker.number.int({ min: 5, max: 150 }),
       language: 'ru',
       timezone: 'Europe/Moscow',
@@ -287,8 +287,8 @@ async function seed() {
       ),
       video_urls: [],
       social_links: {
-        instagram: `@${faker.internet.userName()}`,
-        telegram: `@${faker.internet.userName()}`,
+        instagram: `@${faker.internet.username()}`,
+        telegram: `@${faker.internet.username()}`,
       },
       working_hours: {
         monday: { start: '09:00', end: '18:00' },
@@ -355,7 +355,7 @@ async function seed() {
           faker.image.urlLoremFlickr({ category: 'service' }),
         ),
         bookings_count: faker.number.int({ min: 0, max: 100 }),
-        average_rating: faker.number.float({ min: 3.5, max: 5.0, precision: 0.1 }),
+        average_rating: faker.number.float({ min: 3.5, max: 5.0, fractionDigits: 1 }),
         is_active: true,
         display_order: services.length,
       });

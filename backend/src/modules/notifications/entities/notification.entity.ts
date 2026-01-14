@@ -33,7 +33,6 @@ export class Notification {
 
   @ApiProperty({ description: 'ID получателя уведомления' })
   @Column({ type: 'uuid' })
-  @Index()
   user_id: string;
 
   @ApiProperty({ enum: NotificationType, description: 'Тип уведомления' })
@@ -53,7 +52,6 @@ export class Notification {
 
   @ApiProperty({ description: 'Прочитано', default: false })
   @Column({ type: 'boolean', default: false })
-  @Index()
   is_read: boolean;
 
   @ApiProperty({ description: 'ID связанной сущности (booking, review и т.д.)', required: false })

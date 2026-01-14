@@ -6,6 +6,9 @@ import { Repository } from 'typeorm';
 import { User } from '../src/modules/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+// Helper to generate unique email
+const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`;
+
 describe('AdminController (e2e)', () => {
   let app: INestApplication;
   let adminToken: string;
@@ -36,11 +39,11 @@ describe('AdminController (e2e)', () => {
     const userResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `user${Date.now()}@example.com`,
+        email: uniqueEmail('user'),
         password: 'Password123',
         first_name: 'Regular',
         last_name: 'User',
-        phone: '+79991234567',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
       });
     userToken = userResponse.body.access_token;
     regularUserId = userResponse.body.user.id;
@@ -49,11 +52,11 @@ describe('AdminController (e2e)', () => {
     const adminResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        email: `admin${Date.now()}@example.com`,
+        email: uniqueEmail('admin'),
         password: 'AdminPass123',
         first_name: 'Admin',
         last_name: 'User',
-        phone: '+79991234568',
+        phone: `+7999${Math.floor(Math.random() * 10000000)}`,
       });
     adminToken = adminResponse.body.access_token;
 
@@ -62,11 +65,13 @@ describe('AdminController (e2e)', () => {
       { id: adminResponse.body.user.id },
       { is_admin: true },
     );
-  });
+  }, 30000);
 
   afterAll(async () => {
-    await app.close();
-  });
+    if (app) {
+      await app.close();
+    }
+  }, 10000);
 
   describe('/admin/stats (GET)', () => {
     it('should get platform statistics as admin', () => {

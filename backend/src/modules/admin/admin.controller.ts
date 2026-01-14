@@ -43,7 +43,7 @@ export class AdminController {
     return this.adminService.getUsers(page, limit);
   }
 
-  @Get('bookings')
+  @Get('bookings/recent')
   @ApiOperation({ summary: 'Get recent bookings' })
   async getRecentBookings(
     @Query('limit', ParseIntPipe) limit: number = 50,

@@ -22,12 +22,10 @@ export class Service {
 
   @ApiProperty({ description: 'ID мастера' })
   @Column({ type: 'uuid' })
-  @Index()
   master_id: string;
 
   @ApiProperty({ description: 'ID категории' })
   @Column({ type: 'uuid' })
-  @Index()
   category_id: string;
 
   @ApiProperty({ description: 'ID подкатегории', required: false })

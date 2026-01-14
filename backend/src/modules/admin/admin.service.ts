@@ -84,7 +84,7 @@ export class AdminService {
     // Calculate total revenue (completed bookings)
     const revenueResult = await this.bookingRepository
       .createQueryBuilder('booking')
-      .select('SUM(booking.total_price)', 'totalRevenue')
+      .select('SUM(booking.price)', 'totalRevenue')
       .where('booking.status = :status', { status: 'completed' })
       .getRawOne();
 
@@ -118,7 +118,7 @@ export class AdminService {
   async getUsers(
     page: number = 1,
     limit: number = 50,
-  ): Promise<{ users: UserManagementDto[]; total: number }> {
+  ): Promise<{ users: UserManagementDto[]; total: number; page: number; limit: number }> {
     const [users, total] = await this.userRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
@@ -139,7 +139,7 @@ export class AdminService {
       lastLoginAt: user.last_login_at,
     }));
 
-    return { users: userDtos, total };
+    return { users: userDtos, total, page, limit };
   }
 
   /**
@@ -282,15 +282,52 @@ export class AdminService {
       .createQueryBuilder('booking')
       .select('DATE(booking.created_at)', 'date')
       .addSelect('COUNT(*)', 'count')
-      .addSelect('SUM(booking.total_price)', 'revenue')
+      .addSelect('SUM(booking.price)', 'revenue')
       .where('booking.created_at >= :startDate', { startDate })
       .groupBy('DATE(booking.created_at)')
       .orderBy('date', 'ASC')
       .getRawMany();
 
+    // Combine daily stats
+    const dailyStats = dailyUsers.map((userStat) => {
+      const bookingStat = dailyBookings.find(b => b.date === userStat.date);
+      return {
+        date: userStat.date,
+        newUsers: parseInt(userStat.count),
+        newBookings: bookingStat ? parseInt(bookingStat.count) : 0,
+        revenue: bookingStat ? parseFloat(bookingStat.revenue || '0') : 0,
+      };
+    });
+
+    // Add booking dates not in user dates
+    dailyBookings.forEach((bookingStat) => {
+      if (!dailyStats.find(s => s.date === bookingStat.date)) {
+        dailyStats.push({
+          date: bookingStat.date,
+          newUsers: 0,
+          newBookings: parseInt(bookingStat.count),
+          revenue: parseFloat(bookingStat.revenue || '0'),
+        });
+      }
+    });
+
+    // Sort by date
+    dailyStats.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Calculate totals
+    const totalUsers = await this.userRepository.count();
+    const totalBookings = await this.bookingRepository.count();
+    const revenueResult = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .select('SUM(booking.price)', 'totalRevenue')
+      .where('booking.status = :status', { status: 'completed' })
+      .getRawOne();
+
     return {
-      dailyUsers,
-      dailyBookings,
+      dailyStats,
+      totalUsers,
+      totalBookings,
+      totalRevenue: parseFloat(revenueResult?.totalRevenue || '0'),
       period: `${days} days`,
     };
   }

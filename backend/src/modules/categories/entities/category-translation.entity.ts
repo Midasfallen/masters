@@ -17,12 +17,10 @@ export class CategoryTranslation {
 
   @ApiProperty({ description: 'ID категории' })
   @Column({ type: 'uuid' })
-  @Index()
   category_id: string;
 
   @ApiProperty({ description: 'Код языка', example: 'ru' })
   @Column({ type: 'varchar', length: 5 })
-  @Index()
   language: string;
 
   @ApiProperty({ description: 'Название категории', example: 'Красота' })

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsUUID, IsNumber } from 'class-validator';
+import { IsOptional, IsEnum, IsUUID, IsNumber, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PostType } from '../entities/post.entity';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
@@ -32,4 +32,12 @@ export class FilterPostsDto extends PaginationDto {
   @Type(() => Number)
   @IsNumber()
   radius?: number;
+
+  @ApiPropertyOptional({
+    description: 'Курсор для пагинации (ISO timestamp последнего поста)',
+    example: '2025-01-09T12:00:00.000Z'
+  })
+  @IsOptional()
+  @IsDateString()
+  cursor?: string;
 }

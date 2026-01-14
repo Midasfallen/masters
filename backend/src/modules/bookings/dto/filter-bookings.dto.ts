@@ -73,6 +73,15 @@ export class FilterBookingsDto {
   needs_review?: string;
 
   @ApiProperty({
+    description: 'Роль пользователя (для /bookings/my endpoint)',
+    required: false,
+    enum: ['client', 'master'],
+  })
+  @IsOptional()
+  @IsIn(['client', 'master'])
+  role?: 'client' | 'master';
+
+  @ApiProperty({
     description: 'Страница',
     required: false,
     default: 1,

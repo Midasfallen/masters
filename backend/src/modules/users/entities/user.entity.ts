@@ -29,7 +29,7 @@ export class User {
   phone: string;
 
   @ApiHideProperty()
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, select: false })
   @Exclude()
   password_hash: string;
 

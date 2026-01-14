@@ -23,7 +23,6 @@ export class DeviceToken {
 
   @ApiProperty({ description: 'ID пользователя' })
   @Column({ type: 'uuid' })
-  @Index()
   user_id: string;
 
   @ApiProperty({ description: 'FCM/APNs токен устройства' })

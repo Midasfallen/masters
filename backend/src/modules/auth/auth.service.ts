@@ -82,9 +82,10 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const { email, password } = loginDto;
 
-    // Поиск пользователя
+    // Поиск пользователя (с password_hash для проверки)
     const user = await this.userRepository.findOne({
       where: { email },
+      select: ['id', 'email', 'password_hash', 'first_name', 'last_name', 'avatar_url', 'is_master', 'is_verified', 'is_premium'],
     });
 
     if (!user) {
@@ -276,7 +277,7 @@ export class AuthService {
 
     // Access token (7 дней по умолчанию)
     const access_token = this.jwtService.sign(
-      { ...payload, type: 'access' },
+      { ...payload, type: 'access', jti: uuidv4() },
       {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d',
         secret: process.env.JWT_SECRET,
@@ -285,7 +286,7 @@ export class AuthService {
 
     // Refresh token (30 дней)
     const refresh_token = this.jwtService.sign(
-      { ...payload, type: 'refresh' },
+      { ...payload, type: 'refresh', jti: uuidv4() },
       {
         expiresIn: '30d',
         secret: process.env.JWT_SECRET,

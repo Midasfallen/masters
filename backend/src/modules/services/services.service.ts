@@ -69,7 +69,7 @@ export class ServicesService {
     // Создание услуги
     const service = this.serviceRepository.create({
       ...createServiceDto,
-      master_id: masterProfile.id,
+      master_id: userId, // Use user_id, not masterProfile.id
       currency: createServiceDto.currency || 'RUB',
       is_bookable_online: createServiceDto.is_bookable_online ?? true,
       is_mobile: createServiceDto.is_mobile ?? false,

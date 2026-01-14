@@ -355,7 +355,7 @@ export class ReviewsService {
     });
 
     if (user) {
-      user.average_rating = stats.average_rating;
+      // user.average_rating = stats.average_rating; // TODO: Add average_rating field to User entity
       user.reviews_count = stats.total_reviews;
       await this.userRepository.save(user);
     }

@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
@@ -16,13 +18,25 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { FilterPostsDto } from './dto/filter-posts.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { LikesService } from '../social/likes.service';
+import { CommentsService } from '../social/comments.service';
+import { RepostsService } from '../social/reposts.service';
+import { CreateCommentDto } from '../social/dto/create-comment.dto';
+import { FilterCommentsDto } from '../social/dto/filter-comments.dto';
+import { CreateRepostDto } from '../social/dto/create-repost.dto';
+import { LikableType } from '../social/entities/like.entity';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly likesService: LikesService,
+    private readonly commentsService: CommentsService,
+    private readonly repostsService: RepostsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Создать новый пост' })
@@ -80,5 +94,74 @@ export class PostsController {
   @ApiOperation({ summary: 'Зарегистрировать просмотр поста' })
   incrementViews(@Param('id') id: string) {
     return this.postsService.incrementViews(id);
+  }
+
+  // Social endpoints (delegating to SocialModule services)
+
+  @Post(':id/like')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Поставить лайк посту' })
+  likePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.likesService.create(userId, {
+      likable_type: LikableType.POST,
+      likable_id: id,
+    });
+  }
+
+  @Delete(':id/unlike')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Убрать лайк с поста' })
+  unlikePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.likesService.remove(userId, LikableType.POST, id);
+  }
+
+  @Post(':id/comments')
+  @ApiOperation({ summary: 'Создать комментарий к посту' })
+  createComment(
+    @Param('id') postId: string,
+    @CurrentUser('id') userId: string,
+    @Body() body: { content: string; parent_comment_id?: string },
+  ) {
+    const createCommentDto: CreateCommentDto = {
+      post_id: postId,
+      content: body.content,
+      parent_comment_id: body.parent_comment_id,
+    };
+    return this.commentsService.create(userId, createCommentDto);
+  }
+
+  @Get(':id/comments')
+  @ApiOperation({ summary: 'Получить комментарии к посту' })
+  getComments(@Param('id') postId: string, @Query() query: { page?: number; limit?: number; parent_comment_id?: string }) {
+    const filterDto = {
+      post_id: postId,
+      page: query.page,
+      limit: query.limit,
+      parent_comment_id: query.parent_comment_id,
+    } as FilterCommentsDto;
+    return this.commentsService.findAll(filterDto);
+  }
+
+  @Delete(':postId/comments/:commentId')
+  @ApiOperation({ summary: 'Удалить комментарий' })
+  deleteComment(
+    @Param('commentId') commentId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.commentsService.remove(commentId, userId);
+  }
+
+  @Post(':id/repost')
+  @ApiOperation({ summary: 'Сделать репост' })
+  repostPost(
+    @Param('id') postId: string,
+    @CurrentUser('id') userId: string,
+    @Body() body: { comment?: string },
+  ) {
+    const createRepostDto: CreateRepostDto = {
+      post_id: postId,
+      comment: body.comment,
+    };
+    return this.repostsService.create(userId, createRepostDto);
   }
 }

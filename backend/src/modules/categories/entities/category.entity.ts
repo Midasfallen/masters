@@ -23,7 +23,6 @@ export class Category {
 
   @ApiProperty({ description: 'Родительская категория (NULL для корневых)', required: false })
   @Column({ type: 'uuid', nullable: true })
-  @Index()
   parent_id: string;
 
   @ApiProperty({ example: 'beauty' })

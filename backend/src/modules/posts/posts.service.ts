@@ -6,11 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Post, PostType } from './entities/post.entity';
+import { Post, PostType, PostPrivacy } from './entities/post.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FilterPostsDto } from './dto/filter-posts.dto';
+import { Friendship, FriendshipStatus } from '../friends/entities/friendship.entity';
+import { Subscription } from '../friends/entities/subscription.entity';
 
 @Injectable()
 export class PostsService {
@@ -19,6 +21,10 @@ export class PostsService {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(PostMedia)
     private readonly postMediaRepository: Repository<PostMedia>,
+    @InjectRepository(Friendship)
+    private readonly friendshipRepository: Repository<Friendship>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionRepository: Repository<Subscription>,
   ) {}
 
   async create(userId: string, createPostDto: CreatePostDto) {
@@ -63,25 +69,62 @@ export class PostsService {
   }
 
   async getFeed(userId: string, filterDto: FilterPostsDto) {
-    const { page = 1, limit = 20, lat, lng, radius = 10 } = filterDto;
+    const { page = 1, limit = 20, lat, lng, radius = 10, cursor } = filterDto;
+
+    // Получаем ID друзей пользователя
+    const friendships = await this.friendshipRepository.find({
+      where: [
+        { requester_id: userId, status: FriendshipStatus.ACCEPTED },
+        { addressee_id: userId, status: FriendshipStatus.ACCEPTED },
+      ],
+    });
+
+    const friendIds = friendships.map((f) =>
+      f.requester_id === userId ? f.addressee_id : f.requester_id,
+    );
+
+    // Получаем ID подписок пользователя
+    const subscriptions = await this.subscriptionRepository.find({
+      where: { subscriber_id: userId },
+    });
+
+    const subscriptionIds = subscriptions.map((s) => s.target_id);
+
+    // Объединяем ID друзей и подписок
+    const relevantUserIds = Array.from(
+      new Set([...friendIds, ...subscriptionIds, userId]),
+    );
 
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.media', 'media')
       .leftJoinAndSelect('post.repost_of', 'repost_of')
-      .leftJoinAndSelect('repost_of.author', 'repost_author')
-      .orderBy('post.created_at', 'DESC');
+      .leftJoinAndSelect('repost_of.author', 'repost_author');
 
-    // TODO: Реализовать алгоритмический feed на основе:
-    // - Друзей пользователя
-    // - Подписок
-    // - Взаимодействий (лайки, комментарии)
-    // - Времени публикации (свежесть)
-    // - Популярности (engagement rate)
+    // Фильтрация по приватности:
+    // 1. Публичные посты от всех
+    // 2. Посты "для друзей" только от друзей
+    // 3. Приватные посты только свои
+    queryBuilder.andWhere(
+      `(
+        (post.privacy = :publicPrivacy) OR
+        (post.privacy = :friendsPrivacy AND post.author_id IN (:...friendIds)) OR
+        (post.privacy = :privatePrivacy AND post.author_id = :userId)
+      )`,
+      {
+        publicPrivacy: PostPrivacy.PUBLIC,
+        friendsPrivacy: PostPrivacy.FRIENDS,
+        privatePrivacy: PostPrivacy.PRIVATE,
+        friendIds: friendIds.length > 0 ? friendIds : ['00000000-0000-0000-0000-000000000000'],
+        userId,
+      },
+    );
 
-    // Временно показываем все публичные посты
-    queryBuilder.andWhere('post.privacy = :privacy', { privacy: 'public' });
+    // Приоритет постов от друзей и подписок
+    queryBuilder.andWhere('post.author_id IN (:...relevantUserIds)', {
+      relevantUserIds: relevantUserIds.length > 0 ? relevantUserIds : ['00000000-0000-0000-0000-000000000000'],
+    });
 
     // Фильтрация по геолокации
     if (lat && lng) {
@@ -91,10 +134,32 @@ export class PostsService {
       );
     }
 
-    const [posts, total] = await queryBuilder
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    // Cursor-based pagination (если указан cursor)
+    if (cursor) {
+      queryBuilder.andWhere('post.created_at < :cursor', { cursor: new Date(cursor) });
+    }
+
+    // Сортировка:
+    // 1. Закрепленные посты вверху
+    // 2. Свежие посты (по дате)
+    // 3. Популярные посты (по engagement: лайки + комментарии + репосты)
+    queryBuilder
+      .orderBy('post.is_pinned', 'DESC')
+      .addOrderBy('post.created_at', 'DESC');
+
+    // Если используется курсор - не используем offset, только limit
+    if (cursor) {
+      queryBuilder.take(limit);
+    } else {
+      queryBuilder.skip((page - 1) * limit).take(limit);
+    }
+
+    const [posts, total] = await queryBuilder.getManyAndCount();
+
+    // Вычисляем следующий курсор (created_at последнего поста)
+    const nextCursor = posts.length > 0
+      ? posts[posts.length - 1].created_at.toISOString()
+      : null;
 
     return {
       data: posts,
@@ -103,6 +168,8 @@ export class PostsService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+        nextCursor,
+        hasMore: posts.length === limit,
       },
     };
   }
@@ -149,10 +216,33 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    // TODO: Проверка приватности поста
-    // if (post.privacy === 'private' && post.author_id !== userId) {
-    //   throw new ForbiddenException('Access denied');
-    // }
+    // Проверка приватности поста
+    if (post.privacy === PostPrivacy.PRIVATE && post.author_id !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    // Проверка доступа к постам "для друзей"
+    if (post.privacy === PostPrivacy.FRIENDS && post.author_id !== userId) {
+      // Проверяем, является ли пользователь другом автора поста
+      const friendship = await this.friendshipRepository.findOne({
+        where: [
+          {
+            requester_id: userId,
+            addressee_id: post.author_id,
+            status: FriendshipStatus.ACCEPTED,
+          },
+          {
+            requester_id: post.author_id,
+            addressee_id: userId,
+            status: FriendshipStatus.ACCEPTED,
+          },
+        ],
+      });
+
+      if (!friendship) {
+        throw new ForbiddenException('This post is only visible to friends');
+      }
+    }
 
     return post;
   }

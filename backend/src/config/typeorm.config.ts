@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { entities } from './entities';
 
 export const typeOrmConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -8,7 +9,7 @@ export const typeOrmConfig = (): TypeOrmModuleOptions => ({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'service_platform',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  entities: entities,
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
@@ -23,7 +24,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'service_platform',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  entities: entities,
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: false,

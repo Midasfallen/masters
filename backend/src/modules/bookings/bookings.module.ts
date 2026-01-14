@@ -6,13 +6,14 @@ import { Booking } from './entities/booking.entity';
 import { Service } from '../services/entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { PendingReviewsGuard } from '../../common/guards/pending-reviews.guard';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Booking, Service, User, MasterProfile]),
   ],
   controllers: [BookingsController],
-  providers: [BookingsService],
+  providers: [BookingsService, PendingReviewsGuard],
   exports: [BookingsService],
 })
 export class BookingsModule {}

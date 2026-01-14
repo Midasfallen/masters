@@ -26,17 +26,14 @@ export class Review {
 
   @ApiProperty({ description: 'ID записи' })
   @Column({ type: 'uuid', unique: true })
-  @Index()
   booking_id: string;
 
   @ApiProperty({ description: 'Кто оставил отзыв (user_id)' })
   @Column({ type: 'uuid' })
-  @Index()
   reviewer_id: string;
 
   @ApiProperty({ description: 'Кому оставлен отзыв (user_id)' })
   @Column({ type: 'uuid' })
-  @Index()
   reviewed_user_id: string;
 
   @ApiProperty({ enum: ReviewerType, description: 'Тип автора отзыва' })
@@ -44,12 +41,10 @@ export class Review {
     type: 'enum',
     enum: ReviewerType,
   })
-  @Index()
   reviewer_type: ReviewerType;
 
   @ApiProperty({ description: 'Оценка (1-5)', example: 5, minimum: 1, maximum: 5 })
   @Column({ type: 'integer' })
-  @Index()
   rating: number;
 
   @ApiProperty({ description: 'Текст отзыва (опционально)' })
