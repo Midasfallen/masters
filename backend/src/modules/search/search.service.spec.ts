@@ -177,23 +177,6 @@ describe('SearchService', () => {
       );
     });
 
-    it.skip('should filter by tags in fallback search (DISABLED: tags field missing)', async () => {
-      // TODO: Enable this test after adding tags field to MasterProfile entity
-      mockMasterProfileRepository.findOne.mockResolvedValue(mockMasterProfile);
-
-      await service.searchMasters({
-        query: '',
-        tags: ['стрижка'],
-        page: 1,
-        limit: 20,
-      });
-
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'profile.tags && :tags',
-        { tags: ['стрижка'] },
-      );
-    });
-
     it('should return empty results on fallback error', async () => {
       mockQueryBuilder.getManyAndCount.mockRejectedValueOnce(
         new Error('Database error'),
