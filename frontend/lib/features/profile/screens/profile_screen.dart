@@ -125,7 +125,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                 : null,
                             child: user.avatarUrl == null
                                 ? Text(
-                                    user.firstName[0].toUpperCase(),
+                                    user.firstName.isNotEmpty
+                                        ? user.firstName[0].toUpperCase()
+                                        : user.email[0].toUpperCase(),
                                     style: const TextStyle(fontSize: 32),
                                   )
                                 : null,
