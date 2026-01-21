@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:service_platform/core/models/api/friend_model.dart';
 import 'package:service_platform/core/providers/api/friends_provider.dart';
 import 'package:service_platform/core/theme/app_colors.dart';
-import 'package:service_platform/core/theme/app_sizes.dart';
+import 'package:service_platform/core/constants/app_sizes.dart';
 
 class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key});
@@ -390,15 +390,6 @@ class _IncomingRequestCard extends ConsumerWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (requester.bio != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                requester.bio!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
-              ),
-            ],
             const SizedBox(height: AppSizes.paddingSm),
             Row(
               children: [
@@ -496,15 +487,6 @@ class _OutgoingRequestCard extends ConsumerWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (addressee.bio != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                addressee.bio!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
-              ),
-            ],
             const SizedBox(height: 4),
             const Text(
               'Заявка отправлена',

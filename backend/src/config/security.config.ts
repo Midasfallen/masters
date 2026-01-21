@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 
 /**
  * Configure security middleware for the application

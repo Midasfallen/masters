@@ -77,6 +77,34 @@ class SubscriptionRepository {
       throw ApiExceptionHandler.handleDioError(e);
     }
   }
+
+  /// Get subscription by ID
+  Future<SubscriptionModel> getSubscriptionById(String subscriptionId) async {
+    try {
+      final response = await _client.get(
+        '${ApiEndpoints.subscriptionsList}/$subscriptionId',
+      );
+      return SubscriptionModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Toggle notifications for subscription
+  Future<SubscriptionModel> toggleNotifications(
+    String subscriptionId,
+    bool enabled,
+  ) async {
+    try {
+      final response = await _client.patch(
+        '${ApiEndpoints.subscriptionsList}/$subscriptionId/notifications',
+        data: {'enabled': enabled},
+      );
+      return SubscriptionModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
 }
 
 @riverpod

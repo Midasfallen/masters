@@ -6,7 +6,7 @@ part of 'dio_client.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$secureStorageHash() => r'3e5177aefc9c0d43d9cb4fdca3bdc2dfcb36f13e';
+String _$secureStorageHash() => r'77df30c7098a9f252222741225993ef719fafe36';
 
 /// Secure Storage Provider
 ///

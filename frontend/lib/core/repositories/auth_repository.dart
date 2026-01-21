@@ -94,7 +94,7 @@ class AuthRepository {
   /// Get current user
   Future<UserModel> getMe() async {
     try {
-      final response = await _client.get(ApiEndpoints.authMe);
+      final response = await _client.get(ApiEndpoints.userMe);
       return UserModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);

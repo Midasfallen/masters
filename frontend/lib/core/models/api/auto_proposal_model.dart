@@ -151,6 +151,7 @@ class UpdateAutoProposalSettingsDto with _$UpdateAutoProposalSettingsDto {
   factory UpdateAutoProposalSettingsDto.fromJson(Map<String, dynamic> json) =>
       _$UpdateAutoProposalSettingsDtoFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {};
 }
 
@@ -165,5 +166,6 @@ class AcceptProposalDto with _$AcceptProposalDto {
   factory AcceptProposalDto.fromJson(Map<String, dynamic> json) =>
       _$AcceptProposalDtoFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {};
 }

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/models/api/chat_model.dart';
 
 class MessageBubble extends StatelessWidget {
-  final ChatMessageModel message;
+  final MessageModel message;
   final bool isMe;
 
   const MessageBubble({
@@ -70,7 +70,7 @@ class MessageBubble extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           color: isMe
-                              ? Colors.white.withOpacity(0.7)
+                              ? Colors.white.withValues(alpha: 0.7)
                               : Colors.grey[600],
                         ),
                       ),
@@ -96,7 +96,7 @@ class MessageBubble extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context) {
     // Разные типы сообщений
     switch (message.type) {
-      case 'text':
+      case MessageType.text:
         return Text(
           message.content,
           style: TextStyle(
@@ -105,7 +105,7 @@ class MessageBubble extends StatelessWidget {
           ),
         );
 
-      case 'image':
+      case MessageType.image:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -144,7 +144,7 @@ class MessageBubble extends StatelessWidget {
           ],
         );
 
-      case 'service':
+      case MessageType.system:
         return Row(
           children: [
             Icon(
@@ -165,7 +165,7 @@ class MessageBubble extends StatelessWidget {
           ],
         );
 
-      case 'booking':
+      case MessageType.booking:
         return Row(
           children: [
             Icon(
@@ -201,22 +201,13 @@ class MessageBubble extends StatelessWidget {
     IconData icon;
     Color? color;
 
-    switch (message.status) {
-      case 'sent':
-        icon = Icons.done;
-        color = Colors.white.withOpacity(0.7);
-        break;
-      case 'delivered':
-        icon = Icons.done_all;
-        color = Colors.white.withOpacity(0.7);
-        break;
-      case 'read':
-        icon = Icons.done_all;
-        color = Colors.blue[300];
-        break;
-      default:
-        icon = Icons.access_time;
-        color = Colors.white.withOpacity(0.7);
+    // MessageModel uses isRead field instead of status
+    if (message.isRead) {
+      icon = Icons.done_all;
+      color = Colors.blue[300];
+    } else {
+      icon = Icons.done;
+      color = Colors.white.withValues(alpha: 0.7);
     }
 
     return Icon(

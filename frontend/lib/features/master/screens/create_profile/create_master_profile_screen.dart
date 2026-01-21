@@ -86,13 +86,12 @@ class _CreateMasterProfileScreenState extends State<CreateMasterProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_currentStep > 0) {
+    return PopScope(
+      canPop: _currentStep == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _currentStep > 0) {
           _previousStep();
-          return false;
         }
-        return true;
       },
       child: Scaffold(
         appBar: AppBar(

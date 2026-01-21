@@ -95,11 +95,10 @@ class ServerException extends ApiException {
 
 /// Bad request exception (400)
 class BadRequestException extends ApiException {
-  BadRequestException({String? message, dynamic data})
+  BadRequestException({String? message, super.data})
       : super(
           message: message ?? 'Bad request',
           statusCode: 400,
-          data: data,
         );
 }
 

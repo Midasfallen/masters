@@ -9,11 +9,7 @@ part 'dio_client.g.dart';
 /// Secure Storage Provider
 @riverpod
 FlutterSecureStorage secureStorage(SecureStorageRef ref) {
-  return const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-  );
+  return const FlutterSecureStorage();
 }
 
 /// Dio Client Provider

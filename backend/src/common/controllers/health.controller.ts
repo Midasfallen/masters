@@ -2,7 +2,10 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../services/cache.service';
+import { EmailService } from '../services/email.service';
+import { SearchService } from '../../modules/search/search.service';
 
 export interface HealthCheckResponse {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -12,6 +15,9 @@ export interface HealthCheckResponse {
   services: {
     database: ServiceStatus;
     redis: ServiceStatus;
+    meilisearch: ServiceStatus;
+    minio: ServiceStatus;
+    smtp: ServiceStatus;
     memory: MemoryStatus;
   };
 }
@@ -40,65 +46,90 @@ export class HealthController {
     @InjectDataSource()
     private readonly dataSource: DataSource,
     private readonly cacheService: CacheService,
+    private readonly emailService: EmailService,
+    private readonly searchService: SearchService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get()
   @ApiOperation({ summary: 'Health check endpoint' })
   @ApiResponse({
     status: 200,
-    description: 'Service is healthy',
+    description: 'Service health status',
     schema: {
       example: {
         status: 'healthy',
-        timestamp: '2026-01-13T12:00:00.000Z',
+        timestamp: '2026-01-21T12:00:00.000Z',
         uptime: 3600,
-        version: '1.0.0',
+        version: '2.0.0',
         services: {
           database: { status: 'up', responseTime: 5 },
           redis: { status: 'up', responseTime: 2 },
+          meilisearch: { status: 'up', responseTime: 10 },
+          minio: { status: 'up', responseTime: 15 },
+          smtp: { status: 'up', responseTime: 8 },
           memory: {
             status: 'ok',
             usage: {
-              heapUsed: 50,
-              heapTotal: 100,
-              rss: 150,
-              external: 10,
+              heapUsed: 120,
+              heapTotal: 256,
+              rss: 300,
+              external: 20,
             },
-            percentage: 50,
+            percentage: 46,
           },
         },
       },
     },
   })
   async check(): Promise<HealthCheckResponse> {
-    const [databaseStatus, redisStatus, memoryStatus] = await Promise.all([
+    const [
+      databaseStatus,
+      redisStatus,
+      meilisearchStatus,
+      minioStatus,
+      smtpStatus,
+      memoryStatus,
+    ] = await Promise.all([
       this.checkDatabase(),
       this.checkRedis(),
+      this.checkMeilisearch(),
+      this.checkMinIO(),
+      this.checkSMTP(),
       this.checkMemory(),
     ]);
 
     // Determine overall status
-    const allServicesUp =
-      databaseStatus.status === 'up' && redisStatus.status === 'up';
-    const memoryOk = memoryStatus.status !== 'critical';
-
+    // Critical: database must be up
+    // Degraded: database up but other services down
+    // Healthy: all services up
     let overallStatus: 'healthy' | 'degraded' | 'unhealthy';
-    if (allServicesUp && memoryOk) {
-      overallStatus = 'healthy';
-    } else if (databaseStatus.status === 'up' && redisStatus.status === 'down') {
-      overallStatus = 'degraded'; // Can work without Redis
+
+    if (databaseStatus.status === 'down') {
+      overallStatus = 'unhealthy';
+    } else if (
+      redisStatus.status === 'down' ||
+      meilisearchStatus.status === 'down' ||
+      minioStatus.status === 'down' ||
+      smtpStatus.status === 'down' ||
+      memoryStatus.status === 'critical'
+    ) {
+      overallStatus = 'degraded';
     } else {
-      overallStatus = 'unhealthy'; // Cannot work without database
+      overallStatus = 'healthy';
     }
 
     return {
       status: overallStatus,
       timestamp: new Date().toISOString(),
       uptime: Math.floor(process.uptime()),
-      version: process.env.npm_package_version || '1.0.0',
+      version: process.env.npm_package_version || '2.0.0',
       services: {
         database: databaseStatus,
         redis: redisStatus,
+        meilisearch: meilisearchStatus,
+        minio: minioStatus,
+        smtp: smtpStatus,
         memory: memoryStatus,
       },
     };
@@ -151,6 +182,80 @@ export class HealthController {
       await this.cacheService.set('health_check', Date.now(), 10);
       const responseTime = Date.now() - startTime;
       return { status: 'up', responseTime };
+    } catch (error) {
+      return {
+        status: 'down',
+        error: error.message,
+      };
+    }
+  }
+
+  private async checkMeilisearch(): Promise<ServiceStatus> {
+    const startTime = Date.now();
+    try {
+      // Access the private meiliClient through type assertion
+      const meiliClient = (this.searchService as any).meiliClient;
+      if (!meiliClient) {
+        return {
+          status: 'down',
+          error: 'Meilisearch client not initialized',
+        };
+      }
+      await meiliClient.health();
+      const responseTime = Date.now() - startTime;
+      return { status: 'up', responseTime };
+    } catch (error) {
+      return {
+        status: 'down',
+        error: 'Meilisearch unavailable (fallback to PostgreSQL search)',
+      };
+    }
+  }
+
+  private async checkMinIO(): Promise<ServiceStatus> {
+    const startTime = Date.now();
+    try {
+      const minioEndpoint = this.configService.get<string>('MINIO_ENDPOINT');
+      const minioPort = this.configService.get<number>('MINIO_PORT');
+      const minioUseSSL = this.configService.get<boolean>('MINIO_USE_SSL');
+
+      const protocol = minioUseSSL ? 'https' : 'http';
+      const url = `${protocol}://${minioEndpoint}:${minioPort}/minio/health/live`;
+
+      const response = await fetch(url, { method: 'GET' });
+
+      const responseTime = Date.now() - startTime;
+
+      if (response.ok) {
+        return { status: 'up', responseTime };
+      } else {
+        return {
+          status: 'down',
+          error: `MinIO health check failed: ${response.status}`,
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'down',
+        error: error.message,
+      };
+    }
+  }
+
+  private async checkSMTP(): Promise<ServiceStatus> {
+    const startTime = Date.now();
+    try {
+      const isConnected = await this.emailService.verifyConnection();
+      const responseTime = Date.now() - startTime;
+
+      if (isConnected) {
+        return { status: 'up', responseTime };
+      } else {
+        return {
+          status: 'down',
+          error: 'SMTP connection verification failed',
+        };
+      }
     } catch (error) {
       return {
         status: 'down',

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/providers/api/auth_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -26,12 +29,38 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _controller.forward();
 
-    // Navigate to onboarding after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        context.go('/onboarding');
-      }
-    });
+    // Check auth and navigate
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    // Check first run flag
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
+    final isFirstRun = prefs.getBool('isFirstRun') ?? true;
+
+    // Check authentication
+    final authState = ref.read(authNotifierProvider);
+    final isAuthenticated = authState.value?.user != null;
+
+    if (!mounted) return;
+
+    // Navigation logic according to UX/UI Guide v2.0
+    if (isFirstRun) {
+      // First run - show onboarding
+      context.go('/onboarding');
+    } else if (isAuthenticated) {
+      // Not first run + authenticated - go to Feed
+      context.go('/');
+    } else {
+      // Not first run + not authenticated - go to Login
+      context.go('/login');
+    }
   }
 
   @override

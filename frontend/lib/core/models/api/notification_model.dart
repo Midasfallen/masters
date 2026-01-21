@@ -34,6 +34,7 @@ class MarkNotificationReadRequest with _$MarkNotificationReadRequest {
   factory MarkNotificationReadRequest.fromJson(Map<String, dynamic> json) =>
       _$MarkNotificationReadRequestFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => {
         'notification_id': notificationId,
       };

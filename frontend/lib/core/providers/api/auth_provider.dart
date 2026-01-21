@@ -59,7 +59,7 @@ class AuthNotifier extends _$AuthNotifier {
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
-      final response = await repository.login(
+      await repository.login(
         LoginRequest(email: email, password: password),
       );
 
@@ -82,7 +82,7 @@ class AuthNotifier extends _$AuthNotifier {
 
     state = await AsyncValue.guard(() async {
       final repository = ref.read(authRepositoryProvider);
-      final response = await repository.register(
+      await repository.register(
         RegisterRequest(
           email: email,
           password: password,

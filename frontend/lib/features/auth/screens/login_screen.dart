@@ -38,8 +38,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
 
       if (mounted) {
-        // Navigate to home on successful login
-        context.go('/home');
+        // Navigate to Feed on successful login
+        context.go('/');
       }
     } catch (e) {
       if (mounted) {

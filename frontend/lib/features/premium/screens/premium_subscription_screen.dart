@@ -122,7 +122,7 @@ class PremiumSubscriptionScreen extends ConsumerWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(AppSizes.radiusSm),
                 ),
                 child: Text(
@@ -156,7 +156,7 @@ class PremiumSubscriptionScreen extends ConsumerWidget {
                   : 'Продлится: ${DateFormat('dd.MM.yyyy').format(subscription.expiresAt!)}',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
           ],

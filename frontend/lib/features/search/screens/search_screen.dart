@@ -216,12 +216,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               // Avatar
               CircleAvatar(
                 radius: 32,
-                backgroundImage: master.avatarUrl != null
-                    ? CachedNetworkImageProvider(master.avatarUrl!)
+                backgroundImage: master.user?.avatarUrl != null
+                    ? CachedNetworkImageProvider(master.user!.avatarUrl!)
                     : null,
-                child: master.avatarUrl == null
+                child: master.user?.avatarUrl == null
                     ? Text(
-                        master.userId[0].toUpperCase(),
+                        (master.user?.fullName ?? 'M')[0].toUpperCase(),
                         style: const TextStyle(fontSize: 24),
                       )
                     : null,
@@ -233,7 +233,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${master.businessName ?? 'Мастер'}',
+                      master.businessName ?? 'Мастер',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -257,19 +257,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         Icon(Icons.star, size: 16, color: Colors.amber[700]),
                         const SizedBox(width: 4),
                         Text(
-                          master.averageRating.toStringAsFixed(1),
+                          master.rating.toStringAsFixed(1),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '(${master.totalReviews})',
+                          '(${master.reviewsCount})',
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                         const SizedBox(width: 16),
                         Icon(Icons.work_outline, size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
-                          '${master.totalOrders} заказов',
+                          '${master.completedBookings} заказов',
                           style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         ),
                       ],

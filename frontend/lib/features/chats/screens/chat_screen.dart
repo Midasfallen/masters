@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/api/chat_model.dart';
+import '../../../core/providers/api/auth_provider.dart';
 import '../../../core/providers/api/chats_provider.dart';
 import '../../../core/services/websocket_service.dart';
 import '../widgets/message_bubble.dart';
@@ -29,7 +29,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Timer? _typingTimer;
   bool _isTyping = false;
-  final List<ChatMessageModel> _messages = [];
+  final List<MessageModel> _messages = [];
   bool _isLoadingMessages = false;
   final Set<String> _typingUsers = {};
 
@@ -124,7 +124,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
         // Проверяем, что сообщение для этого чата
         if (data['chat_id'] == widget.chatId) {
-          final newMessage = ChatMessageModel.fromJson(data);
+          final newMessage = MessageModel.fromJson(data);
 
           if (mounted) {
             setState(() {
@@ -347,7 +347,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),

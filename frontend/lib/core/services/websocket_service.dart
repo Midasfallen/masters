@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// WebSocket Service для real-time коммуникации
 /// Использует Socket.IO для подключения к backend WebSocket Gateway
 class WebSocketService {
   final FlutterSecureStorage _storage;
-  IO.Socket? _socket;
+  io.Socket? _socket;
   final _connectionStateController = StreamController<ConnectionState>.broadcast();
   final _messageController = StreamController<WebSocketMessage>.broadcast();
 
@@ -33,9 +33,9 @@ class WebSocketService {
       }
 
       // Создаем Socket.IO клиент
-      _socket = IO.io(
+      _socket = io.io(
         '$baseUrl/ws', // namespace /ws
-        IO.OptionBuilder()
+        io.OptionBuilder()
             .setTransports(['websocket'])
             .enableAutoConnect()
             .enableReconnection()

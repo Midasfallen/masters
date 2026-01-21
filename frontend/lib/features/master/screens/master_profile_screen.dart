@@ -454,7 +454,7 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -557,16 +557,38 @@ class _BookingSheetState extends State<_BookingSheet> {
           ),
           const SizedBox(height: 8),
           ...mockServices.map((service) {
-            return RadioListTile<Service>(
-              value: service,
-              groupValue: _selectedService,
-              onChanged: (value) {
+            return InkWell(
+              onTap: () {
                 setState(() {
-                  _selectedService = value;
+                  _selectedService = service;
                 });
               },
-              title: Text(service.name),
-              subtitle: Text('${service.durationMinutes} мин • ${service.price}'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _selectedService == service,
+                      onChanged: (value) {
+                        if (value == true) {
+                          setState(() {
+                            _selectedService = service;
+                          });
+                        }
+                      },
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(service.name),
+                          Text('${service.durationMinutes} мин • ${service.price}'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }),
           const SizedBox(height: 16),

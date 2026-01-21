@@ -6,7 +6,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeOrmConfig } from './config/typeorm.config';
+import smtpConfig from './config/smtp.config';
 import { LoggerModule } from './common/logger/logger.module';
+import { CommonModule } from './common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { MastersModule } from './modules/masters/masters.module';
@@ -31,6 +33,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [smtpConfig],
     }),
 
     // Scheduler (для cron jobs)
@@ -38,6 +41,9 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
     // Logger
     LoggerModule,
+
+    // Common (Health checks, cache, email)
+    CommonModule,
 
     // Database
     TypeOrmModule.forRootAsync({

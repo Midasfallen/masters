@@ -22,7 +22,9 @@
     "migration:generate": "npm run typeorm -- migration:generate -d src/config/typeorm.config.ts",
     "migration:run": "npm run typeorm -- migration:run -d src/config/typeorm.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/typeorm.config.ts",
-    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.cli.ts",
+    "docker:logs": "docker logs service_backend --tail 50",
+    "docker:ps": "docker-compose ps"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
@@ -41,8 +43,12 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "firebase-admin": "^13.6.0",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
     "meilisearch": "^0.37.0",
     "multer": "^1.4.5-lts.1",
+    "nest-winston": "^1.10.2",
+    "nodemailer": "^7.0.12",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -53,6 +59,7 @@
     "socket.io": "^4.6.1",
     "typeorm": "^0.3.19",
     "uuid": "^9.0.1",
+    "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
@@ -65,6 +72,7 @@
     "@types/jest": "^29.5.11",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.10.6",
+    "@types/nodemailer": "^7.0.5",
     "@types/passport-jwt": "^4.0.0",
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.2",
@@ -73,8 +81,8 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
+    "ioredis": "^5.3.2",
     "jest": "^29.7.0",
-    "nest-winston": "^1.10.2",
     "prettier": "^3.1.1",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
@@ -82,8 +90,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.3.3",
-    "winston": "^3.19.0"
+    "typescript": "^5.3.3"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
-import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/feed/screens/post_detail_screen.dart';
@@ -18,7 +17,7 @@ import '../../shared/widgets/main_navigation_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/', // v2.0: сразу на Feed
+    initialLocation: '/splash', // Start with splash screen to check auth
     debugLogDiagnostics: true,
     routes: [
       // Auth routes
@@ -29,10 +28,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
-      ),
-      GoRoute(
-        path: '/role-selection',
-        builder: (context, state) => const RoleSelectionScreen(),
       ),
       GoRoute(
         path: '/login',

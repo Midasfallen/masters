@@ -7,6 +7,13 @@ class AppSizes {
   static const double xl = 32.0;
   static const double xxl = 48.0;
 
+  // Padding aliases (for backward compatibility)
+  static const double paddingXs = xs;
+  static const double paddingSm = sm;
+  static const double paddingMd = md;
+  static const double paddingLg = lg;
+  static const double paddingXl = xl;
+
   // Border radius
   static const double radiusXs = 4.0;
   static const double radiusSm = 8.0;

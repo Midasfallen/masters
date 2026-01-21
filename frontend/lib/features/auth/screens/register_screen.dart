@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -61,9 +62,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 : null,
           );
 
+      // Save flag that onboarding has been completed
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isFirstRun', false);
+
       if (mounted) {
-        // Navigate to home on successful registration
-        context.go('/home');
+        // Navigate to Feed on successful registration
+        context.go('/');
       }
     } catch (e) {
       if (mounted) {

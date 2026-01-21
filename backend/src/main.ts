@@ -3,6 +3,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+import * as crypto from 'crypto';
+
+// Global crypto polyfill for @nestjs/schedule compatibility with Node.js 18+
+if (typeof (global as any).crypto === 'undefined') {
+  (global as any).crypto = crypto;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -163,14 +169,16 @@ All dates are in ISO 8601 format: \`2025-12-30T12:00:00Z\`
   });
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  const host = process.env.HOST || '0.0.0.0';
+  await app.listen(port, host);
 
   console.log(`
     🚀 Service Platform Backend v2.0 started!
 
-    📡 API running on: http://localhost:${port}/${apiPrefix}
-    📚 Swagger docs: http://localhost:${port}/${apiPrefix}/docs
+    📡 API running on: http://${host}:${port}/${apiPrefix}
+    📚 Swagger docs: http://${host}:${port}/${apiPrefix}/docs
     🌍 Environment: ${process.env.NODE_ENV || 'development'}
+    🔌 Host: ${host} (accessible from network)
   `);
 }
 

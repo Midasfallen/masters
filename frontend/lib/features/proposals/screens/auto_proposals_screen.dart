@@ -385,7 +385,7 @@ class _ProposalCard extends ConsumerWidget {
                                 reason,
                                 style: const TextStyle(fontSize: 12),
                               ),
-                              backgroundColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                               padding: const EdgeInsets.symmetric(horizontal: 8),
                             ))
                         .toList(),

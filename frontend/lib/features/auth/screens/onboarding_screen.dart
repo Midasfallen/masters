@@ -50,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () => context.go('/role-selection'),
+                onPressed: () => context.go('/register'),
                 child: const Text('Пропустить'),
               ),
             ),
@@ -108,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? theme.colorScheme.primary
-                        : theme.colorScheme.surfaceVariant,
+                        : theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -120,7 +120,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: FilledButton(
                 onPressed: () {
                   if (_currentPage == _pages.length - 1) {
-                    context.go('/role-selection');
+                    context.go('/register');
                   } else {
                     _pageController.nextPage(
                       duration: const Duration(milliseconds: 300),
