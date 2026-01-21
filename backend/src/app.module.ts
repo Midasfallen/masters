@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeOrmConfig } from './config/typeorm.config';
 import smtpConfig from './config/smtp.config';
+import minioConfig from './config/minio.config';
 import { LoggerModule } from './common/logger/logger.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,6 +27,7 @@ import { WebSocketModule } from './modules/websocket/websocket.module';
 import { AutoProposalsModule } from './modules/auto-proposals/auto-proposals.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [smtpConfig],
+      load: [smtpConfig, minioConfig],
     }),
 
     // Scheduler (для cron jobs)
@@ -73,6 +75,8 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
     // Admin Panel
     AdminModule,
+
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

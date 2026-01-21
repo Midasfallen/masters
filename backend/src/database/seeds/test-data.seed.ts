@@ -5,15 +5,36 @@ import { MasterProfile } from '../../modules/masters/entities/master-profile.ent
 import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
 import { PostMedia, MediaType } from '../../modules/posts/entities/post-media.entity';
 import { Subscription } from '../../modules/friends/entities/subscription.entity';
+import { ImageUploader } from './utils/image-uploader';
 
 export async function seedTestData(dataSource: DataSource) {
-  console.log('🌱 Starting test data seeding...');
+  console.log('[SEED] Starting test data seeding...');
 
   const userRepository = dataSource.getRepository(User);
   const masterProfileRepository = dataSource.getRepository(MasterProfile);
   const postRepository = dataSource.getRepository(Post);
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const subscriptionRepository = dataSource.getRepository(Subscription);
+
+  // Initialize ImageUploader for MinIO
+  const imageUploader = new ImageUploader({
+    endpoint: process.env.MINIO_ENDPOINT || 'localhost',
+    port: parseInt(process.env.MINIO_PORT, 10) || 9000,
+    accessKey: process.env.MINIO_ACCESS_KEY || 'minio_access_key',
+    secretKey: process.env.MINIO_SECRET_KEY || 'minio_secret_key',
+    useSSL: process.env.MINIO_USE_SSL === 'true',
+  });
+
+  console.log('[SEED] Checking MinIO buckets...');
+  const bucketsReady =
+    (await imageUploader.checkBucket('avatars')) &&
+    (await imageUploader.checkBucket('posts'));
+
+  if (!bucketsReady) {
+    console.log('[SEED] MinIO buckets not ready, using fallback URLs');
+  } else {
+    console.log('[SEED] MinIO buckets ready, uploading images...');
+  }
 
   // Хеш пароля для тестовых пользователей (password: "test123")
   const passwordHash = await bcrypt.hash('test123', 10);
@@ -154,6 +175,19 @@ export async function seedTestData(dataSource: DataSource) {
   for (const masterData of masters) {
     const { profile, ...userData } = masterData;
 
+    // Upload avatar to MinIO if possible
+    if (bucketsReady && userData.avatar_url) {
+      try {
+        userData.avatar_url = await imageUploader.uploadFromUrl(
+          userData.avatar_url,
+          'avatars',
+          `master-${masterData.email.split('@')[0]}`,
+        );
+      } catch (error) {
+        console.log(`[WARN] Failed to upload avatar for ${masterData.email}`);
+      }
+    }
+
     // Создаем пользователя
     const user = userRepository.create(userData);
     const savedUser = await userRepository.save(user);
@@ -166,16 +200,29 @@ export async function seedTestData(dataSource: DataSource) {
     });
     await masterProfileRepository.save(masterProfile);
 
-    console.log(`✓ Created master: ${savedUser.full_name}`);
+    console.log('[OK] Created master:', savedUser.full_name);
   }
 
   // Сохраняем учеников
   const savedStudents = [];
   for (const studentData of students) {
+    // Upload avatar to MinIO if possible
+    if (bucketsReady && studentData.avatar_url) {
+      try {
+        studentData.avatar_url = await imageUploader.uploadFromUrl(
+          studentData.avatar_url,
+          'avatars',
+          `student-${studentData.email.split('@')[0]}`,
+        );
+      } catch (error) {
+        console.log(`[WARN] Failed to upload avatar for ${studentData.email}`);
+      }
+    }
+
     const user = userRepository.create(studentData);
     const savedUser = await userRepository.save(user);
     savedStudents.push(savedUser);
-    console.log(`✓ Created student: ${savedUser.full_name}`);
+    console.log('[OK] Created student:', savedUser.full_name);
   }
 
   console.log('\nCreating test posts...');
@@ -246,7 +293,21 @@ export async function seedTestData(dataSource: DataSource) {
       savedPosts.push(savedPost);
 
       // Добавляем медиа к посту
-      const mediaUrl = testImages[postContent.imageIndex];
+      let mediaUrl = testImages[postContent.imageIndex];
+
+      // Upload media to MinIO if possible
+      if (bucketsReady) {
+        try {
+          mediaUrl = await imageUploader.uploadFromUrl(
+            mediaUrl,
+            'posts',
+            `post-${savedPost.id}`,
+          );
+        } catch (error) {
+          console.log(`[WARN] Failed to upload media for post ${savedPost.id}`);
+        }
+      }
+
       const media = postMediaRepository.create({
         post_id: savedPost.id,
         type: MediaType.PHOTO,
@@ -258,7 +319,8 @@ export async function seedTestData(dataSource: DataSource) {
       });
       await postMediaRepository.save(media);
 
-      console.log(`✓ Created post with media
+      console.log('[OK] Created post with media for', master.full_name);
+    }
   }
 
   console.log('\nCreating test subscriptions...');
@@ -277,7 +339,7 @@ export async function seedTestData(dataSource: DataSource) {
       });
       await subscriptionRepository.save(subscription);
       subscriptions.push(subscription);
-      console.log(`✓ ${student.full_name} subscribed to ${master.full_name}`);
+      console.log('[OK]', student.full_name, 'subscribed to', master.full_name);
     }
   }
 
@@ -298,16 +360,13 @@ export async function seedTestData(dataSource: DataSource) {
     await userRepository.save(student);
   }
 
-  console.log('\n✅ Test data seeding completed!');
-  console.log(`
-📊 Summary:
-  - Masters: ${savedMasters.length}
-  - Students: ${savedStudents.length}
-  - Posts: ${savedPosts.length}
-  - Subscriptions: ${subscriptions.length}
-
-🔑 Test credentials:
-  Email: any user email above
-  Password: test123
-  `);
+  console.log('\n[DONE] Test data seeding completed!');
+  console.log('[SUMMARY]');
+  console.log('  - Masters:', savedMasters.length);
+  console.log('  - Students:', savedStudents.length);
+  console.log('  - Posts:', savedPosts.length);
+  console.log('  - Subscriptions:', subscriptions.length);
+  console.log('\n[AUTH] Test credentials:');
+  console.log('  Email: any user email above');
+  console.log('  Password: test123');
 }
