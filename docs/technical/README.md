@@ -16,6 +16,7 @@
 | **[TechSpec.md](./TechSpec.md)** | Technical Specification - Полная техническая спецификация | v2.0 | 822 строк |
 | **[API.md](./API.md)** | API Specification - REST API + WebSocket (165 endpoints) | v2.0 | 3704 строк |
 | **[Database.md](./Database.md)** | Database Schema - Схема БД (29 таблиц) | v2.0 | 889 строк |
+| **[API_INTERCEPTORS.md](./API_INTERCEPTORS.md)** | API Interceptors - HTTP клиент interceptors (Dio) | v2.1 | 670 строк |
 
 ---
 
@@ -63,7 +64,30 @@
 - При выборе технологий для новой фичи
 - Для understanding архитектурных решений
 
-### 2. API.md - API Specification
+### 2. API_INTERCEPTORS.md - API Interceptors (NEW! ✨)
+
+**Что внутри:**
+- **5 HTTP Interceptors** для Dio клиента
+- AuthInterceptor - автоматическое добавление JWT токенов
+- RefreshTokenInterceptor - автообновление токенов (с защитой от race condition)
+- LoggingInterceptor - детальное логирование запросов
+- RetryInterceptor - автоповторы при сетевых ошибках
+- ErrorHandlerInterceptor - преобразование ошибок в кастомные исключения
+- История исправлений критических багов
+
+**Ключевые особенности:**
+- ✅ Mutex pattern для предотвращения race condition при refresh token
+- ✅ Сохранение конфигурации Dio при повторных запросах
+- ✅ Экспоненциальная задержка для retry
+- ✅ Централизованная обработка ошибок
+
+**Когда читать:**
+- При работе с HTTP клиентом в Flutter
+- При отладке проблем с API запросами
+- Для понимания flow аутентификации
+- При добавлении новых interceptors
+
+### 3. API.md - API Specification
 
 **Что внутри:**
 - **165 REST endpoints** (95 v1.0 + 70 v2.0)
@@ -127,7 +151,7 @@ POST /api/v1/chats/:id/messages
 WS wss://api.service.com/ws?token=jwt_token
 ```
 
-### 3. Database.md - Database Schema
+### 4. Database.md - Database Schema
 
 **Что внутри:**
 - **29 таблиц** (19 v1.0 + 10 v2.0)
@@ -398,5 +422,5 @@ flutter run
 
 ---
 
-**Последнее обновление:** Декабрь 2025
-**Статус:** ✅ Актуален (v2.0)
+**Последнее обновление:** 21 января 2026
+**Статус:** ✅ Актуален (v2.1)
