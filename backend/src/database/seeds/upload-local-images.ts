@@ -29,12 +29,16 @@ async function uploadLocalImages() {
     console.log('[UPLOAD] Reading local images from:', LOCAL_IMAGES_DIR);
     const files = fs.readdirSync(LOCAL_IMAGES_DIR)
       .filter(file => file.toLowerCase().endsWith('.jpg') || file.toLowerCase().endsWith('.jpeg'))
-      .slice(0, 6); // Take first 6 images for 6 posts
+      .slice(0, 14); // Take first 14 images for 14 posts
 
     console.log('[UPLOAD] Found images:', files.length);
 
     if (files.length === 0) {
       throw new Error('No JPEG images found in directory');
+    }
+
+    if (files.length < 14) {
+      console.log(`[WARN] Found only ${files.length} images, but need 14. Will use available images.`);
     }
 
     // Upload images to MinIO
