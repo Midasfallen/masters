@@ -45,6 +45,9 @@ class RefreshTokenInterceptor extends Interceptor {
   final Dio _dio;
   final FlutterSecureStorage _storage;
 
+  // Mutex to prevent concurrent refresh token requests
+  Future<String?>? _refreshFuture;
+
   RefreshTokenInterceptor(this._dio, this._storage);
 
   @override
@@ -56,8 +59,9 @@ class RefreshTokenInterceptor extends Interceptor {
     if (err.response?.statusCode == 401 &&
         !err.requestOptions.path.contains(ApiEndpoints.authRefresh)) {
       try {
-        // Try to refresh token
-        final newToken = await _refreshToken();
+        // Use mutex to prevent concurrent refresh requests
+        // If refresh is already in progress, wait for it
+        final newToken = await _getOrRefreshToken();
 
         if (newToken != null) {
           // Retry original request with new token
@@ -70,11 +74,31 @@ class RefreshTokenInterceptor extends Interceptor {
       } catch (e) {
         // Refresh failed, clear tokens
         await _clearTokens();
+        _refreshFuture = null;
         return handler.next(err);
       }
     }
 
     return handler.next(err);
+  }
+
+  /// Get or refresh token with mutex to prevent concurrent requests
+  Future<String?> _getOrRefreshToken() async {
+    // If refresh is already in progress, wait for it
+    if (_refreshFuture != null) {
+      return await _refreshFuture;
+    }
+
+    // Start new refresh operation
+    _refreshFuture = _refreshToken();
+
+    try {
+      final token = await _refreshFuture;
+      return token;
+    } finally {
+      // Clear refresh future after completion
+      _refreshFuture = null;
+    }
   }
 
   Future<String?> _refreshToken() async {
@@ -164,10 +188,12 @@ class LoggingInterceptor extends Interceptor {
 /// Retry Interceptor
 /// Automatically retries failed requests
 class RetryInterceptor extends Interceptor {
+  final Dio _dio;
   final int maxRetries;
   final Duration retryDelay;
 
-  RetryInterceptor({
+  RetryInterceptor(
+    this._dio, {
     this.maxRetries = 3,
     this.retryDelay = const Duration(seconds: 1),
   });
@@ -195,8 +221,8 @@ class RetryInterceptor extends Interceptor {
     err.requestOptions.extra['retryCount'] = retryCount + 1;
 
     try {
-      // Retry the request
-      final response = await Dio().fetch(err.requestOptions);
+      // Retry the request using the same Dio instance with all configurations
+      final response = await _dio.fetch(err.requestOptions);
       return handler.resolve(response);
     } catch (e) {
       return handler.next(err);
