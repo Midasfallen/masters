@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../../modules/users/entities/user.entity';
 import { MasterProfile } from '../../modules/masters/entities/master-profile.entity';
 import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
+import { PostMedia, MediaType } from '../../modules/posts/entities/post-media.entity';
 import { Subscription } from '../../modules/friends/entities/subscription.entity';
 
 export async function seedTestData(dataSource: DataSource) {
@@ -11,6 +12,7 @@ export async function seedTestData(dataSource: DataSource) {
   const userRepository = dataSource.getRepository(User);
   const masterProfileRepository = dataSource.getRepository(MasterProfile);
   const postRepository = dataSource.getRepository(Post);
+  const postMediaRepository = dataSource.getRepository(PostMedia);
   const subscriptionRepository = dataSource.getRepository(Subscription);
 
   // Хеш пароля для тестовых пользователей (password: "test123")
@@ -178,31 +180,47 @@ export async function seedTestData(dataSource: DataSource) {
 
   console.log('\nCreating test posts...');
 
-  // Создаем посты для мастеров
+  // Test images from placeholder service
+  const testImages = [
+    'https://picsum.photos/400/400?random=1',
+    'https://picsum.photos/400/400?random=2',
+    'https://picsum.photos/400/400?random=3',
+    'https://picsum.photos/400/400?random=4',
+    'https://picsum.photos/400/400?random=5',
+    'https://picsum.photos/400/400?random=6',
+  ];
+
+  // Создаем посты для мастеров с медиа
   const postContents = [
     {
       type: PostType.TEXT,
       content: '🎨 Сегодня создала потрясающий образ для моей клиентки! Сложное окрашивание в технике балаяж заняло 4 часа, но результат того стоил. Записывайтесь на консультацию!',
+      imageIndex: 0,
     },
     {
       type: PostType.TEXT,
       content: '✂️ Классическая мужская стрижка никогда не выходит из моды. Важно учитывать форму лица и структуру волос. Приходите, подберем идеальный стиль!',
+      imageIndex: 1,
     },
     {
       type: PostType.TEXT,
       content: '💅 Новая коллекция дизайнов уже доступна! Французский маникюр в современной интерпретации, геометрия, абстракция. Жду вас в студии!',
+      imageIndex: 2,
     },
     {
       type: PostType.TEXT,
       content: '👩‍🎨 Прошла курсы повышения квалификации по новым техникам окрашивания. Готова удивлять вас еще более яркими образами!',
+      imageIndex: 3,
     },
     {
       type: PostType.TEXT,
       content: '🔥 Акция! При записи на эту неделю - скидка 15% на все услуги. Количество мест ограничено!',
+      imageIndex: 4,
     },
     {
       type: PostType.TEXT,
       content: '⭐ Спасибо моим постоянным клиентам за доверие! Ваши отзывы вдохновляют меня становиться лучше каждый день.',
+      imageIndex: 5,
     },
   ];
 
@@ -210,6 +228,7 @@ export async function seedTestData(dataSource: DataSource) {
   for (let i = 0; i < savedMasters.length; i++) {
     const master = savedMasters[i];
 
+      // Добавляем медиа к посту
     // Каждый мастер создает 2 поста
     for (let j = 0; j < 2; j++) {
       const postContent = postContents[i * 2 + j];
@@ -225,8 +244,21 @@ export async function seedTestData(dataSource: DataSource) {
       });
       const savedPost = await postRepository.save(post);
       savedPosts.push(savedPost);
-      console.log(`✓ Created post by ${master.full_name}`);
-    }
+
+      // Добавляем медиа к посту
+      const mediaUrl = testImages[postContent.imageIndex];
+      const media = postMediaRepository.create({
+        post_id: savedPost.id,
+        type: MediaType.PHOTO,
+        url: mediaUrl,
+        thumbnail_url: mediaUrl,
+        width: 400,
+        height: 400,
+        order: 0,
+      });
+      await postMediaRepository.save(media);
+
+      console.log(`✓ Created post with media
   }
 
   console.log('\nCreating test subscriptions...');
