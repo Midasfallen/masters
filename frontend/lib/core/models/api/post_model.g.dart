@@ -6,6 +6,36 @@ part of 'post_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$PostMediaModelImpl _$$PostMediaModelImplFromJson(Map<String, dynamic> json) =>
+    _$PostMediaModelImpl(
+      id: json['id'] as String,
+      type: $enumDecode(_$MediaTypeEnumMap, json['type']),
+      url: json['url'] as String,
+      thumbnailUrl: json['thumbnail_url'] as String?,
+      width: (json['width'] as num?)?.toInt(),
+      height: (json['height'] as num?)?.toInt(),
+      duration: (json['duration'] as num?)?.toInt(),
+      order: (json['order'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$$PostMediaModelImplToJson(
+        _$PostMediaModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': _$MediaTypeEnumMap[instance.type]!,
+      'url': instance.url,
+      'thumbnail_url': instance.thumbnailUrl,
+      'width': instance.width,
+      'height': instance.height,
+      'duration': instance.duration,
+      'order': instance.order,
+    };
+
+const _$MediaTypeEnumMap = {
+  MediaType.photo: 'photo',
+  MediaType.video: 'video',
+};
+
 _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
     _$PostModelImpl(
       id: json['id'] as String,
@@ -13,20 +43,24 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       author: json['author'] == null
           ? null
           : UserModel.fromJson(json['author'] as Map<String, dynamic>),
-      content: json['content'] as String,
-      mediaUrls: (json['media_urls'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
-      likesCount: (json['likes_count'] as num).toInt(),
-      commentsCount: (json['comments_count'] as num).toInt(),
-      sharesCount: (json['shares_count'] as num).toInt(),
-      isLiked: json['is_liked'] as bool,
+      content: json['content'] as String?,
+      media: (json['media'] as List<dynamic>?)
+              ?.map((e) => PostMediaModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
+      likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
+      commentsCount: (json['comments_count'] as num?)?.toInt() ?? 0,
+      sharesCount: (json['shares_count'] as num?)?.toInt() ?? 0,
+      repostsCount: (json['reposts_count'] as num?)?.toInt() ?? 0,
+      isLiked: json['is_liked'] as bool? ?? false,
       locationName: json['location_name'] as String?,
       locationLat: (json['location_lat'] as num?)?.toDouble(),
       locationLng: (json['location_lng'] as num?)?.toDouble(),
-      isPinned: json['is_pinned'] as bool,
-      isArchived: json['is_archived'] as bool,
+      isPinned: json['is_pinned'] as bool? ?? false,
+      isArchived: json['is_archived'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -37,11 +71,12 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'author_id': instance.authorId,
       'author': instance.author,
       'content': instance.content,
-      'media_urls': instance.mediaUrls,
+      'media': instance.media,
       'tags': instance.tags,
       'likes_count': instance.likesCount,
       'comments_count': instance.commentsCount,
       'shares_count': instance.sharesCount,
+      'reposts_count': instance.repostsCount,
       'is_liked': instance.isLiked,
       'location_name': instance.locationName,
       'location_lat': instance.locationLat,

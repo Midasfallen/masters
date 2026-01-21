@@ -14,6 +14,307 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+PostMediaModel _$PostMediaModelFromJson(Map<String, dynamic> json) {
+  return _PostMediaModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PostMediaModel {
+  String get id => throw _privateConstructorUsedError;
+  MediaType get type => throw _privateConstructorUsedError;
+  String get url => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl => throw _privateConstructorUsedError;
+  int? get width => throw _privateConstructorUsedError;
+  int? get height => throw _privateConstructorUsedError;
+  int? get duration => throw _privateConstructorUsedError;
+  int get order => throw _privateConstructorUsedError;
+
+  /// Serializes this PostMediaModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PostMediaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PostMediaModelCopyWith<PostMediaModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PostMediaModelCopyWith<$Res> {
+  factory $PostMediaModelCopyWith(
+          PostMediaModel value, $Res Function(PostMediaModel) then) =
+      _$PostMediaModelCopyWithImpl<$Res, PostMediaModel>;
+  @useResult
+  $Res call(
+      {String id,
+      MediaType type,
+      String url,
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      int? width,
+      int? height,
+      int? duration,
+      int order});
+}
+
+/// @nodoc
+class _$PostMediaModelCopyWithImpl<$Res, $Val extends PostMediaModel>
+    implements $PostMediaModelCopyWith<$Res> {
+  _$PostMediaModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PostMediaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? type = null,
+    Object? url = null,
+    Object? thumbnailUrl = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+    Object? order = null,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MediaType,
+      url: null == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int?,
+      order: null == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$PostMediaModelImplCopyWith<$Res>
+    implements $PostMediaModelCopyWith<$Res> {
+  factory _$$PostMediaModelImplCopyWith(_$PostMediaModelImpl value,
+          $Res Function(_$PostMediaModelImpl) then) =
+      __$$PostMediaModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      MediaType type,
+      String url,
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      int? width,
+      int? height,
+      int? duration,
+      int order});
+}
+
+/// @nodoc
+class __$$PostMediaModelImplCopyWithImpl<$Res>
+    extends _$PostMediaModelCopyWithImpl<$Res, _$PostMediaModelImpl>
+    implements _$$PostMediaModelImplCopyWith<$Res> {
+  __$$PostMediaModelImplCopyWithImpl(
+      _$PostMediaModelImpl _value, $Res Function(_$PostMediaModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of PostMediaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? type = null,
+    Object? url = null,
+    Object? thumbnailUrl = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+    Object? order = null,
+  }) {
+    return _then(_$PostMediaModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MediaType,
+      url: null == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int?,
+      order: null == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PostMediaModelImpl implements _PostMediaModel {
+  const _$PostMediaModelImpl(
+      {required this.id,
+      required this.type,
+      required this.url,
+      @JsonKey(name: 'thumbnail_url') this.thumbnailUrl,
+      this.width,
+      this.height,
+      this.duration,
+      this.order = 0});
+
+  factory _$PostMediaModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PostMediaModelImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final MediaType type;
+  @override
+  final String url;
+  @override
+  @JsonKey(name: 'thumbnail_url')
+  final String? thumbnailUrl;
+  @override
+  final int? width;
+  @override
+  final int? height;
+  @override
+  final int? duration;
+  @override
+  @JsonKey()
+  final int order;
+
+  @override
+  String toString() {
+    return 'PostMediaModel(id: $id, type: $type, url: $url, thumbnailUrl: $thumbnailUrl, width: $width, height: $height, duration: $duration, order: $order)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PostMediaModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.width, width) || other.width == width) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
+            (identical(other.order, order) || other.order == order));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, id, type, url, thumbnailUrl, width, height, duration, order);
+
+  /// Create a copy of PostMediaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PostMediaModelImplCopyWith<_$PostMediaModelImpl> get copyWith =>
+      __$$PostMediaModelImplCopyWithImpl<_$PostMediaModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PostMediaModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _PostMediaModel implements PostMediaModel {
+  const factory _PostMediaModel(
+      {required final String id,
+      required final MediaType type,
+      required final String url,
+      @JsonKey(name: 'thumbnail_url') final String? thumbnailUrl,
+      final int? width,
+      final int? height,
+      final int? duration,
+      final int order}) = _$PostMediaModelImpl;
+
+  factory _PostMediaModel.fromJson(Map<String, dynamic> json) =
+      _$PostMediaModelImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  MediaType get type;
+  @override
+  String get url;
+  @override
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl;
+  @override
+  int? get width;
+  @override
+  int? get height;
+  @override
+  int? get duration;
+  @override
+  int get order;
+
+  /// Create a copy of PostMediaModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PostMediaModelImplCopyWith<_$PostMediaModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 PostModel _$PostModelFromJson(Map<String, dynamic> json) {
   return _PostModel.fromJson(json);
 }
@@ -24,9 +325,8 @@ mixin _$PostModel {
   @JsonKey(name: 'author_id')
   String get authorId => throw _privateConstructorUsedError;
   UserModel? get author => throw _privateConstructorUsedError;
-  String get content => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media_urls')
-  List<String> get mediaUrls => throw _privateConstructorUsedError;
+  String? get content => throw _privateConstructorUsedError;
+  List<PostMediaModel> get media => throw _privateConstructorUsedError;
   List<String> get tags => throw _privateConstructorUsedError;
   @JsonKey(name: 'likes_count')
   int get likesCount => throw _privateConstructorUsedError;
@@ -34,6 +334,8 @@ mixin _$PostModel {
   int get commentsCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'shares_count')
   int get sharesCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reposts_count')
+  int get repostsCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_liked')
   bool get isLiked => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_name')
@@ -70,12 +372,13 @@ abstract class $PostModelCopyWith<$Res> {
       {String id,
       @JsonKey(name: 'author_id') String authorId,
       UserModel? author,
-      String content,
-      @JsonKey(name: 'media_urls') List<String> mediaUrls,
+      String? content,
+      List<PostMediaModel> media,
       List<String> tags,
       @JsonKey(name: 'likes_count') int likesCount,
       @JsonKey(name: 'comments_count') int commentsCount,
       @JsonKey(name: 'shares_count') int sharesCount,
+      @JsonKey(name: 'reposts_count') int repostsCount,
       @JsonKey(name: 'is_liked') bool isLiked,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
@@ -106,12 +409,13 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? id = null,
     Object? authorId = null,
     Object? author = freezed,
-    Object? content = null,
-    Object? mediaUrls = null,
+    Object? content = freezed,
+    Object? media = null,
     Object? tags = null,
     Object? likesCount = null,
     Object? commentsCount = null,
     Object? sharesCount = null,
+    Object? repostsCount = null,
     Object? isLiked = null,
     Object? locationName = freezed,
     Object? locationLat = freezed,
@@ -134,14 +438,14 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.author
           : author // ignore: cast_nullable_to_non_nullable
               as UserModel?,
-      content: null == content
+      content: freezed == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
-      mediaUrls: null == mediaUrls
-          ? _value.mediaUrls
-          : mediaUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as String?,
+      media: null == media
+          ? _value.media
+          : media // ignore: cast_nullable_to_non_nullable
+              as List<PostMediaModel>,
       tags: null == tags
           ? _value.tags
           : tags // ignore: cast_nullable_to_non_nullable
@@ -157,6 +461,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
       sharesCount: null == sharesCount
           ? _value.sharesCount
           : sharesCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      repostsCount: null == repostsCount
+          ? _value.repostsCount
+          : repostsCount // ignore: cast_nullable_to_non_nullable
               as int,
       isLiked: null == isLiked
           ? _value.isLiked
@@ -220,12 +528,13 @@ abstract class _$$PostModelImplCopyWith<$Res>
       {String id,
       @JsonKey(name: 'author_id') String authorId,
       UserModel? author,
-      String content,
-      @JsonKey(name: 'media_urls') List<String> mediaUrls,
+      String? content,
+      List<PostMediaModel> media,
       List<String> tags,
       @JsonKey(name: 'likes_count') int likesCount,
       @JsonKey(name: 'comments_count') int commentsCount,
       @JsonKey(name: 'shares_count') int sharesCount,
+      @JsonKey(name: 'reposts_count') int repostsCount,
       @JsonKey(name: 'is_liked') bool isLiked,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
@@ -255,12 +564,13 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? authorId = null,
     Object? author = freezed,
-    Object? content = null,
-    Object? mediaUrls = null,
+    Object? content = freezed,
+    Object? media = null,
     Object? tags = null,
     Object? likesCount = null,
     Object? commentsCount = null,
     Object? sharesCount = null,
+    Object? repostsCount = null,
     Object? isLiked = null,
     Object? locationName = freezed,
     Object? locationLat = freezed,
@@ -283,14 +593,14 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.author
           : author // ignore: cast_nullable_to_non_nullable
               as UserModel?,
-      content: null == content
+      content: freezed == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
-      mediaUrls: null == mediaUrls
-          ? _value._mediaUrls
-          : mediaUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as String?,
+      media: null == media
+          ? _value._media
+          : media // ignore: cast_nullable_to_non_nullable
+              as List<PostMediaModel>,
       tags: null == tags
           ? _value._tags
           : tags // ignore: cast_nullable_to_non_nullable
@@ -306,6 +616,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
       sharesCount: null == sharesCount
           ? _value.sharesCount
           : sharesCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      repostsCount: null == repostsCount
+          ? _value.repostsCount
+          : repostsCount // ignore: cast_nullable_to_non_nullable
               as int,
       isLiked: null == isLiked
           ? _value.isLiked
@@ -350,21 +664,22 @@ class _$PostModelImpl implements _PostModel {
       {required this.id,
       @JsonKey(name: 'author_id') required this.authorId,
       this.author,
-      required this.content,
-      @JsonKey(name: 'media_urls') required final List<String> mediaUrls,
-      required final List<String> tags,
-      @JsonKey(name: 'likes_count') required this.likesCount,
-      @JsonKey(name: 'comments_count') required this.commentsCount,
-      @JsonKey(name: 'shares_count') required this.sharesCount,
-      @JsonKey(name: 'is_liked') required this.isLiked,
+      this.content,
+      final List<PostMediaModel> media = const [],
+      final List<String> tags = const [],
+      @JsonKey(name: 'likes_count') this.likesCount = 0,
+      @JsonKey(name: 'comments_count') this.commentsCount = 0,
+      @JsonKey(name: 'shares_count') this.sharesCount = 0,
+      @JsonKey(name: 'reposts_count') this.repostsCount = 0,
+      @JsonKey(name: 'is_liked') this.isLiked = false,
       @JsonKey(name: 'location_name') this.locationName,
       @JsonKey(name: 'location_lat') this.locationLat,
       @JsonKey(name: 'location_lng') this.locationLng,
-      @JsonKey(name: 'is_pinned') required this.isPinned,
-      @JsonKey(name: 'is_archived') required this.isArchived,
+      @JsonKey(name: 'is_pinned') this.isPinned = false,
+      @JsonKey(name: 'is_archived') this.isArchived = false,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt})
-      : _mediaUrls = mediaUrls,
+      : _media = media,
         _tags = tags;
 
   factory _$PostModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -378,18 +693,19 @@ class _$PostModelImpl implements _PostModel {
   @override
   final UserModel? author;
   @override
-  final String content;
-  final List<String> _mediaUrls;
+  final String? content;
+  final List<PostMediaModel> _media;
   @override
-  @JsonKey(name: 'media_urls')
-  List<String> get mediaUrls {
-    if (_mediaUrls is EqualUnmodifiableListView) return _mediaUrls;
+  @JsonKey()
+  List<PostMediaModel> get media {
+    if (_media is EqualUnmodifiableListView) return _media;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_mediaUrls);
+    return EqualUnmodifiableListView(_media);
   }
 
   final List<String> _tags;
   @override
+  @JsonKey()
   List<String> get tags {
     if (_tags is EqualUnmodifiableListView) return _tags;
     // ignore: implicit_dynamic_type
@@ -405,6 +721,9 @@ class _$PostModelImpl implements _PostModel {
   @override
   @JsonKey(name: 'shares_count')
   final int sharesCount;
+  @override
+  @JsonKey(name: 'reposts_count')
+  final int repostsCount;
   @override
   @JsonKey(name: 'is_liked')
   final bool isLiked;
@@ -432,7 +751,7 @@ class _$PostModelImpl implements _PostModel {
 
   @override
   String toString() {
-    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, mediaUrls: $mediaUrls, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, isPinned: $isPinned, isArchived: $isArchived, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, media: $media, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, repostsCount: $repostsCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, isPinned: $isPinned, isArchived: $isArchived, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -445,8 +764,7 @@ class _$PostModelImpl implements _PostModel {
                 other.authorId == authorId) &&
             (identical(other.author, author) || other.author == author) &&
             (identical(other.content, content) || other.content == content) &&
-            const DeepCollectionEquality()
-                .equals(other._mediaUrls, _mediaUrls) &&
+            const DeepCollectionEquality().equals(other._media, _media) &&
             const DeepCollectionEquality().equals(other._tags, _tags) &&
             (identical(other.likesCount, likesCount) ||
                 other.likesCount == likesCount) &&
@@ -454,6 +772,8 @@ class _$PostModelImpl implements _PostModel {
                 other.commentsCount == commentsCount) &&
             (identical(other.sharesCount, sharesCount) ||
                 other.sharesCount == sharesCount) &&
+            (identical(other.repostsCount, repostsCount) ||
+                other.repostsCount == repostsCount) &&
             (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
             (identical(other.locationName, locationName) ||
                 other.locationName == locationName) &&
@@ -479,11 +799,12 @@ class _$PostModelImpl implements _PostModel {
       authorId,
       author,
       content,
-      const DeepCollectionEquality().hash(_mediaUrls),
+      const DeepCollectionEquality().hash(_media),
       const DeepCollectionEquality().hash(_tags),
       likesCount,
       commentsCount,
       sharesCount,
+      repostsCount,
       isLiked,
       locationName,
       locationLat,
@@ -514,18 +835,19 @@ abstract class _PostModel implements PostModel {
           {required final String id,
           @JsonKey(name: 'author_id') required final String authorId,
           final UserModel? author,
-          required final String content,
-          @JsonKey(name: 'media_urls') required final List<String> mediaUrls,
-          required final List<String> tags,
-          @JsonKey(name: 'likes_count') required final int likesCount,
-          @JsonKey(name: 'comments_count') required final int commentsCount,
-          @JsonKey(name: 'shares_count') required final int sharesCount,
-          @JsonKey(name: 'is_liked') required final bool isLiked,
+          final String? content,
+          final List<PostMediaModel> media,
+          final List<String> tags,
+          @JsonKey(name: 'likes_count') final int likesCount,
+          @JsonKey(name: 'comments_count') final int commentsCount,
+          @JsonKey(name: 'shares_count') final int sharesCount,
+          @JsonKey(name: 'reposts_count') final int repostsCount,
+          @JsonKey(name: 'is_liked') final bool isLiked,
           @JsonKey(name: 'location_name') final String? locationName,
           @JsonKey(name: 'location_lat') final double? locationLat,
           @JsonKey(name: 'location_lng') final double? locationLng,
-          @JsonKey(name: 'is_pinned') required final bool isPinned,
-          @JsonKey(name: 'is_archived') required final bool isArchived,
+          @JsonKey(name: 'is_pinned') final bool isPinned,
+          @JsonKey(name: 'is_archived') final bool isArchived,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
       _$PostModelImpl;
@@ -541,10 +863,9 @@ abstract class _PostModel implements PostModel {
   @override
   UserModel? get author;
   @override
-  String get content;
+  String? get content;
   @override
-  @JsonKey(name: 'media_urls')
-  List<String> get mediaUrls;
+  List<PostMediaModel> get media;
   @override
   List<String> get tags;
   @override
@@ -556,6 +877,9 @@ abstract class _PostModel implements PostModel {
   @override
   @JsonKey(name: 'shares_count')
   int get sharesCount;
+  @override
+  @JsonKey(name: 'reposts_count')
+  int get repostsCount;
   @override
   @JsonKey(name: 'is_liked')
   bool get isLiked;

@@ -69,7 +69,7 @@ export class PostsService {
   }
 
   async getFeed(userId: string, filterDto: FilterPostsDto) {
-    const { page = 1, limit = 20, lat, lng, radius = 10, cursor } = filterDto;
+    const { page = 1, limit = 20, lat, lng, radius = 10, cursor, category_ids } = filterDto;
 
     // Получаем ID друзей пользователя
     const friendships = await this.friendshipRepository.find({
@@ -122,9 +122,21 @@ export class PostsService {
     );
 
     // Приоритет постов от друзей и подписок
-    queryBuilder.andWhere('post.author_id IN (:...relevantUserIds)', {
-      relevantUserIds: relevantUserIds.length > 0 ? relevantUserIds : ['00000000-0000-0000-0000-000000000000'],
-    });
+    // Если у пользователя есть друзья/подписки - показываем только их посты
+    // Если нет - показываем все публичные посты (фильтр по privacy выше)
+    if (subscriptionIds.length > 0 || friendIds.length > 0) {
+      queryBuilder.andWhere('post.author_id IN (:...relevantUserIds)', {
+        relevantUserIds,
+      });
+    }
+
+    // Фильтрация по категориям мастеров
+    if (category_ids && category_ids.length > 0) {
+      queryBuilder
+        .leftJoin('author.master_profile', 'master_profile')
+        .leftJoin('master_profile.categories', 'category')
+        .andWhere('category.id IN (:...category_ids)', { category_ids });
+    }
 
     // Фильтрация по геолокации
     if (lat && lng) {

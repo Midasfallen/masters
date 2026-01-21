@@ -34,6 +34,15 @@ export class FilterPostsDto extends PaginationDto {
   radius?: number;
 
   @ApiPropertyOptional({
+    description: 'Фильтр по категориям мастеров',
+    type: [String],
+    example: ['uuid-1', 'uuid-2']
+  })
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  category_ids?: string[];
+
+  @ApiPropertyOptional({
     description: 'Курсор для пагинации (ISO timestamp последнего поста)',
     example: '2025-01-09T12:00:00.000Z'
   })

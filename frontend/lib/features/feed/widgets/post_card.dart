@@ -2,10 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/models/post.dart';
+import '../../../core/models/api/post_model.dart';
 
 class PostCard extends StatelessWidget {
-  final Post post;
+  final PostModel post;
 
   const PostCard({
     super.key,
@@ -24,7 +24,7 @@ class PostCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: CachedNetworkImage(
-              imageUrl: post.mediaUrls.first,
+              imageUrl: post.media.isNotEmpty ? post.media.first.url : '',
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
                 color: Colors.grey[300],
@@ -39,8 +39,27 @@ class PostCard extends StatelessWidget {
             ),
           ),
 
+          // Video indicator (centered)
+          if (post.media.isNotEmpty && post.media.first.type == MediaType.video)
+            Positioned.fill(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              ),
+            ),
+
           // Multiple images indicator
-          if (post.mediaUrls.length > 1)
+          if (post.media.length > 1)
             Positioned(
               top: 8,
               right: 8,
@@ -60,7 +79,7 @@ class PostCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     Text(
-                      '${post.mediaUrls.length}',
+                      '${post.media.length}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,

@@ -4,24 +4,49 @@ import 'package:service_platform/core/models/api/user_model.dart';
 part 'post_model.freezed.dart';
 part 'post_model.g.dart';
 
+enum MediaType {
+  @JsonValue('photo')
+  photo,
+  @JsonValue('video')
+  video,
+}
+
+@freezed
+class PostMediaModel with _$PostMediaModel {
+  const factory PostMediaModel({
+    required String id,
+    required MediaType type,
+    required String url,
+    @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+    int? width,
+    int? height,
+    int? duration,
+    @Default(0) int order,
+  }) = _PostMediaModel;
+
+  factory PostMediaModel.fromJson(Map<String, dynamic> json) =>
+      _$PostMediaModelFromJson(json);
+}
+
 @freezed
 class PostModel with _$PostModel {
   const factory PostModel({
     required String id,
     @JsonKey(name: 'author_id') required String authorId,
     UserModel? author,
-    required String content,
-    @JsonKey(name: 'media_urls') required List<String> mediaUrls,
-    required List<String> tags,
-    @JsonKey(name: 'likes_count') required int likesCount,
-    @JsonKey(name: 'comments_count') required int commentsCount,
-    @JsonKey(name: 'shares_count') required int sharesCount,
-    @JsonKey(name: 'is_liked') required bool isLiked,
+    String? content,
+    @Default([]) List<PostMediaModel> media,
+    @Default([]) List<String> tags,
+    @JsonKey(name: 'likes_count') @Default(0) int likesCount,
+    @JsonKey(name: 'comments_count') @Default(0) int commentsCount,
+    @JsonKey(name: 'shares_count') @Default(0) int sharesCount,
+    @JsonKey(name: 'reposts_count') @Default(0) int repostsCount,
+    @JsonKey(name: 'is_liked') @Default(false) bool isLiked,
     @JsonKey(name: 'location_name') String? locationName,
     @JsonKey(name: 'location_lat') double? locationLat,
     @JsonKey(name: 'location_lng') double? locationLng,
-    @JsonKey(name: 'is_pinned') required bool isPinned,
-    @JsonKey(name: 'is_archived') required bool isArchived,
+    @JsonKey(name: 'is_pinned') @Default(false) bool isPinned,
+    @JsonKey(name: 'is_archived') @Default(false) bool isArchived,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _PostModel;

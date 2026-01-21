@@ -10,9 +10,18 @@ Future<List<PostModel>> feedPosts(
   FeedPostsRef ref, {
   int page = 1,
   int limit = 20,
+  List<String>? categoryIds,
+  double? lat,
+  double? lng,
 }) async {
   final repository = ref.watch(postRepositoryProvider);
-  return await repository.getFeed(page: page, limit: limit);
+  return await repository.getFeed(
+    page: page,
+    limit: limit,
+    categoryIds: categoryIds,
+    lat: lat,
+    lng: lng,
+  );
 }
 
 /// Post by ID Provider

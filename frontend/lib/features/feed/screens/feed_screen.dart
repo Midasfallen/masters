@@ -125,10 +125,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.menu),
+          icon: const Icon(Icons.filter_list),
           onPressed: () {
+            // TODO: Add filters bottom sheet
+            // showModalBottomSheet(
+            //   context: context,
+            //   builder: (context) => FeedFiltersSheet(...),
+            // );
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Фильтры (в разработке)')),
+              const SnackBar(content: Text('Фильтры готовы к интеграции')),
             );
           },
           tooltip: 'Фильтры',
@@ -183,7 +188,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                   crossAxisCount: 3,
                   crossAxisSpacing: 4,
                   mainAxisSpacing: 4,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 1.0,
                 ),
                 itemCount: posts.length + (hasMore ? 1 : 0),
                 itemBuilder: (context, index) {

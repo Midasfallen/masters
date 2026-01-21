@@ -16,14 +16,28 @@ class PostRepository {
   Future<List<PostModel>> getFeed({
     int page = 1,
     int limit = 20,
+    List<String>? categoryIds,
+    double? lat,
+    double? lng,
   }) async {
     try {
+      final Map<String, dynamic> queryParams = {
+        'page': page,
+        'limit': limit,
+      };
+
+      if (categoryIds != null && categoryIds.isNotEmpty) {
+        queryParams['category_ids'] = categoryIds;
+      }
+
+      if (lat != null && lng != null) {
+        queryParams['lat'] = lat;
+        queryParams['lng'] = lng;
+      }
+
       final response = await _client.get(
         ApiEndpoints.postsFeed,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-        },
+        queryParameters: queryParams,
       );
 
       final List<dynamic> data = response.data['data'] ?? response.data;

@@ -83,20 +83,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       children: [
         // Full-screen media
         Positioned.fill(
-          child: post.mediaUrls.length > 1
+          child: post.media.length > 1
               ? PageView.builder(
                   controller: _mediaController,
-                  itemCount: post.mediaUrls.length,
+                  itemCount: post.media.length,
                   onPageChanged: (index) {
                     setState(() {
                       _currentMediaIndex = index;
                     });
                   },
                   itemBuilder: (context, index) {
-                    return _buildMediaItem(post.mediaUrls[index]);
+                    return _buildMediaItem(post.media[index]);
                   },
                 )
-              : _buildMediaItem(post.mediaUrls.first),
+              : _buildMediaItem(post.media.first),
         ),
 
         // Top gradient overlay
@@ -130,7 +130,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         ),
 
         // Media indicator (if multiple images)
-        if (post.mediaUrls.length > 1)
+        if (post.media.length > 1)
           Positioned(
             top: MediaQuery.of(context).padding.top + 20,
             left: 0,
@@ -143,7 +143,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${_currentMediaIndex + 1}/${post.mediaUrls.length}',
+                  '${_currentMediaIndex + 1}/${post.media.length}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -234,14 +234,19 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundImage: CachedNetworkImageProvider(
-                        post.masterAvatar,
-                      ),
+                      backgroundImage: post.author?.avatarUrl != null
+                          ? CachedNetworkImageProvider(
+                              post.author!.avatarUrl!,
+                            )
+                          : null,
+                      child: post.author?.avatarUrl == null
+                          ? const Icon(Icons.person)
+                          : null,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        post.masterName,
+                        post.author?.fullName ?? 'Неизвестный мастер',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -253,7 +258,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Подписались на ${post.masterName}'),
+                            content: Text('Подписались на ${post.author?.fullName ?? 'мастера'}'),
                             duration: const Duration(milliseconds: 800),
                           ),
                         );
@@ -274,19 +279,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 const SizedBox(height: 12),
 
                 // Description
-                Text(
-                  post.description,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                if (post.content != null)
+                  Text(
+                    post.content!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                 ),
-                if (post.tags != null && post.tags!.isNotEmpty) ...[
+                if (post.tags.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
-                    post.tags!.map((tag) => '#$tag').join(' '),
+                    post.tags.map((tag) => '#$tag').join(' '),
                     style: const TextStyle(
                       color: Colors.blue,
                       fontSize: 13,
@@ -304,7 +310,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       flex: 2,
                       child: FilledButton.icon(
                         onPressed: () {
-                          context.push('/master/${post.masterId}');
+                          context.push('/master/${post.authorId}');
                         },
                         icon: const Icon(Icons.calendar_today, size: 18),
                         label: const Text('Записаться'),
@@ -317,7 +323,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
-                          context.push('/master/${post.masterId}');
+                          context.push('/master/${post.authorId}');
                         },
                         icon: const Icon(Icons.person_outline, size: 18),
                         label: const Text('Мастер'),
@@ -338,9 +344,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     );
   }
 
-  Widget _buildMediaItem(String mediaUrl) {
+  Widget _buildMediaItem(PostMediaModel mediaItem) {
     return CachedNetworkImage(
-      imageUrl: mediaUrl,
+      imageUrl: mediaItem.url,
       fit: BoxFit.contain,
       width: double.infinity,
       height: double.infinity,
@@ -547,12 +553,12 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                             children: [
                               CircleAvatar(
                                 radius: 18,
-                                backgroundImage: comment.userAvatar != null
+                                backgroundImage: comment.author?.avatarUrl != null
                                     ? CachedNetworkImageProvider(
-                                        comment.userAvatar!)
+                                        comment.author!.avatarUrl!)
                                     : null,
-                                child: comment.userAvatar == null
-                                    ? Text(comment.userName[0].toUpperCase())
+                                child: comment.author?.avatarUrl == null
+                                    ? Text((comment.author?.fullName ?? '?')[0].toUpperCase())
                                     : null,
                               ),
                               const SizedBox(width: 12),
@@ -561,7 +567,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      comment.userName,
+                                      comment.author?.fullName ?? 'Аноним',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),

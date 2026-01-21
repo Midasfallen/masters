@@ -79,12 +79,12 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
   }
 
   /// Toggle subscription notifications
-  Future<SubscriptionModel> toggleNotifications(String subscriptionId) async {
+  Future<SubscriptionModel> toggleNotifications(String subscriptionId, bool enabled) async {
     state = const AsyncValue.loading();
 
     return await AsyncValue.guard(() async {
       final repository = ref.read(subscriptionRepositoryProvider);
-      final subscription = await repository.toggleNotifications(subscriptionId);
+      final subscription = await repository.toggleNotifications(subscriptionId, enabled);
 
       // Invalidate subscriptions list
       ref.invalidate(mySubscriptionsListProvider);

@@ -6,7 +6,7 @@ part of 'feed_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$feedPostsHash() => r'131bae5afa8f2765a11fc05d7278c509edd22449';
+String _$feedPostsHash() => r'4459bc89856040b005951b865c33368295b03631';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -50,10 +50,16 @@ class FeedPostsFamily extends Family<AsyncValue<List<PostModel>>> {
   FeedPostsProvider call({
     int page = 1,
     int limit = 20,
+    List<String>? categoryIds,
+    double? lat,
+    double? lng,
   }) {
     return FeedPostsProvider(
       page: page,
       limit: limit,
+      categoryIds: categoryIds,
+      lat: lat,
+      lng: lng,
     );
   }
 
@@ -64,6 +70,9 @@ class FeedPostsFamily extends Family<AsyncValue<List<PostModel>>> {
     return call(
       page: provider.page,
       limit: provider.limit,
+      categoryIds: provider.categoryIds,
+      lat: provider.lat,
+      lng: provider.lng,
     );
   }
 
@@ -92,11 +101,17 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
   FeedPostsProvider({
     int page = 1,
     int limit = 20,
+    List<String>? categoryIds,
+    double? lat,
+    double? lng,
   }) : this._internal(
           (ref) => feedPosts(
             ref as FeedPostsRef,
             page: page,
             limit: limit,
+            categoryIds: categoryIds,
+            lat: lat,
+            lng: lng,
           ),
           from: feedPostsProvider,
           name: r'feedPostsProvider',
@@ -108,6 +123,9 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
           allTransitiveDependencies: FeedPostsFamily._allTransitiveDependencies,
           page: page,
           limit: limit,
+          categoryIds: categoryIds,
+          lat: lat,
+          lng: lng,
         );
 
   FeedPostsProvider._internal(
@@ -119,10 +137,16 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
     required super.from,
     required this.page,
     required this.limit,
+    required this.categoryIds,
+    required this.lat,
+    required this.lng,
   }) : super.internal();
 
   final int page;
   final int limit;
+  final List<String>? categoryIds;
+  final double? lat;
+  final double? lng;
 
   @override
   Override overrideWith(
@@ -139,6 +163,9 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
         debugGetCreateSourceHash: null,
         page: page,
         limit: limit,
+        categoryIds: categoryIds,
+        lat: lat,
+        lng: lng,
       ),
     );
   }
@@ -152,7 +179,10 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
   bool operator ==(Object other) {
     return other is FeedPostsProvider &&
         other.page == page &&
-        other.limit == limit;
+        other.limit == limit &&
+        other.categoryIds == categoryIds &&
+        other.lat == lat &&
+        other.lng == lng;
   }
 
   @override
@@ -160,6 +190,9 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, categoryIds.hashCode);
+    hash = _SystemHash.combine(hash, lat.hashCode);
+    hash = _SystemHash.combine(hash, lng.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -173,6 +206,15 @@ mixin FeedPostsRef on AutoDisposeFutureProviderRef<List<PostModel>> {
 
   /// The parameter `limit` of this provider.
   int get limit;
+
+  /// The parameter `categoryIds` of this provider.
+  List<String>? get categoryIds;
+
+  /// The parameter `lat` of this provider.
+  double? get lat;
+
+  /// The parameter `lng` of this provider.
+  double? get lng;
 }
 
 class _FeedPostsProviderElement
@@ -184,6 +226,12 @@ class _FeedPostsProviderElement
   int get page => (origin as FeedPostsProvider).page;
   @override
   int get limit => (origin as FeedPostsProvider).limit;
+  @override
+  List<String>? get categoryIds => (origin as FeedPostsProvider).categoryIds;
+  @override
+  double? get lat => (origin as FeedPostsProvider).lat;
+  @override
+  double? get lng => (origin as FeedPostsProvider).lng;
 }
 
 String _$postByIdHash() => r'8ee1a163f44d617eb9b265a2fc623b0197e261d6';

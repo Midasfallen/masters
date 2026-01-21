@@ -497,7 +497,7 @@ class _SubscriptionByIdProviderElement
 }
 
 String _$subscriptionNotifierHash() =>
-    r'0e2cfb6dbe201b8ca048c2c4735bf60656563ed5';
+    r'b3934a188d82e7efc4d1a3d936d2aab2efa85321';
 
 /// Subscription Notifier for mutations
 ///
