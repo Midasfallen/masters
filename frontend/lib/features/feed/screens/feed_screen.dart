@@ -56,7 +56,16 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
     try {
       final page = ref.read(feedPageProvider);
+      print('🔵 Loading feed page: $page');
       final newPosts = await ref.read(feedPostsProvider(page: page, limit: 20).future);
+      print('🟢 Loaded ${newPosts.length} posts');
+
+      if (newPosts.isNotEmpty) {
+        print('🖼️ First post has ${newPosts.first.media.length} media items');
+        if (newPosts.first.media.isNotEmpty) {
+          print('🌐 First media URL: ${newPosts.first.media.first.url}');
+        }
+      }
 
       if (mounted) {
         if (refresh) {
@@ -71,6 +80,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         }
       }
     } catch (e) {
+      print('🔴 Feed error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

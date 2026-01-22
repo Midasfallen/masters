@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
 import 'package:service_platform/core/api/dio_client.dart';
+import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/models/api/chat_model.dart';
 
 part 'chat_repository.g.dart';
@@ -26,8 +27,8 @@ class ChatRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => ChatModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => ChatModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -73,8 +74,8 @@ class ChatRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => MessageModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => MessageModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

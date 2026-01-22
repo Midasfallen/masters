@@ -28,7 +28,7 @@ mixin _$UserModel {
   @JsonKey(name: 'last_name')
   String get lastName => throw _privateConstructorUsedError;
   @JsonKey(name: 'full_name')
-  String get fullName => throw _privateConstructorUsedError;
+  String? get fullName => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_master')
@@ -41,6 +41,7 @@ mixin _$UserModel {
   bool get isPremium => throw _privateConstructorUsedError;
   @JsonKey(name: 'premium_until')
   DateTime? get premiumUntil => throw _privateConstructorUsedError;
+  @StringToDoubleConverter()
   double get rating => throw _privateConstructorUsedError;
   @JsonKey(name: 'reviews_count')
   int get reviewsCount => throw _privateConstructorUsedError;
@@ -55,9 +56,9 @@ mixin _$UserModel {
   String get language => throw _privateConstructorUsedError;
   String get timezone => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -80,14 +81,14 @@ abstract class $UserModelCopyWith<$Res> {
       String? phone,
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'full_name') String fullName,
+      @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
       @JsonKey(name: 'is_master') bool isMaster,
       @JsonKey(name: 'master_profile_completed') bool masterProfileCompleted,
       @JsonKey(name: 'is_verified') bool isVerified,
       @JsonKey(name: 'is_premium') bool isPremium,
       @JsonKey(name: 'premium_until') DateTime? premiumUntil,
-      double rating,
+      @StringToDoubleConverter() double rating,
       @JsonKey(name: 'reviews_count') int reviewsCount,
       @JsonKey(name: 'posts_count') int postsCount,
       @JsonKey(name: 'friends_count') int friendsCount,
@@ -95,8 +96,8 @@ abstract class $UserModelCopyWith<$Res> {
       @JsonKey(name: 'following_count') int followingCount,
       String language,
       String timezone,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -119,7 +120,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? phone = freezed,
     Object? firstName = null,
     Object? lastName = null,
-    Object? fullName = null,
+    Object? fullName = freezed,
     Object? avatarUrl = freezed,
     Object? isMaster = null,
     Object? masterProfileCompleted = null,
@@ -134,8 +135,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? followingCount = null,
     Object? language = null,
     Object? timezone = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -158,10 +159,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.lastName
           : lastName // ignore: cast_nullable_to_non_nullable
               as String,
-      fullName: null == fullName
+      fullName: freezed == fullName
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       avatarUrl: freezed == avatarUrl
           ? _value.avatarUrl
           : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -218,14 +219,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.timezone
           : timezone // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -244,14 +245,14 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String? phone,
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'full_name') String fullName,
+      @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
       @JsonKey(name: 'is_master') bool isMaster,
       @JsonKey(name: 'master_profile_completed') bool masterProfileCompleted,
       @JsonKey(name: 'is_verified') bool isVerified,
       @JsonKey(name: 'is_premium') bool isPremium,
       @JsonKey(name: 'premium_until') DateTime? premiumUntil,
-      double rating,
+      @StringToDoubleConverter() double rating,
       @JsonKey(name: 'reviews_count') int reviewsCount,
       @JsonKey(name: 'posts_count') int postsCount,
       @JsonKey(name: 'friends_count') int friendsCount,
@@ -259,8 +260,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       @JsonKey(name: 'following_count') int followingCount,
       String language,
       String timezone,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -281,7 +282,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? firstName = null,
     Object? lastName = null,
-    Object? fullName = null,
+    Object? fullName = freezed,
     Object? avatarUrl = freezed,
     Object? isMaster = null,
     Object? masterProfileCompleted = null,
@@ -296,8 +297,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? followingCount = null,
     Object? language = null,
     Object? timezone = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$UserModelImpl(
       id: null == id
@@ -320,10 +321,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.lastName
           : lastName // ignore: cast_nullable_to_non_nullable
               as String,
-      fullName: null == fullName
+      fullName: freezed == fullName
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       avatarUrl: freezed == avatarUrl
           ? _value.avatarUrl
           : avatarUrl // ignore: cast_nullable_to_non_nullable
@@ -380,14 +381,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.timezone
           : timezone // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ));
   }
 }
@@ -401,24 +402,24 @@ class _$UserModelImpl implements _UserModel {
       this.phone,
       @JsonKey(name: 'first_name') required this.firstName,
       @JsonKey(name: 'last_name') required this.lastName,
-      @JsonKey(name: 'full_name') required this.fullName,
+      @JsonKey(name: 'full_name') this.fullName,
       @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'is_master') required this.isMaster,
+      @JsonKey(name: 'is_master') this.isMaster = false,
       @JsonKey(name: 'master_profile_completed')
-      required this.masterProfileCompleted,
-      @JsonKey(name: 'is_verified') required this.isVerified,
-      @JsonKey(name: 'is_premium') required this.isPremium,
+      this.masterProfileCompleted = false,
+      @JsonKey(name: 'is_verified') this.isVerified = false,
+      @JsonKey(name: 'is_premium') this.isPremium = false,
       @JsonKey(name: 'premium_until') this.premiumUntil,
-      required this.rating,
-      @JsonKey(name: 'reviews_count') required this.reviewsCount,
-      @JsonKey(name: 'posts_count') required this.postsCount,
-      @JsonKey(name: 'friends_count') required this.friendsCount,
-      @JsonKey(name: 'followers_count') required this.followersCount,
-      @JsonKey(name: 'following_count') required this.followingCount,
-      required this.language,
-      required this.timezone,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt});
+      @StringToDoubleConverter() this.rating = 0.0,
+      @JsonKey(name: 'reviews_count') this.reviewsCount = 0,
+      @JsonKey(name: 'posts_count') this.postsCount = 0,
+      @JsonKey(name: 'friends_count') this.friendsCount = 0,
+      @JsonKey(name: 'followers_count') this.followersCount = 0,
+      @JsonKey(name: 'following_count') this.followingCount = 0,
+      this.language = 'en',
+      this.timezone = 'UTC',
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt});
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -437,7 +438,7 @@ class _$UserModelImpl implements _UserModel {
   final String lastName;
   @override
   @JsonKey(name: 'full_name')
-  final String fullName;
+  final String? fullName;
   @override
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
@@ -457,6 +458,8 @@ class _$UserModelImpl implements _UserModel {
   @JsonKey(name: 'premium_until')
   final DateTime? premiumUntil;
   @override
+  @JsonKey()
+  @StringToDoubleConverter()
   final double rating;
   @override
   @JsonKey(name: 'reviews_count')
@@ -474,15 +477,17 @@ class _$UserModelImpl implements _UserModel {
   @JsonKey(name: 'following_count')
   final int followingCount;
   @override
+  @JsonKey()
   final String language;
   @override
+  @JsonKey()
   final String timezone;
   @override
   @JsonKey(name: 'created_at')
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   @override
   String toString() {
@@ -587,24 +592,24 @@ abstract class _UserModel implements UserModel {
           final String? phone,
           @JsonKey(name: 'first_name') required final String firstName,
           @JsonKey(name: 'last_name') required final String lastName,
-          @JsonKey(name: 'full_name') required final String fullName,
+          @JsonKey(name: 'full_name') final String? fullName,
           @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          @JsonKey(name: 'is_master') required final bool isMaster,
+          @JsonKey(name: 'is_master') final bool isMaster,
           @JsonKey(name: 'master_profile_completed')
-          required final bool masterProfileCompleted,
-          @JsonKey(name: 'is_verified') required final bool isVerified,
-          @JsonKey(name: 'is_premium') required final bool isPremium,
+          final bool masterProfileCompleted,
+          @JsonKey(name: 'is_verified') final bool isVerified,
+          @JsonKey(name: 'is_premium') final bool isPremium,
           @JsonKey(name: 'premium_until') final DateTime? premiumUntil,
-          required final double rating,
-          @JsonKey(name: 'reviews_count') required final int reviewsCount,
-          @JsonKey(name: 'posts_count') required final int postsCount,
-          @JsonKey(name: 'friends_count') required final int friendsCount,
-          @JsonKey(name: 'followers_count') required final int followersCount,
-          @JsonKey(name: 'following_count') required final int followingCount,
-          required final String language,
-          required final String timezone,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
+          @StringToDoubleConverter() final double rating,
+          @JsonKey(name: 'reviews_count') final int reviewsCount,
+          @JsonKey(name: 'posts_count') final int postsCount,
+          @JsonKey(name: 'friends_count') final int friendsCount,
+          @JsonKey(name: 'followers_count') final int followersCount,
+          @JsonKey(name: 'following_count') final int followingCount,
+          final String language,
+          final String timezone,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
       _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
@@ -624,7 +629,7 @@ abstract class _UserModel implements UserModel {
   String get lastName;
   @override
   @JsonKey(name: 'full_name')
-  String get fullName;
+  String? get fullName;
   @override
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
@@ -644,6 +649,7 @@ abstract class _UserModel implements UserModel {
   @JsonKey(name: 'premium_until')
   DateTime? get premiumUntil;
   @override
+  @StringToDoubleConverter()
   double get rating;
   @override
   @JsonKey(name: 'reviews_count')
@@ -666,10 +672,10 @@ abstract class _UserModel implements UserModel {
   String get timezone;
   @override
   @JsonKey(name: 'created_at')
-  DateTime get createdAt;
+  DateTime? get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
 
   /// Create a copy of UserModel
   /// with the given fields replaced by the non-null parameter values.

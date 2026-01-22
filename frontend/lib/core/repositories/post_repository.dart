@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
+import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/api/dio_client.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
 
@@ -40,8 +41,8 @@ class PostRepository {
         queryParameters: queryParams,
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => PostModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => PostModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -126,8 +127,8 @@ class PostRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => CommentModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => CommentModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

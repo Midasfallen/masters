@@ -13,25 +13,32 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String?,
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,
-      fullName: json['full_name'] as String,
+      fullName: json['full_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      isMaster: json['is_master'] as bool,
-      masterProfileCompleted: json['master_profile_completed'] as bool,
-      isVerified: json['is_verified'] as bool,
-      isPremium: json['is_premium'] as bool,
+      isMaster: json['is_master'] as bool? ?? false,
+      masterProfileCompleted:
+          json['master_profile_completed'] as bool? ?? false,
+      isVerified: json['is_verified'] as bool? ?? false,
+      isPremium: json['is_premium'] as bool? ?? false,
       premiumUntil: json['premium_until'] == null
           ? null
           : DateTime.parse(json['premium_until'] as String),
-      rating: (json['rating'] as num).toDouble(),
-      reviewsCount: (json['reviews_count'] as num).toInt(),
-      postsCount: (json['posts_count'] as num).toInt(),
-      friendsCount: (json['friends_count'] as num).toInt(),
-      followersCount: (json['followers_count'] as num).toInt(),
-      followingCount: (json['following_count'] as num).toInt(),
-      language: json['language'] as String,
-      timezone: json['timezone'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      rating: json['rating'] == null
+          ? 0.0
+          : const StringToDoubleConverter().fromJson(json['rating']),
+      reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
+      postsCount: (json['posts_count'] as num?)?.toInt() ?? 0,
+      friendsCount: (json['friends_count'] as num?)?.toInt() ?? 0,
+      followersCount: (json['followers_count'] as num?)?.toInt() ?? 0,
+      followingCount: (json['following_count'] as num?)?.toInt() ?? 0,
+      language: json['language'] as String? ?? 'en',
+      timezone: json['timezone'] as String? ?? 'UTC',
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
@@ -48,7 +55,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'is_verified': instance.isVerified,
       'is_premium': instance.isPremium,
       'premium_until': instance.premiumUntil?.toIso8601String(),
-      'rating': instance.rating,
+      'rating': const StringToDoubleConverter().toJson(instance.rating),
       'reviews_count': instance.reviewsCount,
       'posts_count': instance.postsCount,
       'friends_count': instance.friendsCount,
@@ -56,8 +63,8 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'following_count': instance.followingCount,
       'language': instance.language,
       'timezone': instance.timezone,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
     };
 
 _$AuthResponseModelImpl _$$AuthResponseModelImplFromJson(

@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
 import 'package:service_platform/core/api/dio_client.dart';
+import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/models/api/booking_model.dart';
 
 part 'booking_repository.g.dart';
@@ -43,8 +44,8 @@ class BookingRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => BookingModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => BookingModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

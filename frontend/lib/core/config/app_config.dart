@@ -9,11 +9,13 @@ class AppConfig {
 
   /// Environment detection
   /// Set to true for USB testing with adb reverse (requires: adb reverse tcp:3000 tcp:3000)
-  /// Set to false for WiFi testing
+  /// Set to false for WiFi testing or emulator with host IP
   static const bool _isAdbReverse = true;
 
-  /// Local IP for WiFi testing (update with your PC IP)
-  static const String _localIp = '192.168.1.4';
+  /// Local IP for WiFi testing or emulator
+  /// Use your machine's local IP (find with 'ipconfig' command)
+  /// Common ranges: 192.168.0.X, 192.168.1.X, 10.0.0.X
+  static const String _localIp = '192.168.1.4'; // UPDATE THIS WITH YOUR IP!
 
   /// Base URL for API requests
   /// Automatically selects between adb reverse (localhost) and WiFi (IP address)

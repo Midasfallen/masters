@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
 import 'package:service_platform/core/api/dio_client.dart';
+import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/models/api/master_model.dart';
 import 'package:service_platform/core/models/api/service_model.dart';
 
@@ -41,8 +42,8 @@ class SearchRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => MasterProfileModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => MasterProfileModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -70,8 +71,8 @@ class SearchRepository {
         },
       );
 
-      final List<dynamic> data = response.data['data'] ?? response.data;
-      return data.map((json) => ServiceModel.fromJson(json)).toList();
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => ServiceModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

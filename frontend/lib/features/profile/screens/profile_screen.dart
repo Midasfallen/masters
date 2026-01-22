@@ -165,7 +165,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
                       // Name
                       Text(
-                        user.fullName,
+                        user.fullName ?? '${user.firstName} ${user.lastName}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
