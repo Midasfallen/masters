@@ -18,6 +18,7 @@ class NotificationRepository {
     int page = 1,
     int limit = 50,
     bool? isRead,
+    String? type,
   }) async {
     try {
       final response = await _client.get(
@@ -26,6 +27,7 @@ class NotificationRepository {
           'page': page,
           'limit': limit,
           if (isRead != null) 'is_read': isRead,
+          if (type != null) 'type': type,
         },
       );
 

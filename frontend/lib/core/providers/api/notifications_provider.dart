@@ -11,12 +11,14 @@ Future<List<NotificationModel>> notificationsList(
   int page = 1,
   int limit = 50,
   bool? isRead,
+  String? type,
 }) async {
   final repository = ref.watch(notificationRepositoryProvider);
   return await repository.getNotifications(
     page: page,
     limit: limit,
     isRead: isRead,
+    type: type,
   );
 }
 

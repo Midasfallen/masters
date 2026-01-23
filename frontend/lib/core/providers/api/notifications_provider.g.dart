@@ -6,7 +6,7 @@ part of 'notifications_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$notificationsListHash() => r'47f129d320022ad123453441fa6411562b38947d';
+String _$notificationsListHash() => r'963a4c3e21853f9f51c2fb26be33c7dd0af45889';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -52,11 +52,13 @@ class NotificationsListFamily
     int page = 1,
     int limit = 50,
     bool? isRead,
+    String? type,
   }) {
     return NotificationsListProvider(
       page: page,
       limit: limit,
       isRead: isRead,
+      type: type,
     );
   }
 
@@ -68,6 +70,7 @@ class NotificationsListFamily
       page: provider.page,
       limit: provider.limit,
       isRead: provider.isRead,
+      type: provider.type,
     );
   }
 
@@ -98,12 +101,14 @@ class NotificationsListProvider
     int page = 1,
     int limit = 50,
     bool? isRead,
+    String? type,
   }) : this._internal(
           (ref) => notificationsList(
             ref as NotificationsListRef,
             page: page,
             limit: limit,
             isRead: isRead,
+            type: type,
           ),
           from: notificationsListProvider,
           name: r'notificationsListProvider',
@@ -117,6 +122,7 @@ class NotificationsListProvider
           page: page,
           limit: limit,
           isRead: isRead,
+          type: type,
         );
 
   NotificationsListProvider._internal(
@@ -129,11 +135,13 @@ class NotificationsListProvider
     required this.page,
     required this.limit,
     required this.isRead,
+    required this.type,
   }) : super.internal();
 
   final int page;
   final int limit;
   final bool? isRead;
+  final String? type;
 
   @override
   Override overrideWith(
@@ -152,6 +160,7 @@ class NotificationsListProvider
         page: page,
         limit: limit,
         isRead: isRead,
+        type: type,
       ),
     );
   }
@@ -166,7 +175,8 @@ class NotificationsListProvider
     return other is NotificationsListProvider &&
         other.page == page &&
         other.limit == limit &&
-        other.isRead == isRead;
+        other.isRead == isRead &&
+        other.type == type;
   }
 
   @override
@@ -175,6 +185,7 @@ class NotificationsListProvider
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
     hash = _SystemHash.combine(hash, isRead.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -192,6 +203,9 @@ mixin NotificationsListRef
 
   /// The parameter `isRead` of this provider.
   bool? get isRead;
+
+  /// The parameter `type` of this provider.
+  String? get type;
 }
 
 class _NotificationsListProviderElement
@@ -205,6 +219,8 @@ class _NotificationsListProviderElement
   int get limit => (origin as NotificationsListProvider).limit;
   @override
   bool? get isRead => (origin as NotificationsListProvider).isRead;
+  @override
+  String? get type => (origin as NotificationsListProvider).type;
 }
 
 String _$notificationByIdHash() => r'39b7c9b0fe407d79365808662167e828c0fd17d6';

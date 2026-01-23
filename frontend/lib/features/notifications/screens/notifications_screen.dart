@@ -3,11 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../core/models/api/notification_model.dart';
 import '../../../core/providers/api/notifications_provider.dart';
 import '../../../core/services/websocket_service.dart';
+
+enum NotificationFilter {
+  all,
+  bookings,
+  social,
+  system,
+}
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -17,20 +25,47 @@ class NotificationsScreen extends ConsumerStatefulWidget {
       _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
+    with SingleTickerProviderStateMixin {
   final List<NotificationModel> _notifications = [];
   StreamSubscription? _wsSubscription;
+  late TabController _tabController;
+  NotificationFilter _currentFilter = NotificationFilter.all;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_onTabChanged);
     _setupWebSocketListener();
   }
 
   @override
   void dispose() {
     _wsSubscription?.cancel();
+    _tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      setState(() {
+        _currentFilter = NotificationFilter.values[_tabController.index];
+      });
+    }
+  }
+
+  String? _getTypeFilter() {
+    switch (_currentFilter) {
+      case NotificationFilter.all:
+        return null;
+      case NotificationFilter.bookings:
+        return 'booking'; // This will match booking_created, booking_confirmed, etc.
+      case NotificationFilter.social:
+        return 'social'; // This will match review_received, review_response, new_message
+      case NotificationFilter.system:
+        return 'system';
+    }
   }
 
   /// Настройка слушателя WebSocket для новых уведомлений
@@ -91,7 +126,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final notificationsAsync = ref.watch(notificationsListProvider());
+    final typeFilter = _getTypeFilter();
+    final notificationsAsync = ref.watch(
+      notificationsListProvider(type: typeFilter),
+    );
     final unreadCountAsync = ref.watch(notificationsUnreadCountProvider);
 
     return Scaffold(
@@ -136,6 +174,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             child: const Text('Прочитать все'),
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Theme.of(context).primaryColor,
+          labelColor: Theme.of(context).primaryColor,
+          unselectedLabelColor: Colors.grey[600],
+          tabs: const [
+            Tab(text: 'Все'),
+            Tab(text: 'Записи'),
+            Tab(text: 'Социальные'),
+            Tab(text: 'Система'),
+          ],
+        ),
       ),
       body: notificationsAsync.when(
         data: (notifications) {
@@ -147,21 +197,53 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             }
           }
 
-          if (allNotifications.isEmpty) {
+          // Filter по типу на клиенте (дополнительная фильтрация)
+          final filteredNotifications = _filterNotificationsByTab(allNotifications);
+
+          if (filteredNotifications.isEmpty) {
             return _buildEmptyState();
           }
 
+          // Группировка по датам
+          final groupedNotifications = _groupNotificationsByDate(filteredNotifications);
+
           return RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(notificationsListProvider());
+              ref.invalidate(notificationsListProvider(type: typeFilter));
             },
             child: ListView.builder(
-              itemCount: allNotifications.length,
+              itemCount: groupedNotifications.length,
               itemBuilder: (context, index) {
-                final notification = allNotifications[index];
-                return _NotificationTile(
-                  notification: notification,
-                  onTap: () => _handleNotificationTap(notification),
+                final group = groupedNotifications[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Date header
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      color: Colors.grey[100],
+                      child: Text(
+                        group['date'] as String,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                    // Notifications for this date
+                    ...(group['notifications'] as List<NotificationModel>)
+                        .map(
+                          (notification) => _NotificationTile(
+                            notification: notification,
+                            onTap: () => _handleNotificationTap(notification),
+                          ),
+                        ),
+                  ],
                 );
               },
             ),
@@ -178,7 +260,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref.invalidate(notificationsListProvider());
+                  ref.invalidate(notificationsListProvider(type: typeFilter));
                 },
                 child: const Text('Повторить'),
               ),
@@ -189,7 +271,85 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     );
   }
 
+  /// Фильтрация уведомлений по выбранному табу (клиентская фильтрация)
+  List<NotificationModel> _filterNotificationsByTab(
+      List<NotificationModel> notifications) {
+    switch (_currentFilter) {
+      case NotificationFilter.all:
+        return notifications;
+      case NotificationFilter.bookings:
+        return notifications.where((n) =>
+            n.type.startsWith('booking_') || n.type == 'booking_reminder').toList();
+      case NotificationFilter.social:
+        return notifications.where((n) =>
+            n.type.startsWith('review_') ||
+            n.type == 'new_message' ||
+            n.type == 'review_reminder').toList();
+      case NotificationFilter.system:
+        return notifications.where((n) => n.type == 'system').toList();
+    }
+  }
+
+  /// Группировка уведомлений по датам
+  List<Map<String, dynamic>> _groupNotificationsByDate(
+      List<NotificationModel> notifications) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    final groups = <String, List<NotificationModel>>{};
+
+    for (final notification in notifications) {
+      final notificationDate = DateTime(
+        notification.createdAt.year,
+        notification.createdAt.month,
+        notification.createdAt.day,
+      );
+
+      String dateKey;
+      if (notificationDate == today) {
+        dateKey = 'Сегодня';
+      } else if (notificationDate == yesterday) {
+        dateKey = 'Вчера';
+      } else {
+        final difference = today.difference(notificationDate).inDays;
+        if (difference <= 7) {
+          dateKey = '$difference дн назад';
+        } else {
+          dateKey = DateFormat('d MMMM', 'ru').format(notificationDate);
+        }
+      }
+
+      groups.putIfAbsent(dateKey, () => []);
+      groups[dateKey]!.add(notification);
+    }
+
+    // Convert to list and maintain order
+    return groups.entries.map((entry) {
+      return {
+        'date': entry.key,
+        'notifications': entry.value,
+      };
+    }).toList();
+  }
+
   Widget _buildEmptyState() {
+    String emptyMessage = 'Нет уведомлений';
+    switch (_currentFilter) {
+      case NotificationFilter.bookings:
+        emptyMessage = 'Нет уведомлений о записях';
+        break;
+      case NotificationFilter.social:
+        emptyMessage = 'Нет социальных уведомлений';
+        break;
+      case NotificationFilter.system:
+        emptyMessage = 'Нет системных уведомлений';
+        break;
+      case NotificationFilter.all:
+        emptyMessage = 'Нет уведомлений';
+        break;
+    }
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +361,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Нет уведомлений',
+            emptyMessage,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -230,8 +390,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           final index =
               _notifications.indexWhere((n) => n.id == notification.id);
           if (index != -1) {
-            _notifications[index] =
-                notification.copyWith(isRead: true);
+            _notifications[index] = notification.copyWith(isRead: true);
           }
         });
       } catch (e) {
@@ -257,85 +416,104 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: notification.isRead ? Colors.white : Colors.blue[50],
-          border: Border(
-            bottom: BorderSide(
-              color: Colors.grey[200]!,
-              width: 1,
+    return Dismissible(
+      key: Key(notification.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        // TODO: Implement delete notification
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${notification.title} удалено')),
+        );
+      },
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: notification.isRead ? Colors.white : Colors.blue[50],
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey[200]!,
+                width: 1,
+              ),
             ),
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: _getNotificationColor(notification.type),
-              child: Icon(
-                _getNotificationIcon(notification.type),
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Notification content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    notification.title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: notification.isRead
-                          ? FontWeight.normal
-                          : FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-
-                  // Message
-                  Text(
-                    notification.message,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Time
-                  Text(
-                    timeago.format(notification.createdAt, locale: 'ru'),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Unread indicator
-            if (!notification.isRead)
-              Container(
-                width: 8,
-                height: 8,
-                margin: const EdgeInsets.only(top: 6),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  shape: BoxShape.circle,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Icon
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: _getNotificationColor(notification.type),
+                child: Icon(
+                  _getNotificationIcon(notification.type),
+                  color: Colors.white,
+                  size: 20,
                 ),
               ),
-          ],
+              const SizedBox(width: 12),
+
+              // Notification content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      notification.title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: notification.isRead
+                            ? FontWeight.normal
+                            : FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+
+                    // Message
+                    Text(
+                      notification.message,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Time
+                    Text(
+                      timeago.format(notification.createdAt, locale: 'ru'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Unread indicator
+              if (!notification.isRead)
+                Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.only(top: 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -355,6 +533,7 @@ class _NotificationTile extends StatelessWidget {
         return Icons.alarm;
       case 'review_received':
       case 'review_response':
+      case 'review_reminder':
         return Icons.star;
       case 'new_message':
         return Icons.message;
@@ -382,6 +561,7 @@ class _NotificationTile extends StatelessWidget {
         return Colors.amber;
       case 'review_received':
       case 'review_response':
+      case 'review_reminder':
         return Colors.amber;
       case 'new_message':
         return Colors.indigo;
