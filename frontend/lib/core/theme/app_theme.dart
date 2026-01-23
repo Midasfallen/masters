@@ -161,6 +161,23 @@ class AppTheme {
         foregroundColor: Colors.white,
       ),
 
+      // Bottom Sheet
+      bottomSheetTheme: const BottomSheetThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+      ),
+
+      // Page transitions
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+
       // Scaffold
       scaffoldBackgroundColor: Colors.white,
     );
@@ -234,6 +251,24 @@ class AppTheme {
           horizontal: 16,
           vertical: 12,
         ),
+      ),
+
+      // Bottom Sheet
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: Colors.grey[900],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+        ),
+      ),
+
+      // Page transitions
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
       ),
 
       // Scaffold
