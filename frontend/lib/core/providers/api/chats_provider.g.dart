@@ -504,7 +504,7 @@ class _ChatMessagesProviderElement
   int get limit => (origin as ChatMessagesProvider).limit;
 }
 
-String _$chatNotifierHash() => r'22b5ffa84ccf372d855cfbbd94b1cb1a863db341';
+String _$chatNotifierHash() => r'6f7536add239e8c2f078cec3ed6f5f65fdb8f311';
 
 /// Chat Notifier for mutations
 ///

@@ -21,6 +21,10 @@ _$ChatModelImpl _$$ChatModelImplFromJson(Map<String, dynamic> json) =>
           ? null
           : MessageModel.fromJson(json['last_message'] as Map<String, dynamic>),
       unreadCount: (json['unread_count'] as num).toInt(),
+      myParticipant: json['my_participant'] == null
+          ? null
+          : ChatParticipantModel.fromJson(
+              json['my_participant'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -34,8 +38,33 @@ Map<String, dynamic> _$$ChatModelImplToJson(_$ChatModelImpl instance) =>
       'user2': instance.user2,
       'last_message': instance.lastMessage,
       'unread_count': instance.unreadCount,
+      'my_participant': instance.myParticipant,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
+    };
+
+_$ChatParticipantModelImpl _$$ChatParticipantModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ChatParticipantModelImpl(
+      id: json['id'] as String,
+      chatId: json['chat_id'] as String,
+      userId: json['user_id'] as String,
+      isPinned: json['is_pinned'] as bool,
+      isArchived: json['is_archived'] as bool,
+      unreadCount: (json['unread_count'] as num).toInt(),
+      lastReadMessageId: json['last_read_message_id'] as String?,
+    );
+
+Map<String, dynamic> _$$ChatParticipantModelImplToJson(
+        _$ChatParticipantModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'chat_id': instance.chatId,
+      'user_id': instance.userId,
+      'is_pinned': instance.isPinned,
+      'is_archived': instance.isArchived,
+      'unread_count': instance.unreadCount,
+      'last_read_message_id': instance.lastReadMessageId,
     };
 
 _$MessageModelImpl _$$MessageModelImplFromJson(Map<String, dynamic> json) =>

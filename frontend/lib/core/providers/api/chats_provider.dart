@@ -102,4 +102,24 @@ class ChatNotifier extends _$ChatNotifier {
     ref.invalidate(chatByIdProvider(chatId));
     ref.invalidate(chatsListProvider);
   }
+
+  /// Pin chat
+  Future<void> pinChat(String chatId) async {
+    final repository = ref.read(chatRepositoryProvider);
+    await repository.pinChat(chatId);
+
+    // Invalidate chats list
+    ref.invalidate(chatsListProvider);
+    ref.invalidate(chatByIdProvider(chatId));
+  }
+
+  /// Unpin chat
+  Future<void> unpinChat(String chatId) async {
+    final repository = ref.read(chatRepositoryProvider);
+    await repository.unpinChat(chatId);
+
+    // Invalidate chats list
+    ref.invalidate(chatsListProvider);
+    ref.invalidate(chatByIdProvider(chatId));
+  }
 }

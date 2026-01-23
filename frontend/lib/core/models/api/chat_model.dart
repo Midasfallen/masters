@@ -14,12 +14,29 @@ class ChatModel with _$ChatModel {
     UserModel? user2,
     @JsonKey(name: 'last_message') MessageModel? lastMessage,
     @JsonKey(name: 'unread_count') required int unreadCount,
+    @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _ChatModel;
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
       _$ChatModelFromJson(json);
+}
+
+@freezed
+class ChatParticipantModel with _$ChatParticipantModel {
+  const factory ChatParticipantModel({
+    required String id,
+    @JsonKey(name: 'chat_id') required String chatId,
+    @JsonKey(name: 'user_id') required String userId,
+    @JsonKey(name: 'is_pinned') required bool isPinned,
+    @JsonKey(name: 'is_archived') required bool isArchived,
+    @JsonKey(name: 'unread_count') required int unreadCount,
+    @JsonKey(name: 'last_read_message_id') String? lastReadMessageId,
+  }) = _ChatParticipantModel;
+
+  factory ChatParticipantModel.fromJson(Map<String, dynamic> json) =>
+      _$ChatParticipantModelFromJson(json);
 }
 
 /// Message Model

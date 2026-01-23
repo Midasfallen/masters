@@ -31,6 +31,8 @@ mixin _$ChatModel {
   MessageModel? get lastMessage => throw _privateConstructorUsedError;
   @JsonKey(name: 'unread_count')
   int get unreadCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'my_participant')
+  ChatParticipantModel? get myParticipant => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -59,12 +61,14 @@ abstract class $ChatModelCopyWith<$Res> {
       UserModel? user2,
       @JsonKey(name: 'last_message') MessageModel? lastMessage,
       @JsonKey(name: 'unread_count') int unreadCount,
+      @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get user1;
   $UserModelCopyWith<$Res>? get user2;
   $MessageModelCopyWith<$Res>? get lastMessage;
+  $ChatParticipantModelCopyWith<$Res>? get myParticipant;
 }
 
 /// @nodoc
@@ -89,6 +93,7 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
     Object? user2 = freezed,
     Object? lastMessage = freezed,
     Object? unreadCount = null,
+    Object? myParticipant = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -121,6 +126,10 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
           ? _value.unreadCount
           : unreadCount // ignore: cast_nullable_to_non_nullable
               as int,
+      myParticipant: freezed == myParticipant
+          ? _value.myParticipant
+          : myParticipant // ignore: cast_nullable_to_non_nullable
+              as ChatParticipantModel?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -173,6 +182,20 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
       return _then(_value.copyWith(lastMessage: value) as $Val);
     });
   }
+
+  /// Create a copy of ChatModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ChatParticipantModelCopyWith<$Res>? get myParticipant {
+    if (_value.myParticipant == null) {
+      return null;
+    }
+
+    return $ChatParticipantModelCopyWith<$Res>(_value.myParticipant!, (value) {
+      return _then(_value.copyWith(myParticipant: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -191,6 +214,7 @@ abstract class _$$ChatModelImplCopyWith<$Res>
       UserModel? user2,
       @JsonKey(name: 'last_message') MessageModel? lastMessage,
       @JsonKey(name: 'unread_count') int unreadCount,
+      @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
 
@@ -200,6 +224,8 @@ abstract class _$$ChatModelImplCopyWith<$Res>
   $UserModelCopyWith<$Res>? get user2;
   @override
   $MessageModelCopyWith<$Res>? get lastMessage;
+  @override
+  $ChatParticipantModelCopyWith<$Res>? get myParticipant;
 }
 
 /// @nodoc
@@ -222,6 +248,7 @@ class __$$ChatModelImplCopyWithImpl<$Res>
     Object? user2 = freezed,
     Object? lastMessage = freezed,
     Object? unreadCount = null,
+    Object? myParticipant = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -254,6 +281,10 @@ class __$$ChatModelImplCopyWithImpl<$Res>
           ? _value.unreadCount
           : unreadCount // ignore: cast_nullable_to_non_nullable
               as int,
+      myParticipant: freezed == myParticipant
+          ? _value.myParticipant
+          : myParticipant // ignore: cast_nullable_to_non_nullable
+              as ChatParticipantModel?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -277,6 +308,7 @@ class _$ChatModelImpl implements _ChatModel {
       this.user2,
       @JsonKey(name: 'last_message') this.lastMessage,
       @JsonKey(name: 'unread_count') required this.unreadCount,
+      @JsonKey(name: 'my_participant') this.myParticipant,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt});
 
@@ -302,6 +334,9 @@ class _$ChatModelImpl implements _ChatModel {
   @JsonKey(name: 'unread_count')
   final int unreadCount;
   @override
+  @JsonKey(name: 'my_participant')
+  final ChatParticipantModel? myParticipant;
+  @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
@@ -310,7 +345,7 @@ class _$ChatModelImpl implements _ChatModel {
 
   @override
   String toString() {
-    return 'ChatModel(id: $id, user1Id: $user1Id, user2Id: $user2Id, user1: $user1, user2: $user2, lastMessage: $lastMessage, unreadCount: $unreadCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ChatModel(id: $id, user1Id: $user1Id, user2Id: $user2Id, user1: $user1, user2: $user2, lastMessage: $lastMessage, unreadCount: $unreadCount, myParticipant: $myParticipant, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -327,6 +362,8 @@ class _$ChatModelImpl implements _ChatModel {
                 other.lastMessage == lastMessage) &&
             (identical(other.unreadCount, unreadCount) ||
                 other.unreadCount == unreadCount) &&
+            (identical(other.myParticipant, myParticipant) ||
+                other.myParticipant == myParticipant) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -336,7 +373,7 @@ class _$ChatModelImpl implements _ChatModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, user1Id, user2Id, user1,
-      user2, lastMessage, unreadCount, createdAt, updatedAt);
+      user2, lastMessage, unreadCount, myParticipant, createdAt, updatedAt);
 
   /// Create a copy of ChatModel
   /// with the given fields replaced by the non-null parameter values.
@@ -363,6 +400,8 @@ abstract class _ChatModel implements ChatModel {
           final UserModel? user2,
           @JsonKey(name: 'last_message') final MessageModel? lastMessage,
           @JsonKey(name: 'unread_count') required final int unreadCount,
+          @JsonKey(name: 'my_participant')
+          final ChatParticipantModel? myParticipant,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
       _$ChatModelImpl;
@@ -389,6 +428,9 @@ abstract class _ChatModel implements ChatModel {
   @JsonKey(name: 'unread_count')
   int get unreadCount;
   @override
+  @JsonKey(name: 'my_participant')
+  ChatParticipantModel? get myParticipant;
+  @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
@@ -401,6 +443,306 @@ abstract class _ChatModel implements ChatModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ChatModelImplCopyWith<_$ChatModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+ChatParticipantModel _$ChatParticipantModelFromJson(Map<String, dynamic> json) {
+  return _ChatParticipantModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ChatParticipantModel {
+  String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'chat_id')
+  String get chatId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  String get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_pinned')
+  bool get isPinned => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_archived')
+  bool get isArchived => throw _privateConstructorUsedError;
+  @JsonKey(name: 'unread_count')
+  int get unreadCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'last_read_message_id')
+  String? get lastReadMessageId => throw _privateConstructorUsedError;
+
+  /// Serializes this ChatParticipantModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ChatParticipantModelCopyWith<ChatParticipantModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ChatParticipantModelCopyWith<$Res> {
+  factory $ChatParticipantModelCopyWith(ChatParticipantModel value,
+          $Res Function(ChatParticipantModel) then) =
+      _$ChatParticipantModelCopyWithImpl<$Res, ChatParticipantModel>;
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'chat_id') String chatId,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'is_pinned') bool isPinned,
+      @JsonKey(name: 'is_archived') bool isArchived,
+      @JsonKey(name: 'unread_count') int unreadCount,
+      @JsonKey(name: 'last_read_message_id') String? lastReadMessageId});
+}
+
+/// @nodoc
+class _$ChatParticipantModelCopyWithImpl<$Res,
+        $Val extends ChatParticipantModel>
+    implements $ChatParticipantModelCopyWith<$Res> {
+  _$ChatParticipantModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? chatId = null,
+    Object? userId = null,
+    Object? isPinned = null,
+    Object? isArchived = null,
+    Object? unreadCount = null,
+    Object? lastReadMessageId = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      chatId: null == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isArchived: null == isArchived
+          ? _value.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastReadMessageId: freezed == lastReadMessageId
+          ? _value.lastReadMessageId
+          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ChatParticipantModelImplCopyWith<$Res>
+    implements $ChatParticipantModelCopyWith<$Res> {
+  factory _$$ChatParticipantModelImplCopyWith(_$ChatParticipantModelImpl value,
+          $Res Function(_$ChatParticipantModelImpl) then) =
+      __$$ChatParticipantModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'chat_id') String chatId,
+      @JsonKey(name: 'user_id') String userId,
+      @JsonKey(name: 'is_pinned') bool isPinned,
+      @JsonKey(name: 'is_archived') bool isArchived,
+      @JsonKey(name: 'unread_count') int unreadCount,
+      @JsonKey(name: 'last_read_message_id') String? lastReadMessageId});
+}
+
+/// @nodoc
+class __$$ChatParticipantModelImplCopyWithImpl<$Res>
+    extends _$ChatParticipantModelCopyWithImpl<$Res, _$ChatParticipantModelImpl>
+    implements _$$ChatParticipantModelImplCopyWith<$Res> {
+  __$$ChatParticipantModelImplCopyWithImpl(_$ChatParticipantModelImpl _value,
+      $Res Function(_$ChatParticipantModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? chatId = null,
+    Object? userId = null,
+    Object? isPinned = null,
+    Object? isArchived = null,
+    Object? unreadCount = null,
+    Object? lastReadMessageId = freezed,
+  }) {
+    return _then(_$ChatParticipantModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      chatId: null == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isArchived: null == isArchived
+          ? _value.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastReadMessageId: freezed == lastReadMessageId
+          ? _value.lastReadMessageId
+          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ChatParticipantModelImpl implements _ChatParticipantModel {
+  const _$ChatParticipantModelImpl(
+      {required this.id,
+      @JsonKey(name: 'chat_id') required this.chatId,
+      @JsonKey(name: 'user_id') required this.userId,
+      @JsonKey(name: 'is_pinned') required this.isPinned,
+      @JsonKey(name: 'is_archived') required this.isArchived,
+      @JsonKey(name: 'unread_count') required this.unreadCount,
+      @JsonKey(name: 'last_read_message_id') this.lastReadMessageId});
+
+  factory _$ChatParticipantModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ChatParticipantModelImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  @JsonKey(name: 'chat_id')
+  final String chatId;
+  @override
+  @JsonKey(name: 'user_id')
+  final String userId;
+  @override
+  @JsonKey(name: 'is_pinned')
+  final bool isPinned;
+  @override
+  @JsonKey(name: 'is_archived')
+  final bool isArchived;
+  @override
+  @JsonKey(name: 'unread_count')
+  final int unreadCount;
+  @override
+  @JsonKey(name: 'last_read_message_id')
+  final String? lastReadMessageId;
+
+  @override
+  String toString() {
+    return 'ChatParticipantModel(id: $id, chatId: $chatId, userId: $userId, isPinned: $isPinned, isArchived: $isArchived, unreadCount: $unreadCount, lastReadMessageId: $lastReadMessageId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ChatParticipantModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.chatId, chatId) || other.chatId == chatId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.isPinned, isPinned) ||
+                other.isPinned == isPinned) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived) &&
+            (identical(other.unreadCount, unreadCount) ||
+                other.unreadCount == unreadCount) &&
+            (identical(other.lastReadMessageId, lastReadMessageId) ||
+                other.lastReadMessageId == lastReadMessageId));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, chatId, userId, isPinned,
+      isArchived, unreadCount, lastReadMessageId);
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ChatParticipantModelImplCopyWith<_$ChatParticipantModelImpl>
+      get copyWith =>
+          __$$ChatParticipantModelImplCopyWithImpl<_$ChatParticipantModelImpl>(
+              this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ChatParticipantModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ChatParticipantModel implements ChatParticipantModel {
+  const factory _ChatParticipantModel(
+      {required final String id,
+      @JsonKey(name: 'chat_id') required final String chatId,
+      @JsonKey(name: 'user_id') required final String userId,
+      @JsonKey(name: 'is_pinned') required final bool isPinned,
+      @JsonKey(name: 'is_archived') required final bool isArchived,
+      @JsonKey(name: 'unread_count') required final int unreadCount,
+      @JsonKey(name: 'last_read_message_id')
+      final String? lastReadMessageId}) = _$ChatParticipantModelImpl;
+
+  factory _ChatParticipantModel.fromJson(Map<String, dynamic> json) =
+      _$ChatParticipantModelImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  @JsonKey(name: 'chat_id')
+  String get chatId;
+  @override
+  @JsonKey(name: 'user_id')
+  String get userId;
+  @override
+  @JsonKey(name: 'is_pinned')
+  bool get isPinned;
+  @override
+  @JsonKey(name: 'is_archived')
+  bool get isArchived;
+  @override
+  @JsonKey(name: 'unread_count')
+  int get unreadCount;
+  @override
+  @JsonKey(name: 'last_read_message_id')
+  String? get lastReadMessageId;
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ChatParticipantModelImplCopyWith<_$ChatParticipantModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 MessageModel _$MessageModelFromJson(Map<String, dynamic> json) {

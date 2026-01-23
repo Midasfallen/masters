@@ -105,6 +105,24 @@ class ChatRepository {
       throw ApiExceptionHandler.handleDioError(e);
     }
   }
+
+  /// Pin chat
+  Future<void> pinChat(String chatId) async {
+    try {
+      await _client.post('/chats/$chatId/pin');
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Unpin chat
+  Future<void> unpinChat(String chatId) async {
+    try {
+      await _client.post('/chats/$chatId/unpin');
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
 }
 
 @riverpod
