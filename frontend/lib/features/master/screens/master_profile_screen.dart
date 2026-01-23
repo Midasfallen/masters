@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -7,8 +8,14 @@ import '../../../shared/models/master.dart';
 import '../../../shared/models/service.dart';
 import '../../../shared/widgets/service_card.dart';
 import '../../../shared/widgets/review_card.dart';
+import '../../../shared/widgets/unreviewed_bookings_dialog.dart';
 import '../../../data/mock/mock_masters.dart';
 import '../../../data/mock/mock_services.dart';
+import '../../../core/providers/api/bookings_provider.dart';
+import '../../../core/models/api/booking_model.dart';
+import '../../../core/api/api_exceptions.dart';
+import '../../../core/repositories/review_reminders_repository.dart';
+import '../widgets/collapsible_services_list.dart';
 
 class MasterProfileScreen extends StatefulWidget {
   final String masterId;
@@ -390,17 +397,10 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
   }
 
   Widget _buildServicesTab(Master master) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: mockServices.length,
-      itemBuilder: (context, index) {
-        final service = mockServices[index];
-        return ServiceCard(
-          service: service,
-          onTap: () {
-            _showBookingDialog(context, master, service);
-          },
-        );
+    return CollapsibleServicesList(
+      services: mockServices,
+      onServiceTap: (service) {
+        _showBookingDialog(context, master, service);
       },
     );
   }
@@ -496,7 +496,7 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
   }
 }
 
-class _BookingSheet extends StatefulWidget {
+class _BookingSheet extends ConsumerStatefulWidget {
   final Master master;
   final Service? service;
   final ScrollController scrollController;
@@ -508,18 +508,111 @@ class _BookingSheet extends StatefulWidget {
   });
 
   @override
-  State<_BookingSheet> createState() => _BookingSheetState();
+  ConsumerState<_BookingSheet> createState() => _BookingSheetState();
 }
 
-class _BookingSheetState extends State<_BookingSheet> {
+class _BookingSheetState extends ConsumerState<_BookingSheet> {
   Service? _selectedService;
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _selectedService = widget.service;
+  }
+
+  Future<void> _handleBookingCreation() async {
+    if (_selectedService == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final startDateTime = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
+
+      // Создаем запрос на бронирование
+      final request = CreateBookingRequest(
+        serviceId: _selectedService!.id,
+        masterId: widget.master.id,
+        startTime: startDateTime,
+        comment: null,
+      );
+
+      final notifier = ref.read(bookingNotifierProvider.notifier);
+      await notifier.createBooking(request);
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Запись создана на ${DateFormat('dd.MM.yyyy').format(_selectedDate)} в ${_selectedTime.format(context)}',
+            ),
+          ),
+        );
+        context.go('/bookings');
+      }
+    } on UnreviewedBookingsException catch (e) {
+      // Получаем неотзывленные бронирования
+      try {
+        final remindersRepo = ref.read(reviewRemindersRepositoryProvider);
+        final unreviewedBookings = await remindersRepo.getUnreviewedBookings();
+
+        if (mounted && unreviewedBookings.isNotEmpty) {
+          final action = await context.showUnreviewedBookingsDialog(
+            bookings: unreviewedBookings,
+          );
+
+          // Обрабатываем результат диалога
+          switch (action) {
+            case ReviewReminderAction.leaveReviews:
+              // Перенаправляем на экран оставления отзывов
+              if (mounted) {
+                Navigator.pop(context);
+                context.go('/bookings?tab=history');
+              }
+              break;
+            case ReviewReminderAction.skip:
+            case ReviewReminderAction.skipWithGrace:
+              // Пользователь пропустил, пробуем создать бронирование снова
+              await _handleBookingCreation();
+              break;
+            case null:
+              // Диалог закрыт без действия
+              break;
+          }
+        }
+      } catch (dialogError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Ошибка: ${dialogError.toString()}'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при создании записи: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -647,23 +740,22 @@ class _BookingSheetState extends State<_BookingSheet> {
           ),
           const SizedBox(height: 32),
           FilledButton(
-            onPressed: _selectedService == null
+            onPressed: _selectedService == null || _isLoading
                 ? null
-                : () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Запись создана на ${DateFormat('dd.MM.yyyy').format(_selectedDate)} в ${_selectedTime.format(context)}',
-                        ),
-                      ),
-                    );
-                    context.go('/bookings');
-                  },
+                : _handleBookingCreation,
             style: FilledButton.styleFrom(
               minimumSize: const Size(double.infinity, 56),
             ),
-            child: const Text('Записаться'),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Записаться'),
           ),
         ],
       ),
