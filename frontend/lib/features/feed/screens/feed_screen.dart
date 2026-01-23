@@ -196,9 +196,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Создание поста (в разработке)')),
-              );
+              context.push('/create-post');
             },
           ),
         ],

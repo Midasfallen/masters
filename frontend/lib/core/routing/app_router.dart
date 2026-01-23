@@ -9,6 +9,7 @@ import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/screens/forgot_password_screen.dart';
 import '../../features/auth/screens/reset_password_screen.dart';
 import '../../features/feed/screens/post_detail_screen.dart';
+import '../../features/feed/screens/create_post_screen.dart';
 import '../../features/chats/screens/chat_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/master/screens/master_profile_screen.dart';
@@ -65,6 +66,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final postId = state.pathParameters['id']!;
               return PostDetailScreen(postId: postId);
             },
+          ),
+
+          // Create post
+          GoRoute(
+            path: 'create-post',
+            name: 'createPost',
+            builder: (context, state) => const CreatePostScreen(),
           ),
 
           // Chat
