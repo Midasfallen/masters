@@ -26,6 +26,7 @@ import { ChatsModule } from './modules/chats/chats.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { AutoProposalsModule } from './modules/auto-proposals/auto-proposals.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { UploadModule } from './modules/upload/upload.module';
 
@@ -75,6 +76,9 @@ import { UploadModule } from './modules/upload/upload.module';
 
     // Admin Panel
     AdminModule,
+
+    // Scheduled Tasks
+    SchedulerModule,
 
     UploadModule,
   ],
