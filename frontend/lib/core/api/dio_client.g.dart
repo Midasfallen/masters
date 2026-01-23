@@ -26,7 +26,7 @@ final secureStorageProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SecureStorageRef = AutoDisposeProviderRef<FlutterSecureStorage>;
-String _$dioHash() => r'416909ce5c01887e52e16db03f07c01e4c73ce39';
+String _$dioHash() => r'e4e422da2667494da99a6a849fe8d31556744d04';
 
 /// Dio Client Provider
 ///

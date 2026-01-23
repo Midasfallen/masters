@@ -12,8 +12,12 @@ class WebSocketService {
   final _connectionStateController = StreamController<ConnectionState>.broadcast();
   final _messageController = StreamController<WebSocketMessage>.broadcast();
 
+  // Отслеживание online пользователей
+  final Set<String> _onlineUsers = {};
+
   Stream<ConnectionState> get connectionState => _connectionStateController.stream;
   Stream<WebSocketMessage> get messages => _messageController.stream;
+  Set<String> get onlineUsers => Set.unmodifiable(_onlineUsers);
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -135,6 +139,9 @@ class WebSocketService {
 
     // Статус пользователя: онлайн
     _socket!.on('user:online', (data) {
+      if (data is Map && data['user_id'] != null) {
+        _onlineUsers.add(data['user_id'] as String);
+      }
       _messageController.add(WebSocketMessage(
         event: 'user:online',
         data: data,
@@ -144,6 +151,9 @@ class WebSocketService {
 
     // Статус пользователя: оффлайн
     _socket!.on('user:offline', (data) {
+      if (data is Map && data['user_id'] != null) {
+        _onlineUsers.remove(data['user_id'] as String);
+      }
       _messageController.add(WebSocketMessage(
         event: 'user:offline',
         data: data,

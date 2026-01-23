@@ -13,6 +13,7 @@ Future<List<PostModel>> feedPosts(
   List<String>? categoryIds,
   double? lat,
   double? lng,
+  double? radius,
 }) async {
   final repository = ref.watch(postRepositoryProvider);
   return await repository.getFeed(
@@ -21,6 +22,7 @@ Future<List<PostModel>> feedPosts(
     categoryIds: categoryIds,
     lat: lat,
     lng: lng,
+    radius: radius,
   );
 }
 

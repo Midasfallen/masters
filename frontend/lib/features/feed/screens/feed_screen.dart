@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/providers/api/feed_provider.dart';
 import '../../../core/models/api/post_model.dart';
 import '../widgets/post_card.dart';
+import '../widgets/feed_filters_sheet.dart';
 
 /// Feed Screen State Providers для infinite scroll
 final feedPageProvider = StateProvider<int>((ref) => 1);
 final feedPostsListProvider = StateProvider<List<PostModel>>((ref) => []);
 final feedHasMoreProvider = StateProvider<bool>((ref) => true);
+final feedFiltersProvider = StateProvider<FeedFilters>((ref) => const FeedFilters());
 
 class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
@@ -56,16 +58,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
     try {
       final page = ref.read(feedPageProvider);
-      print('🔵 Loading feed page: $page');
-      final newPosts = await ref.read(feedPostsProvider(page: page, limit: 20).future);
-      print('🟢 Loaded ${newPosts.length} posts');
+      final filters = ref.read(feedFiltersProvider);
+      final queryParams = filters.toQueryParams();
 
-      if (newPosts.isNotEmpty) {
-        print('🖼️ First post has ${newPosts.first.media.length} media items');
-        if (newPosts.first.media.isNotEmpty) {
-          print('🌐 First media URL: ${newPosts.first.media.first.url}');
-        }
-      }
+      final newPosts = await ref.read(feedPostsProvider(
+        page: page,
+        limit: 20,
+        lat: queryParams['lat'] as double?,
+        lng: queryParams['lng'] as double?,
+        radius: queryParams['radius'] as double?,
+        categoryIds: queryParams['category_ids'] as List<String>?,
+      ).future);
 
       if (mounted) {
         if (refresh) {
@@ -80,7 +83,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         }
       }
     } catch (e) {
-      print('🔴 Feed error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -100,7 +102,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       final currentPage = ref.read(feedPageProvider);
       ref.read(feedPageProvider.notifier).state = currentPage + 1;
 
-      final newPosts = await ref.read(feedPostsProvider(page: currentPage + 1, limit: 20).future);
+      final filters = ref.read(feedFiltersProvider);
+      final queryParams = filters.toQueryParams();
+
+      final newPosts = await ref.read(feedPostsProvider(
+        page: currentPage + 1,
+        limit: 20,
+        lat: queryParams['lat'] as double?,
+        lng: queryParams['lng'] as double?,
+        radius: queryParams['radius'] as double?,
+        categoryIds: queryParams['category_ids'] as List<String>?,
+      ).future);
 
       if (mounted) {
         final currentPosts = ref.read(feedPostsListProvider);
@@ -135,16 +147,32 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.filter_list),
-          onPressed: () {
-            // TODO: Add filters bottom sheet
-            // showModalBottomSheet(
-            //   context: context,
-            //   builder: (context) => FeedFiltersSheet(...),
-            // );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Фильтры готовы к интеграции')),
+          icon: Icon(
+            Icons.filter_list,
+            color: ref.watch(feedFiltersProvider).hasActiveFilters
+                ? Theme.of(context).colorScheme.primary
+                : null,
+          ),
+          onPressed: () async {
+            final currentFilters = ref.read(feedFiltersProvider);
+            final result = await showModalBottomSheet<FeedFilters>(
+              context: context,
+              isScrollControlled: true,
+              builder: (context) => FeedFiltersSheet(
+                initialFilters: currentFilters,
+                availableCategories: const [
+                  CategoryOption(id: 'cat-1', name: 'Парикмахер', icon: '💇'),
+                  CategoryOption(id: 'cat-2', name: 'Косметолог', icon: '💆'),
+                  CategoryOption(id: 'cat-3', name: 'Маникюр', icon: '💅'),
+                  CategoryOption(id: 'cat-4', name: 'Массажист', icon: '💆'),
+                ],
+              ),
             );
+
+            if (result != null && mounted) {
+              ref.read(feedFiltersProvider.notifier).state = result;
+              await _loadFeed(refresh: true);
+            }
           },
           tooltip: 'Фильтры',
         ),

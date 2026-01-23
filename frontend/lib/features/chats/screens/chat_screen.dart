@@ -416,16 +416,37 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildAppBarTitle(ChatModel chat) {
-    // TODO: Получить информацию о собеседнике
+    final currentUserId = ref.watch(currentUserIdProvider);
+
+    // Определяем собеседника
+    final otherUser = chat.user1Id == currentUserId ? chat.user2 : chat.user1;
+
+    if (otherUser == null) {
+      return const Text('Чат');
+    }
+
+    final otherUserId = chat.user1Id == currentUserId ? chat.user2Id : chat.user1Id;
+
+    // Проверяем online статус через WebSocket
+    final wsService = ref.watch(webSocketServiceProvider);
+    final isOnline = wsService.onlineUsers.contains(otherUserId);
+
     return Row(
       children: [
         Stack(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 18,
-              child: Icon(Icons.person),
+              backgroundImage: otherUser.avatarUrl != null
+                ? NetworkImage(otherUser.avatarUrl!)
+                : null,
+              child: otherUser.avatarUrl == null
+                ? Text(
+                    otherUser.firstName[0].toUpperCase(),
+                    style: const TextStyle(fontSize: 14),
+                  )
+                : null,
             ),
-            // TODO: Показывать online статус на основе WebSocket событий
             Positioned(
               bottom: 0,
               right: 0,
@@ -433,7 +454,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: isOnline ? Colors.green : Colors.grey,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: Colors.white,
@@ -450,14 +471,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                chat.id, // TODO: Показывать имя собеседника
+                '${otherUser.firstName} ${otherUser.lastName}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                'Оффлайн', // TODO: Статус на основе WebSocket
+                isOnline ? 'В сети' : 'Не в сети',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -502,8 +523,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 }
 
-/// Временный provider для получения ID текущего пользователя
-/// TODO: Заменить на реальный из auth provider
 final currentUserIdProvider = Provider<String>((ref) {
   // Получаем из auth state
   final authState = ref.watch(authNotifierProvider);

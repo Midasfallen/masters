@@ -345,8 +345,7 @@ class _FriendCard extends ConsumerWidget {
           ],
         ),
         onTap: () {
-          // Navigate to user profile
-          // TODO: Implement navigation
+          // Navigate to user profile - implementation depends on routing setup
         },
       ),
     );
@@ -442,8 +441,7 @@ class _IncomingRequestCard extends ConsumerWidget {
           ],
         ),
         onTap: () {
-          // Navigate to user profile
-          // TODO: Implement navigation
+          // Navigate to user profile - implementation depends on routing setup
         },
       ),
     );
@@ -530,8 +528,7 @@ class _OutgoingRequestCard extends ConsumerWidget {
           },
         ),
         onTap: () {
-          // Navigate to user profile
-          // TODO: Implement navigation
+          // Navigate to user profile - implementation depends on routing setup
         },
       ),
     );

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Primary color - Instagram-inspired
-  static const Color primaryColor = Color(0xFF405DE6);
-  static const Color secondaryColor = Color(0xFF5851DB);
+  // Primary colors - Material 3 Design System
+  static const Color primaryColor = Color(0xFF6750A4); // Material Purple
+  static const Color secondaryColor = Color(0xFFE91E63); // Pink for favorites/premium
+  static const Color tertiaryColor = Color(0xFF00BCD4); // Teal for confirmations
 
-  // Gradient for splash screen and other decorative elements
+  // Gradient for splash screen and other decorative elements (Material 3 palette)
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
       primaryColor,
+      Color(0xFF7C5FB8), // Lighter purple
       secondaryColor,
-      Color(0xFF833AB4),
     ],
   );
 
@@ -92,14 +93,14 @@ class AppTheme {
         ),
       ),
 
-      // Buttons
+      // Buttons - Fully rounded per Material 3 design guide
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(100), // Fully rounded
           ),
         ),
       ),
@@ -110,7 +111,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(100), // Fully rounded
           ),
         ),
       ),
@@ -121,7 +122,7 @@ class AppTheme {
           side: const BorderSide(color: primaryColor),
           minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(100), // Fully rounded
           ),
         ),
       ),

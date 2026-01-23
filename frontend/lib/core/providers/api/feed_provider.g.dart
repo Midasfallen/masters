@@ -6,7 +6,7 @@ part of 'feed_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$feedPostsHash() => r'4459bc89856040b005951b865c33368295b03631';
+String _$feedPostsHash() => r'1bd445b73d8560920e397f1119f0876147598903';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -53,6 +53,7 @@ class FeedPostsFamily extends Family<AsyncValue<List<PostModel>>> {
     List<String>? categoryIds,
     double? lat,
     double? lng,
+    double? radius,
   }) {
     return FeedPostsProvider(
       page: page,
@@ -60,6 +61,7 @@ class FeedPostsFamily extends Family<AsyncValue<List<PostModel>>> {
       categoryIds: categoryIds,
       lat: lat,
       lng: lng,
+      radius: radius,
     );
   }
 
@@ -73,6 +75,7 @@ class FeedPostsFamily extends Family<AsyncValue<List<PostModel>>> {
       categoryIds: provider.categoryIds,
       lat: provider.lat,
       lng: provider.lng,
+      radius: provider.radius,
     );
   }
 
@@ -104,6 +107,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
     List<String>? categoryIds,
     double? lat,
     double? lng,
+    double? radius,
   }) : this._internal(
           (ref) => feedPosts(
             ref as FeedPostsRef,
@@ -112,6 +116,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
             categoryIds: categoryIds,
             lat: lat,
             lng: lng,
+            radius: radius,
           ),
           from: feedPostsProvider,
           name: r'feedPostsProvider',
@@ -126,6 +131,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
           categoryIds: categoryIds,
           lat: lat,
           lng: lng,
+          radius: radius,
         );
 
   FeedPostsProvider._internal(
@@ -140,6 +146,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
     required this.categoryIds,
     required this.lat,
     required this.lng,
+    required this.radius,
   }) : super.internal();
 
   final int page;
@@ -147,6 +154,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
   final List<String>? categoryIds;
   final double? lat;
   final double? lng;
+  final double? radius;
 
   @override
   Override overrideWith(
@@ -166,6 +174,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
         categoryIds: categoryIds,
         lat: lat,
         lng: lng,
+        radius: radius,
       ),
     );
   }
@@ -182,7 +191,8 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
         other.limit == limit &&
         other.categoryIds == categoryIds &&
         other.lat == lat &&
-        other.lng == lng;
+        other.lng == lng &&
+        other.radius == radius;
   }
 
   @override
@@ -193,6 +203,7 @@ class FeedPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
     hash = _SystemHash.combine(hash, categoryIds.hashCode);
     hash = _SystemHash.combine(hash, lat.hashCode);
     hash = _SystemHash.combine(hash, lng.hashCode);
+    hash = _SystemHash.combine(hash, radius.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -215,6 +226,9 @@ mixin FeedPostsRef on AutoDisposeFutureProviderRef<List<PostModel>> {
 
   /// The parameter `lng` of this provider.
   double? get lng;
+
+  /// The parameter `radius` of this provider.
+  double? get radius;
 }
 
 class _FeedPostsProviderElement
@@ -232,6 +246,8 @@ class _FeedPostsProviderElement
   double? get lat => (origin as FeedPostsProvider).lat;
   @override
   double? get lng => (origin as FeedPostsProvider).lng;
+  @override
+  double? get radius => (origin as FeedPostsProvider).radius;
 }
 
 String _$postByIdHash() => r'8ee1a163f44d617eb9b265a2fc623b0197e261d6';

@@ -111,6 +111,20 @@ class CancelException extends ApiException {
         );
 }
 
+/// Unreviewed bookings exception
+/// Thrown when trying to create a booking but there are unreviewed completed bookings
+class UnreviewedBookingsException extends BadRequestException {
+  final List<String> unreviewedBookingIds;
+
+  UnreviewedBookingsException({
+    String? message,
+    required this.unreviewedBookingIds,
+    super.data,
+  }) : super(
+          message: message ?? 'У вас есть завершенные записи без отзывов',
+        );
+}
+
 /// Exception handler utility
 class ApiExceptionHandler {
   static ApiException handleDioError(DioException error) {
@@ -144,6 +158,16 @@ class ApiExceptionHandler {
 
     switch (statusCode) {
       case 400:
+        // Check if this is an unreviewed bookings error
+        if (data is Map<String, dynamic> &&
+            data['error'] == 'UNREVIEWED_BOOKINGS_EXIST' &&
+            data['unreviewed_booking_ids'] is List) {
+          return UnreviewedBookingsException(
+            message: message,
+            unreviewedBookingIds: List<String>.from(data['unreviewed_booking_ids']),
+            data: data,
+          );
+        }
         return BadRequestException(message: message, data: data);
 
       case 401:

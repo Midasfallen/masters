@@ -17,6 +17,7 @@ export enum NotificationType {
   BOOKING_REMINDER = 'booking_reminder',
   REVIEW_RECEIVED = 'review_received',
   REVIEW_RESPONSE = 'review_response',
+  REVIEW_REMINDER = 'review_reminder',
   NEW_MESSAGE = 'new_message',
   SYSTEM = 'system',
 }

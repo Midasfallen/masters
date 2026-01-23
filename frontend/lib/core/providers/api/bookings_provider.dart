@@ -38,6 +38,7 @@ class BookingNotifier extends _$BookingNotifier {
   }
 
   /// Create booking
+  /// Throws [UnreviewedBookingsException] if there are unreviewed bookings
   Future<BookingModel> createBooking(CreateBookingRequest request) async {
     state = const AsyncValue.loading();
 
@@ -51,6 +52,9 @@ class BookingNotifier extends _$BookingNotifier {
       return booking;
     }).then((asyncValue) {
       state = asyncValue;
+      if (asyncValue.hasError) {
+        throw asyncValue.error!;
+      }
       return asyncValue.requireValue;
     });
   }

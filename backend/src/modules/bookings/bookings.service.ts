@@ -3,18 +3,23 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, IsNull } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { Service } from '../services/entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { Review } from '../reviews/entities/review.entity';
+import { ReviewReminder } from '../reviews/entities/review-reminder.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
 import { BookingResponseDto } from './dto/booking-response.dto';
 import { FilterBookingsDto } from './dto/filter-bookings.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class BookingsService {
@@ -27,7 +32,86 @@ export class BookingsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MasterProfile)
     private readonly masterProfileRepository: Repository<MasterProfile>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(ReviewReminder)
+    private readonly reviewReminderRepository: Repository<ReviewReminder>,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService,
   ) {}
+
+  /**
+   * Проверяет наличие незавершенных отзывов с учетом grace period
+   * Выбрасывает BadRequestException если есть блокирующие незавершенные отзывы
+   */
+  private async checkUnreviewedBookings(userId: string): Promise<void> {
+    // Находим все завершенные бронирования клиента без отзывов
+    const completedBookingsWithoutReviews = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .leftJoin(
+        'reviews',
+        'review',
+        'review.booking_id = booking.id AND review.reviewer_id = :userId',
+        { userId },
+      )
+      .where('booking.client_id = :userId', { userId })
+      .andWhere('booking.status = :status', { status: BookingStatus.COMPLETED })
+      .andWhere('review.id IS NULL')
+      .getMany();
+
+    if (completedBookingsWithoutReviews.length === 0) {
+      return; // Нет незавершенных отзывов
+    }
+
+    // Проверяем grace period для каждого бронирования
+    const blockingBookings: Booking[] = [];
+
+    for (const booking of completedBookingsWithoutReviews) {
+      // Проверяем, есть ли запись в review_reminders
+      let reminder = await this.reviewReminderRepository.findOne({
+        where: { user_id: userId, booking_id: booking.id },
+      });
+
+      if (!reminder) {
+        // Создаем новую запись напоминания
+        reminder = this.reviewReminderRepository.create({
+          user_id: userId,
+          booking_id: booking.id,
+          reminder_count: 1,
+          grace_skip_allowed: false,
+          last_reminded_at: new Date(),
+        });
+        await this.reviewReminderRepository.save(reminder);
+        blockingBookings.push(booking);
+      } else if (!reminder.grace_skip_allowed) {
+        // Увеличиваем счетчик напоминаний
+        reminder.reminder_count += 1;
+        reminder.last_reminded_at = new Date();
+
+        // После 3 напоминаний разрешаем skip
+        if (reminder.reminder_count >= 3) {
+          reminder.grace_skip_allowed = true;
+        }
+
+        await this.reviewReminderRepository.save(reminder);
+
+        if (!reminder.grace_skip_allowed) {
+          blockingBookings.push(booking);
+        }
+      }
+      // Если grace_skip_allowed = true, не добавляем в блокирующие
+    }
+
+    if (blockingBookings.length > 0) {
+      const bookingIds = blockingBookings.map((b) => b.id);
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'У вас есть завершенные записи без отзывов. Пожалуйста, оставьте отзывы перед созданием новой записи.',
+        error: 'UNREVIEWED_BOOKINGS_EXIST',
+        unreviewed_booking_ids: bookingIds,
+      });
+    }
+  }
 
   /**
    * Создание бронирования клиентом
@@ -36,6 +120,9 @@ export class BookingsService {
     clientId: string,
     createBookingDto: CreateBookingDto,
   ): Promise<BookingResponseDto> {
+    // 0. Проверяем наличие незавершенных отзывов (с grace period)
+    await this.checkUnreviewedBookings(clientId);
+
     // 1. Проверяем существование услуги
     const service = await this.serviceRepository.findOne({
       where: { id: createBookingDto.service_id },
@@ -123,6 +210,18 @@ export class BookingsService {
 
     const savedBooking = await this.bookingRepository.save(booking);
 
+    // Отправляем уведомление мастеру о новом бронировании
+    const client = await this.userRepository.findOne({ where: { id: clientId } });
+    if (client) {
+      await this.notificationsService.notifyBookingCreated(
+        masterProfile.user_id,
+        savedBooking.id,
+        client.full_name || client.email,
+        service.name,
+        startTime,
+      );
+    }
+
     return this.mapToResponseDto(savedBooking);
   }
 
@@ -149,6 +248,17 @@ export class BookingsService {
 
     booking.status = BookingStatus.CONFIRMED;
     const updatedBooking = await this.bookingRepository.save(booking);
+
+    // Отправляем уведомление клиенту о подтверждении
+    const master = await this.userRepository.findOne({ where: { id: masterId } });
+    if (master) {
+      await this.notificationsService.notifyBookingConfirmed(
+        booking.client_id,
+        bookingId,
+        master.full_name || master.email,
+        booking.start_time,
+      );
+    }
 
     return this.mapToResponseDto(updatedBooking);
   }

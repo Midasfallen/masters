@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Application color constants
 /// Extracted from AppTheme for easier access
 class AppColors {
-  // Primary colors - Instagram-inspired gradient
-  static const Color primary = Color(0xFF405DE6);
-  static const Color secondary = Color(0xFF5851DB);
-  static const Color tertiary = Color(0xFF833AB4);
+  // Primary colors - Material 3 Design System
+  static const Color primary = Color(0xFF6750A4); // Material Purple
+  static const Color secondary = Color(0xFFE91E63); // Pink for favorites/premium
+  static const Color tertiary = Color(0xFF00BCD4); // Teal for confirmations
 
   // Semantic colors
   static const Color error = Colors.red;

@@ -361,7 +361,7 @@ class _BookingByIdProviderElement
   String get bookingId => (origin as BookingByIdProvider).bookingId;
 }
 
-String _$bookingNotifierHash() => r'c9ed96283e8f9726b91bca5d8bbfa305de9977e3';
+String _$bookingNotifierHash() => r'231b94ac2417c649fa51624c207b86b604bcfcc3';
 
 /// Booking Notifier for mutations
 ///

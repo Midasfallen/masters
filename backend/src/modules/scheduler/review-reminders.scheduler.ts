@@ -5,6 +5,7 @@ import { Repository, LessThan } from 'typeorm';
 import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { ReviewReminder } from '../reviews/entities/review-reminder.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class ReviewRemindersScheduler {
@@ -194,7 +195,7 @@ export class ReviewRemindersScheduler {
     try {
       await this.notificationsService.create(
         userId,
-        'review_reminder' as any,
+        NotificationType.REVIEW_REMINDER,
         title,
         body,
         {

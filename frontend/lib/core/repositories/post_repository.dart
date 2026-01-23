@@ -20,6 +20,7 @@ class PostRepository {
     List<String>? categoryIds,
     double? lat,
     double? lng,
+    double? radius,
   }) async {
     try {
       final Map<String, dynamic> queryParams = {
@@ -34,6 +35,9 @@ class PostRepository {
       if (lat != null && lng != null) {
         queryParams['lat'] = lat;
         queryParams['lng'] = lng;
+        if (radius != null) {
+          queryParams['radius'] = radius;
+        }
       }
 
       final response = await _client.get(
