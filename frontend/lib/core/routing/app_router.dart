@@ -15,6 +15,7 @@ import '../../features/master/screens/master_profile_screen.dart';
 import '../../features/master/screens/create_profile/create_master_profile_screen.dart';
 import '../../features/friends/screens/friends_screen.dart';
 import '../../features/subscriptions/screens/subscriptions_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 import '../../shared/widgets/main_navigation_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -125,6 +126,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'create-master-profile',
             name: 'createMasterProfile',
             builder: (context, state) => const CreateMasterProfileScreen(),
+          ),
+
+          // Settings
+          GoRoute(
+            path: 'settings',
+            name: 'settings',
+            builder: (context, state) => const SettingsScreen(),
           ),
         ],
       ),
