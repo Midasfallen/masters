@@ -4,62 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../core/providers/mock_data_provider.dart';
-import '../../../core/models/chat.dart';
+import '../../../core/providers/api/chats_provider.dart';
+import '../../../core/models/api/chat_model.dart';
 
-class ChatsListScreen extends ConsumerStatefulWidget {
+class ChatsListScreen extends ConsumerWidget {
   const ChatsListScreen({super.key});
 
   @override
-  ConsumerState<ChatsListScreen> createState() => _ChatsListScreenState();
-}
-
-class _ChatsListScreenState extends ConsumerState<ChatsListScreen> {
-  List<Chat> _chats = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize chats from provider
-    Future.microtask(() {
-      setState(() {
-        _chats = ref.read(mockChatsProvider);
-      });
-    });
-  }
-
-  void _togglePin(Chat chat) {
-    setState(() {
-      _chats = _chats.map((c) {
-        if (c.id == chat.id) {
-          return c.copyWith(isPinned: !c.isPinned);
-        }
-        return c;
-      }).toList();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          chat.isPinned ? 'Чат откреплён' : 'Чат закреплён',
-        ),
-        duration: const Duration(milliseconds: 800),
-      ),
-    );
-  }
-
-  List<Chat> get _sortedChats {
-    // Sort chats: pinned first, then by update time
-    final pinned = _chats.where((c) => c.isPinned).toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final unpinned = _chats.where((c) => !c.isPinned).toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    return [...pinned, ...unpinned];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final sortedChats = _sortedChats;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chatsAsync = ref.watch(chatsListProvider());
 
     return Scaffold(
       appBar: AppBar(
@@ -78,229 +31,115 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen> {
           ),
         ],
       ),
-      body: _chats.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Нет активных чатов',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: sortedChats.length + (_hasPinnedChats ? 1 : 0),
+      body: chatsAsync.when(
+        data: (chats) {
+          if (chats.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          // Separate pinned and unpinned chats
+          final pinnedChats = chats
+              .where((c) => c.myParticipant?.isPinned ?? false)
+              .toList();
+          final unpinnedChats = chats
+              .where((c) => !(c.myParticipant?.isPinned ?? false))
+              .toList();
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(chatsListProvider());
+            },
+            child: ListView.builder(
+              itemCount: chats.length + (pinnedChats.isNotEmpty ? 1 : 0),
               itemBuilder: (context, index) {
-                // Add separator between pinned and unpinned
-                final pinnedCount = sortedChats.where((c) => c.isPinned).length;
-                if (_hasPinnedChats && index == pinnedCount) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.grey[300]!,
-                          width: 1,
-                        ),
-                        bottom: BorderSide(
-                          color: Colors.grey[300]!,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      'Все чаты',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  );
+                // Show separator between pinned and unpinned
+                if (pinnedChats.isNotEmpty && index == pinnedChats.length) {
+                  return _buildSeparator();
                 }
 
-                // Adjust index if separator was added
-                final chatIndex = _hasPinnedChats && index > pinnedCount
-                    ? index - 1
-                    : index;
-                final chat = sortedChats[chatIndex];
-                final lastMessage = chat.lastMessage;
+                // Determine which chat to show
+                final chat = index < pinnedChats.length
+                    ? pinnedChats[index]
+                    : (pinnedChats.isNotEmpty
+                        ? unpinnedChats[index - pinnedChats.length - 1]
+                        : unpinnedChats[index]);
 
-                return InkWell(
-                  onTap: () {
-                    context.push('/chat/${chat.id}');
-                  },
-                  onLongPress: () {
-                    _showChatActions(chat);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Avatar with online indicator
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundImage: CachedNetworkImageProvider(
-                                chat.participantAvatar,
-                              ),
-                            ),
-                            if (chat.isOnline ?? false)
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Chat info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Name, pin icon, and time
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        if (chat.isPinned) ...[
-                                          Icon(
-                                            Icons.push_pin,
-                                            size: 14,
-                                            color: Theme.of(context).primaryColor,
-                                          ),
-                                          const SizedBox(width: 4),
-                                        ],
-                                        Expanded(
-                                          child: Text(
-                                            chat.participantName,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    timeago.format(
-                                      chat.updatedAt,
-                                      locale: 'ru',
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-
-                              // Last message and unread badge
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      lastMessage?.content ??
-                                          'Нет сообщений',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: chat.unreadCount > 0
-                                            ? Colors.black87
-                                            : Colors.grey[600],
-                                        fontWeight: chat.unreadCount > 0
-                                            ? FontWeight.w500
-                                            : FontWeight.normal,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (chat.unreadCount > 0) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).primaryColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        chat.unreadCount > 99
-                                            ? '99+'
-                                            : chat.unreadCount.toString(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                return _ChatTile(
+                  chat: chat,
+                  onTap: () => context.push('/chat/${chat.id}'),
+                  onLongPress: () => _showChatActions(context, ref, chat),
                 );
               },
             ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Ошибка: ${error.toString()}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(chatsListProvider()),
+                child: const Text('Повторить'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  bool get _hasPinnedChats => _chats.any((c) => c.isPinned);
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Нет активных чатов',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  void _showChatActions(Chat chat) {
+  Widget _buildSeparator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!, width: 1),
+          bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+        ),
+      ),
+      child: Text(
+        'Все чаты',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey[700],
+        ),
+      ),
+    );
+  }
+
+  void _showChatActions(BuildContext context, WidgetRef ref, ChatModel chat) {
+    final isPinned = chat.myParticipant?.isPinned ?? false;
+
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -308,20 +147,43 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(
-                chat.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-              ),
-              title: Text(
-                chat.isPinned ? 'Открепить чат' : 'Закрепить чат',
-              ),
-              onTap: () {
+              leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin),
+              title: Text(isPinned ? 'Открепить' : 'Закрепить'),
+              onTap: () async {
                 Navigator.pop(context);
-                _togglePin(chat);
+                try {
+                  if (isPinned) {
+                    await ref
+                        .read(chatNotifierProvider.notifier)
+                        .unpinChat(chat.id);
+                  } else {
+                    await ref
+                        .read(chatNotifierProvider.notifier)
+                        .pinChat(chat.id);
+                  }
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isPinned ? 'Чат откреплён' : 'Чат закреплён',
+                        ),
+                        duration: const Duration(milliseconds: 800),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка: ${e.toString()}')),
+                    );
+                  }
+                }
               },
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline),
-              title: const Text('Удалить чат'),
+              title: const Text('Удалить'),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -329,15 +191,151 @@ class _ChatsListScreenState extends ConsumerState<ChatsListScreen> {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.volume_off_outlined),
-              title: const Text('Отключить уведомления'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Уведомления (в разработке)')),
-                );
-              },
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatTile extends StatelessWidget {
+  final ChatModel chat;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
+  const _ChatTile({
+    required this.chat,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final lastMessage = chat.lastMessage;
+    final isPinned = chat.myParticipant?.isPinned ?? false;
+    final unreadCount = chat.myParticipant?.unreadCount ?? chat.unreadCount;
+
+    // Determine other user
+    final otherUser = chat.user1?.id == chat.user1Id ? chat.user2 : chat.user1;
+    final displayName = otherUser?.fullName ?? 'Unknown User';
+    final avatarUrl = otherUser?.avatarUrl;
+
+    return InkWell(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+          ),
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: Colors.grey[300],
+              backgroundImage: avatarUrl != null
+                  ? CachedNetworkImageProvider(avatarUrl)
+                  : null,
+              child: avatarUrl == null
+                  ? Text(
+                      displayName[0].toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 12),
+
+            // Chat info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (isPinned)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Icon(
+                            Icons.push_pin,
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      Expanded(
+                        child: Text(
+                          displayName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (lastMessage != null)
+                        Text(
+                          timeago.format(
+                            lastMessage.createdAt,
+                            locale: 'ru',
+                          ),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          lastMessage?.content ?? 'Нет сообщений',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey[600],
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (unreadCount > 0)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
