@@ -160,4 +160,47 @@ export class ReviewsController {
   async remove(@Request() req, @Param('id') id: string): Promise<void> {
     return this.reviewsService.remove(req.user.sub, id);
   }
+
+  @Get('unreviewed/bookings')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Получить неотзывленные бронирования',
+    description:
+      'Возвращает список завершенных бронирований, на которые пользователь еще не оставил отзыв',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список неотзывленных бронирований',
+  })
+  async getUnreviewedBookings(@Request() req) {
+    return this.reviewsService.getUnreviewedBookings(req.user.sub);
+  }
+
+  @Post('skip/:bookingId')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Пропустить отзыв',
+    description:
+      'Обрабатывает пропуск напоминания об отзыве. Поддерживает grace period skip (один раз без последствий)',
+  })
+  @ApiParam({ name: 'bookingId', description: 'ID бронирования' })
+  @ApiResponse({
+    status: 200,
+    description: 'Пропуск обработан',
+  })
+  @ApiResponse({ status: 400, description: 'Grace period уже использован или отзыв уже оставлен' })
+  @ApiResponse({ status: 404, description: 'Бронирование не найдено' })
+  async skipReview(
+    @Request() req,
+    @Param('bookingId') bookingId: string,
+    @Body() body: { isGracePeriod: boolean },
+  ) {
+    return this.reviewsService.handleSkipReview(
+      req.user.sub,
+      bookingId,
+      body.isGracePeriod || false,
+    );
+  }
 }

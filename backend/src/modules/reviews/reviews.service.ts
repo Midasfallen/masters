@@ -6,8 +6,9 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThanOrEqual, IsNull, Not } from 'typeorm';
+import { Repository, MoreThanOrEqual, LessThanOrEqual, IsNull, Not, LessThan } from 'typeorm';
 import { Review, ReviewerType } from './entities/review.entity';
+import { ReviewReminder } from './entities/review-reminder.entity';
 import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -20,6 +21,8 @@ export class ReviewsService {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(ReviewReminder)
+    private readonly reviewReminderRepository: Repository<ReviewReminder>,
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
     @InjectRepository(User)
@@ -105,6 +108,9 @@ export class ReviewsService {
 
     // 7. Обновляем рейтинг пользователя
     await this.updateUserRating(reviewedUserId);
+
+    // 8. Очищаем reminder если он был
+    await this.clearReminder(userId, booking.id);
 
     return this.mapToResponseDto(savedReview);
   }
@@ -358,6 +364,135 @@ export class ReviewsService {
       // user.average_rating = stats.average_rating; // TODO: Add average_rating field to User entity
       user.reviews_count = stats.total_reviews;
       await this.userRepository.save(user);
+    }
+  }
+
+  /**
+   * Получение неотзывленных бронирований для пользователя
+   */
+  async getUnreviewedBookings(userId: string) {
+    // Получаем завершенные бронирования где пользователь был клиентом или мастером
+    // и где он еще не оставил отзыв
+    const bookings = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .where('booking.status = :status', { status: BookingStatus.COMPLETED })
+      .andWhere(
+        '((booking.client_id = :userId AND booking.client_review_left = false) OR (booking.master_id = :userId AND booking.master_review_left = false))',
+        { userId },
+      )
+      .leftJoinAndSelect('booking.service', 'service')
+      .leftJoinAndSelect('booking.master', 'master')
+      .leftJoinAndSelect('booking.client', 'client')
+      .orderBy('booking.end_time', 'DESC')
+      .getMany();
+
+    // Получаем review reminders для этих бронирований
+    const bookingIds = bookings.map((b) => b.id);
+    const reminders = await this.reviewReminderRepository.find({
+      where: { user_id: userId, booking_id: Not(IsNull()) },
+    });
+
+    const reminderMap = new Map(reminders.map((r) => [r.booking_id, r]));
+
+    return bookings.map((booking) => {
+      const reminder = reminderMap.get(booking.id);
+      const isClient = booking.client_id === userId;
+
+      return {
+        id: booking.id,
+        service_id: booking.service_id,
+        service_name: booking.service?.name,
+        master_id: booking.master_id,
+        master_name: `${booking.master?.first_name} ${booking.master?.last_name}`,
+        client_id: booking.client_id,
+        client_name: `${booking.client?.first_name} ${booking.client?.last_name}`,
+        start_time: booking.start_time,
+        end_time: booking.end_time,
+        total_price: booking.price,
+        is_client: isClient,
+        review_target: isClient ? booking.master_id : booking.client_id,
+        review_target_name: isClient
+          ? `${booking.master?.first_name} ${booking.master?.last_name}`
+          : `${booking.client?.first_name} ${booking.client?.last_name}`,
+        reminder_count: reminder?.reminder_count || 0,
+        grace_skip_allowed: reminder?.grace_skip_allowed || false,
+        last_reminded_at: reminder?.last_reminded_at,
+      };
+    });
+  }
+
+  /**
+   * Создание или обновление reminder при пропуске
+   */
+  async handleSkipReview(userId: string, bookingId: string, isGracePeriod: boolean) {
+    // Проверяем что бронирование существует и пользователь связан с ним
+    const booking = await this.bookingRepository.findOne({
+      where: { id: bookingId },
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Бронирование не найдено');
+    }
+
+    if (booking.client_id !== userId && booking.master_id !== userId) {
+      throw new ForbiddenException('Вы не связаны с этим бронированием');
+    }
+
+    // Проверяем что отзыв еще не оставлен
+    const hasLeftReview =
+      (booking.client_id === userId && booking.client_review_left) ||
+      (booking.master_id === userId && booking.master_review_left);
+
+    if (hasLeftReview) {
+      throw new BadRequestException('Отзыв уже оставлен');
+    }
+
+    // Находим или создаем reminder
+    let reminder = await this.reviewReminderRepository.findOne({
+      where: { user_id: userId, booking_id: bookingId },
+    });
+
+    if (!reminder) {
+      reminder = this.reviewReminderRepository.create({
+        user_id: userId,
+        booking_id: bookingId,
+        reminder_count: 0,
+        grace_skip_allowed: false,
+        last_reminded_at: null,
+      });
+    }
+
+    // Если это grace period skip, разрешаем только один раз
+    if (isGracePeriod) {
+      if (reminder.grace_skip_allowed) {
+        throw new BadRequestException('Вы уже использовали возможность пропустить без последствий');
+      }
+      reminder.grace_skip_allowed = true;
+      reminder.last_reminded_at = new Date();
+    } else {
+      // Обычный пропуск - увеличиваем счетчик
+      reminder.reminder_count += 1;
+      reminder.last_reminded_at = new Date();
+    }
+
+    await this.reviewReminderRepository.save(reminder);
+
+    return {
+      reminder_count: reminder.reminder_count,
+      grace_skip_allowed: reminder.grace_skip_allowed,
+    };
+  }
+
+  /**
+   * Очистка reminder после создания отзыва
+   */
+  private async clearReminder(userId: string, bookingId: string) {
+    const reminder = await this.reviewReminderRepository.findOne({
+      where: { user_id: userId, booking_id: bookingId },
+    });
+
+    if (reminder) {
+      await this.reviewReminderRepository.remove(reminder);
     }
   }
 

@@ -5,8 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from '../../users/entities/user.entity';
+import { Service } from '../../services/entities/service.entity';
 
 export enum BookingStatus {
   PENDING = 'pending',
@@ -124,16 +128,16 @@ export class Booking {
   @UpdateDateColumn()
   updated_at: Date;
 
-  // Relations will be added later:
-  // @ManyToOne(() => User, user => user.clientBookings)
-  // @JoinColumn({ name: 'client_id' })
-  // client: User;
-  //
-  // @ManyToOne(() => User, user => user.masterBookings)
-  // @JoinColumn({ name: 'master_id' })
-  // master: User;
-  //
-  // @ManyToOne(() => Service)
-  // @JoinColumn({ name: 'service_id' })
-  // service: Service;
+  // Relations
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'client_id' })
+  client: User;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'master_id' })
+  master: User;
+
+  @ManyToOne(() => Service)
+  @JoinColumn({ name: 'service_id' })
+  service: Service;
 }
