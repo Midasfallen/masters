@@ -94,7 +94,8 @@ export class ChatsService {
       .leftJoinAndSelect('all_participants.user', 'user')
       .where('participant.user_id = :userId', { userId })
       .andWhere('participant.is_removed = :isRemoved', { isRemoved: false })
-      .orderBy('chat.last_message_at', 'DESC', 'NULLS LAST')
+      .orderBy('participant.is_pinned', 'DESC')
+      .addOrderBy('chat.last_message_at', 'DESC', 'NULLS LAST')
       .addOrderBy('chat.created_at', 'DESC');
 
     const [participants, total] = await queryBuilder
@@ -213,6 +214,36 @@ export class ChatsService {
     await this.participantRepository.save(participant);
 
     return { message: 'Messages marked as read' };
+  }
+
+  async pinChat(chatId: string, userId: string) {
+    const participant = await this.participantRepository.findOne({
+      where: { chat_id: chatId, user_id: userId },
+    });
+
+    if (!participant || participant.is_removed) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    participant.is_pinned = true;
+    await this.participantRepository.save(participant);
+
+    return { message: 'Chat pinned successfully' };
+  }
+
+  async unpinChat(chatId: string, userId: string) {
+    const participant = await this.participantRepository.findOne({
+      where: { chat_id: chatId, user_id: userId },
+    });
+
+    if (!participant || participant.is_removed) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    participant.is_pinned = false;
+    await this.participantRepository.save(participant);
+
+    return { message: 'Chat unpinned successfully' };
   }
 
   async addParticipant(chatId: string, participantId: string, userId: string) {

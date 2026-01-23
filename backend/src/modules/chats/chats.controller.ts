@@ -69,6 +69,18 @@ export class ChatsController {
     return this.chatsService.markAsRead(id, userId, markAsReadDto);
   }
 
+  @Post(':id/pin')
+  @ApiOperation({ summary: 'Закрепить чат' })
+  pinChat(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.chatsService.pinChat(id, userId);
+  }
+
+  @Post(':id/unpin')
+  @ApiOperation({ summary: 'Открепить чат' })
+  unpinChat(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.chatsService.unpinChat(id, userId);
+  }
+
   @Post(':id/participants/:participantId')
   @ApiOperation({ summary: 'Добавить участника в групповой чат' })
   addParticipant(

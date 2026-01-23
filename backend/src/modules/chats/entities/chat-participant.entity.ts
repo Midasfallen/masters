@@ -64,6 +64,10 @@ export class ChatParticipant {
   @Column({ type: 'boolean', default: false })
   is_archived: boolean;
 
+  @ApiProperty({ description: 'Чат закреплен', default: false })
+  @Column({ type: 'boolean', default: false })
+  is_pinned: boolean;
+
   @ApiProperty({ description: 'Участник удален из чата', default: false })
   @Column({ type: 'boolean', default: false })
   is_removed: boolean;
