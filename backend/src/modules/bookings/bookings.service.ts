@@ -20,6 +20,7 @@ import { CancelBookingDto } from './dto/cancel-booking.dto';
 import { BookingResponseDto } from './dto/booking-response.dto';
 import { FilterBookingsDto } from './dto/filter-bookings.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { BookingsMapper } from './bookings.mapper';
 
 @Injectable()
 export class BookingsService {
@@ -565,31 +566,6 @@ export class BookingsService {
    * Маппинг entity в DTO
    */
   private mapToResponseDto(booking: Booking): BookingResponseDto {
-    return {
-      id: booking.id,
-      client_id: booking.client_id,
-      master_id: booking.master_id,
-      service_id: booking.service_id,
-      start_time: booking.start_time,
-      end_time: booking.end_time,
-      duration_minutes: booking.duration_minutes,
-      price: booking.price,
-      status: booking.status,
-      comment: booking.comment,
-      cancellation_reason: booking.cancellation_reason,
-      cancelled_by: booking.cancelled_by,
-      client_review_left: booking.client_review_left,
-      master_review_left: booking.master_review_left,
-      completed_at: booking.completed_at,
-      location_address: booking.location_address,
-      location_lat: booking.location_lat,
-      location_lng: booking.location_lng,
-      location_type: booking.location_type,
-      reminder_sent: booking.reminder_sent,
-      reminder_sent_at: booking.reminder_sent_at,
-      metadata: booking.metadata,
-      created_at: booking.created_at,
-      updated_at: booking.updated_at,
-    };
+    return BookingsMapper.toDto(booking);
   }
 }

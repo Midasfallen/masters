@@ -1,103 +1,166 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
 import { BookingStatus } from '../entities/booking.entity';
 
-export class BookingResponseDto {
-  @ApiProperty()
+/**
+ * Базовый DTO для информации о пользователе (клиент/мастер) в бронировании
+ */
+export class BookingUserDto {
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty({ description: 'ID клиента' })
-  client_id: string;
+  @Expose()
+  @ApiProperty({ example: 'Иван' })
+  firstName: string;
 
-  @ApiProperty({ description: 'ID мастера' })
-  master_id: string;
+  @Expose()
+  @ApiProperty({ example: 'Петров' })
+  lastName: string;
 
-  @ApiProperty({ description: 'ID услуги' })
-  service_id: string;
+  @Expose()
+  @ApiProperty({ example: 'https://storage.example.com/avatar.jpg', nullable: true })
+  avatarUrl: string | null;
 
-  @ApiProperty({ description: 'Время начала' })
-  start_time: Date;
+  @Expose()
+  @ApiProperty({ example: '+79001234567', nullable: true })
+  phone: string | null;
+}
 
-  @ApiProperty({ description: 'Время окончания' })
-  end_time: Date;
+/**
+ * Базовый DTO для информации об услуге в бронировании
+ */
+export class BookingServiceDto {
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string;
 
-  @ApiProperty({ description: 'Длительность в минутах' })
-  duration_minutes: number;
+  @Expose()
+  @ApiProperty({ example: 'Мужская стрижка' })
+  name: string;
 
-  @ApiProperty({ description: 'Цена' })
+  @Expose()
+  @ApiProperty({ example: 1500 })
   price: number;
 
-  @ApiProperty({ enum: BookingStatus })
+  @Expose()
+  @ApiProperty({ example: 60, description: 'Длительность в минутах' })
+  durationMinutes: number;
+}
+
+/**
+ * Response DTO для бронирования с camelCase полями
+ */
+export class BookingResponseDto {
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string;
+
+  @Expose()
+  @ApiProperty({ description: 'ID клиента' })
+  clientId: string;
+
+  @Expose()
+  @ApiProperty({ description: 'ID мастера' })
+  masterId: string;
+
+  @Expose()
+  @ApiProperty({ description: 'ID услуги' })
+  serviceId: string;
+
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T14:00:00Z', description: 'Время начала' })
+  startTime: Date;
+
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T15:30:00Z', description: 'Время окончания' })
+  endTime: Date;
+
+  @Expose()
+  @ApiProperty({ example: 90, description: 'Длительность в минутах' })
+  durationMinutes: number;
+
+  @Expose()
+  @ApiProperty({ example: 1500, description: 'Цена' })
+  price: number;
+
+  @Expose()
+  @ApiProperty({ enum: BookingStatus, description: 'Статус бронирования' })
   status: BookingStatus;
 
-  @ApiProperty({ description: 'Комментарий', required: false })
-  comment?: string;
+  @Expose()
+  @ApiProperty({ description: 'Комментарий клиента', nullable: true })
+  comment: string | null;
 
-  @ApiProperty({ description: 'Причина отмены', required: false })
-  cancellation_reason?: string;
+  @Expose()
+  @ApiProperty({ description: 'Причина отмены', nullable: true })
+  cancellationReason: string | null;
 
-  @ApiProperty({ description: 'Кто отменил', required: false })
-  cancelled_by?: string;
+  @Expose()
+  @ApiProperty({ description: 'Кто отменил запись (ID пользователя)', nullable: true })
+  cancelledBy: string | null;
 
-  @ApiProperty({ description: 'Клиент оставил отзыв' })
-  client_review_left: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Клиент оставил отзыв', default: false })
+  clientReviewLeft: boolean;
 
-  @ApiProperty({ description: 'Мастер оставил отзыв' })
-  master_review_left: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Мастер оставил отзыв', default: false })
+  masterReviewLeft: boolean;
 
-  @ApiProperty({ description: 'Дата завершения', required: false })
-  completed_at?: Date;
+  @Expose()
+  @ApiProperty({ description: 'Дата завершения услуги', nullable: true })
+  completedAt: Date | null;
 
-  @ApiProperty({ description: 'Адрес', required: false })
-  location_address?: string;
+  @Expose()
+  @ApiProperty({ description: 'Адрес (если выезд)', nullable: true })
+  locationAddress: string | null;
 
-  @ApiProperty({ description: 'Широта', required: false })
-  location_lat?: number;
+  @Expose()
+  @ApiProperty({ description: 'Широта', nullable: true })
+  locationLat: number | null;
 
-  @ApiProperty({ description: 'Долгота', required: false })
-  location_lng?: number;
+  @Expose()
+  @ApiProperty({ description: 'Долгота', nullable: true })
+  locationLng: number | null;
 
-  @ApiProperty({ description: 'Тип локации' })
-  location_type: string;
+  @Expose()
+  @ApiProperty({ description: 'Тип локации: salon, client_location, online', example: 'salon' })
+  locationType: string;
 
-  @ApiProperty({ description: 'Напоминание отправлено' })
-  reminder_sent: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Напоминание отправлено', default: false })
+  reminderSent: boolean;
 
-  @ApiProperty({ description: 'Когда отправлено напоминание', required: false })
-  reminder_sent_at?: Date;
+  @Expose()
+  @ApiProperty({ description: 'Когда отправлено напоминание', nullable: true })
+  reminderSentAt: Date | null;
 
-  @ApiProperty({ description: 'Метаданные', required: false })
-  metadata?: Record<string, any>;
+  @Expose()
+  @ApiProperty({ description: 'Метаданные (дополнительная информация)', nullable: true })
+  metadata: Record<string, any> | null;
 
-  @ApiProperty()
-  created_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  createdAt: Date;
 
-  @ApiProperty()
-  updated_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  updatedAt: Date;
 
   // Опциональные связанные данные для расширенных ответов
-  @ApiProperty({ required: false, description: 'Информация о клиенте' })
-  client?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-    phone?: string;
-  };
+  @Expose()
+  @Type(() => BookingUserDto)
+  @ApiProperty({ type: BookingUserDto, required: false, description: 'Информация о клиенте' })
+  client?: BookingUserDto;
 
-  @ApiProperty({ required: false, description: 'Информация о мастере' })
-  master?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-    phone?: string;
-  };
+  @Expose()
+  @Type(() => BookingUserDto)
+  @ApiProperty({ type: BookingUserDto, required: false, description: 'Информация о мастере' })
+  master?: BookingUserDto;
 
-  @ApiProperty({ required: false, description: 'Информация об услуге' })
-  service?: {
-    id: string;
-    name: string;
-    price: number;
-    duration_minutes: number;
-  };
+  @Expose()
+  @Type(() => BookingServiceDto)
+  @ApiProperty({ type: BookingServiceDto, required: false, description: 'Информация об услуге' })
+  service?: BookingServiceDto;
 }
