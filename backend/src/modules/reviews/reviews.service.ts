@@ -15,6 +15,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { ResponseReviewDto } from './dto/response-review.dto';
 import { ReviewResponseDto, ReviewStatsDto } from './dto/review-response.dto';
 import { FilterReviewsDto } from './dto/filter-reviews.dto';
+import { ReviewsMapper } from './reviews.mapper';
 
 @Injectable()
 export class ReviewsService {
@@ -267,13 +268,13 @@ export class ReviewsService {
     const totalReviews = reviews.length;
 
     if (totalReviews === 0) {
-      return {
+      return ReviewsMapper.toStatsDto({
         total_reviews: 0,
         average_rating: 0,
         rating_distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
         reviews_with_comments: 0,
         reviews_with_photos: 0,
-      };
+      });
     }
 
     // Средний рейтинг
@@ -296,13 +297,13 @@ export class ReviewsService {
       (r) => r.photo_urls && r.photo_urls.length > 0,
     ).length;
 
-    return {
+    return ReviewsMapper.toStatsDto({
       total_reviews: totalReviews,
       average_rating: averageRating,
       rating_distribution: ratingDistribution,
       reviews_with_comments: reviewsWithComments,
       reviews_with_photos: reviewsWithPhotos,
-    };
+    });
   }
 
   /**
@@ -500,22 +501,6 @@ export class ReviewsService {
    * Маппинг entity в DTO
    */
   private mapToResponseDto(review: Review): ReviewResponseDto {
-    return {
-      id: review.id,
-      booking_id: review.booking_id,
-      reviewer_id: review.reviewer_id,
-      reviewed_user_id: review.reviewed_user_id,
-      reviewer_type: review.reviewer_type,
-      rating: review.rating,
-      comment: review.comment,
-      photo_urls: review.photo_urls,
-      response: review.response,
-      response_at: review.response_at,
-      is_visible: review.is_visible,
-      reports_count: review.reports_count,
-      is_approved: review.is_approved,
-      created_at: review.created_at,
-      updated_at: review.updated_at,
-    };
+    return ReviewsMapper.toDto(review);
   }
 }
