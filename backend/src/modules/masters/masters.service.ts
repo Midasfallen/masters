@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MasterProfile } from './entities/master-profile.entity';
 import { User } from '../users/entities/user.entity';
+import { MasterProfileResponseDto } from './dto/master-profile-response.dto';
+import { MastersMapper } from './masters.mapper';
 import { Step1CategoriesDto } from './dto/step1-categories.dto';
 import { Step2ProfileInfoDto } from './dto/step2-profile-info.dto';
 import { Step3PortfolioDto } from './dto/step3-portfolio.dto';
@@ -27,7 +29,7 @@ export class MastersService {
    * Инициализация профиля мастера
    * Создает пустой профиль с setup_step = 0
    */
-  async initializeProfile(userId: string): Promise<MasterProfile> {
+  async initializeProfile(userId: string): Promise<MasterProfileResponseDto> {
     // Проверка, нет ли уже профиля
     const existingProfile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
@@ -45,7 +47,8 @@ export class MastersService {
       is_approved: false,
     });
 
-    return this.masterProfileRepository.save(masterProfile);
+    const saved = await this.masterProfileRepository.save(masterProfile);
+    return MastersMapper.toDto(saved);
   }
 
   /**
@@ -54,8 +57,14 @@ export class MastersService {
   async updateStep1(
     userId: string,
     step1Dto: Step1CategoriesDto,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     // Проверка последовательности шагов
     if (profile.setup_step > 1) {
@@ -71,7 +80,8 @@ export class MastersService {
     }
     profile.setup_step = 1;
 
-    return this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
+    return MastersMapper.toDto(saved);
   }
 
   /**
@@ -80,8 +90,14 @@ export class MastersService {
   async updateStep2(
     userId: string,
     step2Dto: Step2ProfileInfoDto,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     if (profile.setup_step < 1) {
       throw new BadRequestException('Сначала завершите шаг 1 (категории)');
@@ -110,7 +126,8 @@ export class MastersService {
 
     profile.setup_step = Math.max(profile.setup_step, 2);
 
-    return this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
+    return MastersMapper.toDto(saved);
   }
 
   /**
@@ -119,8 +136,14 @@ export class MastersService {
   async updateStep3(
     userId: string,
     step3Dto: Step3PortfolioDto,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     if (profile.setup_step < 2) {
       throw new BadRequestException('Сначала завершите шаг 2 (информация о профиле)');
@@ -139,7 +162,8 @@ export class MastersService {
 
     profile.setup_step = Math.max(profile.setup_step, 3);
 
-    return this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
+    return MastersMapper.toDto(saved);
   }
 
   /**
@@ -148,8 +172,14 @@ export class MastersService {
   async updateStep4(
     userId: string,
     step4Dto: Step4LocationDto,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     if (profile.setup_step < 3) {
       throw new BadRequestException('Сначала завершите шаг 3 (портфолио)');
@@ -180,7 +210,8 @@ export class MastersService {
 
     profile.setup_step = Math.max(profile.setup_step, 4);
 
-    return this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
+    return MastersMapper.toDto(saved);
   }
 
   /**
@@ -194,8 +225,14 @@ export class MastersService {
   async updateStep5(
     userId: string,
     step5Dto: Step5ScheduleDto,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     if (profile.setup_step < 4) {
       throw new BadRequestException('Сначала завершите шаг 4 (локация)');
@@ -222,7 +259,7 @@ export class MastersService {
     profile.setup_step = 5;
     profile.is_active = true; // Профиль становится активным
 
-    await this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
 
     // Обновление статуса пользователя
     const user = await this.userRepository.findOne({
@@ -235,35 +272,13 @@ export class MastersService {
       await this.userRepository.save(user);
     }
 
-    return profile;
+    return MastersMapper.toDto(saved);
   }
 
   /**
    * Получить профиль мастера текущего пользователя
    */
-  async getMyProfile(userId: string): Promise<MasterProfile> {
-    return this.getProfileByUserId(userId);
-  }
-
-  /**
-   * Получить профиль мастера по ID профиля
-   */
-  async getProfileById(profileId: string): Promise<MasterProfile> {
-    const profile = await this.masterProfileRepository.findOne({
-      where: { id: profileId },
-    });
-
-    if (!profile) {
-      throw new NotFoundException('Профиль мастера не найден');
-    }
-
-    return profile;
-  }
-
-  /**
-   * Получить профиль мастера по user_id
-   */
-  async getProfileByUserId(userId: string): Promise<MasterProfile> {
+  async getMyProfile(userId: string): Promise<MasterProfileResponseDto> {
     const profile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
     });
@@ -274,7 +289,22 @@ export class MastersService {
       );
     }
 
-    return profile;
+    return MastersMapper.toDto(profile);
+  }
+
+  /**
+   * Получить профиль мастера по ID профиля
+   */
+  async getProfileById(profileId: string): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { id: profileId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден');
+    }
+
+    return MastersMapper.toDto(profile);
   }
 
   /**
@@ -283,8 +313,14 @@ export class MastersService {
   async updateProfile(
     userId: string,
     updateData: Partial<MasterProfile>,
-  ): Promise<MasterProfile> {
-    const profile = await this.getProfileByUserId(userId);
+  ): Promise<MasterProfileResponseDto> {
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
 
     if (profile.setup_step < 5) {
       throw new ForbiddenException(
@@ -299,7 +335,8 @@ export class MastersService {
 
     Object.assign(profile, updateData);
 
-    return this.masterProfileRepository.save(profile);
+    const saved = await this.masterProfileRepository.save(profile);
+    return MastersMapper.toDto(saved);
   }
 
   /**

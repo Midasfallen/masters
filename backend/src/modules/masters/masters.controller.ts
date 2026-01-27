@@ -24,8 +24,7 @@ import { Step2ProfileInfoDto } from './dto/step2-profile-info.dto';
 import { Step3PortfolioDto } from './dto/step3-portfolio.dto';
 import { Step4LocationDto } from './dto/step4-location.dto';
 import { Step5ScheduleDto } from './dto/step5-schedule.dto';
-import { MasterProfileResponseDto } from './dto/master-profile-response.dto';
-import { MasterProfile } from './entities/master-profile.entity';
+import { MasterProfileResponseDtoResponseDto } from './dto/master-profile-response.dto';
 
 @ApiTags('masters')
 @ApiBearerAuth()
@@ -43,13 +42,13 @@ export class MastersController {
   @ApiResponse({
     status: 201,
     description: 'Профиль мастера создан',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
     description: 'Профиль мастера уже создан',
   })
-  async initializeProfile(@CurrentUser() user: User): Promise<MasterProfile> {
+  async initializeProfile(@CurrentUser() user: User): Promise<MasterProfileResponseDto> {
     return this.mastersService.initializeProfile(user.id);
   }
 
@@ -62,7 +61,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 1 завершен',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -71,7 +70,7 @@ export class MastersController {
   async updateStep1(
     @CurrentUser() user: User,
     @Body() step1Dto: Step1CategoriesDto,
-  ): Promise<MasterProfile> {
+  ): Promise<MasterProfileResponseDto> {
     return this.mastersService.updateStep1(user.id, step1Dto);
   }
 
@@ -85,7 +84,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 2 завершен',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -94,7 +93,7 @@ export class MastersController {
   async updateStep2(
     @CurrentUser() user: User,
     @Body() step2Dto: Step2ProfileInfoDto,
-  ): Promise<MasterProfile> {
+  ): Promise<MasterProfileResponseDto> {
     return this.mastersService.updateStep2(user.id, step2Dto);
   }
 
@@ -108,7 +107,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 3 завершен',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -117,7 +116,7 @@ export class MastersController {
   async updateStep3(
     @CurrentUser() user: User,
     @Body() step3Dto: Step3PortfolioDto,
-  ): Promise<MasterProfile> {
+  ): Promise<MasterProfileResponseDto> {
     return this.mastersService.updateStep3(user.id, step3Dto);
   }
 
@@ -130,7 +129,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 4 завершен',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -139,7 +138,7 @@ export class MastersController {
   async updateStep4(
     @CurrentUser() user: User,
     @Body() step4Dto: Step4LocationDto,
-  ): Promise<MasterProfile> {
+  ): Promise<MasterProfileResponseDto> {
     return this.mastersService.updateStep4(user.id, step4Dto);
   }
 
@@ -154,7 +153,7 @@ export class MastersController {
     status: 200,
     description:
       'Профиль мастера создан! Пользователь теперь мастер (is_master=true)',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -163,7 +162,7 @@ export class MastersController {
   async updateStep5(
     @CurrentUser() user: User,
     @Body() step5Dto: Step5ScheduleDto,
-  ): Promise<MasterProfile> {
+  ): Promise<MasterProfileResponseDto> {
     return this.mastersService.updateStep5(user.id, step5Dto);
   }
 
@@ -176,13 +175,13 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Профиль мастера',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 404,
     description: 'Профиль мастера не найден',
   })
-  async getMyProfile(@CurrentUser() user: User): Promise<MasterProfile> {
+  async getMyProfile(@CurrentUser() user: User): Promise<MasterProfileResponseDto> {
     return this.mastersService.getMyProfile(user.id);
   }
 
@@ -200,13 +199,13 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Профиль мастера',
-    type: MasterProfileResponseDto,
+    type: MasterProfileResponseDtoResponseDto,
   })
   @ApiResponse({
     status: 404,
     description: 'Профиль не найден',
   })
-  async getProfileById(@Param('id') id: string): Promise<MasterProfile> {
+  async getProfileById(@Param('id') id: string): Promise<MasterProfileResponseDto> {
     return this.mastersService.getProfileById(id);
   }
 }

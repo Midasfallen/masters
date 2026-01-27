@@ -1,114 +1,151 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 /**
- * Ответ с информацией о профиле мастера
+ * Response DTO для профиля мастера с camelCase полями
  */
 export class MasterProfileResponseDto {
-  @ApiProperty()
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty()
-  user_id: string;
+  @Expose()
+  @ApiProperty({ description: 'ID пользователя' })
+  userId: string;
 
-  @ApiProperty({ required: false })
-  business_name: string;
+  @Expose()
+  @ApiProperty({ description: 'Название бизнеса/салона', nullable: true })
+  businessName: string | null;
 
-  @ApiProperty()
-  bio: string;
+  @Expose()
+  @ApiProperty({ description: 'Биография мастера', nullable: true })
+  bio: string | null;
 
-  @ApiProperty({ type: [String] })
-  category_ids: string[];
+  @Expose()
+  @ApiProperty({ description: 'ID категорий услуг', type: [String] })
+  categoryIds: string[];
 
-  @ApiProperty({ type: [String] })
-  subcategory_ids: string[];
+  @Expose()
+  @ApiProperty({ description: 'ID подкатегорий', type: [String] })
+  subcategoryIds: string[];
 
-  @ApiProperty({ example: 4.85 })
+  @Expose()
+  @ApiProperty({ description: 'Средний рейтинг', example: 4.85 })
   rating: number;
 
-  @ApiProperty()
-  reviews_count: number;
+  @Expose()
+  @ApiProperty({ description: 'Количество отзывов', example: 127 })
+  reviewsCount: number;
 
-  @ApiProperty()
-  completed_bookings: number;
+  @Expose()
+  @ApiProperty({ description: 'Завершенные бронирования', example: 245 })
+  completedBookings: number;
 
-  @ApiProperty()
-  views_count: number;
+  @Expose()
+  @ApiProperty({ description: 'Количество отмен', example: 5 })
+  cancellationsCount: number;
 
-  @ApiProperty()
-  favorites_count: number;
+  @Expose()
+  @ApiProperty({ description: 'Просмотры профиля', example: 750 })
+  viewsCount: number;
 
-  @ApiProperty()
-  subscribers_count: number;
+  @Expose()
+  @ApiProperty({ description: 'В избранном у клиентов', example: 42 })
+  favoritesCount: number;
 
-  @ApiProperty({ required: false })
-  location_lat: number;
+  @Expose()
+  @ApiProperty({ description: 'Подписчики', example: 128 })
+  subscribersCount: number;
 
-  @ApiProperty({ required: false })
-  location_lng: number;
+  @Expose()
+  @ApiProperty({ description: 'Широта локации', nullable: true, example: 55.7558 })
+  locationLat: number | null;
 
-  @ApiProperty({ required: false })
-  location_address: string;
+  @Expose()
+  @ApiProperty({ description: 'Долгота локации', nullable: true, example: 37.6173 })
+  locationLng: number | null;
 
-  @ApiProperty({ required: false })
-  location_name: string;
+  @Expose()
+  @ApiProperty({ description: 'Адрес', nullable: true })
+  locationAddress: string | null;
 
-  @ApiProperty({ required: false })
-  service_radius_km: number;
+  @Expose()
+  @ApiProperty({ description: 'Название локации', nullable: true })
+  locationName: string | null;
 
-  @ApiProperty()
-  is_mobile: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Радиус обслуживания (км)', nullable: true, example: 10 })
+  serviceRadiusKm: number | null;
 
-  @ApiProperty()
-  has_location: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Выездное обслуживание', default: false })
+  isMobile: boolean;
 
-  @ApiProperty()
-  is_online_only: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Есть салон/студия', default: false })
+  hasLocation: boolean;
 
-  @ApiProperty({ type: [String] })
-  portfolio_urls: string[];
+  @Expose()
+  @ApiProperty({ description: 'Только онлайн', default: false })
+  isOnlineOnly: boolean;
 
-  @ApiProperty({ type: [String] })
-  video_urls: string[];
+  @Expose()
+  @ApiProperty({ description: 'Фото портфолио', type: [String] })
+  portfolioUrls: string[];
 
-  @ApiProperty({ type: 'object' })
-  social_links: Record<string, string>;
+  @Expose()
+  @ApiProperty({ description: 'Видео (15 сек)', type: [String] })
+  videoUrls: string[];
 
-  @ApiProperty({ type: 'object' })
-  working_hours: Record<string, any>;
+  @Expose()
+  @ApiProperty({ description: 'Ссылки на соцсети', type: 'object' })
+  socialLinks: Record<string, string> | null;
 
-  @ApiProperty()
-  min_booking_hours: number;
+  @Expose()
+  @ApiProperty({ description: 'Время работы', type: 'object' })
+  workingHours: Record<string, any> | null;
 
-  @ApiProperty({ required: false })
-  max_bookings_per_day: number;
+  @Expose()
+  @ApiProperty({ description: 'Минимальное время записи (часов)', example: 2 })
+  minBookingHours: number;
 
-  @ApiProperty()
-  auto_confirm: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Максимум записей в день', nullable: true, example: 10 })
+  maxBookingsPerDay: number | null;
 
-  @ApiProperty({ required: false })
-  years_of_experience: number;
+  @Expose()
+  @ApiProperty({ description: 'Автоподтверждение записей', default: false })
+  autoConfirm: boolean;
 
-  @ApiProperty({ type: [String] })
+  @Expose()
+  @ApiProperty({ description: 'Опыт работы (лет)', nullable: true, example: 10 })
+  yearsOfExperience: number | null;
+
+  @Expose()
+  @ApiProperty({ description: 'Сертификаты/образование', type: [String] })
   certificates: string[];
 
-  @ApiProperty({ type: [String] })
+  @Expose()
+  @ApiProperty({ description: 'Языки', type: [String], example: ['ru', 'en'] })
   languages: string[];
 
-  @ApiProperty()
-  is_active: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Профиль активен', default: true })
+  isActive: boolean;
 
-  @ApiProperty()
-  is_approved: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Профиль одобрен администрацией', default: false })
+  isApproved: boolean;
 
-  @ApiProperty({
-    description: 'Текущий шаг создания профиля (0-5)',
-    example: 5,
-  })
-  setup_step: number;
+  @Expose()
+  @ApiProperty({ description: 'Текущий шаг создания профиля (0-5)', example: 5 })
+  setupStep: number;
 
-  @ApiProperty()
-  created_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  createdAt: Date;
 
-  @ApiProperty()
-  updated_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  updatedAt: Date;
 }
