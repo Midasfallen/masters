@@ -24,7 +24,7 @@ import { Step2ProfileInfoDto } from './dto/step2-profile-info.dto';
 import { Step3PortfolioDto } from './dto/step3-portfolio.dto';
 import { Step4LocationDto } from './dto/step4-location.dto';
 import { Step5ScheduleDto } from './dto/step5-schedule.dto';
-import { MasterProfileResponseDtoResponseDto } from './dto/master-profile-response.dto';
+import { MasterProfileResponseDto } from './dto/master-profile-response.dto';
 
 @ApiTags('masters')
 @ApiBearerAuth()

@@ -240,7 +240,13 @@ export class ServicesService {
    * Только владелец может удалять свои услуги
    */
   async remove(userId: string, serviceId: string): Promise<void> {
-    const service = await this.findById(serviceId);
+    const service = await this.serviceRepository.findOne({
+      where: { id: serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Услуга не найдена');
+    }
 
     // Проверка владельца
     const masterProfile = await this.masterProfileRepository.findOne({

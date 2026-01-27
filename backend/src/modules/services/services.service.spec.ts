@@ -420,7 +420,7 @@ describe('ServicesService', () => {
 
       const result = await service.deactivate(mockUserId, mockServiceId);
 
-      expect(result.is_active).toBe(false);
+      expect(result.isActive).toBe(false);
       expect(mockServiceRepository.save).toHaveBeenCalled();
     });
 
@@ -449,7 +449,7 @@ describe('ServicesService', () => {
 
       const result = await service.activate(mockUserId, mockServiceId);
 
-      expect(result.is_active).toBe(true);
+      expect(result.isActive).toBe(true);
       expect(mockServiceRepository.save).toHaveBeenCalled();
     });
 
