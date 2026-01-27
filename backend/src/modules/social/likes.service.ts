@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Like, LikableType } from './entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { LikeResponseDto } from './dto/like-response.dto';
+import { SocialMapper } from './social.mapper';
 import { Post } from '../posts/entities/post.entity';
 import { Comment } from './entities/comment.entity';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
@@ -23,7 +25,7 @@ export class LikesService {
     private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
-  async create(userId: string, createLikeDto: CreateLikeDto) {
+  async create(userId: string, createLikeDto: CreateLikeDto): Promise<LikeResponseDto> {
     const { likable_type, likable_id } = createLikeDto;
 
     // Проверка существования объекта
@@ -70,7 +72,7 @@ export class LikesService {
       }
     }
 
-    return savedLike;
+    return SocialMapper.toLikeDto(savedLike);
   }
 
   async remove(userId: string, likableType: string, likableId: string) {

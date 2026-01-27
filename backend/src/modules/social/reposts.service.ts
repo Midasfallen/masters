@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Repost } from './entities/repost.entity';
 import { CreateRepostDto } from './dto/create-repost.dto';
+import { RepostResponseDto } from './dto/repost-response.dto';
+import { SocialMapper } from './social.mapper';
 import { Post } from '../posts/entities/post.entity';
 
 @Injectable()
@@ -18,7 +20,7 @@ export class RepostsService {
     private readonly postRepository: Repository<Post>,
   ) {}
 
-  async create(userId: string, createRepostDto: CreateRepostDto) {
+  async create(userId: string, createRepostDto: CreateRepostDto): Promise<RepostResponseDto> {
     const { post_id, comment } = createRepostDto;
 
     // Проверка существования поста
@@ -51,7 +53,7 @@ export class RepostsService {
     // Увеличиваем счетчик репостов
     await this.postRepository.increment({ id: post_id }, 'reposts_count', 1);
 
-    return savedRepost;
+    return SocialMapper.toRepostDto(savedRepost);
   }
 
   async remove(userId: string, postId: string) {

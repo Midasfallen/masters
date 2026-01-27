@@ -10,6 +10,8 @@ import { Comment } from './entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { FilterCommentsDto } from './dto/filter-comments.dto';
+import { CommentResponseDto } from './dto/comment-response.dto';
+import { SocialMapper } from './social.mapper';
 import { Post } from '../posts/entities/post.entity';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
@@ -23,7 +25,7 @@ export class CommentsService {
     private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
-  async create(userId: string, createCommentDto: CreateCommentDto) {
+  async create(userId: string, createCommentDto: CreateCommentDto): Promise<CommentResponseDto> {
     // Проверка существования поста
     const post = await this.postRepository.findOne({
       where: { id: createCommentDto.post_id },
@@ -74,8 +76,11 @@ export class CommentsService {
       );
     }
 
-    // Получаем полный комментарий с автором
-    const fullComment = await this.findOne(savedComment.id);
+    // Получаем полный комментарий с автором для WebSocket
+    const fullComment = await this.commentRepository.findOne({
+      where: { id: savedComment.id },
+      relations: ['author'],
+    });
 
     // Отправляем WebSocket событие
     const updatedPost = await this.postRepository.findOne({
@@ -83,7 +88,7 @@ export class CommentsService {
       relations: ['author'],
     });
 
-    if (updatedPost) {
+    if (updatedPost && fullComment) {
       this.websocketGateway.broadcastPostCommented(createCommentDto.post_id, {
         comment_id: fullComment.id,
         user_id: userId,
@@ -99,7 +104,7 @@ export class CommentsService {
       });
     }
 
-    return fullComment;
+    return SocialMapper.toCommentDto(fullComment);
   }
 
   async findAll(filterDto: FilterCommentsDto) {
@@ -127,7 +132,7 @@ export class CommentsService {
       .getManyAndCount();
 
     return {
-      data: comments,
+      data: SocialMapper.toCommentDtoArray(comments),
       meta: {
         page,
         limit,
@@ -137,7 +142,7 @@ export class CommentsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<CommentResponseDto> {
     const comment = await this.commentRepository.findOne({
       where: { id },
       relations: ['author'],
@@ -147,10 +152,10 @@ export class CommentsService {
       throw new NotFoundException('Comment not found');
     }
 
-    return comment;
+    return SocialMapper.toCommentDto(comment);
   }
 
-  async update(id: string, userId: string, updateCommentDto: UpdateCommentDto) {
+  async update(id: string, userId: string, updateCommentDto: UpdateCommentDto): Promise<CommentResponseDto> {
     const comment = await this.commentRepository.findOne({ where: { id } });
 
     if (!comment) {

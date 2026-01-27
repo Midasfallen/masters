@@ -9,6 +9,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { LikeResponseDto } from './dto/like-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -21,7 +22,7 @@ export class LikesController {
 
   @Post()
   @ApiOperation({ summary: 'Поставить лайк' })
-  create(@CurrentUser('id') userId: string, @Body() createLikeDto: CreateLikeDto) {
+  create(@CurrentUser('id') userId: string, @Body() createLikeDto: CreateLikeDto): Promise<LikeResponseDto> {
     return this.likesService.create(userId, createLikeDto);
   }
 

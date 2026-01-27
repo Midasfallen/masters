@@ -9,6 +9,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RepostsService } from './reposts.service';
 import { CreateRepostDto } from './dto/create-repost.dto';
+import { RepostResponseDto } from './dto/repost-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -21,7 +22,7 @@ export class RepostsController {
 
   @Post()
   @ApiOperation({ summary: 'Сделать репост' })
-  create(@CurrentUser('id') userId: string, @Body() createRepostDto: CreateRepostDto) {
+  create(@CurrentUser('id') userId: string, @Body() createRepostDto: CreateRepostDto): Promise<RepostResponseDto> {
     return this.repostsService.create(userId, createRepostDto);
   }
 
