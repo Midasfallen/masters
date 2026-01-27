@@ -8,15 +8,15 @@ part 'chat_model.g.dart';
 class ChatModel with _$ChatModel {
   const factory ChatModel({
     required String id,
-    @JsonKey(name: 'user1_id') required String user1Id,
-    @JsonKey(name: 'user2_id') required String user2Id,
+    required String user1Id,
+    required String user2Id,
     UserModel? user1,
     UserModel? user2,
-    @JsonKey(name: 'last_message') MessageModel? lastMessage,
-    @JsonKey(name: 'unread_count') required int unreadCount,
-    @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    MessageModel? lastMessage,
+    required int unreadCount,
+    ChatParticipantModel? myParticipant,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _ChatModel;
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
@@ -27,12 +27,12 @@ class ChatModel with _$ChatModel {
 class ChatParticipantModel with _$ChatParticipantModel {
   const factory ChatParticipantModel({
     required String id,
-    @JsonKey(name: 'chat_id') required String chatId,
-    @JsonKey(name: 'user_id') required String userId,
-    @JsonKey(name: 'is_pinned') required bool isPinned,
-    @JsonKey(name: 'is_archived') required bool isArchived,
-    @JsonKey(name: 'unread_count') required int unreadCount,
-    @JsonKey(name: 'last_read_message_id') String? lastReadMessageId,
+    required String chatId,
+    required String userId,
+    required bool isPinned,
+    required bool isArchived,
+    required int unreadCount,
+    String? lastReadMessageId,
   }) = _ChatParticipantModel;
 
   factory ChatParticipantModel.fromJson(Map<String, dynamic> json) =>
@@ -44,18 +44,18 @@ class ChatParticipantModel with _$ChatParticipantModel {
 class MessageModel with _$MessageModel {
   const factory MessageModel({
     required String id,
-    @JsonKey(name: 'chat_id') required String chatId,
-    @JsonKey(name: 'sender_id') required String senderId,
-    @JsonKey(name: 'receiver_id') required String receiverId,
+    required String chatId,
+    required String senderId,
+    required String receiverId,
     UserModel? sender,
     required String content,
     required MessageType type,
-    @JsonKey(name: 'media_url') String? mediaUrl,
+    String? mediaUrl,
     Map<String, dynamic>? metadata,
-    @JsonKey(name: 'is_read') required bool isRead,
-    @JsonKey(name: 'read_at') DateTime? readAt,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    required bool isRead,
+    DateTime? readAt,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
