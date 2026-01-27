@@ -14,6 +14,7 @@ import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { FilterMessagesDto } from './dto/filter-messages.dto';
+import { MessageResponseDto } from './dto/message-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -26,7 +27,7 @@ export class MessagesController {
 
   @Post()
   @ApiOperation({ summary: 'Отправить сообщение' })
-  create(@CurrentUser('id') userId: string, @Body() createMessageDto: CreateMessageDto) {
+  create(@CurrentUser('id') userId: string, @Body() createMessageDto: CreateMessageDto): Promise<MessageResponseDto> {
     return this.messagesService.create(userId, createMessageDto);
   }
 
@@ -38,7 +39,7 @@ export class MessagesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Получить сообщение по ID' })
-  findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  findOne(@Param('id') id: string, @CurrentUser('id') userId: string): Promise<MessageResponseDto> {
     return this.messagesService.findOne(id, userId);
   }
 
@@ -48,7 +49,7 @@ export class MessagesController {
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
     @Body() updateMessageDto: UpdateMessageDto,
-  ) {
+  ): Promise<MessageResponseDto> {
     return this.messagesService.update(id, userId, updateMessageDto);
   }
 

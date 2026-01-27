@@ -14,6 +14,7 @@ import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
+import { ChatResponseDto } from './dto/chat-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -27,7 +28,7 @@ export class ChatsController {
 
   @Post()
   @ApiOperation({ summary: 'Создать новый чат' })
-  create(@CurrentUser('id') userId: string, @Body() createChatDto: CreateChatDto) {
+  create(@CurrentUser('id') userId: string, @Body() createChatDto: CreateChatDto): Promise<ChatResponseDto> {
     return this.chatsService.create(userId, createChatDto);
   }
 
@@ -39,7 +40,7 @@ export class ChatsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Получить чат по ID' })
-  findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  findOne(@Param('id') id: string, @CurrentUser('id') userId: string): Promise<ChatResponseDto> {
     return this.chatsService.findOne(id, userId);
   }
 
@@ -49,7 +50,7 @@ export class ChatsController {
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
     @Body() updateChatDto: UpdateChatDto,
-  ) {
+  ): Promise<ChatResponseDto> {
     return this.chatsService.update(id, userId, updateChatDto);
   }
 

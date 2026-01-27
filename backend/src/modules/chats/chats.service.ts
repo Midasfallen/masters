@@ -12,6 +12,8 @@ import { ChatParticipant, ParticipantRole } from './entities/chat-participant.en
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
+import { ChatResponseDto } from './dto/chat-response.dto';
+import { ChatsMapper } from './chats.mapper';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -26,7 +28,7 @@ export class ChatsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(userId: string, createChatDto: CreateChatDto) {
+  async create(userId: string, createChatDto: CreateChatDto): Promise<ChatResponseDto> {
     const { type, name, avatar_url, participant_ids } = createChatDto;
 
     // Валидация: direct чат должен иметь ровно 1 другого участника
@@ -47,7 +49,7 @@ export class ChatsService {
     if (type === ChatType.DIRECT) {
       const existingChat = await this.findExistingDirectChat(userId, participant_ids[0]);
       if (existingChat) {
-        return existingChat;
+        return this.findOne(existingChat.id, userId);
       }
     }
 
@@ -103,10 +105,11 @@ export class ChatsService {
       .take(limit)
       .getManyAndCount();
 
-    const chats = participants.map((p) => ({
-      ...p.chat,
-      my_participant: p,
-    }));
+    const chats = participants.map((p) => {
+      const chatDto = ChatsMapper.toChatDto(p.chat);
+      chatDto.myParticipant = ChatsMapper.toParticipantDto(p);
+      return chatDto;
+    });
 
     return {
       data: chats,
@@ -119,7 +122,7 @@ export class ChatsService {
     };
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId: string): Promise<ChatResponseDto> {
     const chat = await this.chatRepository.findOne({
       where: { id },
       relations: ['participants', 'participants.user'],
@@ -135,13 +138,12 @@ export class ChatsService {
       throw new ForbiddenException('Access denied');
     }
 
-    return {
-      ...chat,
-      my_participant: myParticipant,
-    };
+    const chatDto = ChatsMapper.toChatDto(chat);
+    chatDto.myParticipant = ChatsMapper.toParticipantDto(myParticipant);
+    return chatDto;
   }
 
-  async update(id: string, userId: string, updateChatDto: UpdateChatDto) {
+  async update(id: string, userId: string, updateChatDto: UpdateChatDto): Promise<ChatResponseDto> {
     const chat = await this.chatRepository.findOne({
       where: { id },
       relations: ['participants'],

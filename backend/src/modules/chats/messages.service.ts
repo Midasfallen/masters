@@ -12,6 +12,8 @@ import { ChatParticipant } from './entities/chat-participant.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { FilterMessagesDto } from './dto/filter-messages.dto';
+import { MessageResponseDto } from './dto/message-response.dto';
+import { ChatsMapper } from './chats.mapper';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
@@ -26,7 +28,7 @@ export class MessagesService {
     private readonly websocketGateway: AppWebSocketGateway,
   ) {}
 
-  async create(userId: string, createMessageDto: CreateMessageDto) {
+  async create(userId: string, createMessageDto: CreateMessageDto): Promise<MessageResponseDto> {
     const { chat_id, type, reply_to_id } = createMessageDto;
 
     // Проверка участия в чате
@@ -81,26 +83,26 @@ export class MessagesService {
     // Отправляем WebSocket событие всем участникам чата
     this.websocketGateway.sendMessageToChat(chat_id, 'chat:message:new', {
       id: fullMessage.id,
-      chat_id: fullMessage.chat_id,
-      sender_id: fullMessage.sender_id,
+      chatId: fullMessage.chatId,
+      senderId: fullMessage.senderId,
       sender_name: fullMessage.sender
         ? `${fullMessage.sender.first_name} ${fullMessage.sender.last_name}`
         : 'Unknown',
       sender_avatar: fullMessage.sender?.avatar_url || null,
       type: fullMessage.type,
       content: fullMessage.content,
-      media_url: fullMessage.media_url,
-      thumbnail_url: fullMessage.thumbnail_url,
-      location_lat: fullMessage.location_lat,
-      location_lng: fullMessage.location_lng,
-      location_name: fullMessage.location_name,
-      shared_profile_id: fullMessage.shared_profile_id,
-      shared_post_id: fullMessage.shared_post_id,
-      booking_proposal_id: fullMessage.booking_proposal_id,
-      reply_to_id: fullMessage.reply_to_id,
-      created_at: fullMessage.created_at.toISOString(),
-      is_edited: fullMessage.is_edited,
-      is_deleted: fullMessage.is_deleted,
+      mediaUrl: fullMessage.mediaUrl,
+      thumbnailUrl: fullMessage.thumbnailUrl,
+      locationLat: fullMessage.locationLat,
+      locationLng: fullMessage.locationLng,
+      locationName: fullMessage.locationName,
+      sharedProfileId: fullMessage.sharedProfileId,
+      sharedPostId: fullMessage.sharedPostId,
+      bookingProposalId: fullMessage.bookingProposalId,
+      replyToId: fullMessage.replyToId,
+      createdAt: fullMessage.createdAt.toISOString(),
+      isEdited: fullMessage.isEdited,
+      isDeleted: fullMessage.isDeleted,
     });
 
     return fullMessage;
@@ -136,8 +138,10 @@ export class MessagesService {
       .take(limit)
       .getManyAndCount();
 
+    const messageDtos = ChatsMapper.toMessageDtoArray(messages.reverse());
+
     return {
-      data: messages.reverse(), // Реверсируем для хронологического порядка
+      data: messageDtos,
       meta: {
         page,
         limit,
@@ -147,7 +151,7 @@ export class MessagesService {
     };
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId: string): Promise<MessageResponseDto> {
     const message = await this.messageRepository.findOne({
       where: { id },
       relations: ['sender', 'reply_to', 'reply_to.sender', 'chat'],
@@ -166,10 +170,10 @@ export class MessagesService {
       throw new ForbiddenException('Access denied');
     }
 
-    return message;
+    return ChatsMapper.toMessageDto(message);
   }
 
-  async update(id: string, userId: string, updateMessageDto: UpdateMessageDto) {
+  async update(id: string, userId: string, updateMessageDto: UpdateMessageDto): Promise<MessageResponseDto> {
     const message = await this.messageRepository.findOne({
       where: { id },
     });
