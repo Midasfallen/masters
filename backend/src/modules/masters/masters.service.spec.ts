@@ -120,8 +120,8 @@ describe('MastersService', () => {
 
       const result = await service.updateStep1('user-1', step1Dto);
 
-      expect(result.setup_step).toBe(1);
-      expect(result.category_ids).toEqual(step1Dto.category_ids);
+      expect(result.setupStep).toBe(1);
+      expect(result.categoryIds).toEqual(step1Dto.category_ids);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
 
@@ -165,7 +165,7 @@ describe('MastersService', () => {
 
       const result = await service.updateStep2('user-1', step2Dto);
 
-      expect(result.setup_step).toBe(2);
+      expect(result.setupStep).toBe(2);
       expect(result.business_name).toBe(step2Dto.business_name);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
@@ -198,8 +198,8 @@ describe('MastersService', () => {
 
       const result = await service.updateStep3('user-1', step3Dto);
 
-      expect(result.setup_step).toBe(3);
-      expect(result.portfolio_urls).toEqual(step3Dto.portfolio_urls);
+      expect(result.setupStep).toBe(3);
+      expect(result.portfolioUrls).toEqual(step3Dto.portfolio_urls);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
 
@@ -235,8 +235,8 @@ describe('MastersService', () => {
 
       const result = await service.updateStep4('user-1', step4Dto);
 
-      expect(result.setup_step).toBe(4);
-      expect(result.location_address).toBe(step4Dto.location_address);
+      expect(result.setupStep).toBe(4);
+      expect(result.locationAddress).toBe(step4Dto.location_address);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
 
@@ -277,8 +277,8 @@ describe('MastersService', () => {
 
       const result = await service.updateStep5('user-1', step5Dto);
 
-      expect(result.setup_step).toBe(5);
-      expect(result.is_active).toBe(true);
+      expect(result.setupStep).toBe(5);
+      expect(result.isActive).toBe(true);
       expect(mockUserRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({
           is_master: true,

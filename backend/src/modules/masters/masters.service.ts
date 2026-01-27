@@ -343,7 +343,14 @@ export class MastersService {
    * Удалить профиль мастера
    */
   async deleteProfile(userId: string): Promise<void> {
-    const profile = await this.getProfileByUserId(userId);
+    const profile = await this.masterProfileRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Профиль мастера не найден. Начните создание профиля.');
+    }
+
     await this.masterProfileRepository.remove(profile);
 
     // Обновляем статус пользователя

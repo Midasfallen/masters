@@ -42,7 +42,7 @@ export class MastersController {
   @ApiResponse({
     status: 201,
     description: 'Профиль мастера создан',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -61,7 +61,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 1 завершен',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -84,7 +84,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 2 завершен',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -107,7 +107,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 3 завершен',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -129,7 +129,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Шаг 4 завершен',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -153,7 +153,7 @@ export class MastersController {
     status: 200,
     description:
       'Профиль мастера создан! Пользователь теперь мастер (is_master=true)',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -175,7 +175,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Профиль мастера',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 404,
@@ -199,7 +199,7 @@ export class MastersController {
   @ApiResponse({
     status: 200,
     description: 'Профиль мастера',
-    type: MasterProfileResponseDtoResponseDto,
+    type: MasterProfileResponseDto,
   })
   @ApiResponse({
     status: 404,
