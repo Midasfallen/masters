@@ -13,6 +13,7 @@ import { NotificationResponseDto } from './dto/notification-response.dto';
 import { FilterNotificationsDto } from './dto/filter-notifications.dto';
 import { MarkAsReadDto } from './dto/mark-as-read.dto';
 import { RegisterDeviceDto } from './dto/register-device.dto';
+import { NotificationsMapper } from './notifications.mapper';
 import { FCMService } from './fcm.service';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
 
@@ -136,7 +137,7 @@ export class NotificationsService {
     });
 
     return {
-      data: notifications.map((n) => this.mapToResponseDto(n)),
+      data: NotificationsMapper.toDtoArray(notifications),
       total,
       unread_count: unreadCount,
       page,
@@ -163,7 +164,7 @@ export class NotificationsService {
       throw new ForbiddenException('Нет доступа к этому уведомлению');
     }
 
-    return this.mapToResponseDto(notification);
+    return NotificationsMapper.toDto(notification);
   }
 
   /**
@@ -188,7 +189,7 @@ export class NotificationsService {
     notification.is_read = true;
     const updated = await this.notificationRepository.save(notification);
 
-    return this.mapToResponseDto(updated);
+    return NotificationsMapper.toDto(updated);
   }
 
   /**
@@ -627,22 +628,4 @@ export class NotificationsService {
     );
   }
 
-  /**
-   * Маппинг entity в DTO
-   */
-  private mapToResponseDto(notification: Notification): NotificationResponseDto {
-    return {
-      id: notification.id,
-      user_id: notification.user_id,
-      type: notification.type,
-      title: notification.title,
-      message: notification.message,
-      is_read: notification.is_read,
-      related_id: notification.related_id,
-      related_type: notification.related_type,
-      metadata: notification.metadata,
-      action_url: notification.action_url,
-      created_at: notification.created_at,
-    };
-  }
 }

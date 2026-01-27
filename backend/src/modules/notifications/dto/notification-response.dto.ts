@@ -1,37 +1,52 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { NotificationType } from '../entities/notification.entity';
 
+/**
+ * Response DTO для уведомления с camelCase полями
+ */
 export class NotificationResponseDto {
-  @ApiProperty()
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty()
-  user_id: string;
+  @Expose()
+  @ApiProperty({ description: 'ID пользователя-получателя' })
+  userId: string;
 
-  @ApiProperty({ enum: NotificationType })
+  @Expose()
+  @ApiProperty({ enum: NotificationType, example: NotificationType.BOOKING_CONFIRMED })
   type: NotificationType;
 
-  @ApiProperty()
+  @Expose()
+  @ApiProperty({ example: 'Бронирование подтверждено' })
   title: string;
 
-  @ApiProperty()
+  @Expose()
+  @ApiProperty({ example: 'Ваша запись на 25 января подтверждена' })
   message: string;
 
-  @ApiProperty()
-  is_read: boolean;
+  @Expose()
+  @ApiProperty({ example: false, description: 'Прочитано ли уведомление' })
+  isRead: boolean;
 
-  @ApiProperty({ required: false })
-  related_id?: string;
+  @Expose()
+  @ApiProperty({ required: false, nullable: true, description: 'ID связанной сущности' })
+  relatedId?: string | null;
 
-  @ApiProperty({ required: false })
-  related_type?: string;
+  @Expose()
+  @ApiProperty({ required: false, nullable: true, description: 'Тип связанной сущности' })
+  relatedType?: string | null;
 
-  @ApiProperty({ required: false })
-  metadata?: Record<string, any>;
+  @Expose()
+  @ApiProperty({ required: false, nullable: true, description: 'Дополнительные метаданные' })
+  metadata?: Record<string, any> | null;
 
-  @ApiProperty({ required: false })
-  action_url?: string;
+  @Expose()
+  @ApiProperty({ required: false, nullable: true, description: 'URL для действия' })
+  actionUrl?: string | null;
 
-  @ApiProperty()
-  created_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z', description: 'Дата создания' })
+  createdAt: Date;
 }
