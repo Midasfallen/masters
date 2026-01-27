@@ -1,69 +1,95 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
+/**
+ * Response DTO для услуги с camelCase полями
+ */
 export class ServiceResponseDto {
-  @ApiProperty()
+  @Expose()
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
-  @ApiProperty()
-  master_id: string;
+  @Expose()
+  @ApiProperty({ description: 'ID мастера' })
+  masterId: string;
 
-  @ApiProperty()
-  category_id: string;
+  @Expose()
+  @ApiProperty({ description: 'ID категории' })
+  categoryId: string;
 
-  @ApiProperty({ required: false })
-  subcategory_id: string;
+  @Expose()
+  @ApiProperty({ description: 'ID подкатегории', nullable: true })
+  subcategoryId: string | null;
 
+  @Expose()
   @ApiProperty({ example: 'Мужская стрижка' })
   name: string;
 
-  @ApiProperty({ required: false })
-  description: string;
+  @Expose()
+  @ApiProperty({ description: 'Описание услуги', nullable: true })
+  description: string | null;
 
-  @ApiProperty({ example: 1500 })
+  @Expose()
+  @ApiProperty({ description: 'Цена услуги', example: 1500 })
   price: number;
 
-  @ApiProperty({ example: 'RUB', default: 'RUB' })
+  @Expose()
+  @ApiProperty({ description: 'Валюта', example: 'RUB', default: 'RUB' })
   currency: string;
 
-  @ApiProperty({ required: false })
-  price_from: number;
+  @Expose()
+  @ApiProperty({ description: 'Цена от (для диапазона)', nullable: true })
+  priceFrom: number | null;
 
-  @ApiProperty({ required: false })
-  price_to: number;
+  @Expose()
+  @ApiProperty({ description: 'Цена до (для диапазона)', nullable: true })
+  priceTo: number | null;
 
-  @ApiProperty({ example: 60 })
-  duration_minutes: number;
+  @Expose()
+  @ApiProperty({ description: 'Длительность в минутах', example: 60 })
+  durationMinutes: number;
 
-  @ApiProperty({ default: true })
-  is_bookable_online: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Доступна для онлайн-бронирования', default: true })
+  isBookableOnline: boolean;
 
-  @ApiProperty({ default: false })
-  is_mobile: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Выездная услуга', default: false })
+  isMobile: boolean;
 
-  @ApiProperty({ default: true })
-  is_in_salon: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Услуга в салоне', default: true })
+  isInSalon: boolean;
 
-  @ApiProperty({ type: [String] })
+  @Expose()
+  @ApiProperty({ description: 'Теги услуги', type: [String] })
   tags: string[];
 
-  @ApiProperty({ type: [String] })
-  photo_urls: string[];
+  @Expose()
+  @ApiProperty({ description: 'Фотографии услуги', type: [String] })
+  photoUrls: string[];
 
-  @ApiProperty({ example: 42 })
-  bookings_count: number;
+  @Expose()
+  @ApiProperty({ description: 'Количество бронирований', example: 0 })
+  bookingsCount: number;
 
-  @ApiProperty({ example: 4.75 })
-  average_rating: number;
+  @Expose()
+  @ApiProperty({ description: 'Средняя оценка', example: 0 })
+  averageRating: number;
 
-  @ApiProperty({ default: true })
-  is_active: boolean;
+  @Expose()
+  @ApiProperty({ description: 'Услуга активна', default: true })
+  isActive: boolean;
 
-  @ApiProperty({ example: 1 })
-  display_order: number;
+  @Expose()
+  @ApiProperty({ description: 'Порядок отображения', example: 0 })
+  displayOrder: number;
 
-  @ApiProperty()
-  created_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  createdAt: Date;
 
-  @ApiProperty()
-  updated_at: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-01-06T10:00:00Z' })
+  updatedAt: Date;
 }

@@ -12,6 +12,8 @@ import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { FilterServicesDto } from './dto/filter-services.dto';
+import { ServiceResponseDto } from './dto/service-response.dto';
+import { ServicesMapper } from './services.mapper';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
@@ -29,7 +31,7 @@ export class ServicesService {
    * Создать новую услугу
    * Только для мастеров с завершенным профилем
    */
-  async create(userId: string, createServiceDto: CreateServiceDto): Promise<Service> {
+  async create(userId: string, createServiceDto: CreateServiceDto): Promise<ServiceResponseDto> {
     // Проверка, что пользователь - мастер с завершенным профилем
     const user = await this.userRepository.findOne({
       where: { id: userId },
@@ -80,7 +82,8 @@ export class ServicesService {
       is_active: true,
     });
 
-    return this.serviceRepository.save(service);
+    const savedService = await this.serviceRepository.save(service);
+    return ServicesMapper.toDto(savedService);
   }
 
   /**
@@ -89,7 +92,7 @@ export class ServicesService {
   async getMyServices(
     userId: string,
     filterDto: FilterServicesDto,
-  ): Promise<PaginatedResponseDto<Service>> {
+  ): Promise<PaginatedResponseDto<ServiceResponseDto>> {
     const masterProfile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
     });
@@ -107,7 +110,7 @@ export class ServicesService {
   async getServicesByMaster(
     masterId: string,
     filterDto: FilterServicesDto,
-  ): Promise<PaginatedResponseDto<Service>> {
+  ): Promise<PaginatedResponseDto<ServiceResponseDto>> {
     const query = this.serviceRepository.createQueryBuilder('service');
 
     query.where('service.master_id = :masterId', { masterId });
@@ -154,8 +157,10 @@ export class ServicesService {
       .take(filterDto.take)
       .getMany();
 
+    const serviceDtos = ServicesMapper.toDtoArray(services);
+
     return new PaginatedResponseDto(
-      services,
+      serviceDtos,
       total,
       filterDto.page,
       filterDto.limit,
@@ -165,7 +170,7 @@ export class ServicesService {
   /**
    * Получить услугу по ID
    */
-  async findById(serviceId: string): Promise<Service> {
+  async findById(serviceId: string): Promise<ServiceResponseDto> {
     const service = await this.serviceRepository.findOne({
       where: { id: serviceId },
     });
@@ -174,7 +179,7 @@ export class ServicesService {
       throw new NotFoundException('Услуга не найдена');
     }
 
-    return service;
+    return ServicesMapper.toDto(service);
   }
 
   /**
@@ -185,8 +190,15 @@ export class ServicesService {
     userId: string,
     serviceId: string,
     updateServiceDto: UpdateServiceDto,
-  ): Promise<Service> {
-    const service = await this.findById(serviceId);
+  ): Promise<ServiceResponseDto> {
+    // Получаем entity для проверки
+    const service = await this.serviceRepository.findOne({
+      where: { id: serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Услуга не найдена');
+    }
 
     // Проверка владельца
     const masterProfile = await this.masterProfileRepository.findOne({
@@ -219,7 +231,8 @@ export class ServicesService {
     // Обновление
     Object.assign(service, updateServiceDto);
 
-    return this.serviceRepository.save(service);
+    const updatedService = await this.serviceRepository.save(service);
+    return ServicesMapper.toDto(updatedService);
   }
 
   /**
@@ -244,8 +257,14 @@ export class ServicesService {
   /**
    * Деактивировать услугу (мягкое удаление)
    */
-  async deactivate(userId: string, serviceId: string): Promise<Service> {
-    const service = await this.findById(serviceId);
+  async deactivate(userId: string, serviceId: string): Promise<ServiceResponseDto> {
+    const service = await this.serviceRepository.findOne({
+      where: { id: serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Услуга не найдена');
+    }
 
     const masterProfile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
@@ -256,14 +275,21 @@ export class ServicesService {
     }
 
     service.is_active = false;
-    return this.serviceRepository.save(service);
+    const updatedService = await this.serviceRepository.save(service);
+    return ServicesMapper.toDto(updatedService);
   }
 
   /**
    * Активировать услугу
    */
-  async activate(userId: string, serviceId: string): Promise<Service> {
-    const service = await this.findById(serviceId);
+  async activate(userId: string, serviceId: string): Promise<ServiceResponseDto> {
+    const service = await this.serviceRepository.findOne({
+      where: { id: serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Услуга не найдена');
+    }
 
     const masterProfile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
@@ -274,6 +300,7 @@ export class ServicesService {
     }
 
     service.is_active = true;
-    return this.serviceRepository.save(service);
+    const updatedService = await this.serviceRepository.save(service);
+    return ServicesMapper.toDto(updatedService);
   }
 }

@@ -24,7 +24,6 @@ import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { FilterServicesDto } from './dto/filter-services.dto';
 import { ServiceResponseDto } from './dto/service-response.dto';
-import { Service } from './entities/service.entity';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 
 @ApiTags('services')
@@ -56,7 +55,7 @@ export class ServicesController {
   async create(
     @CurrentUser() user: User,
     @Body() createServiceDto: CreateServiceDto,
-  ): Promise<Service> {
+  ): Promise<ServiceResponseDto> {
     return this.servicesService.create(user.id, createServiceDto);
   }
 
@@ -79,7 +78,7 @@ export class ServicesController {
   async getMyServices(
     @CurrentUser() user: User,
     @Query() filterDto: FilterServicesDto,
-  ): Promise<PaginatedResponseDto<Service>> {
+  ): Promise<PaginatedResponseDto<ServiceResponseDto>> {
     return this.servicesService.getMyServices(user.id, filterDto);
   }
 
@@ -103,7 +102,7 @@ export class ServicesController {
   async getServicesByMaster(
     @Param('masterId') masterId: string,
     @Query() filterDto: FilterServicesDto,
-  ): Promise<PaginatedResponseDto<Service>> {
+  ): Promise<PaginatedResponseDto<ServiceResponseDto>> {
     return this.servicesService.getServicesByMaster(masterId, filterDto);
   }
 
@@ -127,7 +126,7 @@ export class ServicesController {
     status: 404,
     description: 'Услуга не найдена',
   })
-  async findById(@Param('id') id: string): Promise<Service> {
+  async findById(@Param('id') id: string): Promise<ServiceResponseDto> {
     return this.servicesService.findById(id);
   }
 
@@ -158,7 +157,7 @@ export class ServicesController {
     @CurrentUser() user: User,
     @Param('id') id: string,
     @Body() updateServiceDto: UpdateServiceDto,
-  ): Promise<Service> {
+  ): Promise<ServiceResponseDto> {
     return this.servicesService.update(user.id, id, updateServiceDto);
   }
 
@@ -181,7 +180,7 @@ export class ServicesController {
     status: 403,
     description: 'Можно деактивировать только свои услуги',
   })
-  async deactivate(@CurrentUser() user: User, @Param('id') id: string): Promise<Service> {
+  async deactivate(@CurrentUser() user: User, @Param('id') id: string): Promise<ServiceResponseDto> {
     return this.servicesService.deactivate(user.id, id);
   }
 
@@ -204,7 +203,7 @@ export class ServicesController {
     status: 403,
     description: 'Можно активировать только свои услуги',
   })
-  async activate(@CurrentUser() user: User, @Param('id') id: string): Promise<Service> {
+  async activate(@CurrentUser() user: User, @Param('id') id: string): Promise<ServiceResponseDto> {
     return this.servicesService.activate(user.id, id);
   }
 
