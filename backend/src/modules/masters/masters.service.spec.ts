@@ -166,7 +166,7 @@ describe('MastersService', () => {
       const result = await service.updateStep2('user-1', step2Dto);
 
       expect(result.setupStep).toBe(2);
-      expect(result.business_name).toBe(step2Dto.business_name);
+      expect(result.businessName).toBe(step2Dto.business_name);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
 
