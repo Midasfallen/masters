@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UsersMapper } from './users.mapper';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +20,7 @@ export class UsersService {
   /**
    * Получить текущего пользователя по ID
    */
-  async findById(id: string): Promise<User> {
+  async findById(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id },
     });
@@ -27,7 +29,7 @@ export class UsersService {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    return user;
+    return UsersMapper.toDto(user);
   }
 
   /**
@@ -42,8 +44,12 @@ export class UsersService {
   /**
    * Обновить профиль пользователя
    */
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findById(id);
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
 
     // Проверка уникальности телефона (если меняется)
     if (updateUserDto.phone && updateUserDto.phone !== user.phone) {
@@ -60,24 +66,36 @@ export class UsersService {
 
     // Обновление полей
     Object.assign(user, updateUserDto);
+    const updated = await this.userRepository.save(user);
 
-    return this.userRepository.save(user);
+    return UsersMapper.toDto(updated);
   }
 
   /**
    * Обновить аватар пользователя
    */
-  async updateAvatar(id: string, avatarUrl: string): Promise<User> {
-    const user = await this.findById(id);
+  async updateAvatar(id: string, avatarUrl: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
     user.avatar_url = avatarUrl;
-    return this.userRepository.save(user);
+    const updated = await this.userRepository.save(user);
+    return UsersMapper.toDto(updated);
   }
 
   /**
    * Удалить пользователя (мягкое удаление, если нужно)
    */
   async remove(id: string): Promise<void> {
-    const user = await this.findById(id);
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
     await this.userRepository.remove(user);
   }
 
@@ -85,18 +103,22 @@ export class UsersService {
    * Получить статистику пользователя
    */
   async getUserStats(id: string) {
-    const user = await this.findById(id);
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
 
     return {
-      posts_count: user.posts_count,
-      friends_count: user.friends_count,
-      followers_count: user.followers_count,
-      following_count: user.following_count,
-      reviews_count: user.reviews_count,
+      postsCount: user.posts_count,
+      friendsCount: user.friends_count,
+      followersCount: user.followers_count,
+      followingCount: user.following_count,
+      reviewsCount: user.reviews_count,
       rating: user.rating,
-      is_master: user.is_master,
-      is_verified: user.is_verified,
-      is_premium: user.is_premium,
+      isMaster: user.is_master,
+      isVerified: user.is_verified,
+      isPremium: user.is_premium,
     };
   }
 }

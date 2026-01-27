@@ -95,8 +95,8 @@ describe('UsersService', () => {
 
       const result = await service.update(mockUser.id, updateDto);
 
-      expect(result.first_name).toBe('Updated');
-      expect(result.last_name).toBe('Name');
+      expect(result.firstName).toBe('Updated');
+      expect(result.lastName).toBe('Name');
       expect(mockRepository.save).toHaveBeenCalled();
     });
 
@@ -175,7 +175,7 @@ describe('UsersService', () => {
 
       const result = await service.updateAvatar(mockUser.id, newAvatarUrl);
 
-      expect(result.avatar_url).toBe(newAvatarUrl);
+      expect(result.avatarUrl).toBe(newAvatarUrl);
       expect(mockRepository.save).toHaveBeenCalled();
     });
 

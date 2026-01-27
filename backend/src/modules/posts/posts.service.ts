@@ -11,8 +11,10 @@ import { PostMedia } from './entities/post-media.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FilterPostsDto } from './dto/filter-posts.dto';
+import { PostResponseDto } from './dto/post-response.dto';
 import { Friendship, FriendshipStatus } from '../friends/entities/friendship.entity';
 import { Subscription } from '../friends/entities/subscription.entity';
+import { PostsMapper } from './posts.mapper';
 
 @Injectable()
 export class PostsService {
@@ -174,7 +176,7 @@ export class PostsService {
       : null;
 
     return {
-      data: posts,
+      data: PostsMapper.toDtoArray(posts),
       meta: {
         page,
         limit,
@@ -208,7 +210,7 @@ export class PostsService {
       .getManyAndCount();
 
     return {
-      data: posts,
+      data: PostsMapper.toDtoArray(posts),
       meta: {
         page,
         limit,
@@ -218,7 +220,7 @@ export class PostsService {
     };
   }
 
-  async findOne(id: string, userId?: string) {
+  async findOne(id: string, userId?: string): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ['author', 'media', 'repost_of', 'repost_of.author'],
@@ -256,7 +258,7 @@ export class PostsService {
       }
     }
 
-    return post;
+    return PostsMapper.toDto(post);
   }
 
   async update(id: string, userId: string, updatePostDto: UpdatePostDto) {

@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+import { SerializeInterceptor } from './common/interceptors/serialize.interceptor';
 import * as crypto from 'crypto';
 
 // Global crypto polyfill for @nestjs/schedule compatibility with Node.js 18+
@@ -37,6 +38,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Global serialization interceptor (converts snake_case → camelCase in responses)
+  app.useGlobalInterceptors(new SerializeInterceptor());
 
   // Swagger documentation
   const config = new DocumentBuilder()

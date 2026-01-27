@@ -14,7 +14,8 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
+import { AuthResponseDto, AuthUserDto } from './dto/auth-response.dto';
+import { DtoMapper } from '../../common/utils/dto-mapper.util';
 
 @Injectable()
 export class AuthService {
@@ -269,7 +270,7 @@ export class AuthService {
   /**
    * Генерация JWT токенов и ответа аутентификации
    */
-  private async generateAuthResponse(user: User): Promise<AuthResponseDto> {
+  private async generateAuthResponse(user: User): Promise<any> {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -294,20 +295,21 @@ export class AuthService {
       },
     );
 
+    // Возвращаем plain object с camelCase
     return {
-      access_token,
-      refresh_token,
-      token_type: 'Bearer',
-      expires_in: 7 * 24 * 60 * 60, // 7 дней в секундах
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      tokenType: 'Bearer',
+      expiresIn: 7 * 24 * 60 * 60, // 7 дней в секундах
       user: {
         id: user.id,
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        avatar_url: user.avatar_url,
-        is_master: user.is_master,
-        is_verified: user.is_verified,
-        is_premium: user.is_premium,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        avatarUrl: user.avatar_url,
+        isMaster: user.is_master,
+        isVerified: user.is_verified,
+        isPremium: user.is_premium,
       },
     };
   }

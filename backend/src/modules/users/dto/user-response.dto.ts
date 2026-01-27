@@ -1,82 +1,123 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export class UserResponseDto {
+  @Expose()
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   id: string;
 
+  @Expose()
   @ApiProperty({ example: 'user@example.com' })
   email: string;
 
-  @ApiPropertyOptional({ example: '+79001234567' })
-  phone: string;
+  @Expose()
+  @ApiProperty({ example: '+79001234567', nullable: true })
+  phone: string | null;
 
+  @Expose()
   @ApiProperty({ example: 'Иван' })
-  first_name: string;
+  firstName: string;
 
+  @Expose()
   @ApiProperty({ example: 'Петров' })
-  last_name: string;
+  lastName: string;
 
+  @Expose()
   @ApiProperty({ example: 'Иван Петров' })
-  full_name: string;
+  fullName: string;
 
-  @ApiPropertyOptional({ example: 'https://storage.example.com/avatars/user.jpg' })
-  avatar_url: string;
+  @Expose()
+  @ApiProperty({
+    example: 'https://storage.example.com/avatars/user.jpg',
+    nullable: true
+  })
+  avatarUrl: string | null;
 
+  @Expose()
   @ApiProperty({ description: 'Является ли пользователь мастером' })
-  is_master: boolean;
+  isMaster: boolean;
 
+  @Expose()
   @ApiProperty({ description: 'Завершена ли настройка профиля мастера' })
-  master_profile_completed: boolean;
+  masterProfileCompleted: boolean;
 
+  @Expose()
   @ApiProperty({ description: 'KYC верификация пройдена' })
-  is_verified: boolean;
+  isVerified: boolean;
 
+  @Expose()
   @ApiProperty({ description: 'Премиум подписка активна' })
-  is_premium: boolean;
+  isPremium: boolean;
 
-  @ApiPropertyOptional({ example: '2025-12-31T23:59:59Z' })
-  premium_until: Date;
+  @Expose()
+  @ApiProperty({ example: '2025-12-31T23:59:59Z', nullable: true })
+  premiumUntil: Date | null;
 
+  @Expose()
+  @ApiProperty({ description: 'Активен ли пользователь' })
+  isActive: boolean;
+
+  @Expose()
+  @ApiProperty({ example: '2025-01-13T10:30:00Z', nullable: true })
+  lastLoginAt: Date | null;
+
+  @Expose()
   @ApiProperty({ example: 4.75 })
   rating: number;
 
+  @Expose()
   @ApiProperty({ example: 42 })
-  reviews_count: number;
+  reviewsCount: number;
 
+  @Expose()
+  @ApiProperty({ example: 2 })
+  cancellationsCount: number;
+
+  @Expose()
+  @ApiProperty({ example: 0 })
+  noShowsCount: number;
+
+  @Expose()
+  @ApiProperty({ example: 0 })
+  blacklistsCount: number;
+
+  @Expose()
   @ApiProperty({ example: 15 })
-  posts_count: number;
+  postsCount: number;
 
+  @Expose()
   @ApiProperty({ example: 28 })
-  friends_count: number;
+  friendsCount: number;
 
+  @Expose()
   @ApiProperty({ example: 150 })
-  followers_count: number;
+  followersCount: number;
 
+  @Expose()
   @ApiProperty({ example: 85 })
-  following_count: number;
+  followingCount: number;
 
+  @Expose()
   @ApiProperty({ example: 'ru' })
   language: string;
 
+  @Expose()
   @ApiProperty({ example: 'Europe/Moscow' })
   timezone: string;
 
+  @Expose()
+  @ApiProperty({ example: 55.7558, nullable: true })
+  lastLocationLat: number | null;
+
+  @Expose()
+  @ApiProperty({ example: 37.6173, nullable: true })
+  lastLocationLng: number | null;
+
+  @Expose()
   @ApiProperty()
-  created_at: Date;
+  createdAt: Date;
 
+  @Expose()
   @ApiProperty()
-  updated_at: Date;
-
-  @Exclude()
-  password_hash: string;
-
-  @Exclude()
-  cancellations_count: number;
-
-  @Exclude()
-  no_shows_count: number;
-
-  @Exclude()
-  blacklists_count: number;
+  updatedAt: Date;
 }

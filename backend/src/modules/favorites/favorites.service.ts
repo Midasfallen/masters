@@ -231,9 +231,9 @@ export class FavoritesService {
             where: { id: favorite.entity_id },
             select: [
               'id',
-              'full_name',
+              'first_name',
+              'last_name',
               'avatar_url',
-              'bio',
               'rating',
               'is_master',
             ],

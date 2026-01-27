@@ -7,8 +7,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  UseInterceptors,
-  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -27,7 +25,6 @@ import { User } from './entities/user.entity';
 @ApiTags('users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -47,7 +44,7 @@ export class UsersController {
     status: 401,
     description: 'Не авторизован',
   })
-  async getMe(@CurrentUser() user: User): Promise<User> {
+  async getMe(@CurrentUser() user: User): Promise<UserResponseDto> {
     return this.usersService.findById(user.id);
   }
 
@@ -74,7 +71,7 @@ export class UsersController {
   async updateMe(
     @CurrentUser() user: User,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     return this.usersService.update(user.id, updateUserDto);
   }
 
@@ -126,7 +123,7 @@ export class UsersController {
     status: 404,
     description: 'Пользователь не найден',
   })
-  async getUserById(@Param('id') id: string): Promise<User> {
+  async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
     return this.usersService.findById(id);
   }
 }
