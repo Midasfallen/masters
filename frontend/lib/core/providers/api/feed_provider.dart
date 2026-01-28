@@ -127,6 +127,12 @@ class PostNotifier extends _$PostNotifier {
     ref.invalidate(feedPostsProvider);
   }
 
+  /// Upload post media file
+  Future<String> uploadPostMedia(String filePath) async {
+    final repository = ref.read(postRepositoryProvider);
+    return await repository.uploadPostMedia(filePath);
+  }
+
   /// Create comment
   Future<CommentModel> createComment(
     String postId,

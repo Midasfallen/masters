@@ -153,11 +153,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Upload media files to server and get URLs
-      // For now, we'll use placeholder URLs
-      final mediaUrls = _selectedMedia
-          .map((file) => 'https://placeholder.com/${file.name}')
-          .toList();
+      // Upload media files to server
+      final mediaUrls = <String>[];
+      for (final file in _selectedMedia) {
+        final url = await ref
+            .read(postNotifierProvider.notifier)
+            .uploadPostMedia(file.path);
+        mediaUrls.add(url);
+      }
 
       final request = CreatePostRequest(
         content: _contentController.text.trim(),

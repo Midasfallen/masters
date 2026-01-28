@@ -121,4 +121,6 @@ class ApiEndpoints {
   static const String upload = '/upload';
   static const String uploadImage = '/upload/image';
   static const String uploadAvatar = '/upload/avatar';
+  static const String uploadPost = '/upload/post';
+  static const String uploadPortfolio = '/upload/portfolio';
 }

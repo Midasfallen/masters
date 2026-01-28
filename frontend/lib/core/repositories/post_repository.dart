@@ -138,6 +138,19 @@ class PostRepository {
     }
   }
 
+  /// Upload post media file
+  Future<String> uploadPostMedia(String filePath) async {
+    try {
+      final response = await _client.uploadFile(
+        ApiEndpoints.uploadPost,
+        filePath,
+      );
+      return response.data['url'] as String;
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
   /// Create comment
   Future<CommentModel> createComment(
     String postId,
