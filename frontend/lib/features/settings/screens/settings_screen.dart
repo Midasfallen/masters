@@ -234,10 +234,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Помощь и FAQ'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Help screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Раздел помощи в разработке')),
-              );
+              context.push('/help');
             },
           ),
           ListTile(
@@ -245,10 +242,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Обратная связь'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Feedback form
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Форма обратной связи в разработке')),
-              );
+              context.push('/feedback');
             },
           ),
           ListTile(
@@ -267,10 +261,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Условия использования'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Terms of service
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Условия использования в разработке')),
-              );
+              context.push('/terms');
             },
           ),
           ListTile(
@@ -278,11 +269,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Политика конфиденциальности'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Privacy policy
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Политика конфиденциальности в разработке')),
-              );
+              context.push('/privacy-policy');
             },
           ),
 

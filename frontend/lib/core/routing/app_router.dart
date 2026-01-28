@@ -17,8 +17,12 @@ import '../../features/master/screens/create_profile/create_master_profile_scree
 import '../../features/friends/screens/friends_screen.dart';
 import '../../features/subscriptions/screens/subscriptions_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/settings/screens/feedback_screen.dart';
+import '../../features/settings/screens/help_screen.dart';
+import '../../features/settings/screens/privacy_policy_screen.dart';
 import '../../features/settings/screens/privacy_settings_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../features/settings/screens/terms_screen.dart';
 import '../../shared/widgets/main_navigation_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -150,6 +154,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'privacy-settings',
             name: 'privacySettings',
             builder: (context, state) => const PrivacySettingsScreen(),
+          ),
+
+          // Help
+          GoRoute(
+            path: 'help',
+            name: 'help',
+            builder: (context, state) => const HelpScreen(),
+          ),
+
+          // Feedback
+          GoRoute(
+            path: 'feedback',
+            name: 'feedback',
+            builder: (context, state) => const FeedbackScreen(),
+          ),
+
+          // Terms of Service
+          GoRoute(
+            path: 'terms',
+            name: 'terms',
+            builder: (context, state) => const TermsOfServiceScreen(),
+          ),
+
+          // Privacy Policy
+          GoRoute(
+            path: 'privacy-policy',
+            name: 'privacyPolicy',
+            builder: (context, state) => const PrivacyPolicyScreen(),
           ),
 
           // Settings
