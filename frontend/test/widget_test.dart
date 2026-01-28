@@ -14,6 +14,9 @@ void main() {
       ),
     );
 
+    // Ожидаем завершения таймеров splash screen
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
     // Проверяем, что приложение запускается без ошибок
     expect(find.byType(MaterialApp), findsOneWidget);
   });
