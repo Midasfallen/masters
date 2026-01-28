@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Primary colors - Material 3 Design System
@@ -18,8 +19,11 @@ class AppTheme {
   );
 
   static ThemeData get lightTheme {
+    final textTheme = GoogleFonts.interTextTheme();
+
     return ThemeData(
       useMaterial3: true,
+      textTheme: textTheme,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
@@ -184,8 +188,11 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
+    final textTheme = GoogleFonts.interTextTheme();
+
     return ThemeData(
       useMaterial3: true,
+      textTheme: textTheme,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
