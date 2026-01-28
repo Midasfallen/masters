@@ -83,7 +83,7 @@ export class ProposalResponseDto {
   matchScore: number;
 
   @Expose()
-  @ApiProperty({ type: 'object' })
+  @ApiProperty({ type: 'object', additionalProperties: true })
   @Type(() => MatchReasonsDto)
   matchReasons: MatchReasonsDto;
 
@@ -104,12 +104,12 @@ export class ProposalResponseDto {
   createdAt: Date;
 
   @Expose()
-  @ApiProperty({ type: 'object', required: false })
+  @ApiProperty({ type: 'object', additionalProperties: true })
   @Type(() => ProposalMasterDto)
   master?: ProposalMasterDto;
 
   @Expose()
-  @ApiProperty({ type: 'object', required: false })
+  @ApiProperty({ type: 'object', additionalProperties: true })
   @Type(() => ProposalServiceDto)
   service?: ProposalServiceDto;
 }

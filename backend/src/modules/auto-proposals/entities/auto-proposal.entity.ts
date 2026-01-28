@@ -60,7 +60,7 @@ export class AutoProposal {
   @Column({ type: 'integer', default: 0 })
   match_score: number;
 
-  @ApiProperty({ description: 'Причины рекомендации', type: 'object' })
+  @ApiProperty({ description: 'Причины рекомендации', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   match_reasons: {
     location_score?: number; // 0-100
@@ -83,7 +83,7 @@ export class AutoProposal {
   @Column({ type: 'uuid', nullable: true })
   booking_id: string;
 
-  @ApiProperty({ description: 'Метаданные', type: 'object' })
+  @ApiProperty({ description: 'Метаданные', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 

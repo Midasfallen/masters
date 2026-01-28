@@ -112,11 +112,11 @@ export class MasterProfile {
   @Column({ type: 'text', array: true, default: '{}' })
   video_urls: string[];
 
-  @ApiProperty({ description: 'Соцсети', type: 'object', example: { instagram: '@username' } })
+  @ApiProperty({ description: 'Соцсети', type: 'object', additionalProperties: true, example: { instagram: '@username' } })
   @Column({ type: 'jsonb', nullable: true })
   social_links: Record<string, string>;
 
-  @ApiProperty({ description: 'Время работы', type: 'object' })
+  @ApiProperty({ description: 'Время работы', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   working_hours: Record<string, any>;
 

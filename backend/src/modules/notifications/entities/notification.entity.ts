@@ -63,7 +63,7 @@ export class Notification {
   @Column({ type: 'varchar', length: 50, nullable: true })
   related_type: string;
 
-  @ApiProperty({ description: 'Дополнительные данные', type: 'object', required: false })
+  @ApiProperty({ description: 'Дополнительные данные', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 

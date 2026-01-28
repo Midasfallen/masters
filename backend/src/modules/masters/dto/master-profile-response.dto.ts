@@ -98,11 +98,11 @@ export class MasterProfileResponseDto {
   videoUrls: string[];
 
   @Expose()
-  @ApiProperty({ description: 'Ссылки на соцсети', type: 'object' })
+  @ApiProperty({ description: 'Ссылки на соцсети', type: 'object', additionalProperties: true })
   socialLinks: Record<string, string> | null;
 
   @Expose()
-  @ApiProperty({ description: 'Время работы', type: 'object' })
+  @ApiProperty({ description: 'Время работы', type: 'object', additionalProperties: true })
   workingHours: Record<string, any> | null;
 
   @Expose()

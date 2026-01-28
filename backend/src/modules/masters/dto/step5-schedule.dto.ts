@@ -12,6 +12,7 @@ export class Step5ScheduleDto {
   @ApiPropertyOptional({
     description: 'График работы (JSON)',
     type: 'object',
+    additionalProperties: true,
     example: {
       monday: { start: '09:00', end: '18:00', enabled: true },
       tuesday: { start: '09:00', end: '18:00', enabled: true },
@@ -58,6 +59,7 @@ export class Step5ScheduleDto {
   @ApiPropertyOptional({
     description: 'Соцсети (JSON)',
     type: 'object',
+    additionalProperties: true,
     example: {
       instagram: '@username',
       telegram: '@username',

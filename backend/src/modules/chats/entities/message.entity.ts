@@ -59,7 +59,7 @@ export class Message {
   @Column({ type: 'text', nullable: true })
   thumbnail_url: string;
 
-  @ApiProperty({ description: 'Метаданные медиа файла (JSON)', nullable: true, type: 'object' })
+  @ApiProperty({ description: 'Метаданные медиа файла (JSON)', nullable: true, type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   media_metadata: {
     width?: number;

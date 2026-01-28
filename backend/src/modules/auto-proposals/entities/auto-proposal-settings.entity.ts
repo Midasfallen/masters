@@ -67,7 +67,7 @@ export class AutoProposalSettings {
   @Column({ type: 'timestamp', nullable: true })
   next_proposal_at: Date;
 
-  @ApiProperty({ description: 'Метаданные', type: 'object' })
+  @ApiProperty({ description: 'Метаданные', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 

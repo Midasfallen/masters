@@ -65,7 +65,7 @@ export class Category {
   @Column({ type: 'boolean', default: false })
   is_popular: boolean;
 
-  @ApiProperty({ description: 'Метаданные (SEO, описания)', type: 'object' })
+  @ApiProperty({ description: 'Метаданные (SEO, описания)', type: 'object', additionalProperties: true })
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any>;
 
