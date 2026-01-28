@@ -261,7 +261,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
             // Language
             DropdownButtonFormField<String>(
-              value: _language,
+              initialValue: _language,
               decoration: const InputDecoration(
                 labelText: 'Язык',
                 prefixIcon: Icon(Icons.language),
@@ -278,7 +278,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
             // Timezone
             DropdownButtonFormField<String>(
-              value: _timezone,
+              initialValue: _timezone,
               decoration: const InputDecoration(
                 labelText: 'Часовой пояс',
                 prefixIcon: Icon(Icons.access_time_outlined),

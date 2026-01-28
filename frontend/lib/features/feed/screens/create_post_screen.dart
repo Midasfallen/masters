@@ -27,9 +27,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final List<String> _tags = [];
   final TextEditingController _tagController = TextEditingController();
 
-  // Step 3: Privacy (for future implementation)
-  String _privacy = 'PUBLIC';
-
   bool _isLoading = false;
 
   @override
@@ -367,7 +364,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withValues(alpha: 0.6),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -539,7 +536,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 );
               }).toList(),
             ),

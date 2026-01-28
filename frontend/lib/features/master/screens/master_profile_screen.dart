@@ -6,7 +6,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../../shared/models/master.dart';
 import '../../../shared/models/service.dart';
-import '../../../shared/widgets/service_card.dart';
 import '../../../shared/widgets/review_card.dart';
 import '../../../shared/widgets/unreviewed_bookings_dialog.dart';
 import '../../../data/mock/mock_masters.dart';
@@ -559,7 +558,7 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
         );
         context.go('/bookings');
       }
-    } on UnreviewedBookingsException catch (e) {
+    } on UnreviewedBookingsException {
       // Получаем неотзывленные бронирования
       try {
         final remindersRepo = ref.read(reviewRemindersRepositoryProvider);
