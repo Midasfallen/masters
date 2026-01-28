@@ -125,12 +125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
-                      // TODO: Navigate to edit profile
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Редактирование профиля в разработке'),
-                        ),
-                      );
+                      context.push('/edit-profile');
                     },
                   ),
                 ],
@@ -145,12 +140,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Редактировать профиль'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Navigate to edit profile
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Редактирование профиля в разработке'),
-                ),
-              );
+              context.push('/edit-profile');
             },
           ),
           ListTile(

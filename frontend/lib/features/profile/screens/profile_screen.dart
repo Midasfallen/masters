@@ -263,12 +263,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           children: [
                             OutlinedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Редактировать профиль (в разработке)'),
-                                  ),
-                                );
+                                context.push('/edit-profile');
                               },
                               style: OutlinedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 36),
