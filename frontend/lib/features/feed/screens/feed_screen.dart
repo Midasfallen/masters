@@ -139,41 +139,48 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     await _loadFeed(refresh: true);
   }
 
+  void _onSearchTap() => context.push('/search');
+  void _onNotificationsTap() => context.push('/notifications');
+  void _onCreatePostTap() => context.push('/create-post');
+
+  Future<void> _onFiltersTap() async {
+    final currentFilters = ref.read(feedFiltersProvider);
+    final result = await showModalBottomSheet<FeedFilters>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => FeedFiltersSheet(
+        initialFilters: currentFilters,
+        availableCategories: const [
+          CategoryOption(id: 'cat-1', name: 'Парикмахер', icon: '💇'),
+          CategoryOption(id: 'cat-2', name: 'Косметолог', icon: '💆'),
+          CategoryOption(id: 'cat-3', name: 'Маникюр', icon: '💅'),
+          CategoryOption(id: 'cat-4', name: 'Массажист', icon: '💆'),
+        ],
+      ),
+    );
+
+    if (result != null && mounted) {
+      ref.read(feedFiltersProvider.notifier).state = result;
+      await _loadFeed(refresh: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(feedPostsListProvider);
     final hasMore = ref.watch(feedHasMoreProvider);
+    final hasActiveFilters = ref.watch(feedFiltersProvider).hasActiveFilters;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
             Icons.filter_list,
-            color: ref.watch(feedFiltersProvider).hasActiveFilters
+            color: hasActiveFilters
                 ? Theme.of(context).colorScheme.primary
                 : null,
           ),
-          onPressed: () async {
-            final currentFilters = ref.read(feedFiltersProvider);
-            final result = await showModalBottomSheet<FeedFilters>(
-              context: context,
-              isScrollControlled: true,
-              builder: (context) => FeedFiltersSheet(
-                initialFilters: currentFilters,
-                availableCategories: const [
-                  CategoryOption(id: 'cat-1', name: 'Парикмахер', icon: '💇'),
-                  CategoryOption(id: 'cat-2', name: 'Косметолог', icon: '💆'),
-                  CategoryOption(id: 'cat-3', name: 'Маникюр', icon: '💅'),
-                  CategoryOption(id: 'cat-4', name: 'Массажист', icon: '💆'),
-                ],
-              ),
-            );
-
-            if (result != null && mounted) {
-              ref.read(feedFiltersProvider.notifier).state = result;
-              await _loadFeed(refresh: true);
-            }
-          },
+          onPressed: _onFiltersTap,
           tooltip: 'Фильтры',
         ),
         title: const Text(
@@ -183,21 +190,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              context.push('/search');
-            },
+            onPressed: _onSearchTap,
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              context.push('/notifications');
-            },
+            onPressed: _onNotificationsTap,
           ),
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
-            onPressed: () {
-              context.push('/create-post');
-            },
+            onPressed: _onCreatePostTap,
           ),
         ],
       ),
@@ -208,9 +209,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 children: [
                   const CircularProgressIndicator(),
                   const SizedBox(height: 16),
-                  Text(
+                  const Text(
                     'Загрузка ленты...',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: Color(0xFF757575)),
                   ),
                 ],
               ),
@@ -219,6 +220,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               onRefresh: _handleRefresh,
               child: GridView.builder(
                 controller: _scrollController,
+                addAutomaticKeepAlives: false,
                 padding: const EdgeInsets.all(4),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,

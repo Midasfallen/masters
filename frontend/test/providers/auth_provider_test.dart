@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:service_platform/core/models/api/user_model.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
 import 'package:service_platform/core/repositories/auth_repository.dart';

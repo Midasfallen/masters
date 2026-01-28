@@ -167,27 +167,29 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
         : bookings.where((b) => b.status == filterStatus).toList();
 
     if (filteredBookings.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.calendar_today_outlined,
               size: 80,
-              color: Colors.grey[400],
+              color: Color(0xFFBDBDBD),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Нет записей',
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.grey[600],
+                color: Color(0xFF757575),
               ),
             ),
           ],
         ),
       );
     }
+
+    final currentMode = ref.read(bookingsModeProvider);
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -198,14 +200,13 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
         itemCount: filteredBookings.length,
         itemBuilder: (context, index) {
           final booking = filteredBookings[index];
-          return _buildBookingCard(booking, masterActionType);
+          return _buildBookingCard(booking, masterActionType, currentMode: currentMode);
         },
       ),
     );
   }
 
-  Widget _buildBookingCard(BookingModel booking, String? masterActionType) {
-    final currentMode = ref.watch(bookingsModeProvider);
+  Widget _buildBookingCard(BookingModel booking, String? masterActionType, {required BookingMode currentMode}) {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -249,7 +250,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
               const SizedBox(height: 12),
               Text(
                 booking.comment!,
-                style: TextStyle(color: Colors.grey[600]),
+                style: const TextStyle(color: Color(0xFF757575)),
               ),
             ],
             if (booking.locationAddress != null) ...[

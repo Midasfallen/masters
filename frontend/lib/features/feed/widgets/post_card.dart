@@ -12,6 +12,16 @@ class PostCard extends StatelessWidget {
     required this.post,
   });
 
+  static const Color _greyBg = Color(0xFF9E9E9E);
+  static const LinearGradient _bottomGradient = LinearGradient(
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
+    colors: [
+      Color(0x80000000), // black 50%
+      Colors.transparent,
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -27,13 +37,13 @@ class PostCard extends StatelessWidget {
               imageUrl: post.media.isNotEmpty ? post.media.first.url : '',
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
-                color: Colors.grey[300],
+                color: _greyBg,
                 child: const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
               errorWidget: (context, url, error) => Container(
-                color: Colors.grey[300],
+                color: _greyBg,
                 child: const Icon(Icons.error),
               ),
             ),
@@ -97,15 +107,8 @@ class PostCard extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.5),
-                    Colors.transparent,
-                  ],
-                ),
+              decoration: const BoxDecoration(
+                gradient: _bottomGradient,
               ),
               padding: const EdgeInsets.all(8),
               child: Row(

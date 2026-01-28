@@ -26,6 +26,9 @@ import { FilterCommentsDto } from '../social/dto/filter-comments.dto';
 import { CreateRepostDto } from '../social/dto/create-repost.dto';
 import { LikableType } from '../social/entities/like.entity';
 import { CreateCommentBodyDto } from './dto/create-comment-body.dto';
+import { CacheService } from '../../common/services/cache.service';
+
+const FEED_CACHE_TTL = 120; // 2 минуты
 
 @ApiTags('Posts')
 @ApiBearerAuth()
@@ -37,18 +40,26 @@ export class PostsController {
     private readonly likesService: LikesService,
     private readonly commentsService: CommentsService,
     private readonly repostsService: RepostsService,
+    private readonly cacheService: CacheService,
   ) {}
 
   @Post()
   @ApiOperation({ summary: 'Создать новый пост' })
-  create(@CurrentUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(userId, createPostDto);
+  async create(@CurrentUser('id') userId: string, @Body() createPostDto: CreatePostDto) {
+    const result = await this.postsService.create(userId, createPostDto);
+    await this.cacheService.delByPattern(`feed:${userId}:*`);
+    return result;
   }
 
   @Get('feed')
   @ApiOperation({ summary: 'Получить ленту постов (алгоритмический feed)' })
-  getFeed(@CurrentUser('id') userId: string, @Query() filterDto: FilterPostsDto) {
-    return this.postsService.getFeed(userId, filterDto);
+  async getFeed(@CurrentUser('id') userId: string, @Query() filterDto: FilterPostsDto) {
+    const cacheKey = `feed:${userId}:page=${filterDto.page || 1}:limit=${filterDto.limit || 20}:cats=${filterDto.category_ids?.join(',') || ''}`;
+    return this.cacheService.getOrSet(
+      cacheKey,
+      () => this.postsService.getFeed(userId, filterDto),
+      FEED_CACHE_TTL,
+    );
   }
 
   @Get('user/:userId')
@@ -59,24 +70,33 @@ export class PostsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Получить пост по ID' })
-  findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
-    return this.postsService.findOne(id, userId);
+  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.cacheService.getOrSet(
+      `post:${id}:user=${userId}`,
+      () => this.postsService.findOne(id, userId),
+      FEED_CACHE_TTL,
+    );
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить пост' })
-  update(
+  async update(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
     @Body() updatePostDto: UpdatePostDto,
   ) {
-    return this.postsService.update(id, userId, updatePostDto);
+    const result = await this.postsService.update(id, userId, updatePostDto);
+    await this.cacheService.delByPattern(`post:${id}:*`);
+    await this.cacheService.delByPattern(`feed:${userId}:*`);
+    return result;
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить пост' })
-  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
-    return this.postsService.remove(id, userId);
+  async remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    const result = await this.postsService.remove(id, userId);
+    await this.cacheService.delByPattern(`feed:${userId}:*`);
+    return result;
   }
 
   @Post(':id/pin')
