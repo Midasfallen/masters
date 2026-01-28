@@ -156,12 +156,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: const Text('Приватность и безопасность'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Privacy settings
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Настройки приватности в разработке'),
-                ),
-              );
+              context.push('/privacy-settings');
             },
           ),
 

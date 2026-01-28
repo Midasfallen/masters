@@ -17,6 +17,7 @@ import '../../features/master/screens/create_profile/create_master_profile_scree
 import '../../features/friends/screens/friends_screen.dart';
 import '../../features/subscriptions/screens/subscriptions_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/settings/screens/privacy_settings_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../shared/widgets/main_navigation_screen.dart';
 
@@ -142,6 +143,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'edit-profile',
             name: 'editProfile',
             builder: (context, state) => const EditProfileScreen(),
+          ),
+
+          // Privacy Settings
+          GoRoute(
+            path: 'privacy-settings',
+            name: 'privacySettings',
+            builder: (context, state) => const PrivacySettingsScreen(),
           ),
 
           // Settings
