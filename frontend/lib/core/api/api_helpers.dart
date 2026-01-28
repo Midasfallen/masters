@@ -31,4 +31,46 @@ class ApiHelpers {
       return {};
     }
   }
+
+  /// Parse a numeric value from various types (int, double, String) to double
+  static double parseNumber(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  /// Parse a boolean value from various types (bool, String, int)
+  static bool parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) {
+      return value.toLowerCase() == 'true' || value == '1';
+    }
+    return false;
+  }
+
+  /// Format API error response into a readable string
+  static String formatError(dynamic error) {
+    if (error == null) return 'Неизвестная ошибка';
+
+    if (error is Map<String, dynamic>) {
+      if (error.containsKey('message')) {
+        final message = error['message'];
+        if (message is List) {
+          return message.join(', ');
+        }
+        return message.toString();
+      }
+      if (error.containsKey('error')) {
+        return error['error'].toString();
+      }
+    }
+
+    return 'Неизвестная ошибка';
+  }
 }

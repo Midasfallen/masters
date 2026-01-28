@@ -70,8 +70,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authStateProvider);
-    final currentUser = authState.valueOrNull;
+    final authState = ref.watch(authNotifierProvider);
+    final currentUser = authState.valueOrNull?.user;
 
     return Scaffold(
       appBar: AppBar(
@@ -92,8 +92,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : null,
                     child: currentUser.avatarUrl == null
                         ? Text(
-                            currentUser.fullName.isNotEmpty
-                                ? currentUser.fullName[0].toUpperCase()
+                            (currentUser.fullName?.isNotEmpty ?? false)
+                                ? currentUser.fullName![0].toUpperCase()
                                 : 'U',
                             style: const TextStyle(fontSize: 32),
                           )
@@ -105,7 +105,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          currentUser.fullName,
+                          currentUser.fullName ?? '${currentUser.firstName} ${currentUser.lastName}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
