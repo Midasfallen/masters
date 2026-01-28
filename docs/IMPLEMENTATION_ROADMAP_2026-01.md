@@ -1349,8 +1349,8 @@ Missing: ReviewRepository at index [4]
 - [x] Task 2.1: Fix ApiHelpers Tests + Settings Screen ✅
 
 ### Day 3:
-- [ ] Task 2.2: Add Inter Font (30 min)
-- [ ] Task 2.3: Remove Duplicate Screen (1 hour)
+- [x] Task 2.2: Add Inter Font ✅
+- [x] Task 2.3: Remove Duplicate Screen ✅
 - [x] Task 2.4.1: Media Upload ✅
 - [x] Task 2.4.2: Edit Profile Screen ✅
 - [x] Task 2.4.3: Privacy Settings Screen ✅
