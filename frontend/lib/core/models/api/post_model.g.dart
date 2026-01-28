@@ -11,7 +11,7 @@ _$PostMediaModelImpl _$$PostMediaModelImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       type: $enumDecode(_$MediaTypeEnumMap, json['type']),
       url: json['url'] as String,
-      thumbnailUrl: json['thumbnail_url'] as String?,
+      thumbnailUrl: json['thumbnailUrl'] as String?,
       width: (json['width'] as num?)?.toInt(),
       height: (json['height'] as num?)?.toInt(),
       duration: (json['duration'] as num?)?.toInt(),
@@ -24,7 +24,7 @@ Map<String, dynamic> _$$PostMediaModelImplToJson(
       'id': instance.id,
       'type': _$MediaTypeEnumMap[instance.type]!,
       'url': instance.url,
-      'thumbnail_url': instance.thumbnailUrl,
+      'thumbnailUrl': instance.thumbnailUrl,
       'width': instance.width,
       'height': instance.height,
       'duration': instance.duration,
@@ -39,7 +39,7 @@ const _$MediaTypeEnumMap = {
 _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
     _$PostModelImpl(
       id: json['id'] as String,
-      authorId: json['author_id'] as String,
+      authorId: json['authorId'] as String,
       author: json['author'] == null
           ? null
           : UserModel.fromJson(json['author'] as Map<String, dynamic>),
@@ -51,40 +51,40 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
-      likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
-      commentsCount: (json['comments_count'] as num?)?.toInt() ?? 0,
-      sharesCount: (json['shares_count'] as num?)?.toInt() ?? 0,
-      repostsCount: (json['reposts_count'] as num?)?.toInt() ?? 0,
-      isLiked: json['is_liked'] as bool? ?? false,
-      locationName: json['location_name'] as String?,
-      locationLat: (json['location_lat'] as num?)?.toDouble(),
-      locationLng: (json['location_lng'] as num?)?.toDouble(),
-      isPinned: json['is_pinned'] as bool? ?? false,
-      isArchived: json['is_archived'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      likesCount: (json['likesCount'] as num?)?.toInt() ?? 0,
+      commentsCount: (json['commentsCount'] as num?)?.toInt() ?? 0,
+      sharesCount: (json['sharesCount'] as num?)?.toInt() ?? 0,
+      repostsCount: (json['repostsCount'] as num?)?.toInt() ?? 0,
+      isLiked: json['isLiked'] as bool? ?? false,
+      locationName: json['locationName'] as String?,
+      locationLat: (json['locationLat'] as num?)?.toDouble(),
+      locationLng: (json['locationLng'] as num?)?.toDouble(),
+      isPinned: json['isPinned'] as bool? ?? false,
+      isArchived: json['isArchived'] as bool? ?? false,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'author_id': instance.authorId,
+      'authorId': instance.authorId,
       'author': instance.author,
       'content': instance.content,
       'media': instance.media,
       'tags': instance.tags,
-      'likes_count': instance.likesCount,
-      'comments_count': instance.commentsCount,
-      'shares_count': instance.sharesCount,
-      'reposts_count': instance.repostsCount,
-      'is_liked': instance.isLiked,
-      'location_name': instance.locationName,
-      'location_lat': instance.locationLat,
-      'location_lng': instance.locationLng,
-      'is_pinned': instance.isPinned,
-      'is_archived': instance.isArchived,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'likesCount': instance.likesCount,
+      'commentsCount': instance.commentsCount,
+      'sharesCount': instance.sharesCount,
+      'repostsCount': instance.repostsCount,
+      'isLiked': instance.isLiked,
+      'locationName': instance.locationName,
+      'locationLat': instance.locationLat,
+      'locationLng': instance.locationLng,
+      'isPinned': instance.isPinned,
+      'isArchived': instance.isArchived,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 _$CreatePostRequestImpl _$$CreatePostRequestImplFromJson(
@@ -132,31 +132,31 @@ Map<String, dynamic> _$$UpdatePostRequestImplToJson(
 _$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
     _$CommentModelImpl(
       id: json['id'] as String,
-      postId: json['post_id'] as String,
-      authorId: json['author_id'] as String,
+      postId: json['postId'] as String,
+      authorId: json['authorId'] as String,
       author: json['author'] == null
           ? null
           : UserModel.fromJson(json['author'] as Map<String, dynamic>),
       content: json['content'] as String,
-      parentId: json['parent_id'] as String?,
-      likesCount: (json['likes_count'] as num).toInt(),
-      isLiked: json['is_liked'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      parentId: json['parentId'] as String?,
+      likesCount: (json['likesCount'] as num).toInt(),
+      isLiked: json['isLiked'] as bool,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'post_id': instance.postId,
-      'author_id': instance.authorId,
+      'postId': instance.postId,
+      'authorId': instance.authorId,
       'author': instance.author,
       'content': instance.content,
-      'parent_id': instance.parentId,
-      'likes_count': instance.likesCount,
-      'is_liked': instance.isLiked,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'parentId': instance.parentId,
+      'likesCount': instance.likesCount,
+      'isLiked': instance.isLiked,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 _$CreateCommentRequestImpl _$$CreateCommentRequestImplFromJson(

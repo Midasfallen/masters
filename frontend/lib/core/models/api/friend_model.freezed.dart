@@ -21,15 +21,11 @@ FriendshipModel _$FriendshipModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$FriendshipModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'requester_id')
   String get requesterId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'addressee_id')
   String get addresseeId => throw _privateConstructorUsedError;
   String get status =>
       throw _privateConstructorUsedError; // pending, accepted, declined, blocked
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt =>
       throw _privateConstructorUsedError; // Relations (optional, если backend их возвращает)
   UserModel? get requester => throw _privateConstructorUsedError;
@@ -53,11 +49,11 @@ abstract class $FriendshipModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'requester_id') String requesterId,
-      @JsonKey(name: 'addressee_id') String addresseeId,
+      String requesterId,
+      String addresseeId,
       String status,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      DateTime createdAt,
+      DateTime updatedAt,
       UserModel? requester,
       UserModel? addressee});
 
@@ -164,11 +160,11 @@ abstract class _$$FriendshipModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'requester_id') String requesterId,
-      @JsonKey(name: 'addressee_id') String addresseeId,
+      String requesterId,
+      String addresseeId,
       String status,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt,
+      DateTime createdAt,
+      DateTime updatedAt,
       UserModel? requester,
       UserModel? addressee});
 
@@ -242,11 +238,11 @@ class __$$FriendshipModelImplCopyWithImpl<$Res>
 class _$FriendshipModelImpl implements _FriendshipModel {
   const _$FriendshipModelImpl(
       {required this.id,
-      @JsonKey(name: 'requester_id') required this.requesterId,
-      @JsonKey(name: 'addressee_id') required this.addresseeId,
+      required this.requesterId,
+      required this.addresseeId,
       required this.status,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt,
+      required this.createdAt,
+      required this.updatedAt,
       this.requester,
       this.addressee});
 
@@ -256,19 +252,15 @@ class _$FriendshipModelImpl implements _FriendshipModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'requester_id')
   final String requesterId;
   @override
-  @JsonKey(name: 'addressee_id')
   final String addresseeId;
   @override
   final String status;
 // pending, accepted, declined, blocked
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 // Relations (optional, если backend их возвращает)
   @override
@@ -327,11 +319,11 @@ class _$FriendshipModelImpl implements _FriendshipModel {
 abstract class _FriendshipModel implements FriendshipModel {
   const factory _FriendshipModel(
       {required final String id,
-      @JsonKey(name: 'requester_id') required final String requesterId,
-      @JsonKey(name: 'addressee_id') required final String addresseeId,
+      required final String requesterId,
+      required final String addresseeId,
       required final String status,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+      required final DateTime createdAt,
+      required final DateTime updatedAt,
       final UserModel? requester,
       final UserModel? addressee}) = _$FriendshipModelImpl;
 
@@ -341,18 +333,14 @@ abstract class _FriendshipModel implements FriendshipModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'requester_id')
   String get requesterId;
   @override
-  @JsonKey(name: 'addressee_id')
   String get addresseeId;
   @override
   String get status; // pending, accepted, declined, blocked
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt; // Relations (optional, если backend их возвращает)
   @override
   UserModel? get requester;
@@ -374,22 +362,14 @@ FriendModel _$FriendModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$FriendModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'friendship_id')
   String get friendshipId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'first_name')
   String get firstName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_name')
   String get lastName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_master')
   bool get isMaster => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
-  @JsonKey(name: 'mutual_friends_count')
   int get mutualFriendsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this FriendModel to a JSON map.
@@ -410,15 +390,15 @@ abstract class $FriendModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'friendship_id') String friendshipId,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
+      String friendshipId,
+      String userId,
+      String firstName,
+      String lastName,
+      String? avatarUrl,
+      bool isMaster,
       String? bio,
-      @JsonKey(name: 'mutual_friends_count') int mutualFriendsCount,
-      @JsonKey(name: 'created_at') DateTime createdAt});
+      int mutualFriendsCount,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -502,15 +482,15 @@ abstract class _$$FriendModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'friendship_id') String friendshipId,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
+      String friendshipId,
+      String userId,
+      String firstName,
+      String lastName,
+      String? avatarUrl,
+      bool isMaster,
       String? bio,
-      @JsonKey(name: 'mutual_friends_count') int mutualFriendsCount,
-      @JsonKey(name: 'created_at') DateTime createdAt});
+      int mutualFriendsCount,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -587,15 +567,15 @@ class __$$FriendModelImplCopyWithImpl<$Res>
 class _$FriendModelImpl implements _FriendModel {
   const _$FriendModelImpl(
       {required this.id,
-      @JsonKey(name: 'friendship_id') required this.friendshipId,
-      @JsonKey(name: 'user_id') required this.userId,
-      @JsonKey(name: 'first_name') required this.firstName,
-      @JsonKey(name: 'last_name') required this.lastName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'is_master') this.isMaster = false,
+      required this.friendshipId,
+      required this.userId,
+      required this.firstName,
+      required this.lastName,
+      this.avatarUrl,
+      this.isMaster = false,
       this.bio,
-      @JsonKey(name: 'mutual_friends_count') this.mutualFriendsCount = 0,
-      @JsonKey(name: 'created_at') required this.createdAt});
+      this.mutualFriendsCount = 0,
+      required this.createdAt});
 
   factory _$FriendModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$FriendModelImplFromJson(json);
@@ -603,30 +583,24 @@ class _$FriendModelImpl implements _FriendModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'friendship_id')
   final String friendshipId;
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
-  @JsonKey(name: 'first_name')
   final String firstName;
   @override
-  @JsonKey(name: 'last_name')
   final String lastName;
   @override
-  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
+  @JsonKey()
   final bool isMaster;
   @override
   final String? bio;
   @override
-  @JsonKey(name: 'mutual_friends_count')
+  @JsonKey()
   final int mutualFriendsCount;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
   @override
@@ -691,17 +665,16 @@ class _$FriendModelImpl implements _FriendModel {
 
 abstract class _FriendModel implements FriendModel {
   const factory _FriendModel(
-          {required final String id,
-          @JsonKey(name: 'friendship_id') required final String friendshipId,
-          @JsonKey(name: 'user_id') required final String userId,
-          @JsonKey(name: 'first_name') required final String firstName,
-          @JsonKey(name: 'last_name') required final String lastName,
-          @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          @JsonKey(name: 'is_master') final bool isMaster,
-          final String? bio,
-          @JsonKey(name: 'mutual_friends_count') final int mutualFriendsCount,
-          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
-      _$FriendModelImpl;
+      {required final String id,
+      required final String friendshipId,
+      required final String userId,
+      required final String firstName,
+      required final String lastName,
+      final String? avatarUrl,
+      final bool isMaster,
+      final String? bio,
+      final int mutualFriendsCount,
+      required final DateTime createdAt}) = _$FriendModelImpl;
 
   factory _FriendModel.fromJson(Map<String, dynamic> json) =
       _$FriendModelImpl.fromJson;
@@ -709,30 +682,22 @@ abstract class _FriendModel implements FriendModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'friendship_id')
   String get friendshipId;
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
-  @JsonKey(name: 'first_name')
   String get firstName;
   @override
-  @JsonKey(name: 'last_name')
   String get lastName;
   @override
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
   bool get isMaster;
   @override
   String? get bio;
   @override
-  @JsonKey(name: 'mutual_friends_count')
   int get mutualFriendsCount;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
 
   /// Create a copy of FriendModel
@@ -750,13 +715,9 @@ SubscriptionModel _$SubscriptionModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$SubscriptionModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'subscriber_id')
   String get subscriberId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'target_id')
   String get targetId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'notifications_enabled')
   bool get notificationsEnabled => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt =>
       throw _privateConstructorUsedError; // Relations (optional)
   UserModel? get subscriber => throw _privateConstructorUsedError;
@@ -780,10 +741,10 @@ abstract class $SubscriptionModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'subscriber_id') String subscriberId,
-      @JsonKey(name: 'target_id') String targetId,
-      @JsonKey(name: 'notifications_enabled') bool notificationsEnabled,
-      @JsonKey(name: 'created_at') DateTime createdAt,
+      String subscriberId,
+      String targetId,
+      bool notificationsEnabled,
+      DateTime createdAt,
       UserModel? subscriber,
       UserModel? target});
 
@@ -885,10 +846,10 @@ abstract class _$$SubscriptionModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'subscriber_id') String subscriberId,
-      @JsonKey(name: 'target_id') String targetId,
-      @JsonKey(name: 'notifications_enabled') bool notificationsEnabled,
-      @JsonKey(name: 'created_at') DateTime createdAt,
+      String subscriberId,
+      String targetId,
+      bool notificationsEnabled,
+      DateTime createdAt,
       UserModel? subscriber,
       UserModel? target});
 
@@ -957,10 +918,10 @@ class __$$SubscriptionModelImplCopyWithImpl<$Res>
 class _$SubscriptionModelImpl implements _SubscriptionModel {
   const _$SubscriptionModelImpl(
       {required this.id,
-      @JsonKey(name: 'subscriber_id') required this.subscriberId,
-      @JsonKey(name: 'target_id') required this.targetId,
-      @JsonKey(name: 'notifications_enabled') this.notificationsEnabled = true,
-      @JsonKey(name: 'created_at') required this.createdAt,
+      required this.subscriberId,
+      required this.targetId,
+      this.notificationsEnabled = true,
+      required this.createdAt,
       this.subscriber,
       this.target});
 
@@ -970,16 +931,13 @@ class _$SubscriptionModelImpl implements _SubscriptionModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'subscriber_id')
   final String subscriberId;
   @override
-  @JsonKey(name: 'target_id')
   final String targetId;
   @override
-  @JsonKey(name: 'notifications_enabled')
+  @JsonKey()
   final bool notificationsEnabled;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
 // Relations (optional)
   @override
@@ -1036,10 +994,10 @@ class _$SubscriptionModelImpl implements _SubscriptionModel {
 abstract class _SubscriptionModel implements SubscriptionModel {
   const factory _SubscriptionModel(
       {required final String id,
-      @JsonKey(name: 'subscriber_id') required final String subscriberId,
-      @JsonKey(name: 'target_id') required final String targetId,
-      @JsonKey(name: 'notifications_enabled') final bool notificationsEnabled,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
+      required final String subscriberId,
+      required final String targetId,
+      final bool notificationsEnabled,
+      required final DateTime createdAt,
       final UserModel? subscriber,
       final UserModel? target}) = _$SubscriptionModelImpl;
 
@@ -1049,16 +1007,12 @@ abstract class _SubscriptionModel implements SubscriptionModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'subscriber_id')
   String get subscriberId;
   @override
-  @JsonKey(name: 'target_id')
   String get targetId;
   @override
-  @JsonKey(name: 'notifications_enabled')
   bool get notificationsEnabled;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt; // Relations (optional)
   @override
   UserModel? get subscriber;

@@ -11,34 +11,33 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       email: json['email'] as String,
       phone: json['phone'] as String?,
-      firstName: json['first_name'] as String,
-      lastName: json['last_name'] as String,
-      fullName: json['full_name'] as String?,
-      avatarUrl: json['avatar_url'] as String?,
-      isMaster: json['is_master'] as bool? ?? false,
-      masterProfileCompleted:
-          json['master_profile_completed'] as bool? ?? false,
-      isVerified: json['is_verified'] as bool? ?? false,
-      isPremium: json['is_premium'] as bool? ?? false,
-      premiumUntil: json['premium_until'] == null
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      fullName: json['fullName'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
+      isMaster: json['isMaster'] as bool? ?? false,
+      masterProfileCompleted: json['masterProfileCompleted'] as bool? ?? false,
+      isVerified: json['isVerified'] as bool? ?? false,
+      isPremium: json['isPremium'] as bool? ?? false,
+      premiumUntil: json['premiumUntil'] == null
           ? null
-          : DateTime.parse(json['premium_until'] as String),
+          : DateTime.parse(json['premiumUntil'] as String),
       rating: json['rating'] == null
           ? 0.0
           : const StringToDoubleConverter().fromJson(json['rating']),
-      reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
-      postsCount: (json['posts_count'] as num?)?.toInt() ?? 0,
-      friendsCount: (json['friends_count'] as num?)?.toInt() ?? 0,
-      followersCount: (json['followers_count'] as num?)?.toInt() ?? 0,
-      followingCount: (json['following_count'] as num?)?.toInt() ?? 0,
+      reviewsCount: (json['reviewsCount'] as num?)?.toInt() ?? 0,
+      postsCount: (json['postsCount'] as num?)?.toInt() ?? 0,
+      friendsCount: (json['friendsCount'] as num?)?.toInt() ?? 0,
+      followersCount: (json['followersCount'] as num?)?.toInt() ?? 0,
+      followingCount: (json['followingCount'] as num?)?.toInt() ?? 0,
       language: json['language'] as String? ?? 'en',
       timezone: json['timezone'] as String? ?? 'UTC',
-      createdAt: json['created_at'] == null
+      createdAt: json['createdAt'] == null
           ? null
-          : DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] == null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
           ? null
-          : DateTime.parse(json['updated_at'] as String),
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
@@ -46,44 +45,44 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'id': instance.id,
       'email': instance.email,
       'phone': instance.phone,
-      'first_name': instance.firstName,
-      'last_name': instance.lastName,
-      'full_name': instance.fullName,
-      'avatar_url': instance.avatarUrl,
-      'is_master': instance.isMaster,
-      'master_profile_completed': instance.masterProfileCompleted,
-      'is_verified': instance.isVerified,
-      'is_premium': instance.isPremium,
-      'premium_until': instance.premiumUntil?.toIso8601String(),
+      'firstName': instance.firstName,
+      'lastName': instance.lastName,
+      'fullName': instance.fullName,
+      'avatarUrl': instance.avatarUrl,
+      'isMaster': instance.isMaster,
+      'masterProfileCompleted': instance.masterProfileCompleted,
+      'isVerified': instance.isVerified,
+      'isPremium': instance.isPremium,
+      'premiumUntil': instance.premiumUntil?.toIso8601String(),
       'rating': const StringToDoubleConverter().toJson(instance.rating),
-      'reviews_count': instance.reviewsCount,
-      'posts_count': instance.postsCount,
-      'friends_count': instance.friendsCount,
-      'followers_count': instance.followersCount,
-      'following_count': instance.followingCount,
+      'reviewsCount': instance.reviewsCount,
+      'postsCount': instance.postsCount,
+      'friendsCount': instance.friendsCount,
+      'followersCount': instance.followersCount,
+      'followingCount': instance.followingCount,
       'language': instance.language,
       'timezone': instance.timezone,
-      'created_at': instance.createdAt?.toIso8601String(),
-      'updated_at': instance.updatedAt?.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
 _$AuthResponseModelImpl _$$AuthResponseModelImplFromJson(
         Map<String, dynamic> json) =>
     _$AuthResponseModelImpl(
-      accessToken: json['access_token'] as String,
-      refreshToken: json['refresh_token'] as String,
-      tokenType: json['token_type'] as String,
-      expiresIn: (json['expires_in'] as num).toInt(),
+      accessToken: json['accessToken'] as String,
+      refreshToken: json['refreshToken'] as String,
+      tokenType: json['tokenType'] as String,
+      expiresIn: (json['expiresIn'] as num).toInt(),
       user: AuthUserModel.fromJson(json['user'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$AuthResponseModelImplToJson(
         _$AuthResponseModelImpl instance) =>
     <String, dynamic>{
-      'access_token': instance.accessToken,
-      'refresh_token': instance.refreshToken,
-      'token_type': instance.tokenType,
-      'expires_in': instance.expiresIn,
+      'accessToken': instance.accessToken,
+      'refreshToken': instance.refreshToken,
+      'tokenType': instance.tokenType,
+      'expiresIn': instance.expiresIn,
       'user': instance.user,
     };
 
@@ -91,24 +90,24 @@ _$AuthUserModelImpl _$$AuthUserModelImplFromJson(Map<String, dynamic> json) =>
     _$AuthUserModelImpl(
       id: json['id'] as String,
       email: json['email'] as String,
-      firstName: json['first_name'] as String,
-      lastName: json['last_name'] as String,
-      avatarUrl: json['avatar_url'] as String?,
-      isMaster: json['is_master'] as bool,
-      isVerified: json['is_verified'] as bool,
-      isPremium: json['is_premium'] as bool,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
+      isMaster: json['isMaster'] as bool,
+      isVerified: json['isVerified'] as bool,
+      isPremium: json['isPremium'] as bool,
     );
 
 Map<String, dynamic> _$$AuthUserModelImplToJson(_$AuthUserModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'email': instance.email,
-      'first_name': instance.firstName,
-      'last_name': instance.lastName,
-      'avatar_url': instance.avatarUrl,
-      'is_master': instance.isMaster,
-      'is_verified': instance.isVerified,
-      'is_premium': instance.isPremium,
+      'firstName': instance.firstName,
+      'lastName': instance.lastName,
+      'avatarUrl': instance.avatarUrl,
+      'isMaster': instance.isMaster,
+      'isVerified': instance.isVerified,
+      'isPremium': instance.isPremium,
     };
 
 _$LoginRequestImpl _$$LoginRequestImplFromJson(Map<String, dynamic> json) =>

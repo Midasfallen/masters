@@ -23,41 +23,25 @@ mixin _$UserModel {
   String get id => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
-  @JsonKey(name: 'first_name')
   String get firstName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_name')
   String get lastName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'full_name')
   String? get fullName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_master')
   bool get isMaster => throw _privateConstructorUsedError;
-  @JsonKey(name: 'master_profile_completed')
   bool get masterProfileCompleted => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_verified')
   bool get isVerified => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_premium')
   bool get isPremium => throw _privateConstructorUsedError;
-  @JsonKey(name: 'premium_until')
   DateTime? get premiumUntil => throw _privateConstructorUsedError;
   @StringToDoubleConverter()
   double get rating => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reviews_count')
   int get reviewsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'posts_count')
   int get postsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'friends_count')
   int get friendsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'followers_count')
   int get followersCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'following_count')
   int get followingCount => throw _privateConstructorUsedError;
   String get language => throw _privateConstructorUsedError;
   String get timezone => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserModel to a JSON map.
@@ -79,25 +63,25 @@ abstract class $UserModelCopyWith<$Res> {
       {String id,
       String email,
       String? phone,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
-      @JsonKey(name: 'master_profile_completed') bool masterProfileCompleted,
-      @JsonKey(name: 'is_verified') bool isVerified,
-      @JsonKey(name: 'is_premium') bool isPremium,
-      @JsonKey(name: 'premium_until') DateTime? premiumUntil,
+      String firstName,
+      String lastName,
+      String? fullName,
+      String? avatarUrl,
+      bool isMaster,
+      bool masterProfileCompleted,
+      bool isVerified,
+      bool isPremium,
+      DateTime? premiumUntil,
       @StringToDoubleConverter() double rating,
-      @JsonKey(name: 'reviews_count') int reviewsCount,
-      @JsonKey(name: 'posts_count') int postsCount,
-      @JsonKey(name: 'friends_count') int friendsCount,
-      @JsonKey(name: 'followers_count') int followersCount,
-      @JsonKey(name: 'following_count') int followingCount,
+      int reviewsCount,
+      int postsCount,
+      int friendsCount,
+      int followersCount,
+      int followingCount,
       String language,
       String timezone,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -243,25 +227,25 @@ abstract class _$$UserModelImplCopyWith<$Res>
       {String id,
       String email,
       String? phone,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
-      @JsonKey(name: 'master_profile_completed') bool masterProfileCompleted,
-      @JsonKey(name: 'is_verified') bool isVerified,
-      @JsonKey(name: 'is_premium') bool isPremium,
-      @JsonKey(name: 'premium_until') DateTime? premiumUntil,
+      String firstName,
+      String lastName,
+      String? fullName,
+      String? avatarUrl,
+      bool isMaster,
+      bool masterProfileCompleted,
+      bool isVerified,
+      bool isPremium,
+      DateTime? premiumUntil,
       @StringToDoubleConverter() double rating,
-      @JsonKey(name: 'reviews_count') int reviewsCount,
-      @JsonKey(name: 'posts_count') int postsCount,
-      @JsonKey(name: 'friends_count') int friendsCount,
-      @JsonKey(name: 'followers_count') int followersCount,
-      @JsonKey(name: 'following_count') int followingCount,
+      int reviewsCount,
+      int postsCount,
+      int friendsCount,
+      int followersCount,
+      int followingCount,
       String language,
       String timezone,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -400,26 +384,25 @@ class _$UserModelImpl implements _UserModel {
       {required this.id,
       required this.email,
       this.phone,
-      @JsonKey(name: 'first_name') required this.firstName,
-      @JsonKey(name: 'last_name') required this.lastName,
-      @JsonKey(name: 'full_name') this.fullName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'is_master') this.isMaster = false,
-      @JsonKey(name: 'master_profile_completed')
+      required this.firstName,
+      required this.lastName,
+      this.fullName,
+      this.avatarUrl,
+      this.isMaster = false,
       this.masterProfileCompleted = false,
-      @JsonKey(name: 'is_verified') this.isVerified = false,
-      @JsonKey(name: 'is_premium') this.isPremium = false,
-      @JsonKey(name: 'premium_until') this.premiumUntil,
+      this.isVerified = false,
+      this.isPremium = false,
+      this.premiumUntil,
       @StringToDoubleConverter() this.rating = 0.0,
-      @JsonKey(name: 'reviews_count') this.reviewsCount = 0,
-      @JsonKey(name: 'posts_count') this.postsCount = 0,
-      @JsonKey(name: 'friends_count') this.friendsCount = 0,
-      @JsonKey(name: 'followers_count') this.followersCount = 0,
-      @JsonKey(name: 'following_count') this.followingCount = 0,
+      this.reviewsCount = 0,
+      this.postsCount = 0,
+      this.friendsCount = 0,
+      this.followersCount = 0,
+      this.followingCount = 0,
       this.language = 'en',
       this.timezone = 'UTC',
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt});
+      this.createdAt,
+      this.updatedAt});
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -431,50 +414,45 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? phone;
   @override
-  @JsonKey(name: 'first_name')
   final String firstName;
   @override
-  @JsonKey(name: 'last_name')
   final String lastName;
   @override
-  @JsonKey(name: 'full_name')
   final String? fullName;
   @override
-  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
+  @JsonKey()
   final bool isMaster;
   @override
-  @JsonKey(name: 'master_profile_completed')
+  @JsonKey()
   final bool masterProfileCompleted;
   @override
-  @JsonKey(name: 'is_verified')
+  @JsonKey()
   final bool isVerified;
   @override
-  @JsonKey(name: 'is_premium')
+  @JsonKey()
   final bool isPremium;
   @override
-  @JsonKey(name: 'premium_until')
   final DateTime? premiumUntil;
   @override
   @JsonKey()
   @StringToDoubleConverter()
   final double rating;
   @override
-  @JsonKey(name: 'reviews_count')
+  @JsonKey()
   final int reviewsCount;
   @override
-  @JsonKey(name: 'posts_count')
+  @JsonKey()
   final int postsCount;
   @override
-  @JsonKey(name: 'friends_count')
+  @JsonKey()
   final int friendsCount;
   @override
-  @JsonKey(name: 'followers_count')
+  @JsonKey()
   final int followersCount;
   @override
-  @JsonKey(name: 'following_count')
+  @JsonKey()
   final int followingCount;
   @override
   @JsonKey()
@@ -483,10 +461,8 @@ class _$UserModelImpl implements _UserModel {
   @JsonKey()
   final String timezone;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
 
   @override
@@ -587,30 +563,28 @@ class _$UserModelImpl implements _UserModel {
 
 abstract class _UserModel implements UserModel {
   const factory _UserModel(
-          {required final String id,
-          required final String email,
-          final String? phone,
-          @JsonKey(name: 'first_name') required final String firstName,
-          @JsonKey(name: 'last_name') required final String lastName,
-          @JsonKey(name: 'full_name') final String? fullName,
-          @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          @JsonKey(name: 'is_master') final bool isMaster,
-          @JsonKey(name: 'master_profile_completed')
-          final bool masterProfileCompleted,
-          @JsonKey(name: 'is_verified') final bool isVerified,
-          @JsonKey(name: 'is_premium') final bool isPremium,
-          @JsonKey(name: 'premium_until') final DateTime? premiumUntil,
-          @StringToDoubleConverter() final double rating,
-          @JsonKey(name: 'reviews_count') final int reviewsCount,
-          @JsonKey(name: 'posts_count') final int postsCount,
-          @JsonKey(name: 'friends_count') final int friendsCount,
-          @JsonKey(name: 'followers_count') final int followersCount,
-          @JsonKey(name: 'following_count') final int followingCount,
-          final String language,
-          final String timezone,
-          @JsonKey(name: 'created_at') final DateTime? createdAt,
-          @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
-      _$UserModelImpl;
+      {required final String id,
+      required final String email,
+      final String? phone,
+      required final String firstName,
+      required final String lastName,
+      final String? fullName,
+      final String? avatarUrl,
+      final bool isMaster,
+      final bool masterProfileCompleted,
+      final bool isVerified,
+      final bool isPremium,
+      final DateTime? premiumUntil,
+      @StringToDoubleConverter() final double rating,
+      final int reviewsCount,
+      final int postsCount,
+      final int friendsCount,
+      final int followersCount,
+      final int followingCount,
+      final String language,
+      final String timezone,
+      final DateTime? createdAt,
+      final DateTime? updatedAt}) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$UserModelImpl.fromJson;
@@ -622,59 +596,43 @@ abstract class _UserModel implements UserModel {
   @override
   String? get phone;
   @override
-  @JsonKey(name: 'first_name')
   String get firstName;
   @override
-  @JsonKey(name: 'last_name')
   String get lastName;
   @override
-  @JsonKey(name: 'full_name')
   String? get fullName;
   @override
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
   bool get isMaster;
   @override
-  @JsonKey(name: 'master_profile_completed')
   bool get masterProfileCompleted;
   @override
-  @JsonKey(name: 'is_verified')
   bool get isVerified;
   @override
-  @JsonKey(name: 'is_premium')
   bool get isPremium;
   @override
-  @JsonKey(name: 'premium_until')
   DateTime? get premiumUntil;
   @override
   @StringToDoubleConverter()
   double get rating;
   @override
-  @JsonKey(name: 'reviews_count')
   int get reviewsCount;
   @override
-  @JsonKey(name: 'posts_count')
   int get postsCount;
   @override
-  @JsonKey(name: 'friends_count')
   int get friendsCount;
   @override
-  @JsonKey(name: 'followers_count')
   int get followersCount;
   @override
-  @JsonKey(name: 'following_count')
   int get followingCount;
   @override
   String get language;
   @override
   String get timezone;
   @override
-  @JsonKey(name: 'created_at')
   DateTime? get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
 
   /// Create a copy of UserModel
@@ -691,13 +649,9 @@ AuthResponseModel _$AuthResponseModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AuthResponseModel {
-  @JsonKey(name: 'access_token')
   String get accessToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'refresh_token')
   String get refreshToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'token_type')
   String get tokenType => throw _privateConstructorUsedError;
-  @JsonKey(name: 'expires_in')
   int get expiresIn => throw _privateConstructorUsedError;
   AuthUserModel get user => throw _privateConstructorUsedError;
 
@@ -718,10 +672,10 @@ abstract class $AuthResponseModelCopyWith<$Res> {
       _$AuthResponseModelCopyWithImpl<$Res, AuthResponseModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'token_type') String tokenType,
-      @JsonKey(name: 'expires_in') int expiresIn,
+      {String accessToken,
+      String refreshToken,
+      String tokenType,
+      int expiresIn,
       AuthUserModel user});
 
   $AuthUserModelCopyWith<$Res> get user;
@@ -792,10 +746,10 @@ abstract class _$$AuthResponseModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'token_type') String tokenType,
-      @JsonKey(name: 'expires_in') int expiresIn,
+      {String accessToken,
+      String refreshToken,
+      String tokenType,
+      int expiresIn,
       AuthUserModel user});
 
   @override
@@ -850,26 +804,22 @@ class __$$AuthResponseModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AuthResponseModelImpl implements _AuthResponseModel {
   const _$AuthResponseModelImpl(
-      {@JsonKey(name: 'access_token') required this.accessToken,
-      @JsonKey(name: 'refresh_token') required this.refreshToken,
-      @JsonKey(name: 'token_type') required this.tokenType,
-      @JsonKey(name: 'expires_in') required this.expiresIn,
+      {required this.accessToken,
+      required this.refreshToken,
+      required this.tokenType,
+      required this.expiresIn,
       required this.user});
 
   factory _$AuthResponseModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthResponseModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'access_token')
   final String accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
   final String refreshToken;
   @override
-  @JsonKey(name: 'token_type')
   final String tokenType;
   @override
-  @JsonKey(name: 'expires_in')
   final int expiresIn;
   @override
   final AuthUserModel user;
@@ -919,26 +869,22 @@ class _$AuthResponseModelImpl implements _AuthResponseModel {
 
 abstract class _AuthResponseModel implements AuthResponseModel {
   const factory _AuthResponseModel(
-      {@JsonKey(name: 'access_token') required final String accessToken,
-      @JsonKey(name: 'refresh_token') required final String refreshToken,
-      @JsonKey(name: 'token_type') required final String tokenType,
-      @JsonKey(name: 'expires_in') required final int expiresIn,
+      {required final String accessToken,
+      required final String refreshToken,
+      required final String tokenType,
+      required final int expiresIn,
       required final AuthUserModel user}) = _$AuthResponseModelImpl;
 
   factory _AuthResponseModel.fromJson(Map<String, dynamic> json) =
       _$AuthResponseModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'access_token')
   String get accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
   String get refreshToken;
   @override
-  @JsonKey(name: 'token_type')
   String get tokenType;
   @override
-  @JsonKey(name: 'expires_in')
   int get expiresIn;
   @override
   AuthUserModel get user;
@@ -959,17 +905,11 @@ AuthUserModel _$AuthUserModelFromJson(Map<String, dynamic> json) {
 mixin _$AuthUserModel {
   String get id => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
-  @JsonKey(name: 'first_name')
   String get firstName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_name')
   String get lastName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_master')
   bool get isMaster => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_verified')
   bool get isVerified => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_premium')
   bool get isPremium => throw _privateConstructorUsedError;
 
   /// Serializes this AuthUserModel to a JSON map.
@@ -991,12 +931,12 @@ abstract class $AuthUserModelCopyWith<$Res> {
   $Res call(
       {String id,
       String email,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
-      @JsonKey(name: 'is_verified') bool isVerified,
-      @JsonKey(name: 'is_premium') bool isPremium});
+      String firstName,
+      String lastName,
+      String? avatarUrl,
+      bool isMaster,
+      bool isVerified,
+      bool isPremium});
 }
 
 /// @nodoc
@@ -1071,12 +1011,12 @@ abstract class _$$AuthUserModelImplCopyWith<$Res>
   $Res call(
       {String id,
       String email,
-      @JsonKey(name: 'first_name') String firstName,
-      @JsonKey(name: 'last_name') String lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'is_master') bool isMaster,
-      @JsonKey(name: 'is_verified') bool isVerified,
-      @JsonKey(name: 'is_premium') bool isPremium});
+      String firstName,
+      String lastName,
+      String? avatarUrl,
+      bool isMaster,
+      bool isVerified,
+      bool isPremium});
 }
 
 /// @nodoc
@@ -1144,12 +1084,12 @@ class _$AuthUserModelImpl implements _AuthUserModel {
   const _$AuthUserModelImpl(
       {required this.id,
       required this.email,
-      @JsonKey(name: 'first_name') required this.firstName,
-      @JsonKey(name: 'last_name') required this.lastName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'is_master') required this.isMaster,
-      @JsonKey(name: 'is_verified') required this.isVerified,
-      @JsonKey(name: 'is_premium') required this.isPremium});
+      required this.firstName,
+      required this.lastName,
+      this.avatarUrl,
+      required this.isMaster,
+      required this.isVerified,
+      required this.isPremium});
 
   factory _$AuthUserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthUserModelImplFromJson(json);
@@ -1159,22 +1099,16 @@ class _$AuthUserModelImpl implements _AuthUserModel {
   @override
   final String email;
   @override
-  @JsonKey(name: 'first_name')
   final String firstName;
   @override
-  @JsonKey(name: 'last_name')
   final String lastName;
   @override
-  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
   final bool isMaster;
   @override
-  @JsonKey(name: 'is_verified')
   final bool isVerified;
   @override
-  @JsonKey(name: 'is_premium')
   final bool isPremium;
 
   @override
@@ -1226,15 +1160,14 @@ class _$AuthUserModelImpl implements _AuthUserModel {
 
 abstract class _AuthUserModel implements AuthUserModel {
   const factory _AuthUserModel(
-          {required final String id,
-          required final String email,
-          @JsonKey(name: 'first_name') required final String firstName,
-          @JsonKey(name: 'last_name') required final String lastName,
-          @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          @JsonKey(name: 'is_master') required final bool isMaster,
-          @JsonKey(name: 'is_verified') required final bool isVerified,
-          @JsonKey(name: 'is_premium') required final bool isPremium}) =
-      _$AuthUserModelImpl;
+      {required final String id,
+      required final String email,
+      required final String firstName,
+      required final String lastName,
+      final String? avatarUrl,
+      required final bool isMaster,
+      required final bool isVerified,
+      required final bool isPremium}) = _$AuthUserModelImpl;
 
   factory _AuthUserModel.fromJson(Map<String, dynamic> json) =
       _$AuthUserModelImpl.fromJson;
@@ -1244,22 +1177,16 @@ abstract class _AuthUserModel implements AuthUserModel {
   @override
   String get email;
   @override
-  @JsonKey(name: 'first_name')
   String get firstName;
   @override
-  @JsonKey(name: 'last_name')
   String get lastName;
   @override
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
-  @JsonKey(name: 'is_master')
   bool get isMaster;
   @override
-  @JsonKey(name: 'is_verified')
   bool get isVerified;
   @override
-  @JsonKey(name: 'is_premium')
   bool get isPremium;
 
   /// Create a copy of AuthUserModel

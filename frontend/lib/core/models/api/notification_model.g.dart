@@ -10,32 +10,32 @@ _$NotificationModelImpl _$$NotificationModelImplFromJson(
         Map<String, dynamic> json) =>
     _$NotificationModelImpl(
       id: json['id'] as String,
-      userId: json['user_id'] as String,
+      userId: json['userId'] as String,
       type: json['type'] as String,
       title: json['title'] as String,
       message: json['message'] as String,
-      isRead: json['is_read'] as bool? ?? false,
-      relatedId: json['related_id'] as String?,
-      relatedType: json['related_type'] as String?,
+      isRead: json['isRead'] as bool? ?? false,
+      relatedId: json['relatedId'] as String?,
+      relatedType: json['relatedType'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      actionUrl: json['action_url'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      actionUrl: json['actionUrl'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$$NotificationModelImplToJson(
         _$NotificationModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'user_id': instance.userId,
+      'userId': instance.userId,
       'type': instance.type,
       'title': instance.title,
       'message': instance.message,
-      'is_read': instance.isRead,
-      'related_id': instance.relatedId,
-      'related_type': instance.relatedType,
+      'isRead': instance.isRead,
+      'relatedId': instance.relatedId,
+      'relatedType': instance.relatedType,
       'metadata': instance.metadata,
-      'action_url': instance.actionUrl,
-      'created_at': instance.createdAt.toIso8601String(),
+      'actionUrl': instance.actionUrl,
+      'createdAt': instance.createdAt.toIso8601String(),
     };
 
 _$MarkNotificationReadRequestImpl _$$MarkNotificationReadRequestImplFromJson(

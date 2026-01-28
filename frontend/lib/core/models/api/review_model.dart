@@ -14,20 +14,20 @@ enum ReviewerType {
 class ReviewModel with _$ReviewModel {
   const factory ReviewModel({
     required String id,
-    @JsonKey(name: 'booking_id') required String bookingId,
-    @JsonKey(name: 'reviewer_id') required String reviewerId,
-    @JsonKey(name: 'reviewed_user_id') required String reviewedUserId,
-    @JsonKey(name: 'reviewer_type') required ReviewerType reviewerType,
+    required String bookingId,
+    required String reviewerId,
+    required String reviewedUserId,
+    required ReviewerType reviewerType,
     required int rating,
     String? comment,
-    @JsonKey(name: 'photo_urls') required List<String> photoUrls,
+    required List<String> photoUrls,
     String? response,
-    @JsonKey(name: 'response_at') DateTime? responseAt,
-    @JsonKey(name: 'is_visible') required bool isVisible,
-    @JsonKey(name: 'reports_count') required int reportsCount,
-    @JsonKey(name: 'is_approved') required bool isApproved,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    DateTime? responseAt,
+    required bool isVisible,
+    required int reportsCount,
+    required bool isApproved,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _ReviewModel;
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) =>

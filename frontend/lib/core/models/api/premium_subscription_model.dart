@@ -40,19 +40,19 @@ enum BillingPeriod {
 class PremiumSubscriptionModel with _$PremiumSubscriptionModel {
   const factory PremiumSubscriptionModel({
     required String id,
-    @JsonKey(name: 'user_id') required String userId,
+    required String userId,
     required SubscriptionTier tier,
     required SubscriptionStatus status,
-    @JsonKey(name: 'billing_period') required BillingPeriod billingPeriod,
-    @JsonKey(name: 'price_amount') required double priceAmount,
-    @JsonKey(name: 'currency_code') @Default('RUB') String currencyCode,
-    @JsonKey(name: 'started_at') required DateTime startedAt,
-    @JsonKey(name: 'expires_at') DateTime? expiresAt,
-    @JsonKey(name: 'cancelled_at') DateTime? cancelledAt,
-    @JsonKey(name: 'auto_renew') @Default(true) bool autoRenew,
-    @JsonKey(name: 'payment_method') String? paymentMethod,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    required BillingPeriod billingPeriod,
+    required double priceAmount,
+    @Default('RUB') String currencyCode,
+    required DateTime startedAt,
+    DateTime? expiresAt,
+    DateTime? cancelledAt,
+    @Default(true) bool autoRenew,
+    String? paymentMethod,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _PremiumSubscriptionModel;
 
   factory PremiumSubscriptionModel.fromJson(Map<String, dynamic> json) =>
@@ -68,11 +68,11 @@ class SubscriptionPlanModel with _$SubscriptionPlanModel {
     required String name,
     required String description,
     required List<String> features,
-    @JsonKey(name: 'monthly_price') required double monthlyPrice,
-    @JsonKey(name: 'yearly_price') required double yearlyPrice,
-    @JsonKey(name: 'yearly_discount_percent') @Default(0) int yearlyDiscountPercent,
-    @JsonKey(name: 'is_popular') @Default(false) bool isPopular,
-    @JsonKey(name: 'is_active') @Default(true) bool isActive,
+    required double monthlyPrice,
+    required double yearlyPrice,
+    @Default(0) int yearlyDiscountPercent,
+    @Default(false) bool isPopular,
+    @Default(true) bool isActive,
   }) = _SubscriptionPlanModel;
 
   factory SubscriptionPlanModel.fromJson(Map<String, dynamic> json) =>

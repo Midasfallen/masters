@@ -21,73 +21,42 @@ MasterProfileModel _$MasterProfileModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$MasterProfileModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
   UserModel? get user => throw _privateConstructorUsedError;
-  @JsonKey(name: 'business_name')
   String? get businessName => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
-  @JsonKey(name: 'category_ids')
   List<String> get categoryIds => throw _privateConstructorUsedError;
-  @JsonKey(name: 'subcategory_ids')
   List<String> get subcategoryIds => throw _privateConstructorUsedError;
   double get rating => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reviews_count')
   int get reviewsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'completed_bookings')
   int get completedBookings => throw _privateConstructorUsedError;
-  @JsonKey(name: 'cancellations_count')
   int get cancellationsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'views_count')
   int get viewsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'favorites_count')
   int get favoritesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'subscribers_count')
   int get subscribersCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lat')
   double? get locationLat => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lng')
   double? get locationLng => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_address')
   String? get locationAddress => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_name')
   String? get locationName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'service_radius_km')
   int? get serviceRadiusKm => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_mobile')
   bool get isMobile => throw _privateConstructorUsedError;
-  @JsonKey(name: 'has_location')
   bool get hasLocation => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_online_only')
   bool get isOnlineOnly => throw _privateConstructorUsedError;
-  @JsonKey(name: 'portfolio_urls')
   List<String> get portfolioUrls => throw _privateConstructorUsedError;
-  @JsonKey(name: 'video_urls')
   List<String> get videoUrls => throw _privateConstructorUsedError;
-  @JsonKey(name: 'social_links')
   Map<String, String>? get socialLinks => throw _privateConstructorUsedError;
-  @JsonKey(name: 'working_hours')
   Map<String, dynamic>? get workingHours => throw _privateConstructorUsedError;
-  @JsonKey(name: 'min_booking_hours')
   int get minBookingHours => throw _privateConstructorUsedError;
-  @JsonKey(name: 'max_bookings_per_day')
   int? get maxBookingsPerDay => throw _privateConstructorUsedError;
-  @JsonKey(name: 'auto_confirm')
   bool get autoConfirm => throw _privateConstructorUsedError;
-  @JsonKey(name: 'years_of_experience')
   int? get yearsOfExperience => throw _privateConstructorUsedError;
   List<String> get certificates => throw _privateConstructorUsedError;
   List<String> get languages => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_active')
   bool get isActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_approved')
   bool get isApproved => throw _privateConstructorUsedError;
-  @JsonKey(name: 'setup_step')
   int get setupStep => throw _privateConstructorUsedError;
   List<ServiceModel>? get services => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this MasterProfileModel to a JSON map.
@@ -108,43 +77,43 @@ abstract class $MasterProfileModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       UserModel? user,
-      @JsonKey(name: 'business_name') String? businessName,
+      String? businessName,
       String? bio,
-      @JsonKey(name: 'category_ids') List<String> categoryIds,
-      @JsonKey(name: 'subcategory_ids') List<String> subcategoryIds,
+      List<String> categoryIds,
+      List<String> subcategoryIds,
       double rating,
-      @JsonKey(name: 'reviews_count') int reviewsCount,
-      @JsonKey(name: 'completed_bookings') int completedBookings,
-      @JsonKey(name: 'cancellations_count') int cancellationsCount,
-      @JsonKey(name: 'views_count') int viewsCount,
-      @JsonKey(name: 'favorites_count') int favoritesCount,
-      @JsonKey(name: 'subscribers_count') int subscribersCount,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'location_name') String? locationName,
-      @JsonKey(name: 'service_radius_km') int? serviceRadiusKm,
-      @JsonKey(name: 'is_mobile') bool isMobile,
-      @JsonKey(name: 'has_location') bool hasLocation,
-      @JsonKey(name: 'is_online_only') bool isOnlineOnly,
-      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
-      @JsonKey(name: 'video_urls') List<String> videoUrls,
-      @JsonKey(name: 'social_links') Map<String, String>? socialLinks,
-      @JsonKey(name: 'working_hours') Map<String, dynamic>? workingHours,
-      @JsonKey(name: 'min_booking_hours') int minBookingHours,
-      @JsonKey(name: 'max_bookings_per_day') int? maxBookingsPerDay,
-      @JsonKey(name: 'auto_confirm') bool autoConfirm,
-      @JsonKey(name: 'years_of_experience') int? yearsOfExperience,
+      int reviewsCount,
+      int completedBookings,
+      int cancellationsCount,
+      int viewsCount,
+      int favoritesCount,
+      int subscribersCount,
+      double? locationLat,
+      double? locationLng,
+      String? locationAddress,
+      String? locationName,
+      int? serviceRadiusKm,
+      bool isMobile,
+      bool hasLocation,
+      bool isOnlineOnly,
+      List<String> portfolioUrls,
+      List<String> videoUrls,
+      Map<String, String>? socialLinks,
+      Map<String, dynamic>? workingHours,
+      int minBookingHours,
+      int? maxBookingsPerDay,
+      bool autoConfirm,
+      int? yearsOfExperience,
       List<String> certificates,
       List<String> languages,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'is_approved') bool isApproved,
-      @JsonKey(name: 'setup_step') int setupStep,
+      bool isActive,
+      bool isApproved,
+      int setupStep,
       List<ServiceModel>? services,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime createdAt,
+      DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get user;
 }
@@ -384,43 +353,43 @@ abstract class _$$MasterProfileModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       UserModel? user,
-      @JsonKey(name: 'business_name') String? businessName,
+      String? businessName,
       String? bio,
-      @JsonKey(name: 'category_ids') List<String> categoryIds,
-      @JsonKey(name: 'subcategory_ids') List<String> subcategoryIds,
+      List<String> categoryIds,
+      List<String> subcategoryIds,
       double rating,
-      @JsonKey(name: 'reviews_count') int reviewsCount,
-      @JsonKey(name: 'completed_bookings') int completedBookings,
-      @JsonKey(name: 'cancellations_count') int cancellationsCount,
-      @JsonKey(name: 'views_count') int viewsCount,
-      @JsonKey(name: 'favorites_count') int favoritesCount,
-      @JsonKey(name: 'subscribers_count') int subscribersCount,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'location_name') String? locationName,
-      @JsonKey(name: 'service_radius_km') int? serviceRadiusKm,
-      @JsonKey(name: 'is_mobile') bool isMobile,
-      @JsonKey(name: 'has_location') bool hasLocation,
-      @JsonKey(name: 'is_online_only') bool isOnlineOnly,
-      @JsonKey(name: 'portfolio_urls') List<String> portfolioUrls,
-      @JsonKey(name: 'video_urls') List<String> videoUrls,
-      @JsonKey(name: 'social_links') Map<String, String>? socialLinks,
-      @JsonKey(name: 'working_hours') Map<String, dynamic>? workingHours,
-      @JsonKey(name: 'min_booking_hours') int minBookingHours,
-      @JsonKey(name: 'max_bookings_per_day') int? maxBookingsPerDay,
-      @JsonKey(name: 'auto_confirm') bool autoConfirm,
-      @JsonKey(name: 'years_of_experience') int? yearsOfExperience,
+      int reviewsCount,
+      int completedBookings,
+      int cancellationsCount,
+      int viewsCount,
+      int favoritesCount,
+      int subscribersCount,
+      double? locationLat,
+      double? locationLng,
+      String? locationAddress,
+      String? locationName,
+      int? serviceRadiusKm,
+      bool isMobile,
+      bool hasLocation,
+      bool isOnlineOnly,
+      List<String> portfolioUrls,
+      List<String> videoUrls,
+      Map<String, String>? socialLinks,
+      Map<String, dynamic>? workingHours,
+      int minBookingHours,
+      int? maxBookingsPerDay,
+      bool autoConfirm,
+      int? yearsOfExperience,
       List<String> certificates,
       List<String> languages,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'is_approved') bool isApproved,
-      @JsonKey(name: 'setup_step') int setupStep,
+      bool isActive,
+      bool isApproved,
+      int setupStep,
       List<ServiceModel>? services,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime createdAt,
+      DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get user;
@@ -640,45 +609,43 @@ class __$$MasterProfileModelImplCopyWithImpl<$Res>
 class _$MasterProfileModelImpl implements _MasterProfileModel {
   const _$MasterProfileModelImpl(
       {required this.id,
-      @JsonKey(name: 'user_id') required this.userId,
+      required this.userId,
       this.user,
-      @JsonKey(name: 'business_name') this.businessName,
+      this.businessName,
       this.bio,
-      @JsonKey(name: 'category_ids') required final List<String> categoryIds,
-      @JsonKey(name: 'subcategory_ids')
+      required final List<String> categoryIds,
       required final List<String> subcategoryIds,
       required this.rating,
-      @JsonKey(name: 'reviews_count') required this.reviewsCount,
-      @JsonKey(name: 'completed_bookings') required this.completedBookings,
-      @JsonKey(name: 'cancellations_count') required this.cancellationsCount,
-      @JsonKey(name: 'views_count') required this.viewsCount,
-      @JsonKey(name: 'favorites_count') required this.favoritesCount,
-      @JsonKey(name: 'subscribers_count') required this.subscribersCount,
-      @JsonKey(name: 'location_lat') this.locationLat,
-      @JsonKey(name: 'location_lng') this.locationLng,
-      @JsonKey(name: 'location_address') this.locationAddress,
-      @JsonKey(name: 'location_name') this.locationName,
-      @JsonKey(name: 'service_radius_km') this.serviceRadiusKm,
-      @JsonKey(name: 'is_mobile') required this.isMobile,
-      @JsonKey(name: 'has_location') required this.hasLocation,
-      @JsonKey(name: 'is_online_only') required this.isOnlineOnly,
-      @JsonKey(name: 'portfolio_urls')
+      required this.reviewsCount,
+      required this.completedBookings,
+      required this.cancellationsCount,
+      required this.viewsCount,
+      required this.favoritesCount,
+      required this.subscribersCount,
+      this.locationLat,
+      this.locationLng,
+      this.locationAddress,
+      this.locationName,
+      this.serviceRadiusKm,
+      required this.isMobile,
+      required this.hasLocation,
+      required this.isOnlineOnly,
       required final List<String> portfolioUrls,
-      @JsonKey(name: 'video_urls') required final List<String> videoUrls,
-      @JsonKey(name: 'social_links') final Map<String, String>? socialLinks,
-      @JsonKey(name: 'working_hours') final Map<String, dynamic>? workingHours,
-      @JsonKey(name: 'min_booking_hours') required this.minBookingHours,
-      @JsonKey(name: 'max_bookings_per_day') this.maxBookingsPerDay,
-      @JsonKey(name: 'auto_confirm') required this.autoConfirm,
-      @JsonKey(name: 'years_of_experience') this.yearsOfExperience,
+      required final List<String> videoUrls,
+      final Map<String, String>? socialLinks,
+      final Map<String, dynamic>? workingHours,
+      required this.minBookingHours,
+      this.maxBookingsPerDay,
+      required this.autoConfirm,
+      this.yearsOfExperience,
       required final List<String> certificates,
       required final List<String> languages,
-      @JsonKey(name: 'is_active') required this.isActive,
-      @JsonKey(name: 'is_approved') required this.isApproved,
-      @JsonKey(name: 'setup_step') required this.setupStep,
+      required this.isActive,
+      required this.isApproved,
+      required this.setupStep,
       final List<ServiceModel>? services,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      required this.createdAt,
+      required this.updatedAt})
       : _categoryIds = categoryIds,
         _subcategoryIds = subcategoryIds,
         _portfolioUrls = portfolioUrls,
@@ -695,18 +662,15 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
   final UserModel? user;
   @override
-  @JsonKey(name: 'business_name')
   final String? businessName;
   @override
   final String? bio;
   final List<String> _categoryIds;
   @override
-  @JsonKey(name: 'category_ids')
   List<String> get categoryIds {
     if (_categoryIds is EqualUnmodifiableListView) return _categoryIds;
     // ignore: implicit_dynamic_type
@@ -715,7 +679,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 
   final List<String> _subcategoryIds;
   @override
-  @JsonKey(name: 'subcategory_ids')
   List<String> get subcategoryIds {
     if (_subcategoryIds is EqualUnmodifiableListView) return _subcategoryIds;
     // ignore: implicit_dynamic_type
@@ -725,50 +688,35 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   @override
   final double rating;
   @override
-  @JsonKey(name: 'reviews_count')
   final int reviewsCount;
   @override
-  @JsonKey(name: 'completed_bookings')
   final int completedBookings;
   @override
-  @JsonKey(name: 'cancellations_count')
   final int cancellationsCount;
   @override
-  @JsonKey(name: 'views_count')
   final int viewsCount;
   @override
-  @JsonKey(name: 'favorites_count')
   final int favoritesCount;
   @override
-  @JsonKey(name: 'subscribers_count')
   final int subscribersCount;
   @override
-  @JsonKey(name: 'location_lat')
   final double? locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   final double? locationLng;
   @override
-  @JsonKey(name: 'location_address')
   final String? locationAddress;
   @override
-  @JsonKey(name: 'location_name')
   final String? locationName;
   @override
-  @JsonKey(name: 'service_radius_km')
   final int? serviceRadiusKm;
   @override
-  @JsonKey(name: 'is_mobile')
   final bool isMobile;
   @override
-  @JsonKey(name: 'has_location')
   final bool hasLocation;
   @override
-  @JsonKey(name: 'is_online_only')
   final bool isOnlineOnly;
   final List<String> _portfolioUrls;
   @override
-  @JsonKey(name: 'portfolio_urls')
   List<String> get portfolioUrls {
     if (_portfolioUrls is EqualUnmodifiableListView) return _portfolioUrls;
     // ignore: implicit_dynamic_type
@@ -777,7 +725,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 
   final List<String> _videoUrls;
   @override
-  @JsonKey(name: 'video_urls')
   List<String> get videoUrls {
     if (_videoUrls is EqualUnmodifiableListView) return _videoUrls;
     // ignore: implicit_dynamic_type
@@ -786,7 +733,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 
   final Map<String, String>? _socialLinks;
   @override
-  @JsonKey(name: 'social_links')
   Map<String, String>? get socialLinks {
     final value = _socialLinks;
     if (value == null) return null;
@@ -797,7 +743,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 
   final Map<String, dynamic>? _workingHours;
   @override
-  @JsonKey(name: 'working_hours')
   Map<String, dynamic>? get workingHours {
     final value = _workingHours;
     if (value == null) return null;
@@ -807,16 +752,12 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   }
 
   @override
-  @JsonKey(name: 'min_booking_hours')
   final int minBookingHours;
   @override
-  @JsonKey(name: 'max_bookings_per_day')
   final int? maxBookingsPerDay;
   @override
-  @JsonKey(name: 'auto_confirm')
   final bool autoConfirm;
   @override
-  @JsonKey(name: 'years_of_experience')
   final int? yearsOfExperience;
   final List<String> _certificates;
   @override
@@ -835,13 +776,10 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   }
 
   @override
-  @JsonKey(name: 'is_active')
   final bool isActive;
   @override
-  @JsonKey(name: 'is_approved')
   final bool isApproved;
   @override
-  @JsonKey(name: 'setup_step')
   final int setupStep;
   final List<ServiceModel>? _services;
   @override
@@ -854,10 +792,8 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   }
 
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -1006,46 +942,42 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 abstract class _MasterProfileModel implements MasterProfileModel {
   const factory _MasterProfileModel(
       {required final String id,
-      @JsonKey(name: 'user_id') required final String userId,
+      required final String userId,
       final UserModel? user,
-      @JsonKey(name: 'business_name') final String? businessName,
+      final String? businessName,
       final String? bio,
-      @JsonKey(name: 'category_ids') required final List<String> categoryIds,
-      @JsonKey(name: 'subcategory_ids')
+      required final List<String> categoryIds,
       required final List<String> subcategoryIds,
       required final double rating,
-      @JsonKey(name: 'reviews_count') required final int reviewsCount,
-      @JsonKey(name: 'completed_bookings') required final int completedBookings,
-      @JsonKey(name: 'cancellations_count')
+      required final int reviewsCount,
+      required final int completedBookings,
       required final int cancellationsCount,
-      @JsonKey(name: 'views_count') required final int viewsCount,
-      @JsonKey(name: 'favorites_count') required final int favoritesCount,
-      @JsonKey(name: 'subscribers_count') required final int subscribersCount,
-      @JsonKey(name: 'location_lat') final double? locationLat,
-      @JsonKey(name: 'location_lng') final double? locationLng,
-      @JsonKey(name: 'location_address') final String? locationAddress,
-      @JsonKey(name: 'location_name') final String? locationName,
-      @JsonKey(name: 'service_radius_km') final int? serviceRadiusKm,
-      @JsonKey(name: 'is_mobile') required final bool isMobile,
-      @JsonKey(name: 'has_location') required final bool hasLocation,
-      @JsonKey(name: 'is_online_only') required final bool isOnlineOnly,
-      @JsonKey(name: 'portfolio_urls')
+      required final int viewsCount,
+      required final int favoritesCount,
+      required final int subscribersCount,
+      final double? locationLat,
+      final double? locationLng,
+      final String? locationAddress,
+      final String? locationName,
+      final int? serviceRadiusKm,
+      required final bool isMobile,
+      required final bool hasLocation,
+      required final bool isOnlineOnly,
       required final List<String> portfolioUrls,
-      @JsonKey(name: 'video_urls') required final List<String> videoUrls,
-      @JsonKey(name: 'social_links') final Map<String, String>? socialLinks,
-      @JsonKey(name: 'working_hours') final Map<String, dynamic>? workingHours,
-      @JsonKey(name: 'min_booking_hours') required final int minBookingHours,
-      @JsonKey(name: 'max_bookings_per_day') final int? maxBookingsPerDay,
-      @JsonKey(name: 'auto_confirm') required final bool autoConfirm,
-      @JsonKey(name: 'years_of_experience') final int? yearsOfExperience,
+      required final List<String> videoUrls,
+      final Map<String, String>? socialLinks,
+      final Map<String, dynamic>? workingHours,
+      required final int minBookingHours,
+      final int? maxBookingsPerDay,
+      required final bool autoConfirm,
+      final int? yearsOfExperience,
       required final List<String> certificates,
       required final List<String> languages,
-      @JsonKey(name: 'is_active') required final bool isActive,
-      @JsonKey(name: 'is_approved') required final bool isApproved,
-      @JsonKey(name: 'setup_step') required final int setupStep,
+      required final bool isActive,
+      required final bool isApproved,
+      required final int setupStep,
       final List<ServiceModel>? services,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at')
+      required final DateTime createdAt,
       required final DateTime updatedAt}) = _$MasterProfileModelImpl;
 
   factory _MasterProfileModel.fromJson(Map<String, dynamic> json) =
@@ -1054,109 +986,78 @@ abstract class _MasterProfileModel implements MasterProfileModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
   UserModel? get user;
   @override
-  @JsonKey(name: 'business_name')
   String? get businessName;
   @override
   String? get bio;
   @override
-  @JsonKey(name: 'category_ids')
   List<String> get categoryIds;
   @override
-  @JsonKey(name: 'subcategory_ids')
   List<String> get subcategoryIds;
   @override
   double get rating;
   @override
-  @JsonKey(name: 'reviews_count')
   int get reviewsCount;
   @override
-  @JsonKey(name: 'completed_bookings')
   int get completedBookings;
   @override
-  @JsonKey(name: 'cancellations_count')
   int get cancellationsCount;
   @override
-  @JsonKey(name: 'views_count')
   int get viewsCount;
   @override
-  @JsonKey(name: 'favorites_count')
   int get favoritesCount;
   @override
-  @JsonKey(name: 'subscribers_count')
   int get subscribersCount;
   @override
-  @JsonKey(name: 'location_lat')
   double? get locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   double? get locationLng;
   @override
-  @JsonKey(name: 'location_address')
   String? get locationAddress;
   @override
-  @JsonKey(name: 'location_name')
   String? get locationName;
   @override
-  @JsonKey(name: 'service_radius_km')
   int? get serviceRadiusKm;
   @override
-  @JsonKey(name: 'is_mobile')
   bool get isMobile;
   @override
-  @JsonKey(name: 'has_location')
   bool get hasLocation;
   @override
-  @JsonKey(name: 'is_online_only')
   bool get isOnlineOnly;
   @override
-  @JsonKey(name: 'portfolio_urls')
   List<String> get portfolioUrls;
   @override
-  @JsonKey(name: 'video_urls')
   List<String> get videoUrls;
   @override
-  @JsonKey(name: 'social_links')
   Map<String, String>? get socialLinks;
   @override
-  @JsonKey(name: 'working_hours')
   Map<String, dynamic>? get workingHours;
   @override
-  @JsonKey(name: 'min_booking_hours')
   int get minBookingHours;
   @override
-  @JsonKey(name: 'max_bookings_per_day')
   int? get maxBookingsPerDay;
   @override
-  @JsonKey(name: 'auto_confirm')
   bool get autoConfirm;
   @override
-  @JsonKey(name: 'years_of_experience')
   int? get yearsOfExperience;
   @override
   List<String> get certificates;
   @override
   List<String> get languages;
   @override
-  @JsonKey(name: 'is_active')
   bool get isActive;
   @override
-  @JsonKey(name: 'is_approved')
   bool get isApproved;
   @override
-  @JsonKey(name: 'setup_step')
   int get setupStep;
   @override
   List<ServiceModel>? get services;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of MasterProfileModel

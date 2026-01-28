@@ -9,43 +9,42 @@ part of 'review_model.dart';
 _$ReviewModelImpl _$$ReviewModelImplFromJson(Map<String, dynamic> json) =>
     _$ReviewModelImpl(
       id: json['id'] as String,
-      bookingId: json['booking_id'] as String,
-      reviewerId: json['reviewer_id'] as String,
-      reviewedUserId: json['reviewed_user_id'] as String,
-      reviewerType: $enumDecode(_$ReviewerTypeEnumMap, json['reviewer_type']),
+      bookingId: json['bookingId'] as String,
+      reviewerId: json['reviewerId'] as String,
+      reviewedUserId: json['reviewedUserId'] as String,
+      reviewerType: $enumDecode(_$ReviewerTypeEnumMap, json['reviewerType']),
       rating: (json['rating'] as num).toInt(),
       comment: json['comment'] as String?,
-      photoUrls: (json['photo_urls'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+      photoUrls:
+          (json['photoUrls'] as List<dynamic>).map((e) => e as String).toList(),
       response: json['response'] as String?,
-      responseAt: json['response_at'] == null
+      responseAt: json['responseAt'] == null
           ? null
-          : DateTime.parse(json['response_at'] as String),
-      isVisible: json['is_visible'] as bool,
-      reportsCount: (json['reports_count'] as num).toInt(),
-      isApproved: json['is_approved'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+          : DateTime.parse(json['responseAt'] as String),
+      isVisible: json['isVisible'] as bool,
+      reportsCount: (json['reportsCount'] as num).toInt(),
+      isApproved: json['isApproved'] as bool,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$ReviewModelImplToJson(_$ReviewModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'booking_id': instance.bookingId,
-      'reviewer_id': instance.reviewerId,
-      'reviewed_user_id': instance.reviewedUserId,
-      'reviewer_type': _$ReviewerTypeEnumMap[instance.reviewerType]!,
+      'bookingId': instance.bookingId,
+      'reviewerId': instance.reviewerId,
+      'reviewedUserId': instance.reviewedUserId,
+      'reviewerType': _$ReviewerTypeEnumMap[instance.reviewerType]!,
       'rating': instance.rating,
       'comment': instance.comment,
-      'photo_urls': instance.photoUrls,
+      'photoUrls': instance.photoUrls,
       'response': instance.response,
-      'response_at': instance.responseAt?.toIso8601String(),
-      'is_visible': instance.isVisible,
-      'reports_count': instance.reportsCount,
-      'is_approved': instance.isApproved,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'responseAt': instance.responseAt?.toIso8601String(),
+      'isVisible': instance.isVisible,
+      'reportsCount': instance.reportsCount,
+      'isApproved': instance.isApproved,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 const _$ReviewerTypeEnumMap = {

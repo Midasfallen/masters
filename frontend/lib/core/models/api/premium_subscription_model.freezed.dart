@@ -22,29 +22,18 @@ PremiumSubscriptionModel _$PremiumSubscriptionModelFromJson(
 /// @nodoc
 mixin _$PremiumSubscriptionModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
   SubscriptionTier get tier => throw _privateConstructorUsedError;
   SubscriptionStatus get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'billing_period')
   BillingPeriod get billingPeriod => throw _privateConstructorUsedError;
-  @JsonKey(name: 'price_amount')
   double get priceAmount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'currency_code')
   String get currencyCode => throw _privateConstructorUsedError;
-  @JsonKey(name: 'started_at')
   DateTime get startedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'expires_at')
   DateTime? get expiresAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'cancelled_at')
   DateTime? get cancelledAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'auto_renew')
   bool get autoRenew => throw _privateConstructorUsedError;
-  @JsonKey(name: 'payment_method')
   String? get paymentMethod => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this PremiumSubscriptionModel to a JSON map.
@@ -65,19 +54,19 @@ abstract class $PremiumSubscriptionModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       SubscriptionTier tier,
       SubscriptionStatus status,
-      @JsonKey(name: 'billing_period') BillingPeriod billingPeriod,
-      @JsonKey(name: 'price_amount') double priceAmount,
-      @JsonKey(name: 'currency_code') String currencyCode,
-      @JsonKey(name: 'started_at') DateTime startedAt,
-      @JsonKey(name: 'expires_at') DateTime? expiresAt,
-      @JsonKey(name: 'cancelled_at') DateTime? cancelledAt,
-      @JsonKey(name: 'auto_renew') bool autoRenew,
-      @JsonKey(name: 'payment_method') String? paymentMethod,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      BillingPeriod billingPeriod,
+      double priceAmount,
+      String currencyCode,
+      DateTime startedAt,
+      DateTime? expiresAt,
+      DateTime? cancelledAt,
+      bool autoRenew,
+      String? paymentMethod,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -183,19 +172,19 @@ abstract class _$$PremiumSubscriptionModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       SubscriptionTier tier,
       SubscriptionStatus status,
-      @JsonKey(name: 'billing_period') BillingPeriod billingPeriod,
-      @JsonKey(name: 'price_amount') double priceAmount,
-      @JsonKey(name: 'currency_code') String currencyCode,
-      @JsonKey(name: 'started_at') DateTime startedAt,
-      @JsonKey(name: 'expires_at') DateTime? expiresAt,
-      @JsonKey(name: 'cancelled_at') DateTime? cancelledAt,
-      @JsonKey(name: 'auto_renew') bool autoRenew,
-      @JsonKey(name: 'payment_method') String? paymentMethod,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      BillingPeriod billingPeriod,
+      double priceAmount,
+      String currencyCode,
+      DateTime startedAt,
+      DateTime? expiresAt,
+      DateTime? cancelledAt,
+      bool autoRenew,
+      String? paymentMethod,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -294,19 +283,19 @@ class __$$PremiumSubscriptionModelImplCopyWithImpl<$Res>
 class _$PremiumSubscriptionModelImpl implements _PremiumSubscriptionModel {
   const _$PremiumSubscriptionModelImpl(
       {required this.id,
-      @JsonKey(name: 'user_id') required this.userId,
+      required this.userId,
       required this.tier,
       required this.status,
-      @JsonKey(name: 'billing_period') required this.billingPeriod,
-      @JsonKey(name: 'price_amount') required this.priceAmount,
-      @JsonKey(name: 'currency_code') this.currencyCode = 'RUB',
-      @JsonKey(name: 'started_at') required this.startedAt,
-      @JsonKey(name: 'expires_at') this.expiresAt,
-      @JsonKey(name: 'cancelled_at') this.cancelledAt,
-      @JsonKey(name: 'auto_renew') this.autoRenew = true,
-      @JsonKey(name: 'payment_method') this.paymentMethod,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt});
+      required this.billingPeriod,
+      required this.priceAmount,
+      this.currencyCode = 'RUB',
+      required this.startedAt,
+      this.expiresAt,
+      this.cancelledAt,
+      this.autoRenew = true,
+      this.paymentMethod,
+      required this.createdAt,
+      required this.updatedAt});
 
   factory _$PremiumSubscriptionModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PremiumSubscriptionModelImplFromJson(json);
@@ -314,41 +303,32 @@ class _$PremiumSubscriptionModelImpl implements _PremiumSubscriptionModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
   final SubscriptionTier tier;
   @override
   final SubscriptionStatus status;
   @override
-  @JsonKey(name: 'billing_period')
   final BillingPeriod billingPeriod;
   @override
-  @JsonKey(name: 'price_amount')
   final double priceAmount;
   @override
-  @JsonKey(name: 'currency_code')
+  @JsonKey()
   final String currencyCode;
   @override
-  @JsonKey(name: 'started_at')
   final DateTime startedAt;
   @override
-  @JsonKey(name: 'expires_at')
   final DateTime? expiresAt;
   @override
-  @JsonKey(name: 'cancelled_at')
   final DateTime? cancelledAt;
   @override
-  @JsonKey(name: 'auto_renew')
+  @JsonKey()
   final bool autoRenew;
   @override
-  @JsonKey(name: 'payment_method')
   final String? paymentMethod;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -425,22 +405,20 @@ class _$PremiumSubscriptionModelImpl implements _PremiumSubscriptionModel {
 
 abstract class _PremiumSubscriptionModel implements PremiumSubscriptionModel {
   const factory _PremiumSubscriptionModel(
-          {required final String id,
-          @JsonKey(name: 'user_id') required final String userId,
-          required final SubscriptionTier tier,
-          required final SubscriptionStatus status,
-          @JsonKey(name: 'billing_period')
-          required final BillingPeriod billingPeriod,
-          @JsonKey(name: 'price_amount') required final double priceAmount,
-          @JsonKey(name: 'currency_code') final String currencyCode,
-          @JsonKey(name: 'started_at') required final DateTime startedAt,
-          @JsonKey(name: 'expires_at') final DateTime? expiresAt,
-          @JsonKey(name: 'cancelled_at') final DateTime? cancelledAt,
-          @JsonKey(name: 'auto_renew') final bool autoRenew,
-          @JsonKey(name: 'payment_method') final String? paymentMethod,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$PremiumSubscriptionModelImpl;
+      {required final String id,
+      required final String userId,
+      required final SubscriptionTier tier,
+      required final SubscriptionStatus status,
+      required final BillingPeriod billingPeriod,
+      required final double priceAmount,
+      final String currencyCode,
+      required final DateTime startedAt,
+      final DateTime? expiresAt,
+      final DateTime? cancelledAt,
+      final bool autoRenew,
+      final String? paymentMethod,
+      required final DateTime createdAt,
+      required final DateTime updatedAt}) = _$PremiumSubscriptionModelImpl;
 
   factory _PremiumSubscriptionModel.fromJson(Map<String, dynamic> json) =
       _$PremiumSubscriptionModelImpl.fromJson;
@@ -448,41 +426,30 @@ abstract class _PremiumSubscriptionModel implements PremiumSubscriptionModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
   SubscriptionTier get tier;
   @override
   SubscriptionStatus get status;
   @override
-  @JsonKey(name: 'billing_period')
   BillingPeriod get billingPeriod;
   @override
-  @JsonKey(name: 'price_amount')
   double get priceAmount;
   @override
-  @JsonKey(name: 'currency_code')
   String get currencyCode;
   @override
-  @JsonKey(name: 'started_at')
   DateTime get startedAt;
   @override
-  @JsonKey(name: 'expires_at')
   DateTime? get expiresAt;
   @override
-  @JsonKey(name: 'cancelled_at')
   DateTime? get cancelledAt;
   @override
-  @JsonKey(name: 'auto_renew')
   bool get autoRenew;
   @override
-  @JsonKey(name: 'payment_method')
   String? get paymentMethod;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of PremiumSubscriptionModel
@@ -505,15 +472,10 @@ mixin _$SubscriptionPlanModel {
   String get name => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   List<String> get features => throw _privateConstructorUsedError;
-  @JsonKey(name: 'monthly_price')
   double get monthlyPrice => throw _privateConstructorUsedError;
-  @JsonKey(name: 'yearly_price')
   double get yearlyPrice => throw _privateConstructorUsedError;
-  @JsonKey(name: 'yearly_discount_percent')
   int get yearlyDiscountPercent => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_popular')
   bool get isPopular => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_active')
   bool get isActive => throw _privateConstructorUsedError;
 
   /// Serializes this SubscriptionPlanModel to a JSON map.
@@ -538,11 +500,11 @@ abstract class $SubscriptionPlanModelCopyWith<$Res> {
       String name,
       String description,
       List<String> features,
-      @JsonKey(name: 'monthly_price') double monthlyPrice,
-      @JsonKey(name: 'yearly_price') double yearlyPrice,
-      @JsonKey(name: 'yearly_discount_percent') int yearlyDiscountPercent,
-      @JsonKey(name: 'is_popular') bool isPopular,
-      @JsonKey(name: 'is_active') bool isActive});
+      double monthlyPrice,
+      double yearlyPrice,
+      int yearlyDiscountPercent,
+      bool isPopular,
+      bool isActive});
 }
 
 /// @nodoc
@@ -632,11 +594,11 @@ abstract class _$$SubscriptionPlanModelImplCopyWith<$Res>
       String name,
       String description,
       List<String> features,
-      @JsonKey(name: 'monthly_price') double monthlyPrice,
-      @JsonKey(name: 'yearly_price') double yearlyPrice,
-      @JsonKey(name: 'yearly_discount_percent') int yearlyDiscountPercent,
-      @JsonKey(name: 'is_popular') bool isPopular,
-      @JsonKey(name: 'is_active') bool isActive});
+      double monthlyPrice,
+      double yearlyPrice,
+      int yearlyDiscountPercent,
+      bool isPopular,
+      bool isActive});
 }
 
 /// @nodoc
@@ -718,11 +680,11 @@ class _$SubscriptionPlanModelImpl implements _SubscriptionPlanModel {
       required this.name,
       required this.description,
       required final List<String> features,
-      @JsonKey(name: 'monthly_price') required this.monthlyPrice,
-      @JsonKey(name: 'yearly_price') required this.yearlyPrice,
-      @JsonKey(name: 'yearly_discount_percent') this.yearlyDiscountPercent = 0,
-      @JsonKey(name: 'is_popular') this.isPopular = false,
-      @JsonKey(name: 'is_active') this.isActive = true})
+      required this.monthlyPrice,
+      required this.yearlyPrice,
+      this.yearlyDiscountPercent = 0,
+      this.isPopular = false,
+      this.isActive = true})
       : _features = features;
 
   factory _$SubscriptionPlanModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -745,19 +707,17 @@ class _$SubscriptionPlanModelImpl implements _SubscriptionPlanModel {
   }
 
   @override
-  @JsonKey(name: 'monthly_price')
   final double monthlyPrice;
   @override
-  @JsonKey(name: 'yearly_price')
   final double yearlyPrice;
   @override
-  @JsonKey(name: 'yearly_discount_percent')
+  @JsonKey()
   final int yearlyDiscountPercent;
   @override
-  @JsonKey(name: 'is_popular')
+  @JsonKey()
   final bool isPopular;
   @override
-  @JsonKey(name: 'is_active')
+  @JsonKey()
   final bool isActive;
 
   @override
@@ -827,11 +787,10 @@ abstract class _SubscriptionPlanModel implements SubscriptionPlanModel {
       required final String name,
       required final String description,
       required final List<String> features,
-      @JsonKey(name: 'monthly_price') required final double monthlyPrice,
-      @JsonKey(name: 'yearly_price') required final double yearlyPrice,
-      @JsonKey(name: 'yearly_discount_percent') final int yearlyDiscountPercent,
-      @JsonKey(name: 'is_popular') final bool isPopular,
-      @JsonKey(name: 'is_active')
+      required final double monthlyPrice,
+      required final double yearlyPrice,
+      final int yearlyDiscountPercent,
+      final bool isPopular,
       final bool isActive}) = _$SubscriptionPlanModelImpl;
 
   factory _SubscriptionPlanModel.fromJson(Map<String, dynamic> json) =
@@ -848,19 +807,14 @@ abstract class _SubscriptionPlanModel implements SubscriptionPlanModel {
   @override
   List<String> get features;
   @override
-  @JsonKey(name: 'monthly_price')
   double get monthlyPrice;
   @override
-  @JsonKey(name: 'yearly_price')
   double get yearlyPrice;
   @override
-  @JsonKey(name: 'yearly_discount_percent')
   int get yearlyDiscountPercent;
   @override
-  @JsonKey(name: 'is_popular')
   bool get isPopular;
   @override
-  @JsonKey(name: 'is_active')
   bool get isActive;
 
   /// Create a copy of SubscriptionPlanModel

@@ -17,7 +17,7 @@ class PostMediaModel with _$PostMediaModel {
     required String id,
     required MediaType type,
     required String url,
-    @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+    String? thumbnailUrl,
     int? width,
     int? height,
     int? duration,
@@ -32,23 +32,23 @@ class PostMediaModel with _$PostMediaModel {
 class PostModel with _$PostModel {
   const factory PostModel({
     required String id,
-    @JsonKey(name: 'author_id') required String authorId,
+    required String authorId,
     UserModel? author,
     String? content,
     @Default([]) List<PostMediaModel> media,
     @Default([]) List<String> tags,
-    @JsonKey(name: 'likes_count') @Default(0) int likesCount,
-    @JsonKey(name: 'comments_count') @Default(0) int commentsCount,
-    @JsonKey(name: 'shares_count') @Default(0) int sharesCount,
-    @JsonKey(name: 'reposts_count') @Default(0) int repostsCount,
-    @JsonKey(name: 'is_liked') @Default(false) bool isLiked,
-    @JsonKey(name: 'location_name') String? locationName,
-    @JsonKey(name: 'location_lat') double? locationLat,
-    @JsonKey(name: 'location_lng') double? locationLng,
-    @JsonKey(name: 'is_pinned') @Default(false) bool isPinned,
-    @JsonKey(name: 'is_archived') @Default(false) bool isArchived,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @Default(0) int likesCount,
+    @Default(0) int commentsCount,
+    @Default(0) int sharesCount,
+    @Default(0) int repostsCount,
+    @Default(false) bool isLiked,
+    String? locationName,
+    double? locationLat,
+    double? locationLng,
+    @Default(false) bool isPinned,
+    @Default(false) bool isArchived,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _PostModel;
 
   factory PostModel.fromJson(Map<String, dynamic> json) =>
@@ -90,15 +90,15 @@ class UpdatePostRequest with _$UpdatePostRequest {
 class CommentModel with _$CommentModel {
   const factory CommentModel({
     required String id,
-    @JsonKey(name: 'post_id') required String postId,
-    @JsonKey(name: 'author_id') required String authorId,
+    required String postId,
+    required String authorId,
     UserModel? author,
     required String content,
-    @JsonKey(name: 'parent_id') String? parentId,
-    @JsonKey(name: 'likes_count') required int likesCount,
-    @JsonKey(name: 'is_liked') required bool isLiked,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    String? parentId,
+    required int likesCount,
+    required bool isLiked,
+    required DateTime createdAt,
+    required DateTime updatedAt,
   }) = _CommentModel;
 
   factory CommentModel.fromJson(Map<String, dynamic> json) =>

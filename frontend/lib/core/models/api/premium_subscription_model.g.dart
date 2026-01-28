@@ -10,43 +10,42 @@ _$PremiumSubscriptionModelImpl _$$PremiumSubscriptionModelImplFromJson(
         Map<String, dynamic> json) =>
     _$PremiumSubscriptionModelImpl(
       id: json['id'] as String,
-      userId: json['user_id'] as String,
+      userId: json['userId'] as String,
       tier: $enumDecode(_$SubscriptionTierEnumMap, json['tier']),
       status: $enumDecode(_$SubscriptionStatusEnumMap, json['status']),
-      billingPeriod:
-          $enumDecode(_$BillingPeriodEnumMap, json['billing_period']),
-      priceAmount: (json['price_amount'] as num).toDouble(),
-      currencyCode: json['currency_code'] as String? ?? 'RUB',
-      startedAt: DateTime.parse(json['started_at'] as String),
-      expiresAt: json['expires_at'] == null
+      billingPeriod: $enumDecode(_$BillingPeriodEnumMap, json['billingPeriod']),
+      priceAmount: (json['priceAmount'] as num).toDouble(),
+      currencyCode: json['currencyCode'] as String? ?? 'RUB',
+      startedAt: DateTime.parse(json['startedAt'] as String),
+      expiresAt: json['expiresAt'] == null
           ? null
-          : DateTime.parse(json['expires_at'] as String),
-      cancelledAt: json['cancelled_at'] == null
+          : DateTime.parse(json['expiresAt'] as String),
+      cancelledAt: json['cancelledAt'] == null
           ? null
-          : DateTime.parse(json['cancelled_at'] as String),
-      autoRenew: json['auto_renew'] as bool? ?? true,
-      paymentMethod: json['payment_method'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+          : DateTime.parse(json['cancelledAt'] as String),
+      autoRenew: json['autoRenew'] as bool? ?? true,
+      paymentMethod: json['paymentMethod'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$PremiumSubscriptionModelImplToJson(
         _$PremiumSubscriptionModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'user_id': instance.userId,
+      'userId': instance.userId,
       'tier': _$SubscriptionTierEnumMap[instance.tier]!,
       'status': _$SubscriptionStatusEnumMap[instance.status]!,
-      'billing_period': _$BillingPeriodEnumMap[instance.billingPeriod]!,
-      'price_amount': instance.priceAmount,
-      'currency_code': instance.currencyCode,
-      'started_at': instance.startedAt.toIso8601String(),
-      'expires_at': instance.expiresAt?.toIso8601String(),
-      'cancelled_at': instance.cancelledAt?.toIso8601String(),
-      'auto_renew': instance.autoRenew,
-      'payment_method': instance.paymentMethod,
-      'created_at': instance.createdAt.toIso8601String(),
-      'updated_at': instance.updatedAt.toIso8601String(),
+      'billingPeriod': _$BillingPeriodEnumMap[instance.billingPeriod]!,
+      'priceAmount': instance.priceAmount,
+      'currencyCode': instance.currencyCode,
+      'startedAt': instance.startedAt.toIso8601String(),
+      'expiresAt': instance.expiresAt?.toIso8601String(),
+      'cancelledAt': instance.cancelledAt?.toIso8601String(),
+      'autoRenew': instance.autoRenew,
+      'paymentMethod': instance.paymentMethod,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 const _$SubscriptionTierEnumMap = {
@@ -77,12 +76,12 @@ _$SubscriptionPlanModelImpl _$$SubscriptionPlanModelImplFromJson(
       description: json['description'] as String,
       features:
           (json['features'] as List<dynamic>).map((e) => e as String).toList(),
-      monthlyPrice: (json['monthly_price'] as num).toDouble(),
-      yearlyPrice: (json['yearly_price'] as num).toDouble(),
+      monthlyPrice: (json['monthlyPrice'] as num).toDouble(),
+      yearlyPrice: (json['yearlyPrice'] as num).toDouble(),
       yearlyDiscountPercent:
-          (json['yearly_discount_percent'] as num?)?.toInt() ?? 0,
-      isPopular: json['is_popular'] as bool? ?? false,
-      isActive: json['is_active'] as bool? ?? true,
+          (json['yearlyDiscountPercent'] as num?)?.toInt() ?? 0,
+      isPopular: json['isPopular'] as bool? ?? false,
+      isActive: json['isActive'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$SubscriptionPlanModelImplToJson(
@@ -93,11 +92,11 @@ Map<String, dynamic> _$$SubscriptionPlanModelImplToJson(
       'name': instance.name,
       'description': instance.description,
       'features': instance.features,
-      'monthly_price': instance.monthlyPrice,
-      'yearly_price': instance.yearlyPrice,
-      'yearly_discount_percent': instance.yearlyDiscountPercent,
-      'is_popular': instance.isPopular,
-      'is_active': instance.isActive,
+      'monthlyPrice': instance.monthlyPrice,
+      'yearlyPrice': instance.yearlyPrice,
+      'yearlyDiscountPercent': instance.yearlyDiscountPercent,
+      'isPopular': instance.isPopular,
+      'isActive': instance.isActive,
     };
 
 _$CreateSubscriptionDtoImpl _$$CreateSubscriptionDtoImplFromJson(

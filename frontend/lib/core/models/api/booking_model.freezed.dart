@@ -21,47 +21,28 @@ BookingModel _$BookingModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BookingModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'client_id')
   String get clientId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'master_id')
   String get masterId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'service_id')
   String get serviceId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'start_time')
   DateTime get startTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'end_time')
   DateTime get endTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'duration_minutes')
   int get durationMinutes => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
   BookingStatus get status => throw _privateConstructorUsedError;
   String? get comment => throw _privateConstructorUsedError;
-  @JsonKey(name: 'cancellation_reason')
   String? get cancellationReason => throw _privateConstructorUsedError;
-  @JsonKey(name: 'cancelled_by')
   String? get cancelledBy => throw _privateConstructorUsedError;
-  @JsonKey(name: 'client_review_left')
   bool get clientReviewLeft => throw _privateConstructorUsedError;
-  @JsonKey(name: 'master_review_left')
   bool get masterReviewLeft => throw _privateConstructorUsedError;
-  @JsonKey(name: 'completed_at')
   DateTime? get completedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_address')
   String? get locationAddress => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lat')
   double? get locationLat => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lng')
   double? get locationLng => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_type')
   String get locationType => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reminder_sent')
   bool get reminderSent => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reminder_sent_at')
   DateTime? get reminderSentAt => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this BookingModel to a JSON map.
@@ -82,29 +63,29 @@ abstract class $BookingModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'client_id') String clientId,
-      @JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'service_id') String serviceId,
-      @JsonKey(name: 'start_time') DateTime startTime,
-      @JsonKey(name: 'end_time') DateTime endTime,
-      @JsonKey(name: 'duration_minutes') int durationMinutes,
+      String clientId,
+      String masterId,
+      String serviceId,
+      DateTime startTime,
+      DateTime endTime,
+      int durationMinutes,
       double price,
       BookingStatus status,
       String? comment,
-      @JsonKey(name: 'cancellation_reason') String? cancellationReason,
-      @JsonKey(name: 'cancelled_by') String? cancelledBy,
-      @JsonKey(name: 'client_review_left') bool clientReviewLeft,
-      @JsonKey(name: 'master_review_left') bool masterReviewLeft,
-      @JsonKey(name: 'completed_at') DateTime? completedAt,
-      @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'location_type') String locationType,
-      @JsonKey(name: 'reminder_sent') bool reminderSent,
-      @JsonKey(name: 'reminder_sent_at') DateTime? reminderSentAt,
+      String? cancellationReason,
+      String? cancelledBy,
+      bool clientReviewLeft,
+      bool masterReviewLeft,
+      DateTime? completedAt,
+      String? locationAddress,
+      double? locationLat,
+      double? locationLng,
+      String locationType,
+      bool reminderSent,
+      DateTime? reminderSentAt,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -258,29 +239,29 @@ abstract class _$$BookingModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'client_id') String clientId,
-      @JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'service_id') String serviceId,
-      @JsonKey(name: 'start_time') DateTime startTime,
-      @JsonKey(name: 'end_time') DateTime endTime,
-      @JsonKey(name: 'duration_minutes') int durationMinutes,
+      String clientId,
+      String masterId,
+      String serviceId,
+      DateTime startTime,
+      DateTime endTime,
+      int durationMinutes,
       double price,
       BookingStatus status,
       String? comment,
-      @JsonKey(name: 'cancellation_reason') String? cancellationReason,
-      @JsonKey(name: 'cancelled_by') String? cancelledBy,
-      @JsonKey(name: 'client_review_left') bool clientReviewLeft,
-      @JsonKey(name: 'master_review_left') bool masterReviewLeft,
-      @JsonKey(name: 'completed_at') DateTime? completedAt,
-      @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'location_type') String locationType,
-      @JsonKey(name: 'reminder_sent') bool reminderSent,
-      @JsonKey(name: 'reminder_sent_at') DateTime? reminderSentAt,
+      String? cancellationReason,
+      String? cancelledBy,
+      bool clientReviewLeft,
+      bool masterReviewLeft,
+      DateTime? completedAt,
+      String? locationAddress,
+      double? locationLat,
+      double? locationLng,
+      String locationType,
+      bool reminderSent,
+      DateTime? reminderSentAt,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -427,29 +408,29 @@ class __$$BookingModelImplCopyWithImpl<$Res>
 class _$BookingModelImpl implements _BookingModel {
   const _$BookingModelImpl(
       {required this.id,
-      @JsonKey(name: 'client_id') required this.clientId,
-      @JsonKey(name: 'master_id') required this.masterId,
-      @JsonKey(name: 'service_id') required this.serviceId,
-      @JsonKey(name: 'start_time') required this.startTime,
-      @JsonKey(name: 'end_time') required this.endTime,
-      @JsonKey(name: 'duration_minutes') required this.durationMinutes,
+      required this.clientId,
+      required this.masterId,
+      required this.serviceId,
+      required this.startTime,
+      required this.endTime,
+      required this.durationMinutes,
       required this.price,
       required this.status,
       this.comment,
-      @JsonKey(name: 'cancellation_reason') this.cancellationReason,
-      @JsonKey(name: 'cancelled_by') this.cancelledBy,
-      @JsonKey(name: 'client_review_left') required this.clientReviewLeft,
-      @JsonKey(name: 'master_review_left') required this.masterReviewLeft,
-      @JsonKey(name: 'completed_at') this.completedAt,
-      @JsonKey(name: 'location_address') this.locationAddress,
-      @JsonKey(name: 'location_lat') this.locationLat,
-      @JsonKey(name: 'location_lng') this.locationLng,
-      @JsonKey(name: 'location_type') required this.locationType,
-      @JsonKey(name: 'reminder_sent') required this.reminderSent,
-      @JsonKey(name: 'reminder_sent_at') this.reminderSentAt,
+      this.cancellationReason,
+      this.cancelledBy,
+      required this.clientReviewLeft,
+      required this.masterReviewLeft,
+      this.completedAt,
+      this.locationAddress,
+      this.locationLat,
+      this.locationLng,
+      required this.locationType,
+      required this.reminderSent,
+      this.reminderSentAt,
       final Map<String, dynamic>? metadata,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      required this.createdAt,
+      required this.updatedAt})
       : _metadata = metadata;
 
   factory _$BookingModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -458,22 +439,16 @@ class _$BookingModelImpl implements _BookingModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'client_id')
   final String clientId;
   @override
-  @JsonKey(name: 'master_id')
   final String masterId;
   @override
-  @JsonKey(name: 'service_id')
   final String serviceId;
   @override
-  @JsonKey(name: 'start_time')
   final DateTime startTime;
   @override
-  @JsonKey(name: 'end_time')
   final DateTime endTime;
   @override
-  @JsonKey(name: 'duration_minutes')
   final int durationMinutes;
   @override
   final double price;
@@ -482,37 +457,26 @@ class _$BookingModelImpl implements _BookingModel {
   @override
   final String? comment;
   @override
-  @JsonKey(name: 'cancellation_reason')
   final String? cancellationReason;
   @override
-  @JsonKey(name: 'cancelled_by')
   final String? cancelledBy;
   @override
-  @JsonKey(name: 'client_review_left')
   final bool clientReviewLeft;
   @override
-  @JsonKey(name: 'master_review_left')
   final bool masterReviewLeft;
   @override
-  @JsonKey(name: 'completed_at')
   final DateTime? completedAt;
   @override
-  @JsonKey(name: 'location_address')
   final String? locationAddress;
   @override
-  @JsonKey(name: 'location_lat')
   final double? locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   final double? locationLng;
   @override
-  @JsonKey(name: 'location_type')
   final String locationType;
   @override
-  @JsonKey(name: 'reminder_sent')
   final bool reminderSent;
   @override
-  @JsonKey(name: 'reminder_sent_at')
   final DateTime? reminderSentAt;
   final Map<String, dynamic>? _metadata;
   @override
@@ -525,10 +489,8 @@ class _$BookingModelImpl implements _BookingModel {
   }
 
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -634,29 +596,28 @@ class _$BookingModelImpl implements _BookingModel {
 abstract class _BookingModel implements BookingModel {
   const factory _BookingModel(
       {required final String id,
-      @JsonKey(name: 'client_id') required final String clientId,
-      @JsonKey(name: 'master_id') required final String masterId,
-      @JsonKey(name: 'service_id') required final String serviceId,
-      @JsonKey(name: 'start_time') required final DateTime startTime,
-      @JsonKey(name: 'end_time') required final DateTime endTime,
-      @JsonKey(name: 'duration_minutes') required final int durationMinutes,
+      required final String clientId,
+      required final String masterId,
+      required final String serviceId,
+      required final DateTime startTime,
+      required final DateTime endTime,
+      required final int durationMinutes,
       required final double price,
       required final BookingStatus status,
       final String? comment,
-      @JsonKey(name: 'cancellation_reason') final String? cancellationReason,
-      @JsonKey(name: 'cancelled_by') final String? cancelledBy,
-      @JsonKey(name: 'client_review_left') required final bool clientReviewLeft,
-      @JsonKey(name: 'master_review_left') required final bool masterReviewLeft,
-      @JsonKey(name: 'completed_at') final DateTime? completedAt,
-      @JsonKey(name: 'location_address') final String? locationAddress,
-      @JsonKey(name: 'location_lat') final double? locationLat,
-      @JsonKey(name: 'location_lng') final double? locationLng,
-      @JsonKey(name: 'location_type') required final String locationType,
-      @JsonKey(name: 'reminder_sent') required final bool reminderSent,
-      @JsonKey(name: 'reminder_sent_at') final DateTime? reminderSentAt,
+      final String? cancellationReason,
+      final String? cancelledBy,
+      required final bool clientReviewLeft,
+      required final bool masterReviewLeft,
+      final DateTime? completedAt,
+      final String? locationAddress,
+      final double? locationLat,
+      final double? locationLng,
+      required final String locationType,
+      required final bool reminderSent,
+      final DateTime? reminderSentAt,
       final Map<String, dynamic>? metadata,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at')
+      required final DateTime createdAt,
       required final DateTime updatedAt}) = _$BookingModelImpl;
 
   factory _BookingModel.fromJson(Map<String, dynamic> json) =
@@ -665,22 +626,16 @@ abstract class _BookingModel implements BookingModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'client_id')
   String get clientId;
   @override
-  @JsonKey(name: 'master_id')
   String get masterId;
   @override
-  @JsonKey(name: 'service_id')
   String get serviceId;
   @override
-  @JsonKey(name: 'start_time')
   DateTime get startTime;
   @override
-  @JsonKey(name: 'end_time')
   DateTime get endTime;
   @override
-  @JsonKey(name: 'duration_minutes')
   int get durationMinutes;
   @override
   double get price;
@@ -689,45 +644,32 @@ abstract class _BookingModel implements BookingModel {
   @override
   String? get comment;
   @override
-  @JsonKey(name: 'cancellation_reason')
   String? get cancellationReason;
   @override
-  @JsonKey(name: 'cancelled_by')
   String? get cancelledBy;
   @override
-  @JsonKey(name: 'client_review_left')
   bool get clientReviewLeft;
   @override
-  @JsonKey(name: 'master_review_left')
   bool get masterReviewLeft;
   @override
-  @JsonKey(name: 'completed_at')
   DateTime? get completedAt;
   @override
-  @JsonKey(name: 'location_address')
   String? get locationAddress;
   @override
-  @JsonKey(name: 'location_lat')
   double? get locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   double? get locationLng;
   @override
-  @JsonKey(name: 'location_type')
   String get locationType;
   @override
-  @JsonKey(name: 'reminder_sent')
   bool get reminderSent;
   @override
-  @JsonKey(name: 'reminder_sent_at')
   DateTime? get reminderSentAt;
   @override
   Map<String, dynamic>? get metadata;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of BookingModel

@@ -21,30 +21,19 @@ ReviewModel _$ReviewModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ReviewModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'booking_id')
   String get bookingId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reviewer_id')
   String get reviewerId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reviewed_user_id')
   String get reviewedUserId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reviewer_type')
   ReviewerType get reviewerType => throw _privateConstructorUsedError;
   int get rating => throw _privateConstructorUsedError;
   String? get comment => throw _privateConstructorUsedError;
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls => throw _privateConstructorUsedError;
   String? get response => throw _privateConstructorUsedError;
-  @JsonKey(name: 'response_at')
   DateTime? get responseAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_visible')
   bool get isVisible => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reports_count')
   int get reportsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_approved')
   bool get isApproved => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ReviewModel to a JSON map.
@@ -65,20 +54,20 @@ abstract class $ReviewModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'booking_id') String bookingId,
-      @JsonKey(name: 'reviewer_id') String reviewerId,
-      @JsonKey(name: 'reviewed_user_id') String reviewedUserId,
-      @JsonKey(name: 'reviewer_type') ReviewerType reviewerType,
+      String bookingId,
+      String reviewerId,
+      String reviewedUserId,
+      ReviewerType reviewerType,
       int rating,
       String? comment,
-      @JsonKey(name: 'photo_urls') List<String> photoUrls,
+      List<String> photoUrls,
       String? response,
-      @JsonKey(name: 'response_at') DateTime? responseAt,
-      @JsonKey(name: 'is_visible') bool isVisible,
-      @JsonKey(name: 'reports_count') int reportsCount,
-      @JsonKey(name: 'is_approved') bool isApproved,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime? responseAt,
+      bool isVisible,
+      int reportsCount,
+      bool isApproved,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -187,20 +176,20 @@ abstract class _$$ReviewModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'booking_id') String bookingId,
-      @JsonKey(name: 'reviewer_id') String reviewerId,
-      @JsonKey(name: 'reviewed_user_id') String reviewedUserId,
-      @JsonKey(name: 'reviewer_type') ReviewerType reviewerType,
+      String bookingId,
+      String reviewerId,
+      String reviewedUserId,
+      ReviewerType reviewerType,
       int rating,
       String? comment,
-      @JsonKey(name: 'photo_urls') List<String> photoUrls,
+      List<String> photoUrls,
       String? response,
-      @JsonKey(name: 'response_at') DateTime? responseAt,
-      @JsonKey(name: 'is_visible') bool isVisible,
-      @JsonKey(name: 'reports_count') int reportsCount,
-      @JsonKey(name: 'is_approved') bool isApproved,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      DateTime? responseAt,
+      bool isVisible,
+      int reportsCount,
+      bool isApproved,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -302,20 +291,20 @@ class __$$ReviewModelImplCopyWithImpl<$Res>
 class _$ReviewModelImpl implements _ReviewModel {
   const _$ReviewModelImpl(
       {required this.id,
-      @JsonKey(name: 'booking_id') required this.bookingId,
-      @JsonKey(name: 'reviewer_id') required this.reviewerId,
-      @JsonKey(name: 'reviewed_user_id') required this.reviewedUserId,
-      @JsonKey(name: 'reviewer_type') required this.reviewerType,
+      required this.bookingId,
+      required this.reviewerId,
+      required this.reviewedUserId,
+      required this.reviewerType,
       required this.rating,
       this.comment,
-      @JsonKey(name: 'photo_urls') required final List<String> photoUrls,
+      required final List<String> photoUrls,
       this.response,
-      @JsonKey(name: 'response_at') this.responseAt,
-      @JsonKey(name: 'is_visible') required this.isVisible,
-      @JsonKey(name: 'reports_count') required this.reportsCount,
-      @JsonKey(name: 'is_approved') required this.isApproved,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      this.responseAt,
+      required this.isVisible,
+      required this.reportsCount,
+      required this.isApproved,
+      required this.createdAt,
+      required this.updatedAt})
       : _photoUrls = photoUrls;
 
   factory _$ReviewModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -324,16 +313,12 @@ class _$ReviewModelImpl implements _ReviewModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'booking_id')
   final String bookingId;
   @override
-  @JsonKey(name: 'reviewer_id')
   final String reviewerId;
   @override
-  @JsonKey(name: 'reviewed_user_id')
   final String reviewedUserId;
   @override
-  @JsonKey(name: 'reviewer_type')
   final ReviewerType reviewerType;
   @override
   final int rating;
@@ -341,7 +326,6 @@ class _$ReviewModelImpl implements _ReviewModel {
   final String? comment;
   final List<String> _photoUrls;
   @override
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls {
     if (_photoUrls is EqualUnmodifiableListView) return _photoUrls;
     // ignore: implicit_dynamic_type
@@ -351,22 +335,16 @@ class _$ReviewModelImpl implements _ReviewModel {
   @override
   final String? response;
   @override
-  @JsonKey(name: 'response_at')
   final DateTime? responseAt;
   @override
-  @JsonKey(name: 'is_visible')
   final bool isVisible;
   @override
-  @JsonKey(name: 'reports_count')
   final int reportsCount;
   @override
-  @JsonKey(name: 'is_approved')
   final bool isApproved;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -447,20 +425,19 @@ class _$ReviewModelImpl implements _ReviewModel {
 abstract class _ReviewModel implements ReviewModel {
   const factory _ReviewModel(
       {required final String id,
-      @JsonKey(name: 'booking_id') required final String bookingId,
-      @JsonKey(name: 'reviewer_id') required final String reviewerId,
-      @JsonKey(name: 'reviewed_user_id') required final String reviewedUserId,
-      @JsonKey(name: 'reviewer_type') required final ReviewerType reviewerType,
+      required final String bookingId,
+      required final String reviewerId,
+      required final String reviewedUserId,
+      required final ReviewerType reviewerType,
       required final int rating,
       final String? comment,
-      @JsonKey(name: 'photo_urls') required final List<String> photoUrls,
+      required final List<String> photoUrls,
       final String? response,
-      @JsonKey(name: 'response_at') final DateTime? responseAt,
-      @JsonKey(name: 'is_visible') required final bool isVisible,
-      @JsonKey(name: 'reports_count') required final int reportsCount,
-      @JsonKey(name: 'is_approved') required final bool isApproved,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at')
+      final DateTime? responseAt,
+      required final bool isVisible,
+      required final int reportsCount,
+      required final bool isApproved,
+      required final DateTime createdAt,
       required final DateTime updatedAt}) = _$ReviewModelImpl;
 
   factory _ReviewModel.fromJson(Map<String, dynamic> json) =
@@ -469,43 +446,32 @@ abstract class _ReviewModel implements ReviewModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'booking_id')
   String get bookingId;
   @override
-  @JsonKey(name: 'reviewer_id')
   String get reviewerId;
   @override
-  @JsonKey(name: 'reviewed_user_id')
   String get reviewedUserId;
   @override
-  @JsonKey(name: 'reviewer_type')
   ReviewerType get reviewerType;
   @override
   int get rating;
   @override
   String? get comment;
   @override
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls;
   @override
   String? get response;
   @override
-  @JsonKey(name: 'response_at')
   DateTime? get responseAt;
   @override
-  @JsonKey(name: 'is_visible')
   bool get isVisible;
   @override
-  @JsonKey(name: 'reports_count')
   int get reportsCount;
   @override
-  @JsonKey(name: 'is_approved')
   bool get isApproved;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of ReviewModel

@@ -23,7 +23,6 @@ mixin _$PostMediaModel {
   String get id => throw _privateConstructorUsedError;
   MediaType get type => throw _privateConstructorUsedError;
   String get url => throw _privateConstructorUsedError;
-  @JsonKey(name: 'thumbnail_url')
   String? get thumbnailUrl => throw _privateConstructorUsedError;
   int? get width => throw _privateConstructorUsedError;
   int? get height => throw _privateConstructorUsedError;
@@ -50,7 +49,7 @@ abstract class $PostMediaModelCopyWith<$Res> {
       {String id,
       MediaType type,
       String url,
-      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      String? thumbnailUrl,
       int? width,
       int? height,
       int? duration,
@@ -130,7 +129,7 @@ abstract class _$$PostMediaModelImplCopyWith<$Res>
       {String id,
       MediaType type,
       String url,
-      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      String? thumbnailUrl,
       int? width,
       int? height,
       int? duration,
@@ -203,7 +202,7 @@ class _$PostMediaModelImpl implements _PostMediaModel {
       {required this.id,
       required this.type,
       required this.url,
-      @JsonKey(name: 'thumbnail_url') this.thumbnailUrl,
+      this.thumbnailUrl,
       this.width,
       this.height,
       this.duration,
@@ -219,7 +218,6 @@ class _$PostMediaModelImpl implements _PostMediaModel {
   @override
   final String url;
   @override
-  @JsonKey(name: 'thumbnail_url')
   final String? thumbnailUrl;
   @override
   final int? width;
@@ -280,7 +278,7 @@ abstract class _PostMediaModel implements PostMediaModel {
       {required final String id,
       required final MediaType type,
       required final String url,
-      @JsonKey(name: 'thumbnail_url') final String? thumbnailUrl,
+      final String? thumbnailUrl,
       final int? width,
       final int? height,
       final int? duration,
@@ -296,7 +294,6 @@ abstract class _PostMediaModel implements PostMediaModel {
   @override
   String get url;
   @override
-  @JsonKey(name: 'thumbnail_url')
   String? get thumbnailUrl;
   @override
   int? get width;
@@ -322,35 +319,22 @@ PostModel _$PostModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$PostModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'author_id')
   String get authorId => throw _privateConstructorUsedError;
   UserModel? get author => throw _privateConstructorUsedError;
   String? get content => throw _privateConstructorUsedError;
   List<PostMediaModel> get media => throw _privateConstructorUsedError;
   List<String> get tags => throw _privateConstructorUsedError;
-  @JsonKey(name: 'likes_count')
   int get likesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'comments_count')
   int get commentsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'shares_count')
   int get sharesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'reposts_count')
   int get repostsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_liked')
   bool get isLiked => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_name')
   String? get locationName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lat')
   double? get locationLat => throw _privateConstructorUsedError;
-  @JsonKey(name: 'location_lng')
   double? get locationLng => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_pinned')
   bool get isPinned => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_archived')
   bool get isArchived => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this PostModel to a JSON map.
@@ -370,23 +354,23 @@ abstract class $PostModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'author_id') String authorId,
+      String authorId,
       UserModel? author,
       String? content,
       List<PostMediaModel> media,
       List<String> tags,
-      @JsonKey(name: 'likes_count') int likesCount,
-      @JsonKey(name: 'comments_count') int commentsCount,
-      @JsonKey(name: 'shares_count') int sharesCount,
-      @JsonKey(name: 'reposts_count') int repostsCount,
-      @JsonKey(name: 'is_liked') bool isLiked,
-      @JsonKey(name: 'location_name') String? locationName,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'is_pinned') bool isPinned,
-      @JsonKey(name: 'is_archived') bool isArchived,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      int likesCount,
+      int commentsCount,
+      int sharesCount,
+      int repostsCount,
+      bool isLiked,
+      String? locationName,
+      double? locationLat,
+      double? locationLng,
+      bool isPinned,
+      bool isArchived,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get author;
 }
@@ -526,23 +510,23 @@ abstract class _$$PostModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'author_id') String authorId,
+      String authorId,
       UserModel? author,
       String? content,
       List<PostMediaModel> media,
       List<String> tags,
-      @JsonKey(name: 'likes_count') int likesCount,
-      @JsonKey(name: 'comments_count') int commentsCount,
-      @JsonKey(name: 'shares_count') int sharesCount,
-      @JsonKey(name: 'reposts_count') int repostsCount,
-      @JsonKey(name: 'is_liked') bool isLiked,
-      @JsonKey(name: 'location_name') String? locationName,
-      @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng,
-      @JsonKey(name: 'is_pinned') bool isPinned,
-      @JsonKey(name: 'is_archived') bool isArchived,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      int likesCount,
+      int commentsCount,
+      int sharesCount,
+      int repostsCount,
+      bool isLiked,
+      String? locationName,
+      double? locationLat,
+      double? locationLng,
+      bool isPinned,
+      bool isArchived,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get author;
@@ -662,23 +646,23 @@ class __$$PostModelImplCopyWithImpl<$Res>
 class _$PostModelImpl implements _PostModel {
   const _$PostModelImpl(
       {required this.id,
-      @JsonKey(name: 'author_id') required this.authorId,
+      required this.authorId,
       this.author,
       this.content,
       final List<PostMediaModel> media = const [],
       final List<String> tags = const [],
-      @JsonKey(name: 'likes_count') this.likesCount = 0,
-      @JsonKey(name: 'comments_count') this.commentsCount = 0,
-      @JsonKey(name: 'shares_count') this.sharesCount = 0,
-      @JsonKey(name: 'reposts_count') this.repostsCount = 0,
-      @JsonKey(name: 'is_liked') this.isLiked = false,
-      @JsonKey(name: 'location_name') this.locationName,
-      @JsonKey(name: 'location_lat') this.locationLat,
-      @JsonKey(name: 'location_lng') this.locationLng,
-      @JsonKey(name: 'is_pinned') this.isPinned = false,
-      @JsonKey(name: 'is_archived') this.isArchived = false,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      this.likesCount = 0,
+      this.commentsCount = 0,
+      this.sharesCount = 0,
+      this.repostsCount = 0,
+      this.isLiked = false,
+      this.locationName,
+      this.locationLat,
+      this.locationLng,
+      this.isPinned = false,
+      this.isArchived = false,
+      required this.createdAt,
+      required this.updatedAt})
       : _media = media,
         _tags = tags;
 
@@ -688,7 +672,6 @@ class _$PostModelImpl implements _PostModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'author_id')
   final String authorId;
   @override
   final UserModel? author;
@@ -713,40 +696,35 @@ class _$PostModelImpl implements _PostModel {
   }
 
   @override
-  @JsonKey(name: 'likes_count')
+  @JsonKey()
   final int likesCount;
   @override
-  @JsonKey(name: 'comments_count')
+  @JsonKey()
   final int commentsCount;
   @override
-  @JsonKey(name: 'shares_count')
+  @JsonKey()
   final int sharesCount;
   @override
-  @JsonKey(name: 'reposts_count')
+  @JsonKey()
   final int repostsCount;
   @override
-  @JsonKey(name: 'is_liked')
+  @JsonKey()
   final bool isLiked;
   @override
-  @JsonKey(name: 'location_name')
   final String? locationName;
   @override
-  @JsonKey(name: 'location_lat')
   final double? locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   final double? locationLng;
   @override
-  @JsonKey(name: 'is_pinned')
+  @JsonKey()
   final bool isPinned;
   @override
-  @JsonKey(name: 'is_archived')
+  @JsonKey()
   final bool isArchived;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -832,25 +810,24 @@ class _$PostModelImpl implements _PostModel {
 
 abstract class _PostModel implements PostModel {
   const factory _PostModel(
-          {required final String id,
-          @JsonKey(name: 'author_id') required final String authorId,
-          final UserModel? author,
-          final String? content,
-          final List<PostMediaModel> media,
-          final List<String> tags,
-          @JsonKey(name: 'likes_count') final int likesCount,
-          @JsonKey(name: 'comments_count') final int commentsCount,
-          @JsonKey(name: 'shares_count') final int sharesCount,
-          @JsonKey(name: 'reposts_count') final int repostsCount,
-          @JsonKey(name: 'is_liked') final bool isLiked,
-          @JsonKey(name: 'location_name') final String? locationName,
-          @JsonKey(name: 'location_lat') final double? locationLat,
-          @JsonKey(name: 'location_lng') final double? locationLng,
-          @JsonKey(name: 'is_pinned') final bool isPinned,
-          @JsonKey(name: 'is_archived') final bool isArchived,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$PostModelImpl;
+      {required final String id,
+      required final String authorId,
+      final UserModel? author,
+      final String? content,
+      final List<PostMediaModel> media,
+      final List<String> tags,
+      final int likesCount,
+      final int commentsCount,
+      final int sharesCount,
+      final int repostsCount,
+      final bool isLiked,
+      final String? locationName,
+      final double? locationLat,
+      final double? locationLng,
+      final bool isPinned,
+      final bool isArchived,
+      required final DateTime createdAt,
+      required final DateTime updatedAt}) = _$PostModelImpl;
 
   factory _PostModel.fromJson(Map<String, dynamic> json) =
       _$PostModelImpl.fromJson;
@@ -858,7 +835,6 @@ abstract class _PostModel implements PostModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'author_id')
   String get authorId;
   @override
   UserModel? get author;
@@ -869,40 +845,28 @@ abstract class _PostModel implements PostModel {
   @override
   List<String> get tags;
   @override
-  @JsonKey(name: 'likes_count')
   int get likesCount;
   @override
-  @JsonKey(name: 'comments_count')
   int get commentsCount;
   @override
-  @JsonKey(name: 'shares_count')
   int get sharesCount;
   @override
-  @JsonKey(name: 'reposts_count')
   int get repostsCount;
   @override
-  @JsonKey(name: 'is_liked')
   bool get isLiked;
   @override
-  @JsonKey(name: 'location_name')
   String? get locationName;
   @override
-  @JsonKey(name: 'location_lat')
   double? get locationLat;
   @override
-  @JsonKey(name: 'location_lng')
   double? get locationLng;
   @override
-  @JsonKey(name: 'is_pinned')
   bool get isPinned;
   @override
-  @JsonKey(name: 'is_archived')
   bool get isArchived;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of PostModel
@@ -1449,21 +1413,14 @@ CommentModel _$CommentModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CommentModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'post_id')
   String get postId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'author_id')
   String get authorId => throw _privateConstructorUsedError;
   UserModel? get author => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
-  @JsonKey(name: 'parent_id')
   String? get parentId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'likes_count')
   int get likesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_liked')
   bool get isLiked => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this CommentModel to a JSON map.
@@ -1484,15 +1441,15 @@ abstract class $CommentModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'post_id') String postId,
-      @JsonKey(name: 'author_id') String authorId,
+      String postId,
+      String authorId,
       UserModel? author,
       String content,
-      @JsonKey(name: 'parent_id') String? parentId,
-      @JsonKey(name: 'likes_count') int likesCount,
-      @JsonKey(name: 'is_liked') bool isLiked,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      String? parentId,
+      int likesCount,
+      bool isLiked,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get author;
 }
@@ -1592,15 +1549,15 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'post_id') String postId,
-      @JsonKey(name: 'author_id') String authorId,
+      String postId,
+      String authorId,
       UserModel? author,
       String content,
-      @JsonKey(name: 'parent_id') String? parentId,
-      @JsonKey(name: 'likes_count') int likesCount,
-      @JsonKey(name: 'is_liked') bool isLiked,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      String? parentId,
+      int likesCount,
+      bool isLiked,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get author;
@@ -1680,15 +1637,15 @@ class __$$CommentModelImplCopyWithImpl<$Res>
 class _$CommentModelImpl implements _CommentModel {
   const _$CommentModelImpl(
       {required this.id,
-      @JsonKey(name: 'post_id') required this.postId,
-      @JsonKey(name: 'author_id') required this.authorId,
+      required this.postId,
+      required this.authorId,
       this.author,
       required this.content,
-      @JsonKey(name: 'parent_id') this.parentId,
-      @JsonKey(name: 'likes_count') required this.likesCount,
-      @JsonKey(name: 'is_liked') required this.isLiked,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt});
+      this.parentId,
+      required this.likesCount,
+      required this.isLiked,
+      required this.createdAt,
+      required this.updatedAt});
 
   factory _$CommentModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$CommentModelImplFromJson(json);
@@ -1696,29 +1653,22 @@ class _$CommentModelImpl implements _CommentModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'post_id')
   final String postId;
   @override
-  @JsonKey(name: 'author_id')
   final String authorId;
   @override
   final UserModel? author;
   @override
   final String content;
   @override
-  @JsonKey(name: 'parent_id')
   final String? parentId;
   @override
-  @JsonKey(name: 'likes_count')
   final int likesCount;
   @override
-  @JsonKey(name: 'is_liked')
   final bool isLiked;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -1771,17 +1721,16 @@ class _$CommentModelImpl implements _CommentModel {
 
 abstract class _CommentModel implements CommentModel {
   const factory _CommentModel(
-          {required final String id,
-          @JsonKey(name: 'post_id') required final String postId,
-          @JsonKey(name: 'author_id') required final String authorId,
-          final UserModel? author,
-          required final String content,
-          @JsonKey(name: 'parent_id') final String? parentId,
-          @JsonKey(name: 'likes_count') required final int likesCount,
-          @JsonKey(name: 'is_liked') required final bool isLiked,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$CommentModelImpl;
+      {required final String id,
+      required final String postId,
+      required final String authorId,
+      final UserModel? author,
+      required final String content,
+      final String? parentId,
+      required final int likesCount,
+      required final bool isLiked,
+      required final DateTime createdAt,
+      required final DateTime updatedAt}) = _$CommentModelImpl;
 
   factory _CommentModel.fromJson(Map<String, dynamic> json) =
       _$CommentModelImpl.fromJson;
@@ -1789,29 +1738,22 @@ abstract class _CommentModel implements CommentModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'post_id')
   String get postId;
   @override
-  @JsonKey(name: 'author_id')
   String get authorId;
   @override
   UserModel? get author;
   @override
   String get content;
   @override
-  @JsonKey(name: 'parent_id')
   String? get parentId;
   @override
-  @JsonKey(name: 'likes_count')
   int get likesCount;
   @override
-  @JsonKey(name: 'is_liked')
   bool get isLiked;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of CommentModel

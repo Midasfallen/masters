@@ -25,25 +25,25 @@ class UserModel with _$UserModel {
     required String id,
     required String email,
     String? phone,
-    @JsonKey(name: 'first_name') required String firstName,
-    @JsonKey(name: 'last_name') required String lastName,
-    @JsonKey(name: 'full_name') String? fullName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
-    @JsonKey(name: 'is_master') @Default(false) bool isMaster,
-    @JsonKey(name: 'master_profile_completed') @Default(false) bool masterProfileCompleted,
-    @JsonKey(name: 'is_verified') @Default(false) bool isVerified,
-    @JsonKey(name: 'is_premium') @Default(false) bool isPremium,
-    @JsonKey(name: 'premium_until') DateTime? premiumUntil,
+    required String firstName,
+    required String lastName,
+    String? fullName,
+    String? avatarUrl,
+    @Default(false) bool isMaster,
+    @Default(false) bool masterProfileCompleted,
+    @Default(false) bool isVerified,
+    @Default(false) bool isPremium,
+    DateTime? premiumUntil,
     @StringToDoubleConverter() @Default(0.0) double rating,
-    @JsonKey(name: 'reviews_count') @Default(0) int reviewsCount,
-    @JsonKey(name: 'posts_count') @Default(0) int postsCount,
-    @JsonKey(name: 'friends_count') @Default(0) int friendsCount,
-    @JsonKey(name: 'followers_count') @Default(0) int followersCount,
-    @JsonKey(name: 'following_count') @Default(0) int followingCount,
+    @Default(0) int reviewsCount,
+    @Default(0) int postsCount,
+    @Default(0) int friendsCount,
+    @Default(0) int followersCount,
+    @Default(0) int followingCount,
     @Default('en') String language,
     @Default('UTC') String timezone,
-    @JsonKey(name: 'created_at') DateTime? createdAt,
-    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -54,10 +54,10 @@ class UserModel with _$UserModel {
 @freezed
 class AuthResponseModel with _$AuthResponseModel {
   const factory AuthResponseModel({
-    @JsonKey(name: 'access_token') required String accessToken,
-    @JsonKey(name: 'refresh_token') required String refreshToken,
-    @JsonKey(name: 'token_type') required String tokenType,
-    @JsonKey(name: 'expires_in') required int expiresIn,
+    required String accessToken,
+    required String refreshToken,
+    required String tokenType,
+    required int expiresIn,
     required AuthUserModel user,
   }) = _AuthResponseModel;
 
@@ -71,12 +71,12 @@ class AuthUserModel with _$AuthUserModel {
   const factory AuthUserModel({
     required String id,
     required String email,
-    @JsonKey(name: 'first_name') required String firstName,
-    @JsonKey(name: 'last_name') required String lastName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
-    @JsonKey(name: 'is_master') required bool isMaster,
-    @JsonKey(name: 'is_verified') required bool isVerified,
-    @JsonKey(name: 'is_premium') required bool isPremium,
+    required String firstName,
+    required String lastName,
+    String? avatarUrl,
+    required bool isMaster,
+    required bool isVerified,
+    required bool isPremium,
   }) = _AuthUserModel;
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) =>

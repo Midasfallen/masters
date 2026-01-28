@@ -21,21 +21,14 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ChatModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user1_id')
   String get user1Id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user2_id')
   String get user2Id => throw _privateConstructorUsedError;
   UserModel? get user1 => throw _privateConstructorUsedError;
   UserModel? get user2 => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_message')
   MessageModel? get lastMessage => throw _privateConstructorUsedError;
-  @JsonKey(name: 'unread_count')
   int get unreadCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'my_participant')
   ChatParticipantModel? get myParticipant => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ChatModel to a JSON map.
@@ -55,15 +48,15 @@ abstract class $ChatModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user1_id') String user1Id,
-      @JsonKey(name: 'user2_id') String user2Id,
+      String user1Id,
+      String user2Id,
       UserModel? user1,
       UserModel? user2,
-      @JsonKey(name: 'last_message') MessageModel? lastMessage,
-      @JsonKey(name: 'unread_count') int unreadCount,
-      @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      MessageModel? lastMessage,
+      int unreadCount,
+      ChatParticipantModel? myParticipant,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get user1;
   $UserModelCopyWith<$Res>? get user2;
@@ -208,15 +201,15 @@ abstract class _$$ChatModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user1_id') String user1Id,
-      @JsonKey(name: 'user2_id') String user2Id,
+      String user1Id,
+      String user2Id,
       UserModel? user1,
       UserModel? user2,
-      @JsonKey(name: 'last_message') MessageModel? lastMessage,
-      @JsonKey(name: 'unread_count') int unreadCount,
-      @JsonKey(name: 'my_participant') ChatParticipantModel? myParticipant,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      MessageModel? lastMessage,
+      int unreadCount,
+      ChatParticipantModel? myParticipant,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get user1;
@@ -302,15 +295,15 @@ class __$$ChatModelImplCopyWithImpl<$Res>
 class _$ChatModelImpl implements _ChatModel {
   const _$ChatModelImpl(
       {required this.id,
-      @JsonKey(name: 'user1_id') required this.user1Id,
-      @JsonKey(name: 'user2_id') required this.user2Id,
+      required this.user1Id,
+      required this.user2Id,
       this.user1,
       this.user2,
-      @JsonKey(name: 'last_message') this.lastMessage,
-      @JsonKey(name: 'unread_count') required this.unreadCount,
-      @JsonKey(name: 'my_participant') this.myParticipant,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt});
+      this.lastMessage,
+      required this.unreadCount,
+      this.myParticipant,
+      required this.createdAt,
+      required this.updatedAt});
 
   factory _$ChatModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatModelImplFromJson(json);
@@ -318,29 +311,22 @@ class _$ChatModelImpl implements _ChatModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'user1_id')
   final String user1Id;
   @override
-  @JsonKey(name: 'user2_id')
   final String user2Id;
   @override
   final UserModel? user1;
   @override
   final UserModel? user2;
   @override
-  @JsonKey(name: 'last_message')
   final MessageModel? lastMessage;
   @override
-  @JsonKey(name: 'unread_count')
   final int unreadCount;
   @override
-  @JsonKey(name: 'my_participant')
   final ChatParticipantModel? myParticipant;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -393,18 +379,16 @@ class _$ChatModelImpl implements _ChatModel {
 
 abstract class _ChatModel implements ChatModel {
   const factory _ChatModel(
-          {required final String id,
-          @JsonKey(name: 'user1_id') required final String user1Id,
-          @JsonKey(name: 'user2_id') required final String user2Id,
-          final UserModel? user1,
-          final UserModel? user2,
-          @JsonKey(name: 'last_message') final MessageModel? lastMessage,
-          @JsonKey(name: 'unread_count') required final int unreadCount,
-          @JsonKey(name: 'my_participant')
-          final ChatParticipantModel? myParticipant,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$ChatModelImpl;
+      {required final String id,
+      required final String user1Id,
+      required final String user2Id,
+      final UserModel? user1,
+      final UserModel? user2,
+      final MessageModel? lastMessage,
+      required final int unreadCount,
+      final ChatParticipantModel? myParticipant,
+      required final DateTime createdAt,
+      required final DateTime updatedAt}) = _$ChatModelImpl;
 
   factory _ChatModel.fromJson(Map<String, dynamic> json) =
       _$ChatModelImpl.fromJson;
@@ -412,29 +396,22 @@ abstract class _ChatModel implements ChatModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'user1_id')
   String get user1Id;
   @override
-  @JsonKey(name: 'user2_id')
   String get user2Id;
   @override
   UserModel? get user1;
   @override
   UserModel? get user2;
   @override
-  @JsonKey(name: 'last_message')
   MessageModel? get lastMessage;
   @override
-  @JsonKey(name: 'unread_count')
   int get unreadCount;
   @override
-  @JsonKey(name: 'my_participant')
   ChatParticipantModel? get myParticipant;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of ChatModel
@@ -452,17 +429,11 @@ ChatParticipantModel _$ChatParticipantModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ChatParticipantModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'chat_id')
   String get chatId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_pinned')
   bool get isPinned => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_archived')
   bool get isArchived => throw _privateConstructorUsedError;
-  @JsonKey(name: 'unread_count')
   int get unreadCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'last_read_message_id')
   String? get lastReadMessageId => throw _privateConstructorUsedError;
 
   /// Serializes this ChatParticipantModel to a JSON map.
@@ -483,12 +454,12 @@ abstract class $ChatParticipantModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'chat_id') String chatId,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'is_pinned') bool isPinned,
-      @JsonKey(name: 'is_archived') bool isArchived,
-      @JsonKey(name: 'unread_count') int unreadCount,
-      @JsonKey(name: 'last_read_message_id') String? lastReadMessageId});
+      String chatId,
+      String userId,
+      bool isPinned,
+      bool isArchived,
+      int unreadCount,
+      String? lastReadMessageId});
 }
 
 /// @nodoc
@@ -558,12 +529,12 @@ abstract class _$$ChatParticipantModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'chat_id') String chatId,
-      @JsonKey(name: 'user_id') String userId,
-      @JsonKey(name: 'is_pinned') bool isPinned,
-      @JsonKey(name: 'is_archived') bool isArchived,
-      @JsonKey(name: 'unread_count') int unreadCount,
-      @JsonKey(name: 'last_read_message_id') String? lastReadMessageId});
+      String chatId,
+      String userId,
+      bool isPinned,
+      bool isArchived,
+      int unreadCount,
+      String? lastReadMessageId});
 }
 
 /// @nodoc
@@ -625,12 +596,12 @@ class __$$ChatParticipantModelImplCopyWithImpl<$Res>
 class _$ChatParticipantModelImpl implements _ChatParticipantModel {
   const _$ChatParticipantModelImpl(
       {required this.id,
-      @JsonKey(name: 'chat_id') required this.chatId,
-      @JsonKey(name: 'user_id') required this.userId,
-      @JsonKey(name: 'is_pinned') required this.isPinned,
-      @JsonKey(name: 'is_archived') required this.isArchived,
-      @JsonKey(name: 'unread_count') required this.unreadCount,
-      @JsonKey(name: 'last_read_message_id') this.lastReadMessageId});
+      required this.chatId,
+      required this.userId,
+      required this.isPinned,
+      required this.isArchived,
+      required this.unreadCount,
+      this.lastReadMessageId});
 
   factory _$ChatParticipantModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatParticipantModelImplFromJson(json);
@@ -638,22 +609,16 @@ class _$ChatParticipantModelImpl implements _ChatParticipantModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'chat_id')
   final String chatId;
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
-  @JsonKey(name: 'is_pinned')
   final bool isPinned;
   @override
-  @JsonKey(name: 'is_archived')
   final bool isArchived;
   @override
-  @JsonKey(name: 'unread_count')
   final int unreadCount;
   @override
-  @JsonKey(name: 'last_read_message_id')
   final String? lastReadMessageId;
 
   @override
@@ -705,12 +670,11 @@ class _$ChatParticipantModelImpl implements _ChatParticipantModel {
 abstract class _ChatParticipantModel implements ChatParticipantModel {
   const factory _ChatParticipantModel(
       {required final String id,
-      @JsonKey(name: 'chat_id') required final String chatId,
-      @JsonKey(name: 'user_id') required final String userId,
-      @JsonKey(name: 'is_pinned') required final bool isPinned,
-      @JsonKey(name: 'is_archived') required final bool isArchived,
-      @JsonKey(name: 'unread_count') required final int unreadCount,
-      @JsonKey(name: 'last_read_message_id')
+      required final String chatId,
+      required final String userId,
+      required final bool isPinned,
+      required final bool isArchived,
+      required final int unreadCount,
       final String? lastReadMessageId}) = _$ChatParticipantModelImpl;
 
   factory _ChatParticipantModel.fromJson(Map<String, dynamic> json) =
@@ -719,22 +683,16 @@ abstract class _ChatParticipantModel implements ChatParticipantModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'chat_id')
   String get chatId;
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
-  @JsonKey(name: 'is_pinned')
   bool get isPinned;
   @override
-  @JsonKey(name: 'is_archived')
   bool get isArchived;
   @override
-  @JsonKey(name: 'unread_count')
   int get unreadCount;
   @override
-  @JsonKey(name: 'last_read_message_id')
   String? get lastReadMessageId;
 
   /// Create a copy of ChatParticipantModel
@@ -752,25 +710,17 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$MessageModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'chat_id')
   String get chatId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sender_id')
   String get senderId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'receiver_id')
   String get receiverId => throw _privateConstructorUsedError;
   UserModel? get sender => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   MessageType get type => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media_url')
   String? get mediaUrl => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_read')
   bool get isRead => throw _privateConstructorUsedError;
-  @JsonKey(name: 'read_at')
   DateTime? get readAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this MessageModel to a JSON map.
@@ -791,18 +741,18 @@ abstract class $MessageModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'chat_id') String chatId,
-      @JsonKey(name: 'sender_id') String senderId,
-      @JsonKey(name: 'receiver_id') String receiverId,
+      String chatId,
+      String senderId,
+      String receiverId,
       UserModel? sender,
       String content,
       MessageType type,
-      @JsonKey(name: 'media_url') String? mediaUrl,
+      String? mediaUrl,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'is_read') bool isRead,
-      @JsonKey(name: 'read_at') DateTime? readAt,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      bool isRead,
+      DateTime? readAt,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get sender;
 }
@@ -917,18 +867,18 @@ abstract class _$$MessageModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'chat_id') String chatId,
-      @JsonKey(name: 'sender_id') String senderId,
-      @JsonKey(name: 'receiver_id') String receiverId,
+      String chatId,
+      String senderId,
+      String receiverId,
       UserModel? sender,
       String content,
       MessageType type,
-      @JsonKey(name: 'media_url') String? mediaUrl,
+      String? mediaUrl,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'is_read') bool isRead,
-      @JsonKey(name: 'read_at') DateTime? readAt,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      bool isRead,
+      DateTime? readAt,
+      DateTime createdAt,
+      DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get sender;
@@ -1023,18 +973,18 @@ class __$$MessageModelImplCopyWithImpl<$Res>
 class _$MessageModelImpl implements _MessageModel {
   const _$MessageModelImpl(
       {required this.id,
-      @JsonKey(name: 'chat_id') required this.chatId,
-      @JsonKey(name: 'sender_id') required this.senderId,
-      @JsonKey(name: 'receiver_id') required this.receiverId,
+      required this.chatId,
+      required this.senderId,
+      required this.receiverId,
       this.sender,
       required this.content,
       required this.type,
-      @JsonKey(name: 'media_url') this.mediaUrl,
+      this.mediaUrl,
       final Map<String, dynamic>? metadata,
-      @JsonKey(name: 'is_read') required this.isRead,
-      @JsonKey(name: 'read_at') this.readAt,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      required this.isRead,
+      this.readAt,
+      required this.createdAt,
+      required this.updatedAt})
       : _metadata = metadata;
 
   factory _$MessageModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -1043,13 +993,10 @@ class _$MessageModelImpl implements _MessageModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'chat_id')
   final String chatId;
   @override
-  @JsonKey(name: 'sender_id')
   final String senderId;
   @override
-  @JsonKey(name: 'receiver_id')
   final String receiverId;
   @override
   final UserModel? sender;
@@ -1058,7 +1005,6 @@ class _$MessageModelImpl implements _MessageModel {
   @override
   final MessageType type;
   @override
-  @JsonKey(name: 'media_url')
   final String? mediaUrl;
   final Map<String, dynamic>? _metadata;
   @override
@@ -1071,16 +1017,12 @@ class _$MessageModelImpl implements _MessageModel {
   }
 
   @override
-  @JsonKey(name: 'is_read')
   final bool isRead;
   @override
-  @JsonKey(name: 'read_at')
   final DateTime? readAt;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -1149,20 +1091,19 @@ class _$MessageModelImpl implements _MessageModel {
 
 abstract class _MessageModel implements MessageModel {
   const factory _MessageModel(
-          {required final String id,
-          @JsonKey(name: 'chat_id') required final String chatId,
-          @JsonKey(name: 'sender_id') required final String senderId,
-          @JsonKey(name: 'receiver_id') required final String receiverId,
-          final UserModel? sender,
-          required final String content,
-          required final MessageType type,
-          @JsonKey(name: 'media_url') final String? mediaUrl,
-          final Map<String, dynamic>? metadata,
-          @JsonKey(name: 'is_read') required final bool isRead,
-          @JsonKey(name: 'read_at') final DateTime? readAt,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$MessageModelImpl;
+      {required final String id,
+      required final String chatId,
+      required final String senderId,
+      required final String receiverId,
+      final UserModel? sender,
+      required final String content,
+      required final MessageType type,
+      final String? mediaUrl,
+      final Map<String, dynamic>? metadata,
+      required final bool isRead,
+      final DateTime? readAt,
+      required final DateTime createdAt,
+      required final DateTime updatedAt}) = _$MessageModelImpl;
 
   factory _MessageModel.fromJson(Map<String, dynamic> json) =
       _$MessageModelImpl.fromJson;
@@ -1170,13 +1111,10 @@ abstract class _MessageModel implements MessageModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'chat_id')
   String get chatId;
   @override
-  @JsonKey(name: 'sender_id')
   String get senderId;
   @override
-  @JsonKey(name: 'receiver_id')
   String get receiverId;
   @override
   UserModel? get sender;
@@ -1185,21 +1123,16 @@ abstract class _MessageModel implements MessageModel {
   @override
   MessageType get type;
   @override
-  @JsonKey(name: 'media_url')
   String? get mediaUrl;
   @override
   Map<String, dynamic>? get metadata;
   @override
-  @JsonKey(name: 'is_read')
   bool get isRead;
   @override
-  @JsonKey(name: 'read_at')
   DateTime? get readAt;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of MessageModel

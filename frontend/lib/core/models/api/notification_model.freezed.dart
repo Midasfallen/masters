@@ -21,21 +21,15 @@ NotificationModel _$NotificationModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$NotificationModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_read')
   bool get isRead => throw _privateConstructorUsedError;
-  @JsonKey(name: 'related_id')
   String? get relatedId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'related_type')
   String? get relatedType => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  @JsonKey(name: 'action_url')
   String? get actionUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this NotificationModel to a JSON map.
@@ -56,16 +50,16 @@ abstract class $NotificationModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       String type,
       String title,
       String message,
-      @JsonKey(name: 'is_read') bool isRead,
-      @JsonKey(name: 'related_id') String? relatedId,
-      @JsonKey(name: 'related_type') String? relatedType,
+      bool isRead,
+      String? relatedId,
+      String? relatedType,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'action_url') String? actionUrl,
-      @JsonKey(name: 'created_at') DateTime createdAt});
+      String? actionUrl,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -154,16 +148,16 @@ abstract class _$$NotificationModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'user_id') String userId,
+      String userId,
       String type,
       String title,
       String message,
-      @JsonKey(name: 'is_read') bool isRead,
-      @JsonKey(name: 'related_id') String? relatedId,
-      @JsonKey(name: 'related_type') String? relatedType,
+      bool isRead,
+      String? relatedId,
+      String? relatedType,
       Map<String, dynamic>? metadata,
-      @JsonKey(name: 'action_url') String? actionUrl,
-      @JsonKey(name: 'created_at') DateTime createdAt});
+      String? actionUrl,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -245,16 +239,16 @@ class __$$NotificationModelImplCopyWithImpl<$Res>
 class _$NotificationModelImpl implements _NotificationModel {
   const _$NotificationModelImpl(
       {required this.id,
-      @JsonKey(name: 'user_id') required this.userId,
+      required this.userId,
       required this.type,
       required this.title,
       required this.message,
-      @JsonKey(name: 'is_read') this.isRead = false,
-      @JsonKey(name: 'related_id') this.relatedId,
-      @JsonKey(name: 'related_type') this.relatedType,
+      this.isRead = false,
+      this.relatedId,
+      this.relatedType,
       final Map<String, dynamic>? metadata,
-      @JsonKey(name: 'action_url') this.actionUrl,
-      @JsonKey(name: 'created_at') required this.createdAt})
+      this.actionUrl,
+      required this.createdAt})
       : _metadata = metadata;
 
   factory _$NotificationModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -263,7 +257,6 @@ class _$NotificationModelImpl implements _NotificationModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
   final String type;
@@ -272,13 +265,11 @@ class _$NotificationModelImpl implements _NotificationModel {
   @override
   final String message;
   @override
-  @JsonKey(name: 'is_read')
+  @JsonKey()
   final bool isRead;
   @override
-  @JsonKey(name: 'related_id')
   final String? relatedId;
   @override
-  @JsonKey(name: 'related_type')
   final String? relatedType;
   final Map<String, dynamic>? _metadata;
   @override
@@ -291,10 +282,8 @@ class _$NotificationModelImpl implements _NotificationModel {
   }
 
   @override
-  @JsonKey(name: 'action_url')
   final String? actionUrl;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
   @override
@@ -359,18 +348,17 @@ class _$NotificationModelImpl implements _NotificationModel {
 
 abstract class _NotificationModel implements NotificationModel {
   const factory _NotificationModel(
-          {required final String id,
-          @JsonKey(name: 'user_id') required final String userId,
-          required final String type,
-          required final String title,
-          required final String message,
-          @JsonKey(name: 'is_read') final bool isRead,
-          @JsonKey(name: 'related_id') final String? relatedId,
-          @JsonKey(name: 'related_type') final String? relatedType,
-          final Map<String, dynamic>? metadata,
-          @JsonKey(name: 'action_url') final String? actionUrl,
-          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
-      _$NotificationModelImpl;
+      {required final String id,
+      required final String userId,
+      required final String type,
+      required final String title,
+      required final String message,
+      final bool isRead,
+      final String? relatedId,
+      final String? relatedType,
+      final Map<String, dynamic>? metadata,
+      final String? actionUrl,
+      required final DateTime createdAt}) = _$NotificationModelImpl;
 
   factory _NotificationModel.fromJson(Map<String, dynamic> json) =
       _$NotificationModelImpl.fromJson;
@@ -378,7 +366,6 @@ abstract class _NotificationModel implements NotificationModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
   String get type;
@@ -387,21 +374,16 @@ abstract class _NotificationModel implements NotificationModel {
   @override
   String get message;
   @override
-  @JsonKey(name: 'is_read')
   bool get isRead;
   @override
-  @JsonKey(name: 'related_id')
   String? get relatedId;
   @override
-  @JsonKey(name: 'related_type')
   String? get relatedType;
   @override
   Map<String, dynamic>? get metadata;
   @override
-  @JsonKey(name: 'action_url')
   String? get actionUrl;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
 
   /// Create a copy of NotificationModel

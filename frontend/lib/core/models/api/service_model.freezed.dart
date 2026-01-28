@@ -21,42 +21,26 @@ ServiceModel _$ServiceModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ServiceModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'master_id')
   String get masterId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'category_id')
   String get categoryId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'subcategory_id')
   String? get subcategoryId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
   String get currency => throw _privateConstructorUsedError;
-  @JsonKey(name: 'price_from')
   double? get priceFrom => throw _privateConstructorUsedError;
-  @JsonKey(name: 'price_to')
   double? get priceTo => throw _privateConstructorUsedError;
-  @JsonKey(name: 'duration_minutes')
   int get durationMinutes => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_bookable_online')
   bool get isBookableOnline => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_mobile')
   bool get isMobile => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_in_salon')
   bool get isInSalon => throw _privateConstructorUsedError;
   List<String> get tags => throw _privateConstructorUsedError;
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls => throw _privateConstructorUsedError;
-  @JsonKey(name: 'bookings_count')
   int get bookingsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'average_rating')
   double get averageRating => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_active')
   bool get isActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'display_order')
   int get displayOrder => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ServiceModel to a JSON map.
@@ -77,27 +61,27 @@ abstract class $ServiceModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'category_id') String categoryId,
-      @JsonKey(name: 'subcategory_id') String? subcategoryId,
+      String masterId,
+      String categoryId,
+      String? subcategoryId,
       String name,
       String? description,
       double price,
       String currency,
-      @JsonKey(name: 'price_from') double? priceFrom,
-      @JsonKey(name: 'price_to') double? priceTo,
-      @JsonKey(name: 'duration_minutes') int durationMinutes,
-      @JsonKey(name: 'is_bookable_online') bool isBookableOnline,
-      @JsonKey(name: 'is_mobile') bool isMobile,
-      @JsonKey(name: 'is_in_salon') bool isInSalon,
+      double? priceFrom,
+      double? priceTo,
+      int durationMinutes,
+      bool isBookableOnline,
+      bool isMobile,
+      bool isInSalon,
       List<String> tags,
-      @JsonKey(name: 'photo_urls') List<String> photoUrls,
-      @JsonKey(name: 'bookings_count') int bookingsCount,
-      @JsonKey(name: 'average_rating') double averageRating,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'display_order') int displayOrder,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      List<String> photoUrls,
+      int bookingsCount,
+      double averageRating,
+      bool isActive,
+      int displayOrder,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -241,27 +225,27 @@ abstract class _$$ServiceModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'category_id') String categoryId,
-      @JsonKey(name: 'subcategory_id') String? subcategoryId,
+      String masterId,
+      String categoryId,
+      String? subcategoryId,
       String name,
       String? description,
       double price,
       String currency,
-      @JsonKey(name: 'price_from') double? priceFrom,
-      @JsonKey(name: 'price_to') double? priceTo,
-      @JsonKey(name: 'duration_minutes') int durationMinutes,
-      @JsonKey(name: 'is_bookable_online') bool isBookableOnline,
-      @JsonKey(name: 'is_mobile') bool isMobile,
-      @JsonKey(name: 'is_in_salon') bool isInSalon,
+      double? priceFrom,
+      double? priceTo,
+      int durationMinutes,
+      bool isBookableOnline,
+      bool isMobile,
+      bool isInSalon,
       List<String> tags,
-      @JsonKey(name: 'photo_urls') List<String> photoUrls,
-      @JsonKey(name: 'bookings_count') int bookingsCount,
-      @JsonKey(name: 'average_rating') double averageRating,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'display_order') int displayOrder,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      List<String> photoUrls,
+      int bookingsCount,
+      double averageRating,
+      bool isActive,
+      int displayOrder,
+      DateTime createdAt,
+      DateTime updatedAt});
 }
 
 /// @nodoc
@@ -398,27 +382,27 @@ class __$$ServiceModelImplCopyWithImpl<$Res>
 class _$ServiceModelImpl implements _ServiceModel {
   const _$ServiceModelImpl(
       {required this.id,
-      @JsonKey(name: 'master_id') required this.masterId,
-      @JsonKey(name: 'category_id') required this.categoryId,
-      @JsonKey(name: 'subcategory_id') this.subcategoryId,
+      required this.masterId,
+      required this.categoryId,
+      this.subcategoryId,
       required this.name,
       this.description,
       required this.price,
       required this.currency,
-      @JsonKey(name: 'price_from') this.priceFrom,
-      @JsonKey(name: 'price_to') this.priceTo,
-      @JsonKey(name: 'duration_minutes') required this.durationMinutes,
-      @JsonKey(name: 'is_bookable_online') required this.isBookableOnline,
-      @JsonKey(name: 'is_mobile') required this.isMobile,
-      @JsonKey(name: 'is_in_salon') required this.isInSalon,
+      this.priceFrom,
+      this.priceTo,
+      required this.durationMinutes,
+      required this.isBookableOnline,
+      required this.isMobile,
+      required this.isInSalon,
       required final List<String> tags,
-      @JsonKey(name: 'photo_urls') required final List<String> photoUrls,
-      @JsonKey(name: 'bookings_count') required this.bookingsCount,
-      @JsonKey(name: 'average_rating') required this.averageRating,
-      @JsonKey(name: 'is_active') required this.isActive,
-      @JsonKey(name: 'display_order') required this.displayOrder,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt})
+      required final List<String> photoUrls,
+      required this.bookingsCount,
+      required this.averageRating,
+      required this.isActive,
+      required this.displayOrder,
+      required this.createdAt,
+      required this.updatedAt})
       : _tags = tags,
         _photoUrls = photoUrls;
 
@@ -428,13 +412,10 @@ class _$ServiceModelImpl implements _ServiceModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'master_id')
   final String masterId;
   @override
-  @JsonKey(name: 'category_id')
   final String categoryId;
   @override
-  @JsonKey(name: 'subcategory_id')
   final String? subcategoryId;
   @override
   final String name;
@@ -445,22 +426,16 @@ class _$ServiceModelImpl implements _ServiceModel {
   @override
   final String currency;
   @override
-  @JsonKey(name: 'price_from')
   final double? priceFrom;
   @override
-  @JsonKey(name: 'price_to')
   final double? priceTo;
   @override
-  @JsonKey(name: 'duration_minutes')
   final int durationMinutes;
   @override
-  @JsonKey(name: 'is_bookable_online')
   final bool isBookableOnline;
   @override
-  @JsonKey(name: 'is_mobile')
   final bool isMobile;
   @override
-  @JsonKey(name: 'is_in_salon')
   final bool isInSalon;
   final List<String> _tags;
   @override
@@ -472,7 +447,6 @@ class _$ServiceModelImpl implements _ServiceModel {
 
   final List<String> _photoUrls;
   @override
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls {
     if (_photoUrls is EqualUnmodifiableListView) return _photoUrls;
     // ignore: implicit_dynamic_type
@@ -480,22 +454,16 @@ class _$ServiceModelImpl implements _ServiceModel {
   }
 
   @override
-  @JsonKey(name: 'bookings_count')
   final int bookingsCount;
   @override
-  @JsonKey(name: 'average_rating')
   final double averageRating;
   @override
-  @JsonKey(name: 'is_active')
   final bool isActive;
   @override
-  @JsonKey(name: 'display_order')
   final int displayOrder;
   @override
-  @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   @override
@@ -596,27 +564,26 @@ class _$ServiceModelImpl implements _ServiceModel {
 abstract class _ServiceModel implements ServiceModel {
   const factory _ServiceModel(
       {required final String id,
-      @JsonKey(name: 'master_id') required final String masterId,
-      @JsonKey(name: 'category_id') required final String categoryId,
-      @JsonKey(name: 'subcategory_id') final String? subcategoryId,
+      required final String masterId,
+      required final String categoryId,
+      final String? subcategoryId,
       required final String name,
       final String? description,
       required final double price,
       required final String currency,
-      @JsonKey(name: 'price_from') final double? priceFrom,
-      @JsonKey(name: 'price_to') final double? priceTo,
-      @JsonKey(name: 'duration_minutes') required final int durationMinutes,
-      @JsonKey(name: 'is_bookable_online') required final bool isBookableOnline,
-      @JsonKey(name: 'is_mobile') required final bool isMobile,
-      @JsonKey(name: 'is_in_salon') required final bool isInSalon,
+      final double? priceFrom,
+      final double? priceTo,
+      required final int durationMinutes,
+      required final bool isBookableOnline,
+      required final bool isMobile,
+      required final bool isInSalon,
       required final List<String> tags,
-      @JsonKey(name: 'photo_urls') required final List<String> photoUrls,
-      @JsonKey(name: 'bookings_count') required final int bookingsCount,
-      @JsonKey(name: 'average_rating') required final double averageRating,
-      @JsonKey(name: 'is_active') required final bool isActive,
-      @JsonKey(name: 'display_order') required final int displayOrder,
-      @JsonKey(name: 'created_at') required final DateTime createdAt,
-      @JsonKey(name: 'updated_at')
+      required final List<String> photoUrls,
+      required final int bookingsCount,
+      required final double averageRating,
+      required final bool isActive,
+      required final int displayOrder,
+      required final DateTime createdAt,
       required final DateTime updatedAt}) = _$ServiceModelImpl;
 
   factory _ServiceModel.fromJson(Map<String, dynamic> json) =
@@ -625,13 +592,10 @@ abstract class _ServiceModel implements ServiceModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'master_id')
   String get masterId;
   @override
-  @JsonKey(name: 'category_id')
   String get categoryId;
   @override
-  @JsonKey(name: 'subcategory_id')
   String? get subcategoryId;
   @override
   String get name;
@@ -642,45 +606,32 @@ abstract class _ServiceModel implements ServiceModel {
   @override
   String get currency;
   @override
-  @JsonKey(name: 'price_from')
   double? get priceFrom;
   @override
-  @JsonKey(name: 'price_to')
   double? get priceTo;
   @override
-  @JsonKey(name: 'duration_minutes')
   int get durationMinutes;
   @override
-  @JsonKey(name: 'is_bookable_online')
   bool get isBookableOnline;
   @override
-  @JsonKey(name: 'is_mobile')
   bool get isMobile;
   @override
-  @JsonKey(name: 'is_in_salon')
   bool get isInSalon;
   @override
   List<String> get tags;
   @override
-  @JsonKey(name: 'photo_urls')
   List<String> get photoUrls;
   @override
-  @JsonKey(name: 'bookings_count')
   int get bookingsCount;
   @override
-  @JsonKey(name: 'average_rating')
   double get averageRating;
   @override
-  @JsonKey(name: 'is_active')
   bool get isActive;
   @override
-  @JsonKey(name: 'display_order')
   int get displayOrder;
   @override
-  @JsonKey(name: 'created_at')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
   DateTime get updatedAt;
 
   /// Create a copy of ServiceModel

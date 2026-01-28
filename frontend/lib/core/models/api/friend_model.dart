@@ -9,11 +9,11 @@ part 'friend_model.g.dart';
 class FriendshipModel with _$FriendshipModel {
   const factory FriendshipModel({
     required String id,
-    @JsonKey(name: 'requester_id') required String requesterId,
-    @JsonKey(name: 'addressee_id') required String addresseeId,
+    required String requesterId,
+    required String addresseeId,
     required String status, // pending, accepted, declined, blocked
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    required DateTime createdAt,
+    required DateTime updatedAt,
     // Relations (optional, если backend их возвращает)
     UserModel? requester,
     UserModel? addressee,
@@ -28,15 +28,15 @@ class FriendshipModel with _$FriendshipModel {
 class FriendModel with _$FriendModel {
   const factory FriendModel({
     required String id,
-    @JsonKey(name: 'friendship_id') required String friendshipId,
-    @JsonKey(name: 'user_id') required String userId,
-    @JsonKey(name: 'first_name') required String firstName,
-    @JsonKey(name: 'last_name') required String lastName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
-    @JsonKey(name: 'is_master') @Default(false) bool isMaster,
+    required String friendshipId,
+    required String userId,
+    required String firstName,
+    required String lastName,
+    String? avatarUrl,
+    @Default(false) bool isMaster,
     String? bio,
-    @JsonKey(name: 'mutual_friends_count') @Default(0) int mutualFriendsCount,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @Default(0) int mutualFriendsCount,
+    required DateTime createdAt,
   }) = _FriendModel;
 
   factory FriendModel.fromJson(Map<String, dynamic> json) =>
@@ -48,10 +48,10 @@ class FriendModel with _$FriendModel {
 class SubscriptionModel with _$SubscriptionModel {
   const factory SubscriptionModel({
     required String id,
-    @JsonKey(name: 'subscriber_id') required String subscriberId,
-    @JsonKey(name: 'target_id') required String targetId,
-    @JsonKey(name: 'notifications_enabled') @Default(true) bool notificationsEnabled,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    required String subscriberId,
+    required String targetId,
+    @Default(true) bool notificationsEnabled,
+    required DateTime createdAt,
     // Relations (optional)
     UserModel? subscriber,
     UserModel? target,
