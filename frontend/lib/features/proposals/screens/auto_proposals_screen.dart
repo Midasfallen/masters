@@ -492,13 +492,13 @@ class _ProposalCard extends ConsumerWidget {
               .read(autoProposalNotifierProvider.notifier)
               .acceptProposal(
                 proposal.id,
-                AcceptProposalDto(proposedDatetime: proposedDatetime),
+                AcceptProposalDto(preferredDatetime: proposedDatetime.toIso8601String()),
               );
 
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Предложение принято. Бронирование создано: ${result['booking_id']}'),
+                content: Text('Предложение принято. Бронирование создано: ${result['bookingId']}'),
                 backgroundColor: Colors.green,
               ),
             );

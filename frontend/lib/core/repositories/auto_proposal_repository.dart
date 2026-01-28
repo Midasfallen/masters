@@ -73,7 +73,7 @@ class AutoProposalRepository {
     );
     return {
       'proposal': AutoProposalModel.fromJson(response.data['proposal']),
-      'booking_id': response.data['booking_id'] as String,
+      'bookingId': response.data['bookingId'] as String,
     };
   }
 

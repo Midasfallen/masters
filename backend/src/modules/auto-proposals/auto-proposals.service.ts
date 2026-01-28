@@ -20,6 +20,7 @@ import { Service } from '../services/entities/service.entity';
 import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { UpdateAutoProposalSettingsDto } from './dto/update-settings.dto';
 import { ProposalResponseDto } from './dto/proposal-response.dto';
+import { SettingsResponseDto } from './dto/settings-response.dto';
 import { AcceptProposalDto } from './dto/accept-proposal.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -48,7 +49,12 @@ export class AutoProposalsService {
   /**
    * Получить настройки автопредложений пользователя
    */
-  async getSettings(userId: string): Promise<AutoProposalSettings> {
+  async getSettings(userId: string): Promise<SettingsResponseDto> {
+    const settings = await this.getSettingsEntity(userId);
+    return this.mapSettingsToDto(settings);
+  }
+
+  private async getSettingsEntity(userId: string): Promise<AutoProposalSettings> {
     let settings = await this.settingsRepository.findOne({
       where: { user_id: userId },
     });
@@ -74,7 +80,7 @@ export class AutoProposalsService {
   async updateSettings(
     userId: string,
     updateDto: UpdateAutoProposalSettingsDto,
-  ): Promise<AutoProposalSettings> {
+  ): Promise<SettingsResponseDto> {
     let settings = await this.settingsRepository.findOne({
       where: { user_id: userId },
     });
@@ -95,7 +101,8 @@ export class AutoProposalsService {
       settings.next_proposal_at = nextDate;
     }
 
-    return this.settingsRepository.save(settings);
+    const saved: AutoProposalSettings = await this.settingsRepository.save(settings);
+    return this.mapSettingsToDto(saved);
   }
 
   // ============ PROPOSAL MANAGEMENT ============
@@ -155,7 +162,7 @@ export class AutoProposalsService {
     userId: string,
     proposalId: string,
     acceptDto: AcceptProposalDto,
-  ): Promise<{ proposal: ProposalResponseDto; booking_id: string }> {
+  ): Promise<{ proposal: ProposalResponseDto; bookingId: string }> {
     const proposal = await this.autoProposalRepository.findOne({
       where: { id: proposalId },
     });
@@ -222,7 +229,7 @@ export class AutoProposalsService {
 
     return {
       proposal: await this.mapToResponseDto(proposal),
-      booking_id: savedBooking.id,
+      bookingId: savedBooking.id,
     };
   }
 
@@ -263,7 +270,7 @@ export class AutoProposalsService {
    * Сгенерировать предложения для пользователя вручную
    */
   async generateProposalForUser(userId: string): Promise<ProposalResponseDto[]> {
-    const settings = await this.getSettings(userId);
+    const settings = await this.getSettingsEntity(userId);
 
     if (!settings.is_enabled) {
       throw new BadRequestException('Автопредложения отключены');
@@ -604,6 +611,33 @@ export class AutoProposalsService {
   }
 
   /**
+   * Маппинг entity в SettingsResponseDto
+   */
+  private mapSettingsToDto(settings: AutoProposalSettings): SettingsResponseDto {
+    return {
+      id: settings.id,
+      userId: settings.user_id,
+      isEnabled: settings.is_enabled,
+      intervalDays: settings.interval_days,
+      preferredCategories: settings.preferred_categories || [],
+      maxPrice: settings.max_price,
+      maxDistanceKm: settings.max_distance_km,
+      minRating: settings.min_rating,
+      preferredTimeSlots: settings.preferred_time_slots
+        ? settings.preferred_time_slots.map((slot) => ({
+            dayOfWeek: slot.day_of_week,
+            startHour: slot.start_hour,
+            endHour: slot.end_hour,
+          }))
+        : null,
+      lastProposalAt: settings.last_proposal_at,
+      nextProposalAt: settings.next_proposal_at,
+      createdAt: settings.created_at,
+      updatedAt: settings.updated_at,
+    };
+  }
+
+  /**
    * Предложить дату и время на основе предпочтений
    */
   private suggestDateTime(settings: AutoProposalSettings): Date {
@@ -652,23 +686,32 @@ export class AutoProposalsService {
 
     return {
       id: proposal.id,
-      user_id: proposal.user_id,
-      master_id: proposal.master_id,
-      service_id: proposal.service_id,
-      category_id: proposal.category_id,
+      userId: proposal.user_id,
+      masterId: proposal.master_id,
+      serviceId: proposal.service_id,
+      categoryId: proposal.category_id,
       status: proposal.status,
-      match_score: proposal.match_score,
-      match_reasons: proposal.match_reasons,
-      proposed_datetime: proposal.proposed_datetime,
-      expires_at: proposal.expires_at,
-      booking_id: proposal.booking_id,
-      created_at: proposal.created_at,
+      matchScore: proposal.match_score,
+      matchReasons: proposal.match_reasons
+        ? {
+            locationScore: proposal.match_reasons.location_score,
+            ratingScore: proposal.match_reasons.rating_score,
+            priceScore: proposal.match_reasons.price_score,
+            availabilityScore: proposal.match_reasons.availability_score,
+            historyScore: proposal.match_reasons.history_score,
+            reasons: proposal.match_reasons.reasons || [],
+          }
+        : { reasons: [] },
+      proposedDatetime: proposal.proposed_datetime,
+      expiresAt: proposal.expires_at,
+      bookingId: proposal.booking_id,
+      createdAt: proposal.created_at,
       master: master
         ? {
             id: master.id,
-            first_name: master.user.first_name,
-            last_name: master.user.last_name,
-            avatar_url: master.user.avatar_url,
+            firstName: master.user.first_name,
+            lastName: master.user.last_name,
+            avatarUrl: master.user.avatar_url,
             rating: master.rating,
           }
         : undefined,
@@ -677,7 +720,7 @@ export class AutoProposalsService {
             id: service.id,
             title: service.name,
             price: service.price,
-            duration_minutes: service.duration_minutes,
+            durationMinutes: service.duration_minutes,
           }
         : undefined,
     };

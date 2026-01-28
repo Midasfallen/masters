@@ -109,13 +109,6 @@ void main() {
         final skipButton = find.text('Пропустить');
 
         if (skipButton.evaluate().isNotEmpty) {
-          // Проверяем текущий счетчик напоминаний (отображается в badge)
-          // Например: "3 напоминания"
-          final reminderBadge = find.byType(Container).evaluate().firstWhere(
-                (element) =>
-                    element.widget.toString().contains('reminder_count'),
-                orElse: () => element,
-              );
 
           // Нажимаем кнопку "Пропустить"
           await tester.tap(skipButton);

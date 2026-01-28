@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { AutoProposalsService } from './auto-proposals.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AutoProposalSettings } from './entities/auto-proposal-settings.entity';
+import { SettingsResponseDto } from './dto/settings-response.dto';
 import { UpdateAutoProposalSettingsDto } from './dto/update-settings.dto';
 import { ProposalResponseDto } from './dto/proposal-response.dto';
 import { AcceptProposalDto } from './dto/accept-proposal.dto';
@@ -35,18 +35,18 @@ export class AutoProposalsController {
 
   @Get('settings')
   @ApiOperation({ summary: 'Получить настройки автопредложений' })
-  @ApiResponse({ status: 200, type: AutoProposalSettings })
-  async getSettings(@Request() req): Promise<AutoProposalSettings> {
+  @ApiResponse({ status: 200, type: SettingsResponseDto })
+  async getSettings(@Request() req): Promise<SettingsResponseDto> {
     return this.autoProposalsService.getSettings(req.user.id);
   }
 
   @Patch('settings')
   @ApiOperation({ summary: 'Обновить настройки автопредложений' })
-  @ApiResponse({ status: 200, type: AutoProposalSettings })
+  @ApiResponse({ status: 200, type: SettingsResponseDto })
   async updateSettings(
     @Request() req,
     @Body() updateDto: UpdateAutoProposalSettingsDto,
-  ): Promise<AutoProposalSettings> {
+  ): Promise<SettingsResponseDto> {
     return this.autoProposalsService.updateSettings(req.user.id, updateDto);
   }
 
@@ -86,7 +86,7 @@ export class AutoProposalsController {
     schema: {
       properties: {
         proposal: { type: 'object' },
-        booking_id: { type: 'string' },
+        bookingId: { type: 'string' },
       },
     },
   })
@@ -94,7 +94,7 @@ export class AutoProposalsController {
     @Request() req,
     @Param('id') proposalId: string,
     @Body() acceptDto: AcceptProposalDto,
-  ): Promise<{ proposal: ProposalResponseDto; booking_id: string }> {
+  ): Promise<{ proposal: ProposalResponseDto; bookingId: string }> {
     return this.autoProposalsService.acceptProposal(
       req.user.id,
       proposalId,

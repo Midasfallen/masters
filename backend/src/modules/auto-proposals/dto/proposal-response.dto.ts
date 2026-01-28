@@ -1,65 +1,115 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
 import { ProposalStatus } from '../entities/auto-proposal.entity';
 
+export class MatchReasonsDto {
+  @Expose()
+  locationScore?: number;
+
+  @Expose()
+  ratingScore?: number;
+
+  @Expose()
+  priceScore?: number;
+
+  @Expose()
+  availabilityScore?: number;
+
+  @Expose()
+  historyScore?: number;
+
+  @Expose()
+  reasons: string[];
+}
+
+export class ProposalMasterDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  firstName: string;
+
+  @Expose()
+  lastName: string;
+
+  @Expose()
+  avatarUrl?: string;
+
+  @Expose()
+  rating?: number;
+}
+
+export class ProposalServiceDto {
+  @Expose()
+  id: string;
+
+  @Expose()
+  title: string;
+
+  @Expose()
+  price: number;
+
+  @Expose()
+  durationMinutes: number;
+}
+
 export class ProposalResponseDto {
+  @Expose()
   @ApiProperty()
   id: string;
 
+  @Expose()
   @ApiProperty()
-  user_id: string;
+  userId: string;
 
+  @Expose()
   @ApiProperty()
-  master_id: string;
+  masterId: string;
 
+  @Expose()
   @ApiProperty()
-  service_id: string;
+  serviceId: string;
 
+  @Expose()
   @ApiProperty()
-  category_id: string;
+  categoryId: string;
 
+  @Expose()
   @ApiProperty({ enum: ProposalStatus })
   status: ProposalStatus;
 
+  @Expose()
   @ApiProperty()
-  match_score: number;
+  matchScore: number;
 
+  @Expose()
   @ApiProperty({ type: 'object' })
-  match_reasons: {
-    location_score?: number;
-    rating_score?: number;
-    price_score?: number;
-    availability_score?: number;
-    history_score?: number;
-    reasons: string[];
-  };
+  @Type(() => MatchReasonsDto)
+  matchReasons: MatchReasonsDto;
 
+  @Expose()
   @ApiProperty({ required: false })
-  proposed_datetime?: Date;
+  proposedDatetime?: Date;
 
+  @Expose()
   @ApiProperty()
-  expires_at: Date;
+  expiresAt: Date;
 
+  @Expose()
   @ApiProperty({ required: false })
-  booking_id?: string;
+  bookingId?: string;
 
+  @Expose()
   @ApiProperty()
-  created_at: Date;
+  createdAt: Date;
 
-  // Дополнительная информация о мастере и услуге
-  @ApiProperty({ type: 'object' })
-  master?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-    rating?: number;
-  };
+  @Expose()
+  @ApiProperty({ type: 'object', required: false })
+  @Type(() => ProposalMasterDto)
+  master?: ProposalMasterDto;
 
-  @ApiProperty({ type: 'object' })
-  service?: {
-    id: string;
-    title: string;
-    price: number;
-    duration_minutes: number;
-  };
+  @Expose()
+  @ApiProperty({ type: 'object', required: false })
+  @Type(() => ProposalServiceDto)
+  service?: ProposalServiceDto;
 }
