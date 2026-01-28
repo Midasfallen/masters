@@ -1351,11 +1351,9 @@ Missing: ReviewRepository at index [4]
 ### Day 3:
 - [ ] Task 2.2: Add Inter Font (30 min)
 - [ ] Task 2.3: Remove Duplicate Screen (1 hour)
-- [ ] Task 2.4.1: Media Upload (6 hours)
-
-### Day 4:
-- [ ] Task 2.4.2: Edit Profile Screen (3 hours)
-- [ ] Task 2.4.3: Privacy Settings Screen (3 hours)
+- [x] Task 2.4.1: Media Upload ✅
+- [x] Task 2.4.2: Edit Profile Screen ✅
+- [x] Task 2.4.3: Privacy Settings Screen ✅
 - [ ] Final testing and verification (2 hours)
 
 ---
