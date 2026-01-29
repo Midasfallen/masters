@@ -38,7 +38,7 @@ class ChatRepository {
   Future<ChatModel> getChatById(String id) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.chatById(int.parse(id)),
+        ApiEndpoints.chatById(id),
       );
       return ChatModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -67,7 +67,7 @@ class ChatRepository {
   }) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.chatMessages(int.parse(chatId)),
+        ApiEndpoints.chatMessages(chatId),
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -88,7 +88,7 @@ class ChatRepository {
   ) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.chatSendMessage(int.parse(chatId)),
+        ApiEndpoints.chatSendMessage(chatId),
         data: request.toJson(),
       );
       return MessageModel.fromJson(response.data);
@@ -100,7 +100,7 @@ class ChatRepository {
   /// Mark chat as read
   Future<void> markAsRead(String chatId) async {
     try {
-      await _client.post(ApiEndpoints.chatMarkRead(int.parse(chatId)));
+      await _client.post(ApiEndpoints.chatMarkRead(chatId));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

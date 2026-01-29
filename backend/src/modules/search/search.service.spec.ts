@@ -1,10 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SearchService } from './search.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { Service } from '../services/entities/service.entity';
+
+// Mock MeiliSearch before importing SearchService
+const mockMeiliIndex = {
+  search: jest.fn(),
+  updateSettings: jest.fn().mockResolvedValue({}),
+  addDocuments: jest.fn().mockResolvedValue({}),
+};
+
+const mockMeiliClient = {
+  index: jest.fn().mockReturnValue(mockMeiliIndex),
+};
+
+jest.mock('meilisearch', () => ({
+  MeiliSearch: jest.fn().mockImplementation(() => mockMeiliClient),
+}));
+
+// Import SearchService AFTER mocking meilisearch
+import { SearchService } from './search.service';
 
 describe('SearchService', () => {
   let service: SearchService;
@@ -80,17 +97,9 @@ describe('SearchService', () => {
   };
 
   beforeEach(async () => {
-    // Mock MeiliSearch to throw error (to trigger fallback)
-    jest.mock('meilisearch', () => {
-      return {
-        MeiliSearch: jest.fn().mockImplementation(() => ({
-          index: jest.fn().mockReturnValue({
-            search: jest.fn().mockRejectedValue(new Error('Meilisearch unavailable')),
-            updateSettings: jest.fn().mockResolvedValue({}),
-          }),
-        })),
-      };
-    });
+    // Reset mocks and configure to trigger fallback (Meilisearch fails)
+    jest.clearAllMocks();
+    mockMeiliIndex.search.mockRejectedValue(new Error('Meilisearch unavailable'));
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

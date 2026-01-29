@@ -9,6 +9,7 @@ describe('UsersService', () => {
   let service: UsersService;
   let repository: Repository<User>;
 
+  // Mock entity uses snake_case
   const mockUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'test@example.com',
@@ -67,7 +68,10 @@ describe('UsersService', () => {
 
       const result = await service.findById(mockUser.id);
 
-      expect(result).toEqual(mockUser);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual(mockUser.id);
+      expect(result.firstName).toEqual('Test');
+      expect(result.lastName).toEqual('User');
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockUser.id },
       });
@@ -150,7 +154,9 @@ describe('UsersService', () => {
 
       const result = await service.findByEmail('test@example.com');
 
-      expect(result).toEqual(mockUser);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual(mockUser.id);
+      expect(result.email).toEqual('test@example.com');
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
       });
@@ -175,6 +181,7 @@ describe('UsersService', () => {
 
       const result = await service.updateAvatar(mockUser.id, newAvatarUrl);
 
+      // Result is Response DTO (camelCase)
       expect(result.avatarUrl).toBe(newAvatarUrl);
       expect(mockRepository.save).toHaveBeenCalled();
     });
@@ -214,15 +221,15 @@ describe('UsersService', () => {
       const result = await service.getUserStats(mockUser.id);
 
       expect(result).toEqual({
-        posts_count: 10,
-        friends_count: 5,
-        followers_count: 20,
-        following_count: 15,
-        reviews_count: 3,
+        postsCount: 10,
+        friendsCount: 5,
+        followersCount: 20,
+        followingCount: 15,
+        reviewsCount: 3,
         rating: 4.5,
-        is_master: false,
-        is_verified: false,
-        is_premium: false,
+        isMaster: false,
+        isVerified: false,
+        isPremium: false,
       });
     });
 

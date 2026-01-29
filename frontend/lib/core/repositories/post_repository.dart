@@ -56,7 +56,7 @@ class PostRepository {
   Future<PostModel> getPostById(String id) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.postById(int.parse(id)),
+        ApiEndpoints.postById(id),
       );
       return PostModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -81,7 +81,7 @@ class PostRepository {
   Future<PostModel> updatePost(String id, UpdatePostRequest request) async {
     try {
       final response = await _client.patch(
-        ApiEndpoints.postUpdate(int.parse(id)),
+        ApiEndpoints.postUpdate(id),
         data: request.toJson(),
       );
       return PostModel.fromJson(response.data);
@@ -93,7 +93,7 @@ class PostRepository {
   /// Delete post
   Future<void> deletePost(String id) async {
     try {
-      await _client.delete(ApiEndpoints.postDelete(int.parse(id)));
+      await _client.delete(ApiEndpoints.postDelete(id));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -102,7 +102,7 @@ class PostRepository {
   /// Like post
   Future<void> likePost(String id) async {
     try {
-      await _client.post(ApiEndpoints.postLike(int.parse(id)));
+      await _client.post(ApiEndpoints.postLike(id));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -111,7 +111,7 @@ class PostRepository {
   /// Unlike post
   Future<void> unlikePost(String id) async {
     try {
-      await _client.post(ApiEndpoints.postUnlike(int.parse(id)));
+      await _client.post(ApiEndpoints.postUnlike(id));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -124,7 +124,7 @@ class PostRepository {
   }) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.postComments(int.parse(postId)),
+        ApiEndpoints.postComments(postId),
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -158,7 +158,7 @@ class PostRepository {
   ) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.postComments(int.parse(postId)),
+        ApiEndpoints.postComments(postId),
         data: request.toJson(),
       );
       return CommentModel.fromJson(response.data);

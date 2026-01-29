@@ -47,7 +47,7 @@ class MasterRepository {
   /// Get master by ID
   Future<MasterProfileModel> getMasterById(String id) async {
     try {
-      final response = await _client.get(ApiEndpoints.masterById(int.parse(id)));
+      final response = await _client.get(ApiEndpoints.masterById(id));
       return MasterProfileModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
@@ -88,7 +88,7 @@ class MasterRepository {
   Future<List<ServiceModel>> getMasterServices(String masterId) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.masterServices(int.parse(masterId)),
+        ApiEndpoints.masterServices(masterId),
       );
 
       final data = ApiHelpers.parseListResponse(response.data);
@@ -106,7 +106,7 @@ class MasterRepository {
   }) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.masterReviews(int.parse(masterId)),
+        ApiEndpoints.masterReviews(masterId),
         queryParameters: {
           'page': page,
           'limit': limit,

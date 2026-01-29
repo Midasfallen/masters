@@ -15,6 +15,7 @@ describe('LikesService', () => {
   let commentRepository: Repository<Comment>;
   let websocketGateway: AppWebSocketGateway;
 
+  // Mock entities (snake_case)
   const mockUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'test@example.com',
@@ -29,12 +30,24 @@ describe('LikesService', () => {
     author: mockUser,
   };
 
+  const mockCreatedAt = new Date();
+
+  // Mock Like entity (snake_case)
   const mockLike = {
     id: '770e8400-e29b-41d4-a716-446655440002',
     user_id: mockUser.id,
     likable_type: LikableType.POST,
     likable_id: mockPost.id,
-    created_at: new Date(),
+    created_at: mockCreatedAt,
+  };
+
+  // Expected response DTO (camelCase)
+  const expectedLikeResponse = {
+    id: mockLike.id,
+    userId: mockUser.id,
+    likableType: LikableType.POST,
+    likableId: mockPost.id,
+    createdAt: mockCreatedAt,
   };
 
   const mockLikeRepository = {
@@ -107,15 +120,15 @@ describe('LikesService', () => {
         likable_id: mockPost.id,
       };
 
+      mockPostRepository.findOne.mockResolvedValue(mockPost); // For validateLikableExists
       mockLikeRepository.findOne.mockResolvedValue(null); // No existing like
       mockLikeRepository.create.mockReturnValue(mockLike);
       mockLikeRepository.save.mockResolvedValue(mockLike);
       mockPostRepository.increment.mockResolvedValue(undefined);
-      mockPostRepository.findOne.mockResolvedValue(mockPost);
 
       const result = await service.create(mockUser.id, createLikeDto);
 
-      expect(result).toEqual(mockLike);
+      expect(result).toEqual(expectedLikeResponse);
       expect(mockLikeRepository.findOne).toHaveBeenCalledWith({
         where: {
           user_id: mockUser.id,
@@ -139,6 +152,7 @@ describe('LikesService', () => {
         likable_id: mockPost.id,
       };
 
+      mockPostRepository.findOne.mockResolvedValue(mockPost); // For validateLikableExists
       mockLikeRepository.findOne.mockResolvedValue(mockLike); // Existing like
 
       await expect(service.create(mockUser.id, createLikeDto)).rejects.toThrow(

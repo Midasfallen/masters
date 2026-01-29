@@ -5,8 +5,19 @@ import { Booking, BookingStatus } from './entities/booking.entity';
 import { Service } from '../services/entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { Review } from '../reviews/entities/review.entity';
+import { ReviewReminder } from '../reviews/entities/review-reminder.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+
+// Helper: дата через 1 неделю в будущем (валидна для бронирования)
+const getValidFutureDate = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 7); // +7 дней
+  date.setHours(10, 0, 0, 0);
+  return date.toISOString();
+};
 
 describe('BookingsService', () => {
   let service: BookingsService;
@@ -49,9 +60,12 @@ describe('BookingsService', () => {
       where: jest.fn().mockReturnThis(),
       andWhere: jest.fn().mockReturnThis(),
       getCount: jest.fn().mockResolvedValue(0),
+      getOne: jest.fn().mockResolvedValue(null),
       getMany: jest.fn().mockResolvedValue([]),
       getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      leftJoin: jest.fn().mockReturnThis(),
       leftJoinAndSelect: jest.fn().mockReturnThis(),
+      setParameter: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
@@ -68,6 +82,23 @@ describe('BookingsService', () => {
 
   const mockMasterProfileRepository = {
     findOne: jest.fn(),
+  };
+
+  const mockReviewRepository = {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+  };
+
+  const mockReviewReminderRepository = {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+  };
+
+  const mockNotificationsService = {
+    createNotification: jest.fn(),
+    sendPushNotification: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -89,6 +120,18 @@ describe('BookingsService', () => {
         {
           provide: getRepositoryToken(MasterProfile),
           useValue: mockMasterProfileRepository,
+        },
+        {
+          provide: getRepositoryToken(Review),
+          useValue: mockReviewRepository,
+        },
+        {
+          provide: getRepositoryToken(ReviewReminder),
+          useValue: mockReviewReminderRepository,
+        },
+        {
+          provide: NotificationsService,
+          useValue: mockNotificationsService,
         },
       ],
     }).compile();
@@ -114,7 +157,7 @@ describe('BookingsService', () => {
     it('should create a new booking', async () => {
       const createDto = {
         service_id: 'service-1',
-        start_time: '2026-01-15T10:00:00Z',
+        start_time: getValidFutureDate(),
         comment: 'Test booking',
       };
 
@@ -136,7 +179,7 @@ describe('BookingsService', () => {
     it('should throw NotFoundException when service not found', async () => {
       const createDto = {
         service_id: 'nonexistent-service',
-        start_time: '2026-01-15T10:00:00Z',
+        start_time: getValidFutureDate(),
       };
 
       mockServiceRepository.findOne.mockResolvedValue(null);
@@ -149,7 +192,7 @@ describe('BookingsService', () => {
     it('should throw BadRequestException when service is not active', async () => {
       const createDto = {
         service_id: 'service-1',
-        start_time: '2026-01-15T10:00:00Z',
+        start_time: getValidFutureDate(),
       };
 
       mockServiceRepository.findOne.mockResolvedValue({
@@ -179,20 +222,39 @@ describe('BookingsService', () => {
     it('should throw BadRequestException when time slot is not available', async () => {
       const createDto = {
         service_id: 'service-1',
-        start_time: '2026-01-15T10:00:00Z',
+        start_time: getValidFutureDate(),
       };
 
       mockServiceRepository.findOne.mockResolvedValue(mockService);
       mockMasterProfileRepository.findOne.mockResolvedValue(mockMasterProfile);
 
-      // Override the default mock behavior for getCount
+      // First call: checkUnreviewedBookings (returns empty)
       mockBookingRepository.createQueryBuilder.mockReturnValueOnce({
         where: jest.fn().mockReturnThis(),
         andWhere: jest.fn().mockReturnThis(),
-        getCount: jest.fn().mockResolvedValue(1), // Has overlapping bookings
+        getCount: jest.fn().mockResolvedValue(0),
+        getOne: jest.fn().mockResolvedValue(null),
         getMany: jest.fn().mockResolvedValue([]),
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+        leftJoin: jest.fn().mockReturnThis(),
         leftJoinAndSelect: jest.fn().mockReturnThis(),
+        setParameter: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+      });
+
+      // Second call: checkTimeSlotAvailable (returns overlapping booking)
+      mockBookingRepository.createQueryBuilder.mockReturnValueOnce({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(1), // Has overlapping bookings!
+        getOne: jest.fn().mockResolvedValue(null),
+        getMany: jest.fn().mockResolvedValue([]),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+        leftJoin: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        setParameter: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
@@ -216,8 +278,11 @@ describe('BookingsService', () => {
         take: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([mockBookings, 1]),
         getCount: jest.fn().mockResolvedValue(0),
+        getOne: jest.fn().mockResolvedValue(null),
         getMany: jest.fn().mockResolvedValue([]),
+        leftJoin: jest.fn().mockReturnThis(),
         leftJoinAndSelect: jest.fn().mockReturnThis(),
+        setParameter: jest.fn().mockReturnThis(),
       });
 
       const result = await service.findAll('client-1', {});

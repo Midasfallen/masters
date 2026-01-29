@@ -15,6 +15,7 @@ describe('PostsService', () => {
   let friendshipRepository: Repository<Friendship>;
   let subscriptionRepository: Repository<Subscription>;
 
+  // Mock entities use snake_case
   const mockUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'test@example.com',
@@ -36,6 +37,8 @@ describe('PostsService', () => {
     created_at: new Date(),
     updated_at: new Date(),
     author: mockUser,
+    media: [],
+    repost_of: null,
   };
 
   const mockPostRepository = {
@@ -120,7 +123,9 @@ describe('PostsService', () => {
 
       const result = await service.create(mockUser.id, createPostDto as any);
 
-      expect(result).toEqual(mockPost);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual(mockPost.id);
+      expect(result.authorId).toEqual(mockUser.id);
       expect(mockPostRepository.create).toHaveBeenCalledWith({
         ...createPostDto,
         author_id: mockUser.id,
@@ -203,7 +208,9 @@ describe('PostsService', () => {
 
       const result = await service.findOne(mockPost.id, mockUser.id);
 
-      expect(result).toEqual(mockPost);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual(mockPost.id);
+      expect(result.authorId).toEqual(mockUser.id);
       expect(mockPostRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockPost.id },
         relations: expect.arrayContaining(['author', 'media']),

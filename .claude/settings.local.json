@@ -231,7 +231,8 @@
       "Bash(dart run build_runner:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(tests\\): add auth, booking, user repository tests \\(+25 tests\\)\n\n- auth_repository_test: login, register, getMe, logout, isLoggedIn, refresh \\(10 tests\\)\n- booking_repository_test: create, getMyBookings, getById, confirm, cancel, complete \\(8 tests\\)\n- user_repository_test: getMe, getUserById, updateUser, uploadAvatar, getUsers \\(7 tests\\)\n- Total: 52 → 77 tests, all passing\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(tests\\): add chat and notification repository tests \\(+13 tests\\)\n\n- chat_repository_test: getChats, getChatById, createChat, getMessages, sendMessage, markAsRead \\(6 tests\\)\n- notification_repository_test: getNotifications, getById, markAsRead, markAllAsRead, getUnreadCount \\(7 tests\\)\n- Total: 77 → 90 tests, all passing\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(dart -e:*)"
+      "Bash(dart -e:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: relocate and update CLAUDE.md with project standards\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

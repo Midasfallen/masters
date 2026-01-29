@@ -42,7 +42,7 @@ class NotificationRepository {
   Future<NotificationModel> getNotificationById(String id) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.notificationById(int.parse(id)),
+        ApiEndpoints.notificationById(id),
       );
       return NotificationModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -54,7 +54,7 @@ class NotificationRepository {
   Future<NotificationModel> markAsRead(String id) async {
     try {
       final response = await _client.patch(
-        ApiEndpoints.notificationMarkRead(int.parse(id)),
+        ApiEndpoints.notificationMarkRead(id),
       );
       return NotificationModel.fromJson(response.data);
     } on DioException catch (e) {

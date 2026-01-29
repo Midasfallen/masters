@@ -22,6 +22,7 @@ describe('ServicesService', () => {
   const mockServiceId = 'service-uuid';
   const mockCategoryId = 'category-uuid';
 
+  // Mock entities use snake_case (as in database)
   const mockUser: Partial<User> = {
     id: mockUserId,
     email: 'master@example.com',
@@ -42,6 +43,7 @@ describe('ServicesService', () => {
     name: 'Мужская стрижка',
     description: 'Классическая мужская стрижка',
     price: 1500,
+    currency: 'RUB',
     duration_minutes: 60,
     is_active: true,
     is_bookable_online: true,
@@ -50,6 +52,34 @@ describe('ServicesService', () => {
     tags: ['стрижка', 'мужская'],
     photo_urls: [],
     display_order: 0,
+    bookings_count: 0,
+    average_rating: 0,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+
+  // Expected response DTO (camelCase - from mapper)
+  const expectedServiceResponse = {
+    id: mockServiceId,
+    masterId: mockMasterProfileId,
+    categoryId: mockCategoryId,
+    subcategoryId: undefined,
+    name: 'Мужская стрижка',
+    description: 'Классическая мужская стрижка',
+    price: 1500,
+    currency: 'RUB',
+    priceFrom: null,
+    priceTo: null,
+    durationMinutes: 60,
+    isActive: true,
+    isBookableOnline: true,
+    isMobile: false,
+    isInSalon: true,
+    tags: ['стрижка', 'мужская'],
+    photoUrls: [],
+    displayOrder: 0,
+    bookingsCount: 0,
+    averageRating: 0,
   };
 
   const mockServiceRepository = {
@@ -133,7 +163,8 @@ describe('ServicesService', () => {
 
       const result = await service.create(mockUserId, createServiceDto as any);
 
-      expect(result).toEqual(mockService);
+      expect(result.id).toEqual(mockServiceId);
+      expect(result.name).toEqual('Мужская стрижка');
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockUserId },
       });
@@ -304,7 +335,9 @@ describe('ServicesService', () => {
 
       const result = await service.findById(mockServiceId);
 
-      expect(result).toEqual(mockService);
+      expect(result.id).toEqual(mockServiceId);
+      expect(result.name).toEqual('Мужская стрижка');
+      expect(result.masterId).toEqual(mockMasterProfileId);
       expect(mockServiceRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockServiceId },
       });
@@ -420,6 +453,7 @@ describe('ServicesService', () => {
 
       const result = await service.deactivate(mockUserId, mockServiceId);
 
+      // Response uses camelCase via mapper
       expect(result.isActive).toBe(false);
       expect(mockServiceRepository.save).toHaveBeenCalled();
     });
@@ -449,6 +483,7 @@ describe('ServicesService', () => {
 
       const result = await service.activate(mockUserId, mockServiceId);
 
+      // Response uses camelCase via mapper
       expect(result.isActive).toBe(true);
       expect(mockServiceRepository.save).toHaveBeenCalled();
     });

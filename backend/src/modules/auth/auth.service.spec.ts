@@ -85,8 +85,8 @@ describe('AuthService', () => {
 
       const result = await service.register(registerDto);
 
-      expect(result).toHaveProperty('access_token');
-      expect(result).toHaveProperty('refresh_token');
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
       expect(result).toHaveProperty('user');
       expect(result.user.email).toBe(mockUser.email);
       expect(mockRepository.create).toHaveBeenCalled();
@@ -123,8 +123,8 @@ describe('AuthService', () => {
 
       const result = await service.login(loginDto);
 
-      expect(result).toHaveProperty('access_token');
-      expect(result).toHaveProperty('refresh_token');
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
       expect(result).toHaveProperty('user');
       expect(result.user.email).toBe(mockUser.email);
     });
@@ -172,8 +172,8 @@ describe('AuthService', () => {
 
       const result = await service.refreshToken('valid_refresh_token');
 
-      expect(result).toHaveProperty('access_token');
-      expect(result).toHaveProperty('refresh_token');
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockUser.id },
       });

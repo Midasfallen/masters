@@ -26,7 +26,7 @@ class UserRepository {
   /// Get user by ID
   Future<UserModel> getUserById(String id) async {
     try {
-      final response = await _client.get(ApiEndpoints.userById(int.parse(id)));
+      final response = await _client.get(ApiEndpoints.userById(id));
       return UserModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);

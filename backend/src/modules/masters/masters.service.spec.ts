@@ -24,14 +24,82 @@ describe('MastersService', () => {
     master_profile_completed: false,
   };
 
+  // Mock entity uses snake_case (как в БД)
   const mockMasterProfile = {
     id: 'profile-1',
     user_id: 'user-1',
-    setup_step: 0,
-    is_active: false,
-    is_approved: false,
+    business_name: null,
+    bio: null,
     category_ids: [],
     subcategory_ids: [],
+    rating: 0,
+    reviews_count: 0,
+    completed_bookings: 0,
+    cancellations_count: 0,
+    views_count: 0,
+    favorites_count: 0,
+    subscribers_count: 0,
+    location_lat: null,
+    location_lng: null,
+    location_address: null,
+    location_name: null,
+    service_radius_km: null,
+    is_mobile: false,
+    has_location: false,
+    is_online_only: false,
+    portfolio_urls: [],
+    video_urls: [],
+    social_links: null,
+    working_hours: null,
+    min_booking_hours: 2,
+    max_bookings_per_day: null,
+    auto_confirm: false,
+    years_of_experience: null,
+    certificates: [],
+    languages: [],
+    is_active: false,
+    is_approved: false,
+    setup_step: 0,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+
+  // Expected Response DTO uses camelCase (результат mapper)
+  const expectedProfileResponse = {
+    id: 'profile-1',
+    userId: 'user-1',
+    businessName: null,
+    bio: null,
+    categoryIds: [],
+    subcategoryIds: [],
+    rating: 0,
+    reviewsCount: 0,
+    completedBookings: 0,
+    cancellationsCount: 0,
+    viewsCount: 0,
+    favoritesCount: 0,
+    subscribersCount: 0,
+    locationLat: null,
+    locationLng: null,
+    locationAddress: null,
+    locationName: null,
+    serviceRadiusKm: null,
+    isMobile: false,
+    hasLocation: false,
+    isOnlineOnly: false,
+    portfolioUrls: [],
+    videoUrls: [],
+    socialLinks: null,
+    workingHours: null,
+    minBookingHours: 2,
+    maxBookingsPerDay: null,
+    autoConfirm: false,
+    yearsOfExperience: null,
+    certificates: [],
+    languages: [],
+    isActive: false,
+    isApproved: false,
+    setupStep: 0,
   };
 
   const mockMasterProfileRepository = {
@@ -84,7 +152,10 @@ describe('MastersService', () => {
 
       const result = await service.initializeProfile('user-1');
 
-      expect(result).toEqual(mockMasterProfile);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual('profile-1');
+      expect(result.userId).toEqual('user-1');
+      expect(result.setupStep).toEqual(0);
       expect(mockMasterProfileRepository.create).toHaveBeenCalledWith({
         user_id: 'user-1',
         setup_step: 0,
@@ -114,7 +185,8 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        ...step1Dto,
+        category_ids: step1Dto.category_ids,
+        subcategory_ids: step1Dto.subcategory_ids,
         setup_step: 1,
       });
 
@@ -159,7 +231,8 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        ...step2Dto,
+        business_name: step2Dto.business_name,
+        bio: step2Dto.bio,
         setup_step: 2,
       });
 
@@ -192,7 +265,8 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        ...step3Dto,
+        portfolio_urls: step3Dto.portfolio_urls,
+        video_urls: step3Dto.video_urls,
         setup_step: 3,
       });
 
@@ -229,7 +303,7 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        ...step4Dto,
+        location_address: step4Dto.location_address,
         setup_step: 4,
       });
 
@@ -264,7 +338,6 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        ...step5Dto,
         setup_step: 5,
         is_active: true,
       });
@@ -303,7 +376,9 @@ describe('MastersService', () => {
 
       const result = await service.getMyProfile('user-1');
 
-      expect(result).toEqual(mockMasterProfile);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual('profile-1');
+      expect(result.userId).toEqual('user-1');
       expect(mockMasterProfileRepository.findOne).toHaveBeenCalledWith({
         where: { user_id: 'user-1' },
       });
@@ -324,7 +399,9 @@ describe('MastersService', () => {
 
       const result = await service.getProfileById('profile-1');
 
-      expect(result).toEqual(mockMasterProfile);
+      // Result is Response DTO (camelCase)
+      expect(result.id).toEqual('profile-1');
+      expect(result.userId).toEqual('user-1');
       expect(mockMasterProfileRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'profile-1' },
       });

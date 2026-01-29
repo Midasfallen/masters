@@ -17,6 +17,7 @@ describe('CommentsService', () => {
   let postRepository: Repository<Post>;
   let websocketGateway: AppWebSocketGateway;
 
+  // Mock User entity (snake_case как в БД)
   const mockUser = {
     id: '550e8400-e29b-41d4-a716-446655440000',
     email: 'test@example.com',
@@ -25,6 +26,7 @@ describe('CommentsService', () => {
     avatar_url: 'https://example.com/avatar.jpg',
   };
 
+  // Mock Post entity (snake_case)
   const mockPost = {
     id: '660e8400-e29b-41d4-a716-446655440001',
     author_id: mockUser.id,
@@ -33,17 +35,33 @@ describe('CommentsService', () => {
     author: mockUser,
   };
 
+  // Mock Comment entity (snake_case)
   const mockComment = {
     id: '770e8400-e29b-41d4-a716-446655440002',
     post_id: mockPost.id,
     author_id: mockUser.id,
     content: 'Great post!',
     parent_comment_id: null,
+    likes_count: 0,
     replies_count: 0,
     is_edited: false,
     created_at: new Date(),
     updated_at: new Date(),
     author: mockUser,
+  };
+
+  // Expected Response DTO (camelCase - результат маппера)
+  const expectedCommentResponse = {
+    id: mockComment.id,
+    postId: mockPost.id,
+    authorId: mockUser.id,
+    content: 'Great post!',
+    parentCommentId: null,
+    likesCount: 0,
+    repliesCount: 0,
+    isEdited: false,
+    createdAt: mockComment.created_at,
+    updatedAt: mockComment.updated_at,
   };
 
   const mockCommentRepository = {
@@ -117,7 +135,7 @@ describe('CommentsService', () => {
 
       const result = await service.create(mockUser.id, createCommentDto);
 
-      expect(result).toEqual(mockComment);
+      expect(result).toEqual(expectedCommentResponse);
       expect(mockPostRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockPost.id },
       });
@@ -182,7 +200,7 @@ describe('CommentsService', () => {
 
       const result = await service.create(mockUser.id, createReplyDto);
 
-      expect(result).toEqual(mockComment);
+      expect(result).toEqual(expectedCommentResponse);
       expect(mockCommentRepository.increment).toHaveBeenCalledWith(
         { id: parentComment.id },
         'replies_count',
@@ -212,9 +230,10 @@ describe('CommentsService', () => {
         content: 'Updated content',
       };
 
+      const updatedComment = { ...mockComment, content: 'Updated content', is_edited: true };
       mockCommentRepository.findOne
         .mockResolvedValueOnce(mockComment) // For ownership check
-        .mockResolvedValueOnce({ ...mockComment, ...updateCommentDto }); // For final findOne
+        .mockResolvedValueOnce(updatedComment); // For final findOne (via mapper)
       mockCommentRepository.update.mockResolvedValue(undefined);
 
       const result = await service.update(
@@ -289,7 +308,7 @@ describe('CommentsService', () => {
 
       const result = await service.findOne(mockComment.id);
 
-      expect(result).toEqual(mockComment);
+      expect(result).toEqual(expectedCommentResponse);
       expect(mockCommentRepository.findOne).toHaveBeenCalledWith({
         where: { id: mockComment.id },
         relations: ['author'],

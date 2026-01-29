@@ -55,7 +55,7 @@ class BookingRepository {
   Future<BookingModel> getBookingById(String id) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.bookingById(int.parse(id)),
+        ApiEndpoints.bookingById(id),
       );
       return BookingModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -67,7 +67,7 @@ class BookingRepository {
   Future<BookingModel> confirmBooking(String id) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.bookingConfirm(int.parse(id)),
+        ApiEndpoints.bookingConfirm(id),
       );
       return BookingModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -82,7 +82,7 @@ class BookingRepository {
   ) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.bookingCancel(int.parse(id)),
+        ApiEndpoints.bookingCancel(id),
         data: request.toJson(),
       );
       return BookingModel.fromJson(response.data);
@@ -95,7 +95,7 @@ class BookingRepository {
   Future<BookingModel> completeBooking(String id) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.bookingComplete(int.parse(id)),
+        ApiEndpoints.bookingComplete(id),
       );
       return BookingModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -110,7 +110,7 @@ class BookingRepository {
   ) async {
     try {
       final response = await _client.patch(
-        ApiEndpoints.bookingById(int.parse(id)),
+        ApiEndpoints.bookingById(id),
         data: request.toJson(),
       );
       return BookingModel.fromJson(response.data);
