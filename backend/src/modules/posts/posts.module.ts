@@ -7,11 +7,13 @@ import { PostMedia } from './entities/post-media.entity';
 import { Friendship } from '../friends/entities/friendship.entity';
 import { Subscription } from '../friends/entities/subscription.entity';
 import { SocialModule } from '../social/social.module';
+import { CommonModule } from '../../common/common.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post, PostMedia, Friendship, Subscription]),
     SocialModule,
+    CommonModule,
   ],
   controllers: [PostsController],
   providers: [PostsService],
