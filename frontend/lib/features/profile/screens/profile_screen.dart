@@ -4,8 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/models/api/post_model.dart';
 import '../../../core/providers/api/auth_provider.dart';
+import '../../../core/providers/api/feed_provider.dart';
 import '../../../core/providers/api/user_provider.dart';
+import '../../feed/widgets/post_card.dart';
+
+/// Profile Posts Providers для infinite scroll с autoDispose
+final profilePostsPageProvider =
+    StateProvider.autoDispose<int>((ref) => 1);
+final profilePostsListProvider =
+    StateProvider.autoDispose<List<PostModel>>((ref) => []);
+final profileHasMorePostsProvider =
+    StateProvider.autoDispose<bool>((ref) => true);
+final profilePostsLoadingProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
+final profilePostsErrorProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
+final profilePostsInitializedProvider =
+    StateProvider.autoDispose<bool>((ref) => false);
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -17,6 +34,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _currentUserId;
 
   @override
   void initState() {
@@ -105,6 +123,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           final user = authState.user;
           if (user == null) {
             return const Center(child: Text('Пользователь не найден'));
+          }
+
+          // Инициализируем загрузку постов при первом показе или смене пользователя
+          if (_currentUserId != user.id) {
+            _currentUserId = user.id;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _initializeUserPosts(user.id);
+            });
           }
 
           return NestedScrollView(
@@ -311,7 +337,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               controller: _tabController,
               children: [
                 // Posts tab
-                _buildPostsTab(user.postsCount),
+                _buildPostsTab(user.id),
                 // Saved tab
                 _buildSavedTab(),
               ],
@@ -360,20 +386,46 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  Widget _buildPostsTab(int postsCount) {
-    if (postsCount == 0) {
+  /// Инициализация загрузки постов (вызывается один раз при показе экрана)
+  void _initializeUserPosts(String userId) {
+    final isInitialized = ref.read(profilePostsInitializedProvider);
+    if (!isInitialized) {
+      ref.read(profilePostsInitializedProvider.notifier).state = true;
+      _loadUserPosts(userId);
+    }
+  }
+
+  Widget _buildPostsTab(String userId) {
+    final posts = ref.watch(profilePostsListProvider);
+    final hasMore = ref.watch(profileHasMorePostsProvider);
+    final isLoading = ref.watch(profilePostsLoadingProvider);
+    final error = ref.watch(profilePostsErrorProvider);
+    final isInitialized = ref.watch(profilePostsInitializedProvider);
+
+    // Состояние: ещё не инициализировано
+    if (!isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Состояние: идёт первичная загрузка
+    if (posts.isEmpty && isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Состояние: ошибка загрузки (посты пустые и есть ошибка)
+    if (posts.isEmpty && error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.photo_library_outlined,
+              Icons.cloud_off,
               size: 64,
               color: Colors.grey[400],
             ),
             const SizedBox(height: 16),
             Text(
-              'Нет постов',
+              'Не удалось загрузить посты',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
@@ -381,21 +433,177 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Поделитесь своими работами',
+              error,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.grey[500],
               ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => _loadUserPosts(userId),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Повторить'),
             ),
           ],
         ),
       );
     }
 
-    // TODO: Load posts from API
-    return Center(
-      child: Text('$postsCount постов (загрузка в разработке)'),
+    // Состояние: у пользователя нет постов
+    if (posts.isEmpty && !isLoading) {
+      return RefreshIndicator(
+        onRefresh: () => _handleRefresh(userId),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.photo_library_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Нет постов',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Поделитесь своими работами',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Состояние: есть посты — показываем сетку с RefreshIndicator
+    return RefreshIndicator(
+      onRefresh: () => _handleRefresh(userId),
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification is ScrollEndNotification &&
+              notification.metrics.pixels >=
+                  notification.metrics.maxScrollExtent - 200) {
+            if (!isLoading && hasMore) {
+              _loadMoreUserPosts(userId);
+            }
+          }
+          return false;
+        },
+        child: GridView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(4),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: posts.length + (hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == posts.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              );
+            }
+            return PostCard(post: posts[index]);
+          },
+        ),
+      ),
     );
+  }
+
+  /// Pull-to-refresh handler
+  Future<void> _handleRefresh(String userId) async {
+    await _loadUserPosts(userId);
+  }
+
+  Future<void> _loadUserPosts(String userId) async {
+    // Сбрасываем ошибку перед загрузкой
+    ref.read(profilePostsErrorProvider.notifier).state = null;
+    ref.read(profilePostsLoadingProvider.notifier).state = true;
+    ref.read(profilePostsPageProvider.notifier).state = 1;
+    ref.read(profileHasMorePostsProvider.notifier).state = true;
+
+    try {
+      // Инвалидируем кэш провайдера для получения свежих данных
+      ref.invalidate(userPostsProvider(userId));
+      final posts = await ref.read(userPostsProvider(userId).future);
+      if (mounted) {
+        ref.read(profilePostsListProvider.notifier).state = posts;
+        if (posts.isEmpty || posts.length < 20) {
+          ref.read(profileHasMorePostsProvider.notifier).state = false;
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ref.read(profilePostsErrorProvider.notifier).state = e.toString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка загрузки постов: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        ref.read(profilePostsLoadingProvider.notifier).state = false;
+      }
+    }
+  }
+
+  Future<void> _loadMoreUserPosts(String userId) async {
+    if (ref.read(profilePostsLoadingProvider)) return;
+    ref.read(profilePostsLoadingProvider.notifier).state = true;
+
+    try {
+      final currentPage = ref.read(profilePostsPageProvider);
+      final nextPage = currentPage + 1;
+      ref.read(profilePostsPageProvider.notifier).state = nextPage;
+
+      final newPosts =
+          await ref.read(userPostsProvider(userId, page: nextPage).future);
+      if (mounted) {
+        final currentPosts = ref.read(profilePostsListProvider);
+        ref.read(profilePostsListProvider.notifier).state = [
+          ...currentPosts,
+          ...newPosts
+        ];
+
+        if (newPosts.isEmpty || newPosts.length < 20) {
+          ref.read(profileHasMorePostsProvider.notifier).state = false;
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        ref.read(profilePostsLoadingProvider.notifier).state = false;
+      }
+    }
   }
 
   Widget _buildSavedTab() {

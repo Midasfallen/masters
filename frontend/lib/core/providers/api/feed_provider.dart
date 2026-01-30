@@ -33,6 +33,22 @@ Future<PostModel> postById(PostByIdRef ref, String postId) async {
   return await repository.getPostById(postId);
 }
 
+/// User Posts Provider
+@riverpod
+Future<List<PostModel>> userPosts(
+  UserPostsRef ref,
+  String userId, {
+  int page = 1,
+  int limit = 20,
+}) async {
+  final repository = ref.watch(postRepositoryProvider);
+  return await repository.getUserPosts(
+    userId,
+    page: page,
+    limit: limit,
+  );
+}
+
 /// Post Comments Provider
 @riverpod
 Future<List<CommentModel>> postComments(

@@ -64,6 +64,28 @@ class PostRepository {
     }
   }
 
+  /// Get posts by user ID
+  Future<List<PostModel>> getUserPosts(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.postsByUser(userId),
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+        },
+      );
+
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => PostModel.fromJson(json as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
   /// Create new post
   Future<PostModel> createPost(CreatePostRequest request) async {
     try {

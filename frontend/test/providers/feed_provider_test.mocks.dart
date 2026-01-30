@@ -93,6 +93,24 @@ class MockPostRepository extends _i1.Mock implements _i3.PostRepository {
       ) as _i4.Future<_i2.PostModel>);
 
   @override
+  _i4.Future<List<_i2.PostModel>> getUserPosts(
+    String? userId, {
+    int? page = 1,
+    int? limit = 20,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getUserPosts,
+          [userId],
+          {
+            #page: page,
+            #limit: limit,
+          },
+        ),
+        returnValue: _i4.Future<List<_i2.PostModel>>.value(<_i2.PostModel>[]),
+      ) as _i4.Future<List<_i2.PostModel>>);
+
+  @override
   _i4.Future<_i2.PostModel> createPost(_i2.CreatePostRequest? request) =>
       (super.noSuchMethod(
         Invocation.method(

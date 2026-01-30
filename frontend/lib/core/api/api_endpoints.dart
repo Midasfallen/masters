@@ -69,6 +69,7 @@ class ApiEndpoints {
   static String postUnlike(String id) => '/posts/$id/unlike';
   static String postComments(String id) => '/posts/$id/comments';
   static const String postsFeed = '/posts/feed';
+  static String postsByUser(String userId) => '/posts/user/$userId';
 
   // ==================== CHATS ====================
   static const String chats = '/chats';

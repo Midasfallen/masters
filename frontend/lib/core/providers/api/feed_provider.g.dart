@@ -391,6 +391,181 @@ class _PostByIdProviderElement
   String get postId => (origin as PostByIdProvider).postId;
 }
 
+String _$userPostsHash() => r'14d9143587ffa6bcb4ad6a96539fb83ddfe04813';
+
+/// User Posts Provider
+///
+/// Copied from [userPosts].
+@ProviderFor(userPosts)
+const userPostsProvider = UserPostsFamily();
+
+/// User Posts Provider
+///
+/// Copied from [userPosts].
+class UserPostsFamily extends Family<AsyncValue<List<PostModel>>> {
+  /// User Posts Provider
+  ///
+  /// Copied from [userPosts].
+  const UserPostsFamily();
+
+  /// User Posts Provider
+  ///
+  /// Copied from [userPosts].
+  UserPostsProvider call(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) {
+    return UserPostsProvider(
+      userId,
+      page: page,
+      limit: limit,
+    );
+  }
+
+  @override
+  UserPostsProvider getProviderOverride(
+    covariant UserPostsProvider provider,
+  ) {
+    return call(
+      provider.userId,
+      page: provider.page,
+      limit: provider.limit,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'userPostsProvider';
+}
+
+/// User Posts Provider
+///
+/// Copied from [userPosts].
+class UserPostsProvider extends AutoDisposeFutureProvider<List<PostModel>> {
+  /// User Posts Provider
+  ///
+  /// Copied from [userPosts].
+  UserPostsProvider(
+    String userId, {
+    int page = 1,
+    int limit = 20,
+  }) : this._internal(
+          (ref) => userPosts(
+            ref as UserPostsRef,
+            userId,
+            page: page,
+            limit: limit,
+          ),
+          from: userPostsProvider,
+          name: r'userPostsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$userPostsHash,
+          dependencies: UserPostsFamily._dependencies,
+          allTransitiveDependencies: UserPostsFamily._allTransitiveDependencies,
+          userId: userId,
+          page: page,
+          limit: limit,
+        );
+
+  UserPostsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+    required this.page,
+    required this.limit,
+  }) : super.internal();
+
+  final String userId;
+  final int page;
+  final int limit;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<PostModel>> Function(UserPostsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UserPostsProvider._internal(
+        (ref) => create(ref as UserPostsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+        page: page,
+        limit: limit,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<PostModel>> createElement() {
+    return _UserPostsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserPostsProvider &&
+        other.userId == userId &&
+        other.page == page &&
+        other.limit == limit;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin UserPostsRef on AutoDisposeFutureProviderRef<List<PostModel>> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+
+  /// The parameter `page` of this provider.
+  int get page;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+}
+
+class _UserPostsProviderElement
+    extends AutoDisposeFutureProviderElement<List<PostModel>>
+    with UserPostsRef {
+  _UserPostsProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as UserPostsProvider).userId;
+  @override
+  int get page => (origin as UserPostsProvider).page;
+  @override
+  int get limit => (origin as UserPostsProvider).limit;
+}
+
 String _$postCommentsHash() => r'7ccaf88b5defb32d8850e461b1c3e4e441a411fe';
 
 /// Post Comments Provider
