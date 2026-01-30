@@ -57,3 +57,8 @@
 - **Бэкенд**: Запускай тесты ТОЛЬКО последовательно, чтобы избежать перегрузки RAM и конфликтов БД.
   - Команда: `npm run test -- --runInBand` или `npx jest --runInBand`.
   - Никогда не запускай тесты бэкенда в параллельном режиме на локальной машине.
+  - Тестируем проект только в докере C:\masters\masters и только chrome web cd C:\masters\masters\frontend & flutter run -d chrome
+  - Не создавать тестовые изображения из внешних источников, используем только service_minio 6cfe165d6b62
+  - если в БД нет данных, то используй C:\masters\masters\backend\src\database\seeds\test-data.seed.ts
+  - если в минио нет данных, то используй C:\masters\masters\backend\src\database\seeds\upload-local-images.ts
+  

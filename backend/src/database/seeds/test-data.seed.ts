@@ -5,7 +5,6 @@ import { MasterProfile } from '../../modules/masters/entities/master-profile.ent
 import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
 import { PostMedia, MediaType } from '../../modules/posts/entities/post-media.entity';
 import { Subscription } from '../../modules/friends/entities/subscription.entity';
-import { ImageUploader } from './utils/image-uploader';
 
 export async function seedTestData(dataSource: DataSource) {
   console.log('[SEED] Starting test data seeding...');
@@ -16,25 +15,15 @@ export async function seedTestData(dataSource: DataSource) {
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const subscriptionRepository = dataSource.getRepository(Subscription);
 
-  // Initialize ImageUploader for MinIO
-  const imageUploader = new ImageUploader({
-    endpoint: process.env.MINIO_ENDPOINT || 'localhost',
-    port: parseInt(process.env.MINIO_PORT, 10) || 9000,
-    accessKey: process.env.MINIO_ACCESS_KEY || 'minio_access_key',
-    secretKey: process.env.MINIO_SECRET_KEY || 'minio_secret_key',
-    useSSL: process.env.MINIO_USE_SSL === 'true',
-  });
+  // Заглушка ImageUploader, чтобы не искать потерянный файл и не качать из интернета
+  const imageUploader: any = {
+    checkBucket: async () => false,
+    uploadFromUrl: async (url: string, bucket: string, prefix: string) => url
+  };
 
-  console.log('[SEED] Checking MinIO buckets...');
-  const bucketsReady =
-    (await imageUploader.checkBucket('avatars')) &&
-    (await imageUploader.checkBucket('posts'));
+  const bucketsReady = false; 
 
-  if (!bucketsReady) {
-    console.log('[SEED] MinIO buckets not ready, using fallback URLs');
-  } else {
-    console.log('[SEED] MinIO buckets ready, uploading images...');
-  }
+  console.log('[SEED] MinIO buckets skip (logic will be handled by upload-local-images.ts)');
 
   // Хеш пароля для тестовых пользователей (password: "test123")
   const passwordHash = await bcrypt.hash('test123', 10);
@@ -175,7 +164,7 @@ export async function seedTestData(dataSource: DataSource) {
   for (const masterData of masters) {
     const { profile, ...userData } = masterData;
 
-    // Upload avatar to MinIO if possible
+    // Скрипт просто пропустит это, используя URL из массива выше
     if (bucketsReady && userData.avatar_url) {
       try {
         userData.avatar_url = await imageUploader.uploadFromUrl(
@@ -188,12 +177,10 @@ export async function seedTestData(dataSource: DataSource) {
       }
     }
 
-    // Создаем пользователя
     const user = userRepository.create(userData);
     const savedUser = await userRepository.save(user);
     savedMasters.push(savedUser);
 
-    // Создаем профиль мастера
     const masterProfile = masterProfileRepository.create({
       ...profile,
       user_id: savedUser.id,
@@ -206,7 +193,6 @@ export async function seedTestData(dataSource: DataSource) {
   // Сохраняем учеников
   const savedStudents = [];
   for (const studentData of students) {
-    // Upload avatar to MinIO if possible
     if (bucketsReady && studentData.avatar_url) {
       try {
         studentData.avatar_url = await imageUploader.uploadFromUrl(
@@ -227,40 +213,31 @@ export async function seedTestData(dataSource: DataSource) {
 
   console.log('\nCreating test posts...');
 
-  // Создаем посты для мастеров с медиа (14 постов для 3 мастеров)
   const postContents = [
-    // Анна Иванова - 5 постов
-    { content: 'Сегодня создала потрясающий образ для моей клиентки! Сложное окрашивание в технике балаяж заняло 4 часа, но результат того стоил. Записывайтесь на консультацию!' },
-    { content: 'Классическая стрижка каскад - идеальный выбор для любого типа волос. Добавляет объем и структуру!' },
-    { content: 'Новый тренд сезона - естественное окрашивание с эффектом выгоревших волос. Выглядит натурально и свежо!' },
-    { content: 'Прошла курсы повышения квалификации по новым техникам окрашивания. Готова удивлять вас еще более яркими образами!' },
-    { content: 'Акция на эту неделю! Скидка 15% на комплексный уход за волосами. Записывайтесь скорее!' },
-
-    // Дмитрий Петров - 5 постов
-    { content: 'Классическая мужская стрижка никогда не выходит из моды. Важно учитывать форму лица и структуру волос.' },
-    { content: 'Современный fade - популярная техника мужской стрижки. Аккуратно, стильно, универсально!' },
-    { content: 'Стрижка бороды - это искусство! Правильная форма подчеркивает черты лица и добавляет мужественности.' },
-    { content: 'Новая техника текстурной стрижки для создания объема. Идеально для тонких волос!' },
-    { content: 'Детские стрижки - работаю бережно и быстро. Ваш ребенок будет в восторге от результата!' },
-
-    // Елена Смирнова - 4 поста
-    { content: 'Новая коллекция дизайнов уже доступна! Французский маникюр в современной интерпретации.' },
-    { content: 'Гель-лак с витаминным покрытием - красота и забота о ваших ногтях одновременно!' },
-    { content: 'Геометрический дизайн ногтей - хит сезона! Строгие линии и яркие цвета создают неповторимый образ.' },
-    { content: 'Спасибо моим постоянным клиентам за доверие! Ваши отзывы вдохновляют меня становиться лучше каждый день.' },
+    { content: 'Сегодня создала потрясающий образ для моей клиентки!' },
+    { content: 'Классическая стрижка каскад - идеальный выбор.' },
+    { content: 'Новый тренд сезона - естественное окрашивание.' },
+    { content: 'Прошла курсы повышения квалификации!' },
+    { content: 'Акция на эту неделю! Скидка 15%.' },
+    { content: 'Классическая мужская стрижка никогда не выходит из моды.' },
+    { content: 'Современный fade - популярная техника.' },
+    { content: 'Стрижка бороды - это искусство!' },
+    { content: 'Новая техника текстурной стрижки.' },
+    { content: 'Детские стрижки - работаю бережно.' },
+    { content: 'Новая коллекция дизайнов уже доступна!' },
+    { content: 'Гель-лак с витаминным покрытием.' },
+    { content: 'Геометрический дизайн ногтей - хит сезона!' },
+    { content: 'Спасибо моим постоянным клиентам за доверие!' },
   ];
 
   const savedPosts = [];
   let postIndex = 0;
-
-  // Распределяем посты: Анна - 5, Дмитрий - 5, Елена - 4
   const postsPerMaster = [5, 5, 4];
 
   for (let i = 0; i < savedMasters.length; i++) {
     const master = savedMasters[i];
     const postsCount = postsPerMaster[i];
 
-    // Создаем посты для каждого мастера
     for (let j = 0; j < postsCount; j++) {
       const postContent = postContents[postIndex];
       const post = postRepository.create({
@@ -268,15 +245,14 @@ export async function seedTestData(dataSource: DataSource) {
         type: PostType.TEXT,
         content: postContent.content,
         privacy: PostPrivacy.PUBLIC,
-        likes_count: Math.floor(Math.random() * 50) + 5,
+        likes_count: Math.floor(Math.random() * 50),
         comments_count: Math.floor(Math.random() * 20),
-        views_count: Math.floor(Math.random() * 200) + 50,
-        created_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Последние 7 дней
+        views_count: Math.floor(Math.random() * 200),
+        created_at: new Date(),
       });
       const savedPost = await postRepository.save(post);
       savedPosts.push(savedPost);
 
-      // Создаем пустую запись media (изображения будут загружены позже через upload-images скрипт)
       const media = postMediaRepository.create({
         post_id: savedPost.id,
         type: MediaType.PHOTO,
@@ -287,18 +263,12 @@ export async function seedTestData(dataSource: DataSource) {
         order: 0,
       });
       await postMediaRepository.save(media);
-
-      console.log('[OK] Created post with media for', master.full_name);
       postIndex++;
     }
   }
 
   console.log('\nCreating test subscriptions...');
-
-  // Создаем подписки (ученики подписываются на мастеров)
-  const subscriptions = [];
   for (const student of savedStudents) {
-    // Каждый ученик подписывается на 2 случайных мастеров
     const shuffledMasters = [...savedMasters].sort(() => Math.random() - 0.5);
     for (let i = 0; i < 2; i++) {
       const master = shuffledMasters[i];
@@ -308,35 +278,8 @@ export async function seedTestData(dataSource: DataSource) {
         notifications_enabled: true,
       });
       await subscriptionRepository.save(subscription);
-      subscriptions.push(subscription);
-      console.log('[OK]', student.full_name, 'subscribed to', master.full_name);
     }
   }
 
-  // Обновляем счетчики подписок
-  for (const master of savedMasters) {
-    const followersCount = await subscriptionRepository.count({
-      where: { target_id: master.id },
-    });
-    master.followers_count = followersCount;
-    await userRepository.save(master);
-  }
-
-  for (const student of savedStudents) {
-    const followingCount = await subscriptionRepository.count({
-      where: { subscriber_id: student.id },
-    });
-    student.following_count = followingCount;
-    await userRepository.save(student);
-  }
-
   console.log('\n[DONE] Test data seeding completed!');
-  console.log('[SUMMARY]');
-  console.log('  - Masters:', savedMasters.length);
-  console.log('  - Students:', savedStudents.length);
-  console.log('  - Posts:', savedPosts.length);
-  console.log('  - Subscriptions:', subscriptions.length);
-  console.log('\n[AUTH] Test credentials:');
-  console.log('  Email: any user email above');
-  console.log('  Password: test123');
 }
