@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/models/api/post_model.dart';
+import '../../../core/models/favorite.dart';
 import '../../../core/providers/api/auth_provider.dart';
 import '../../../core/providers/api/feed_provider.dart';
 import '../../../core/providers/api/user_provider.dart';
+import '../../../core/providers/favorites_provider.dart';
 import '../../feed/widgets/post_card.dart';
 
 /// Profile Posts Providers для infinite scroll с autoDispose
@@ -23,6 +25,7 @@ final profilePostsErrorProvider =
     StateProvider.autoDispose<String?>((ref) => null);
 final profilePostsInitializedProvider =
     StateProvider.autoDispose<bool>((ref) => false);
+
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -607,26 +610,141 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Widget _buildSavedTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.bookmark_border,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Нет сохраненных постов',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
+    final favoritesAsync = ref.watch(
+      favoritesListProvider(entityType: FavoriteEntityType.post),
+    );
+
+    return favoritesAsync.when(
+      data: (favorites) {
+        // Фильтруем только посты с entity данными
+        final savedPosts = favorites
+            .where((f) => f.entity != null)
+            .toList();
+
+        if (savedPosts.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: _handleSavedRefresh,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.bookmark_border,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Нет сохраненных постов',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Сохраняйте понравившиеся посты',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: _handleSavedRefresh,
+          child: GridView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(4),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: savedPosts.length,
+            itemBuilder: (context, index) {
+              final favorite = savedPosts[index];
+              final postData = favorite.entity as Map<String, dynamic>?;
+
+              if (postData == null) {
+                return const SizedBox.shrink();
+              }
+
+              // Преобразуем entity в PostModel
+              try {
+                final post = PostModel.fromJson(postData);
+                return PostCard(post: post);
+              } catch (e) {
+                // Если не удалось распарсить, показываем placeholder
+                return GestureDetector(
+                  onTap: () {
+                    context.push('/post/${favorite.entityId}');
+                  },
+                  child: Container(
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.image, color: Colors.grey),
+                    ),
+                  ),
+                );
+              }
+            },
           ),
-        ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.cloud_off,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Не удалось загрузить сохранённые',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error.toString(),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _handleSavedRefresh,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Повторить'),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  /// Pull-to-refresh handler for saved posts
+  Future<void> _handleSavedRefresh() async {
+    ref.invalidate(favoritesListProvider(entityType: FavoriteEntityType.post));
   }
 
   void _showSettingsSheet(BuildContext context) {
