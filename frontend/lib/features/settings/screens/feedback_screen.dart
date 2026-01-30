@@ -98,7 +98,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
             // Feedback type
             DropdownButtonFormField<String>(
-              value: _feedbackType,
+              initialValue: _feedbackType,
               decoration: const InputDecoration(
                 labelText: 'Тип обращения',
                 prefixIcon: Icon(Icons.category_outlined),

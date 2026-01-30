@@ -113,21 +113,18 @@ class _FaqItem {
 class _FaqTile extends StatefulWidget {
   final _FaqItem item;
 
-  const _FaqTile({super.key, required this.item});
+  const _FaqTile({required this.item});
 
   @override
   State<_FaqTile> createState() => _FaqTileState();
 }
 
 class _FaqTileState extends State<_FaqTile> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       leading: const Icon(Icons.help_outline),
       title: Text(widget.item.question),
-      onExpansionChanged: (value) => setState(() => _isExpanded = value),
       children: [
         Align(
           alignment: Alignment.centerLeft,
