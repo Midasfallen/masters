@@ -1,5 +1,7 @@
 # CLAUDE.MD — Правила разработки Service Platform
 
+Строго следовать C:\Users\ravin\.claude\settings.json
+
 ## 🎯 Архитектура (Монорепозиторий)
 - **Frontend:** `./frontend` (Flutter + Riverpod).
 - **Backend:** `./backend` (NestJS + TypeORM).

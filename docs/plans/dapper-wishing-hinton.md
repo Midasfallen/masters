@@ -1,342 +1,310 @@
-# ПЛАН АУДИТА И АКТУАЛИЗАЦИИ ДОКУМЕНТАЦИИ
-## Service Platform (masters repository)
+# ПЛАН РЕАЛИЗАЦИИ: Загрузка постов пользователя в ProfileScreen
 
 **Дата:** 30 января 2026
-**Версия плана:** 1.0
-**Статус проекта:** MVP 100% (485/485 очков), Production Ready
+**Статус:** Планирование
+**Задача:** Реализовать TODO: "Load posts from API" в profile_screen.dart
 
 ---
 
-## ИСПОЛНИТЕЛЬНОЕ РЕЗЮМЕ
+## КОНТЕКСТ
 
-Проведён комплексный аудит монорепозитория Service Platform. Выявлены критические несоответствия между инфраструктурой, кодом и документацией, требующие немедленного исправления.
+В `profile_screen.dart:395` есть TODO-комментарий:
+```dart
+// TODO: Load posts from API
+return Center(
+  child: Text('$postsCount постов (загрузка в разработке)'),
+);
+```
 
-**Ключевые находки:**
-- 5 критических проблем (блокируют работу новых разработчиков)
-- 6 важных проблем (влияют на качество)
-- 4 низкоприоритетные проблемы (косметические)
-- DevSetup.md содержит упоминания Prisma (проект использует TypeORM)
-- Inconsistency в именах БД между docker-compose файлами
+### Уже выполнено:
+1. Добавлен endpoint `ApiEndpoints.postsByUser(userId)` → `/posts/user/$userId`
+2. Добавлен метод `PostRepository.getUserPosts(userId, {page, limit})`
+
+### Требуется:
+Интегрировать загрузку постов через API в метод `_buildPostsTab()`.
 
 ---
 
-## 1. ЖУРНАЛ АУДИТА
+## АНАЛИЗ СУЩЕСТВУЮЩЕЙ АРХИТЕКТУРЫ
 
-### 🔴 КРИТИЧЕСКИЕ (блокируют работу)
+### Паттерн из FeedScreen (эталон):
+```dart
+// StateProviders для infinite scroll
+final feedPageProvider = StateProvider<int>((ref) => 1);
+final feedPostsListProvider = StateProvider<List<PostModel>>((ref) => []);
+final feedHasMoreProvider = StateProvider<bool>((ref) => true);
 
-| ID | Проблема | Файл | Строка | Текущее | Должно быть |
-|----|----------|------|--------|---------|-------------|
-| C-001 | Неправильный default БД в TypeORM | `backend/src/config/typeorm.config.ts` | 11, 26 | `service_platform` | `service_db` |
-| C-002 | DevSetup упоминает Prisma | `docs/technical/DevSetup.md` | 117-124, 230-233, 300-303, 466-473 | `prisma:migrate`, `schema.prisma` | TypeORM команды |
-| C-003 | Swagger URL устарел в DevSetup | `docs/technical/DevSetup.md` | 136, 178 | `/api/docs` | `/api/v2/docs` |
-| C-004 | Несоответствие имени БД в dev compose | `docker-compose.dev.yml` | 10 | `service_platform` | `service_db` |
-| C-005 | Порт PostgreSQL в DevSetup | `docs/technical/DevSetup.md` | 78, 410 | `5432` | `5433` (docker-compose.yml) |
+// GridView.builder с PostCard
+GridView.builder(
+  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 3,
+    crossAxisSpacing: 4,
+    mainAxisSpacing: 4,
+    childAspectRatio: 1.0,
+  ),
+  itemBuilder: (context, index) => PostCard(post: posts[index]),
+);
+```
 
-### 🟡 ВАЖНЫЕ (влияют на качество)
-
-| ID | Проблема | Файл | Строка | Описание |
-|----|----------|------|--------|----------|
-| I-001 | API.md Base URL v1 | `docs/technical/API.md` | 4 | Указан `/api/v1`, код использует `/api/v2` |
-| I-002 | .env.example API_PREFIX | `.env.example` | 7 | `/api` вместо `api/v2` |
-| I-003 | Отсутствует гайд по E2E тестам | `docs/development/` | - | Нет документации по запуску E2E |
-| I-004 | Response format inconsistency | Backend контроллеры | - | chats: `meta.total` vs notifications: `total` |
-| I-005 | Frontend hardcoded IP | `frontend/lib/core/config/app_config.dart` | 18 | `192.168.1.4` - для WiFi режима |
-| I-006 | Отсутствует DOCKER_CONFIGURATION.md | `docs/technical/` | - | Нет документации по выбору compose файлов |
-
-### 🟢 НИЗКИЕ (косметические)
-
-| ID | Проблема | Файл |
-|----|----------|------|
-| L-001 | MinIO credentials различаются между compose файлами | docker-compose.yml vs docker-compose.dev.yml |
-| L-002 | Redis пароль несоответствие | dev compose без пароля, .env с паролем |
-| L-003 | MinIO Console порт 9002 vs 9001 | docker-compose.yml vs docker-compose.dev.yml |
-| L-004 | Устаревшие ветки в TESTING.md | docs/development/TESTING.md |
+### Доступные компоненты:
+- `PostCard` — виджет отображения поста в сетке (`features/feed/widgets/post_card.dart`)
+- `PostRepository.getUserPosts()` — метод загрузки постов пользователя
+- `postRepositoryProvider` — Riverpod провайдер репозитория
 
 ---
 
-## 2. ТАБЛИЦА СТАТУСА ДОКУМЕНТОВ
+## ПЛАН РЕАЛИЗАЦИИ
 
-| Документ | Путь | Статус | Действие |
-|----------|------|--------|----------|
-| **README.md** | `./README.md` | ✅ Актуально | Minor updates (Swagger URL) |
-| **DevSetup.md** | `docs/technical/DevSetup.md` | ❌ **УСТАРЕЛО** | Полное переписывание секций Backend |
-| **API.md** | `docs/technical/API.md` | ⚠️ Частично | Обновить Base URL v1→v2 |
-| **Database.md** | `docs/technical/Database.md` | ✅ Актуально | Без изменений |
-| **TechSpec.md** | `docs/technical/TechSpec.md` | ✅ Актуально | Без изменений |
-| **TESTING.md** | `docs/development/TESTING.md` | ⚠️ Частично | Обновить статус backend, ветки |
-| **.env.example** | `./.env.example` | ⚠️ Частично | API_PREFIX, порты |
-| **typeorm.config.ts** | `backend/src/config/typeorm.config.ts` | ❌ **ОШИБКА** | Default БД |
-| **docker-compose.dev.yml** | `./docker-compose.dev.yml` | ⚠️ Частично | Имя БД для консистентности |
+### Шаг 1: Создать провайдер для постов пользователя
+
+**Файл:** `frontend/lib/core/providers/api/feed_provider.dart`
+
+Добавить новый провайдер:
+```dart
+/// User Posts Provider
+@riverpod
+Future<List<PostModel>> userPosts(
+  UserPostsRef ref,
+  String userId, {
+  int page = 1,
+  int limit = 20,
+}) async {
+  final repository = ref.watch(postRepositoryProvider);
+  return await repository.getUserPosts(
+    userId,
+    page: page,
+    limit: limit,
+  );
+}
+```
+
+### Шаг 2: Модифицировать ProfileScreen
+
+**Файл:** `frontend/lib/features/profile/screens/profile_screen.dart`
+
+#### 2.1 Добавить импорты:
+```dart
+import '../../../core/providers/api/feed_provider.dart';
+import '../../../core/models/api/post_model.dart';
+import '../../feed/widgets/post_card.dart';
+```
+
+#### 2.2 Добавить StateProviders для профиля (после импортов):
+```dart
+/// Profile Posts Providers для infinite scroll
+final profilePostsPageProvider = StateProvider<int>((ref) => 1);
+final profilePostsListProvider = StateProvider<List<PostModel>>((ref) => []);
+final profileHasMorePostsProvider = StateProvider<bool>((ref) => true);
+final profilePostsLoadingProvider = StateProvider<bool>((ref) => false);
+```
+
+#### 2.3 Обновить метод `_buildPostsTab`:
+
+Заменить текущую реализацию (строки 363-399) на:
+```dart
+Widget _buildPostsTab(String userId) {
+  final posts = ref.watch(profilePostsListProvider);
+  final hasMore = ref.watch(profileHasMorePostsProvider);
+  final isLoading = ref.watch(profilePostsLoadingProvider);
+
+  // Загружаем посты при первом показе
+  if (posts.isEmpty && !isLoading) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserPosts(userId);
+    });
+  }
+
+  if (posts.isEmpty && isLoading) {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  if (posts.isEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.photo_library_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Нет постов',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Поделитесь своими работами',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return NotificationListener<ScrollNotification>(
+    onNotification: (notification) {
+      if (notification is ScrollEndNotification &&
+          notification.metrics.pixels >= notification.metrics.maxScrollExtent - 200) {
+        if (!isLoading && hasMore) {
+          _loadMoreUserPosts(userId);
+        }
+      }
+      return false;
+    },
+    child: GridView.builder(
+      padding: const EdgeInsets.all(4),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+        childAspectRatio: 1.0,
+      ),
+      itemCount: posts.length + (hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == posts.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
+        return PostCard(post: posts[index]);
+      },
+    ),
+  );
+}
+```
+
+#### 2.4 Добавить методы загрузки постов:
+```dart
+Future<void> _loadUserPosts(String userId) async {
+  ref.read(profilePostsLoadingProvider.notifier).state = true;
+  ref.read(profilePostsPageProvider.notifier).state = 1;
+  ref.read(profilePostsListProvider.notifier).state = [];
+  ref.read(profileHasMorePostsProvider.notifier).state = true;
+
+  try {
+    final posts = await ref.read(userPostsProvider(userId).future);
+    if (mounted) {
+      ref.read(profilePostsListProvider.notifier).state = posts;
+      if (posts.isEmpty || posts.length < 20) {
+        ref.read(profileHasMorePostsProvider.notifier).state = false;
+      }
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка загрузки постов: ${e.toString()}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  } finally {
+    if (mounted) {
+      ref.read(profilePostsLoadingProvider.notifier).state = false;
+    }
+  }
+}
+
+Future<void> _loadMoreUserPosts(String userId) async {
+  if (ref.read(profilePostsLoadingProvider)) return;
+  ref.read(profilePostsLoadingProvider.notifier).state = true;
+
+  try {
+    final currentPage = ref.read(profilePostsPageProvider);
+    final nextPage = currentPage + 1;
+    ref.read(profilePostsPageProvider.notifier).state = nextPage;
+
+    final newPosts = await ref.read(userPostsProvider(userId, page: nextPage).future);
+    if (mounted) {
+      final currentPosts = ref.read(profilePostsListProvider);
+      ref.read(profilePostsListProvider.notifier).state = [...currentPosts, ...newPosts];
+
+      if (newPosts.isEmpty || newPosts.length < 20) {
+        ref.read(profileHasMorePostsProvider.notifier).state = false;
+      }
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: ${e.toString()}')),
+      );
+    }
+  } finally {
+    if (mounted) {
+      ref.read(profilePostsLoadingProvider.notifier).state = false;
+    }
+  }
+}
+```
+
+#### 2.5 Обновить вызов _buildPostsTab:
+
+Изменить строку 314:
+```dart
+// Было:
+_buildPostsTab(user.postsCount),
+
+// Стало:
+_buildPostsTab(user.id),
+```
+
+### Шаг 3: Запустить build_runner
+
+```bash
+cd frontend && flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### Шаг 4: Проверить анализатор
+
+```bash
+flutter analyze
+```
 
 ---
 
-## 3. ДОРОЖНАЯ КАРТА (ROADMAP)
+## КРИТИЧЕСКИЕ ФАЙЛЫ
 
-### ФАЗА 1: Срочные правки (Blocking Issues)
-
-**Задача 1.1: Исправить TypeORM конфигурацию**
-```
-Файл: backend/src/config/typeorm.config.ts
-Строка 11: 'service_platform' → 'service_db'
-Строка 26: 'service_platform' → 'service_db'
-```
-
-**Задача 1.2: Синхронизировать docker-compose.dev.yml**
-```
-Файл: docker-compose.dev.yml
-Строка 10: POSTGRES_DB: service_platform → POSTGRES_DB: service_db
-```
-
-**Задача 1.3: DevSetup.md - заменить Prisma на TypeORM**
-```
-Файл: docs/technical/DevSetup.md
-
-Удалить/заменить строки 117-124:
-- npm run prisma:migrate → npm run migration:run
-- npm run prisma:seed → npm run seed
-
-Удалить/заменить строки 230-233:
-- prisma/ → database/ (в структуре проекта)
-- schema.prisma → TypeORM entities
-- migrations/ → database/migrations/
-
-Удалить/заменить строки 300-303:
-- npm run prisma:migrate:dev → npm run migration:generate
-
-Удалить/заменить строки 466-473:
-- npm run prisma:migrate:deploy → npm run migration:run
-```
-
-**Задача 1.4: Обновить Swagger URL**
-```
-Файл: docs/technical/DevSetup.md
-Строка 136: /api/docs → /api/v2/docs
-Строка 178: /api/docs → /api/v2/docs
-```
-
-**Задача 1.5: Обновить порт PostgreSQL**
-```
-Файл: docs/technical/DevSetup.md
-Строка 78: 5432 → 5433 (добавить примечание о docker-compose.yml)
-Строка 410: localhost:5432 → localhost:5433
-```
-
-### ФАЗА 2: Техническая документация
-
-**Задача 2.1: API.md - обновить Base URL**
-```
-Файл: docs/technical/API.md
-Строка 4: /api/v1 → /api/v2
-```
-
-**Задача 2.2: .env.example - обновить API_PREFIX**
-```
-Файл: .env.example
-Строка 7: API_PREFIX=/api → API_PREFIX=api/v2
-```
-
-**Задача 2.3: DevSetup.md - добавить секцию выбора Docker Compose**
-
-Добавить после строки 100 новую секцию:
-
-```markdown
-### ВАЖНО: Выбор Docker Compose файла
-
-Проект содержит два Docker Compose файла:
-
-| Файл | PostgreSQL | PostGIS | Порт | Использование |
-|------|------------|---------|------|---------------|
-| `docker-compose.yml` | postgres:15-alpine | Нет | 5433 | Production/Default |
-| `docker-compose.dev.yml` | postgis/postgis:15-3.4 | Да | 5432 | Development с геолокацией |
-
-**Для разработки с геолокацией:**
-docker-compose -f docker-compose.dev.yml up -d
-
-**Для стандартной разработки:**
-docker-compose up -d
-
-**Важно:** backend/.env должен соответствовать выбранному compose файлу:
-- docker-compose.yml: DB_PORT=5433, DB_DATABASE=service_db
-- docker-compose.dev.yml: DB_PORT=5432, DB_DATABASE=service_db
-```
-
-**Задача 2.4: DevSetup.md - обновить Troubleshooting**
-
-Переписать строки 403-418 с актуальной информацией о портах и именах БД.
-
-### ФАЗА 3: Документация тестирования
-
-**Задача 3.1: Создать E2E_TESTING_GUIDE.md**
-```
-Новый файл: docs/development/E2E_TESTING_GUIDE.md
-
-Содержание:
-1. Обзор типов E2E тестов (NestJS TestingModule vs HTTP к Docker)
-2. Настройка тестовой среды (Docker, Backend, ENV)
-3. Команды запуска тестов
-4. Решение проблемы 401 Unauthorized
-5. Матрица соответствия конфигураций
-6. Чеклист перед запуском тестов
-```
-
-**Задача 3.2: TESTING.md - обновить статус**
-```
-Файл: docs/development/TESTING.md
-- Обновить статус Backend с 0% на 100%
-- Заменить устаревшие ветки на main
-- Добавить ссылку на E2E_TESTING_GUIDE.md
-```
-
-### ФАЗА 4: Опциональные улучшения
-
-**Задача 4.1: Создать DOCKER_CONFIGURATION.md**
-```
-Новый файл: docs/technical/DOCKER_CONFIGURATION.md
-
-Содержание:
-- Сравнение docker-compose.yml и docker-compose.dev.yml
-- Таблица сервисов с портами и credentials
-- Инструкции по переключению между конфигурациями
-```
-
-**Задача 4.2: Добавить pre-commit hook для валидации**
-```
-Файл: .husky/pre-commit (опционально)
-- Проверка соответствия портов между compose и .env
-```
+| Файл | Действие |
+|------|----------|
+| `frontend/lib/core/providers/api/feed_provider.dart` | Добавить `userPostsProvider` |
+| `frontend/lib/features/profile/screens/profile_screen.dart` | Реализовать загрузку постов |
 
 ---
 
-## 4. ОСОБЫЙ РАЗДЕЛ: ЗАПУСК ТЕСТОВ
+## ВЕРИФИКАЦИЯ
 
-### Проблема 401 Unauthorized в E2E тестах
-
-**Симптом:** Тесты chats, notifications, reviews возвращают 401.
-
-**Причины и решения:**
-
-1. **Backend не запущен**
+1. **Запустить build_runner:**
    ```bash
-   # Проверка
-   curl http://localhost:3000/api/v2/health
-   # Ожидается: {"status":"ok"}
-
-   # Решение
-   cd backend && npm run start:dev
+   cd frontend && flutter pub run build_runner build --delete-conflicting-outputs
    ```
 
-2. **Несоответствие конфигурации БД**
+2. **Проверить анализатор:**
    ```bash
-   # Проверить какой compose запущен
-   docker ps --format "table {{.Names}}\t{{.Ports}}"
-
-   # Если service_postgres (порт 5433) → docker-compose.yml
-   # backend/.env: DB_PORT=5433, DB_DATABASE=service_db
-
-   # Если другое имя (порт 5432) → docker-compose.dev.yml
-   # backend/.env: DB_PORT=5432, DB_DATABASE=service_db
+   flutter analyze
    ```
 
-3. **Миграции не выполнены**
+3. **Запустить тесты:**
    ```bash
-   cd backend && npm run migration:run
+   flutter test
    ```
 
-4. **Конфликт тестовых пользователей**
-   ```bash
-   docker exec -it service_postgres psql -U service_user -d service_db \
-     -c "DELETE FROM users WHERE email LIKE 'test-%@%';"
-   ```
-
-### Полный чеклист запуска тестов
-
-- [ ] Docker контейнеры запущены: `docker-compose ps`
-- [ ] Все сервисы healthy
-- [ ] DB_PORT в backend/.env совпадает с портом в compose
-- [ ] DB_DATABASE = service_db
-- [ ] Миграции выполнены: `npm run migration:run`
-- [ ] Backend запущен: `npm run start:dev`
-- [ ] Тесты запускаются последовательно: `npm run test:e2e -- --runInBand`
-
----
-
-## 5. ФАЙЛЫ ДЛЯ РЕДАКТИРОВАНИЯ
-
-### Критические (выполнить первыми)
-
-| # | Файл | Изменение |
-|---|------|-----------|
-| 1 | `backend/src/config/typeorm.config.ts` | Строки 11, 26: `service_platform` → `service_db` |
-| 2 | `docker-compose.dev.yml` | Строка 10: `service_platform` → `service_db` |
-| 3 | `docs/technical/DevSetup.md` | Строки 117-124: Prisma → TypeORM |
-| 4 | `docs/technical/DevSetup.md` | Строки 136, 178: `/api/docs` → `/api/v2/docs` |
-| 5 | `docs/technical/DevSetup.md` | Строки 230-233: prisma/ → database/ |
-
-### Важные (выполнить во вторую очередь)
-
-| # | Файл | Изменение |
-|---|------|-----------|
-| 6 | `docs/technical/API.md` | Строка 4: `/api/v1` → `/api/v2` |
-| 7 | `.env.example` | Строка 7: `/api` → `api/v2` |
-| 8 | `docs/technical/DevSetup.md` | После строки 100: добавить секцию Docker Compose |
-| 9 | `docs/technical/DevSetup.md` | Строки 403-418: обновить troubleshooting |
-
-### Новые файлы
-
-| # | Файл | Описание |
-|---|------|----------|
-| 10 | `docs/development/E2E_TESTING_GUIDE.md` | Детальный гайд по E2E тестированию |
-| 11 | `docs/technical/DOCKER_CONFIGURATION.md` | Документация по Docker compose (опционально) |
-
----
-
-## 6. ВЕРИФИКАЦИЯ ИЗМЕНЕНИЙ
-
-### После внесения правок:
-
-1. **Проверить TypeORM подключение**
-   ```bash
-   cd backend
-   npm run start:dev
-   # Должен запуститься без ошибок подключения к БД
-   ```
-
-2. **Проверить миграции**
-   ```bash
-   npm run migration:run
-   # Должны выполниться без ошибок
-   ```
-
-3. **Проверить unit тесты**
-   ```bash
-   npm run test -- --runInBand
-   # Ожидается: 185/185 passing
-   ```
-
-4. **Проверить E2E тесты**
-   ```bash
-   npm run test:e2e -- --runInBand
-   # Ожидается: 73/73 passing
-   ```
-
-5. **Проверить Swagger**
-   ```bash
-   # Открыть в браузере
-   http://localhost:3000/api/v2/docs
-   # Должна отображаться документация API
-   ```
-
----
-
-## ОЦЕНКА ТРУДОЗАТРАТ
-
-| Фаза | Задачи | Оценка |
-|------|--------|--------|
-| Фаза 1: Срочные правки | 5 задач | ~1-2 часа |
-| Фаза 2: Техническая документация | 4 задачи | ~2-3 часа |
-| Фаза 3: Документация тестирования | 2 задачи | ~2-3 часа |
-| Фаза 4: Опциональные улучшения | 2 задачи | ~1-2 часа |
-| **Итого** | **13 задач** | **~6-10 часов** |
+4. **Визуальная проверка:**
+   - Запустить приложение
+   - Перейти в профиль
+   - Убедиться, что посты загружаются в виде сетки
+   - Проверить infinite scroll (прокрутка вниз загружает новые посты)
+   - Проверить переход на детали поста при клике
 
 ---
 
