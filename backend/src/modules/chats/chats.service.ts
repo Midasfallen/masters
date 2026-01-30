@@ -106,9 +106,7 @@ export class ChatsService {
       .getManyAndCount();
 
     const chats = participants.map((p) => {
-      const chatDto = ChatsMapper.toChatDto(p.chat);
-      chatDto.myParticipant = ChatsMapper.toParticipantDto(p);
-      return chatDto;
+      return ChatsMapper.toFullChatDto(p.chat, p, userId);
     });
 
     return {
@@ -138,9 +136,7 @@ export class ChatsService {
       throw new ForbiddenException('Access denied');
     }
 
-    const chatDto = ChatsMapper.toChatDto(chat);
-    chatDto.myParticipant = ChatsMapper.toParticipantDto(myParticipant);
-    return chatDto;
+    return ChatsMapper.toFullChatDto(chat, myParticipant, userId);
   }
 
   async update(id: string, userId: string, updateChatDto: UpdateChatDto): Promise<ChatResponseDto> {

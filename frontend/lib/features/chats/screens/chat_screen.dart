@@ -418,14 +418,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildAppBarTitle(ChatModel chat) {
     final currentUserId = ref.watch(currentUserIdProvider);
 
-    // Определяем собеседника
-    final otherUser = chat.user1Id == currentUserId ? chat.user2 : chat.user1;
+    // Определяем собеседника из otherUser или name чата
+    final otherUser = chat.otherUser;
 
-    if (otherUser == null) {
-      return const Text('Чат');
+    // Для group чатов показываем название
+    if (chat.type == ChatType.group) {
+      return Text(chat.name ?? 'Группа');
     }
 
-    final otherUserId = chat.user1Id == currentUserId ? chat.user2Id : chat.user1Id;
+    if (otherUser == null) {
+      return Text(chat.name ?? 'Чат');
+    }
+
+    // Для direct чата получаем ID собеседника из myParticipant
+    final otherUserId = chat.myParticipant?.userId != currentUserId
+        ? chat.myParticipant?.userId
+        : null;
 
     // Проверяем online статус через WebSocket
     final wsService = ref.watch(webSocketServiceProvider);

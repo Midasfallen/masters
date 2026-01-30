@@ -213,12 +213,16 @@ class _ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final lastMessage = chat.lastMessage;
     final isPinned = chat.myParticipant?.isPinned ?? false;
-    final unreadCount = chat.myParticipant?.unreadCount ?? chat.unreadCount;
+    final unreadCount = chat.myParticipant?.unreadCount ?? 0;
 
-    // Determine other user
-    final otherUser = chat.user1?.id == chat.user1Id ? chat.user2 : chat.user1;
-    final displayName = otherUser?.fullName ?? 'Unknown User';
-    final avatarUrl = otherUser?.avatarUrl;
+    // Для direct чатов используем otherUser, для групп - название чата
+    final otherUser = chat.otherUser;
+    final displayName = chat.type == ChatType.group
+        ? (chat.name ?? 'Группа')
+        : (otherUser?.fullName ?? 'Пользователь');
+    final avatarUrl = chat.type == ChatType.group
+        ? chat.avatarUrl
+        : otherUser?.avatarUrl;
 
     return InkWell(
       onTap: onTap,

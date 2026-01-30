@@ -21,11 +21,38 @@ void main() {
   group('ChatRepository', () {
     final mockChatData = {
       'id': 'chat1',
-      'user1Id': 'user1',
-      'user2Id': 'user2',
-      'unreadCount': 3,
+      'type': 'direct',
+      'name': null,
+      'avatarUrl': null,
+      'creatorId': 'user1',
+      'lastMessageId': null,
+      'lastMessageAt': null,
       'createdAt': '2024-01-01T00:00:00Z',
       'updatedAt': '2024-01-01T00:00:00Z',
+      'myParticipant': {
+        'id': 'participant1',
+        'chatId': 'chat1',
+        'userId': 'user1',
+        'role': 'member',
+        'lastReadMessageId': null,
+        'lastReadAt': null,
+        'unreadCount': 3,
+        'notificationsEnabled': true,
+        'isArchived': false,
+        'isPinned': false,
+        'isRemoved': false,
+        'joinedAt': '2024-01-01T00:00:00Z',
+        'updatedAt': '2024-01-01T00:00:00Z',
+      },
+      'otherUser': {
+        'id': 'user2',
+        'firstName': 'Иван',
+        'lastName': 'Петров',
+        'fullName': 'Иван Петров',
+        'avatarUrl': null,
+        'isMaster': false,
+        'isVerified': false,
+      },
     };
 
     final mockMessageData = {
@@ -72,7 +99,7 @@ void main() {
         final result = await repository.getChatById('1');
 
         expect(result, isA<ChatModel>());
-        expect(result.unreadCount, 3);
+        expect(result.myParticipant?.unreadCount, 3);
       });
     });
 
@@ -87,11 +114,14 @@ void main() {
         when(mockClient.post(any, data: anyNamed('data')))
             .thenAnswer((_) async => mockResponse);
 
-        final request = CreateChatRequest(userId: 'user2');
+        final request = CreateChatRequest(
+          type: ChatType.direct,
+          participantIds: ['user2'],
+        );
         final result = await repository.createChat(request);
 
         expect(result, isA<ChatModel>());
-        expect(result.user2Id, 'user2');
+        expect(result.otherUser?.id, 'user2');
       });
     });
 

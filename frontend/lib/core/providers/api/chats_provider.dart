@@ -53,7 +53,10 @@ class ChatNotifier extends _$ChatNotifier {
     return await AsyncValue.guard(() async {
       final repository = ref.read(chatRepositoryProvider);
       final chat = await repository.createChat(
-        CreateChatRequest(userId: userId),
+        CreateChatRequest(
+          type: ChatType.direct,
+          participantIds: [userId],
+        ),
       );
 
       // Invalidate chats list

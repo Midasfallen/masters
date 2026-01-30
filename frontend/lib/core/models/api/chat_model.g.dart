@@ -6,42 +6,77 @@ part of 'chat_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$ChatUserModelImpl _$$ChatUserModelImplFromJson(Map<String, dynamic> json) =>
+    _$ChatUserModelImpl(
+      id: json['id'] as String,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      fullName: json['fullName'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
+      isMaster: json['isMaster'] as bool? ?? false,
+      isVerified: json['isVerified'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$$ChatUserModelImplToJson(_$ChatUserModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'firstName': instance.firstName,
+      'lastName': instance.lastName,
+      'fullName': instance.fullName,
+      'avatarUrl': instance.avatarUrl,
+      'isMaster': instance.isMaster,
+      'isVerified': instance.isVerified,
+    };
+
 _$ChatModelImpl _$$ChatModelImplFromJson(Map<String, dynamic> json) =>
     _$ChatModelImpl(
       id: json['id'] as String,
-      user1Id: json['user1Id'] as String,
-      user2Id: json['user2Id'] as String,
-      user1: json['user1'] == null
+      type: $enumDecode(_$ChatTypeEnumMap, json['type']),
+      name: json['name'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
+      creatorId: json['creatorId'] as String?,
+      lastMessageId: json['lastMessageId'] as String?,
+      lastMessageAt: json['lastMessageAt'] == null
           ? null
-          : UserModel.fromJson(json['user1'] as Map<String, dynamic>),
-      user2: json['user2'] == null
-          ? null
-          : UserModel.fromJson(json['user2'] as Map<String, dynamic>),
-      lastMessage: json['lastMessage'] == null
-          ? null
-          : MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>),
-      unreadCount: (json['unreadCount'] as num).toInt(),
+          : DateTime.parse(json['lastMessageAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
       myParticipant: json['myParticipant'] == null
           ? null
           : ChatParticipantModel.fromJson(
               json['myParticipant'] as Map<String, dynamic>),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      participants: (json['participants'] as List<dynamic>?)
+          ?.map((e) => ChatParticipantModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lastMessage: json['lastMessage'] == null
+          ? null
+          : MessageModel.fromJson(json['lastMessage'] as Map<String, dynamic>),
+      otherUser: json['otherUser'] == null
+          ? null
+          : ChatUserModel.fromJson(json['otherUser'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$ChatModelImplToJson(_$ChatModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'user1Id': instance.user1Id,
-      'user2Id': instance.user2Id,
-      'user1': instance.user1,
-      'user2': instance.user2,
-      'lastMessage': instance.lastMessage,
-      'unreadCount': instance.unreadCount,
-      'myParticipant': instance.myParticipant,
+      'type': _$ChatTypeEnumMap[instance.type]!,
+      'name': instance.name,
+      'avatarUrl': instance.avatarUrl,
+      'creatorId': instance.creatorId,
+      'lastMessageId': instance.lastMessageId,
+      'lastMessageAt': instance.lastMessageAt?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'myParticipant': instance.myParticipant,
+      'participants': instance.participants,
+      'lastMessage': instance.lastMessage,
+      'otherUser': instance.otherUser,
     };
+
+const _$ChatTypeEnumMap = {
+  ChatType.direct: 'direct',
+  ChatType.group: 'group',
+};
 
 _$ChatParticipantModelImpl _$$ChatParticipantModelImplFromJson(
         Map<String, dynamic> json) =>
@@ -49,10 +84,22 @@ _$ChatParticipantModelImpl _$$ChatParticipantModelImplFromJson(
       id: json['id'] as String,
       chatId: json['chatId'] as String,
       userId: json['userId'] as String,
-      isPinned: json['isPinned'] as bool,
-      isArchived: json['isArchived'] as bool,
-      unreadCount: (json['unreadCount'] as num).toInt(),
+      role: $enumDecodeNullable(_$ParticipantRoleEnumMap, json['role']) ??
+          ParticipantRole.member,
       lastReadMessageId: json['lastReadMessageId'] as String?,
+      lastReadAt: json['lastReadAt'] == null
+          ? null
+          : DateTime.parse(json['lastReadAt'] as String),
+      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
+      notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
+      isArchived: json['isArchived'] as bool? ?? false,
+      isPinned: json['isPinned'] as bool? ?? false,
+      isRemoved: json['isRemoved'] as bool? ?? false,
+      joinedAt: DateTime.parse(json['joinedAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      user: json['user'] == null
+          ? null
+          : ChatUserModel.fromJson(json['user'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$ChatParticipantModelImplToJson(
@@ -61,26 +108,39 @@ Map<String, dynamic> _$$ChatParticipantModelImplToJson(
       'id': instance.id,
       'chatId': instance.chatId,
       'userId': instance.userId,
-      'isPinned': instance.isPinned,
-      'isArchived': instance.isArchived,
-      'unreadCount': instance.unreadCount,
+      'role': _$ParticipantRoleEnumMap[instance.role]!,
       'lastReadMessageId': instance.lastReadMessageId,
+      'lastReadAt': instance.lastReadAt?.toIso8601String(),
+      'unreadCount': instance.unreadCount,
+      'notificationsEnabled': instance.notificationsEnabled,
+      'isArchived': instance.isArchived,
+      'isPinned': instance.isPinned,
+      'isRemoved': instance.isRemoved,
+      'joinedAt': instance.joinedAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'user': instance.user,
     };
+
+const _$ParticipantRoleEnumMap = {
+  ParticipantRole.admin: 'admin',
+  ParticipantRole.member: 'member',
+  ParticipantRole.owner: 'owner',
+};
 
 _$MessageModelImpl _$$MessageModelImplFromJson(Map<String, dynamic> json) =>
     _$MessageModelImpl(
       id: json['id'] as String,
       chatId: json['chatId'] as String,
       senderId: json['senderId'] as String,
-      receiverId: json['receiverId'] as String,
       sender: json['sender'] == null
           ? null
-          : UserModel.fromJson(json['sender'] as Map<String, dynamic>),
+          : ChatUserModel.fromJson(json['sender'] as Map<String, dynamic>),
       content: json['content'] as String,
-      type: $enumDecode(_$MessageTypeEnumMap, json['type']),
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+          MessageType.text,
       mediaUrl: json['mediaUrl'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      isRead: json['isRead'] as bool,
+      isRead: json['isRead'] as bool? ?? false,
       readAt: json['readAt'] == null
           ? null
           : DateTime.parse(json['readAt'] as String),
@@ -93,7 +153,6 @@ Map<String, dynamic> _$$MessageModelImplToJson(_$MessageModelImpl instance) =>
       'id': instance.id,
       'chatId': instance.chatId,
       'senderId': instance.senderId,
-      'receiverId': instance.receiverId,
       'sender': instance.sender,
       'content': instance.content,
       'type': _$MessageTypeEnumMap[instance.type]!,
@@ -116,20 +175,30 @@ const _$MessageTypeEnumMap = {
 _$CreateChatRequestImpl _$$CreateChatRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateChatRequestImpl(
-      userId: json['user_id'] as String,
+      type: $enumDecodeNullable(_$ChatTypeEnumMap, json['type']) ??
+          ChatType.direct,
+      name: json['name'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
+      participantIds: (json['participant_ids'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$$CreateChatRequestImplToJson(
         _$CreateChatRequestImpl instance) =>
     <String, dynamic>{
-      'user_id': instance.userId,
+      'type': _$ChatTypeEnumMap[instance.type]!,
+      'name': instance.name,
+      'avatar_url': instance.avatarUrl,
+      'participant_ids': instance.participantIds,
     };
 
 _$SendMessageRequestImpl _$$SendMessageRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$SendMessageRequestImpl(
       content: json['content'] as String,
-      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']),
+      type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
+          MessageType.text,
       mediaUrl: json['media_url'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -138,7 +207,7 @@ Map<String, dynamic> _$$SendMessageRequestImplToJson(
         _$SendMessageRequestImpl instance) =>
     <String, dynamic>{
       'content': instance.content,
-      'type': _$MessageTypeEnumMap[instance.type],
+      'type': _$MessageTypeEnumMap[instance.type]!,
       'media_url': instance.mediaUrl,
       'metadata': instance.metadata,
     };

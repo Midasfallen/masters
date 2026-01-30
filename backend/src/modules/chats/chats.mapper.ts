@@ -1,9 +1,11 @@
-import { Chat } from './entities/chat.entity';
+import { Chat, ChatType } from './entities/chat.entity';
 import { Message } from './entities/message.entity';
 import { ChatParticipant } from './entities/chat-participant.entity';
 import { ChatResponseDto } from './dto/chat-response.dto';
 import { MessageResponseDto, MediaMetadataDto } from './dto/message-response.dto';
 import { ChatParticipantResponseDto } from './dto/chat-participant-response.dto';
+import { ChatUserResponseDto } from './dto/chat-user-response.dto';
+import { User } from '../users/entities/user.entity';
 
 /**
  * Mapper для преобразования Chat/Message/ChatParticipant → Response DTOs
@@ -24,6 +26,52 @@ export class ChatsMapper {
       createdAt: chat.created_at,
       updatedAt: chat.updated_at,
     };
+  }
+
+  /**
+   * Преобразует User entity в ChatUserResponseDto
+   */
+  static toUserDto(user: User): ChatUserResponseDto {
+    return {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      fullName: `${user.first_name} ${user.last_name}`.trim(),
+      avatarUrl: user.avatar_url,
+      isMaster: user.is_master,
+      isVerified: user.is_verified,
+    };
+  }
+
+  /**
+   * Создает полный ChatResponseDto с участниками и otherUser
+   */
+  static toFullChatDto(
+    chat: Chat,
+    myParticipant: ChatParticipant,
+    currentUserId: string,
+  ): ChatResponseDto {
+    const chatDto = this.toChatDto(chat);
+    chatDto.myParticipant = this.toParticipantDto(myParticipant);
+
+    // Для direct чата добавляем otherUser
+    if (chat.type === ChatType.DIRECT && chat.participants) {
+      const otherParticipant = chat.participants.find(
+        (p) => p.user_id !== currentUserId && !p.is_removed,
+      );
+      if (otherParticipant?.user) {
+        chatDto.otherUser = this.toUserDto(otherParticipant.user);
+      }
+    }
+
+    // Для групповых чатов добавляем список участников
+    if (chat.type === ChatType.GROUP && chat.participants) {
+      chatDto.participants = chat.participants
+        .filter((p) => !p.is_removed)
+        .map((p) => this.toParticipantDto(p));
+    }
+
+    return chatDto;
   }
 
   /**

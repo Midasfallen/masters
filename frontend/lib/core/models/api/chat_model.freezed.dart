@@ -14,6 +14,288 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+ChatUserModel _$ChatUserModelFromJson(Map<String, dynamic> json) {
+  return _ChatUserModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ChatUserModel {
+  String get id => throw _privateConstructorUsedError;
+  String get firstName => throw _privateConstructorUsedError;
+  String get lastName => throw _privateConstructorUsedError;
+  String? get fullName => throw _privateConstructorUsedError;
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  bool get isMaster => throw _privateConstructorUsedError;
+  bool get isVerified => throw _privateConstructorUsedError;
+
+  /// Serializes this ChatUserModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatUserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ChatUserModelCopyWith<ChatUserModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ChatUserModelCopyWith<$Res> {
+  factory $ChatUserModelCopyWith(
+          ChatUserModel value, $Res Function(ChatUserModel) then) =
+      _$ChatUserModelCopyWithImpl<$Res, ChatUserModel>;
+  @useResult
+  $Res call(
+      {String id,
+      String firstName,
+      String lastName,
+      String? fullName,
+      String? avatarUrl,
+      bool isMaster,
+      bool isVerified});
+}
+
+/// @nodoc
+class _$ChatUserModelCopyWithImpl<$Res, $Val extends ChatUserModel>
+    implements $ChatUserModelCopyWith<$Res> {
+  _$ChatUserModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ChatUserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? firstName = null,
+    Object? lastName = null,
+    Object? fullName = freezed,
+    Object? avatarUrl = freezed,
+    Object? isMaster = null,
+    Object? isVerified = null,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      firstName: null == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String,
+      lastName: null == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String,
+      fullName: freezed == fullName
+          ? _value.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isMaster: null == isMaster
+          ? _value.isMaster
+          : isMaster // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isVerified: null == isVerified
+          ? _value.isVerified
+          : isVerified // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ChatUserModelImplCopyWith<$Res>
+    implements $ChatUserModelCopyWith<$Res> {
+  factory _$$ChatUserModelImplCopyWith(
+          _$ChatUserModelImpl value, $Res Function(_$ChatUserModelImpl) then) =
+      __$$ChatUserModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      String firstName,
+      String lastName,
+      String? fullName,
+      String? avatarUrl,
+      bool isMaster,
+      bool isVerified});
+}
+
+/// @nodoc
+class __$$ChatUserModelImplCopyWithImpl<$Res>
+    extends _$ChatUserModelCopyWithImpl<$Res, _$ChatUserModelImpl>
+    implements _$$ChatUserModelImplCopyWith<$Res> {
+  __$$ChatUserModelImplCopyWithImpl(
+      _$ChatUserModelImpl _value, $Res Function(_$ChatUserModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ChatUserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? firstName = null,
+    Object? lastName = null,
+    Object? fullName = freezed,
+    Object? avatarUrl = freezed,
+    Object? isMaster = null,
+    Object? isVerified = null,
+  }) {
+    return _then(_$ChatUserModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      firstName: null == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String,
+      lastName: null == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String,
+      fullName: freezed == fullName
+          ? _value.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isMaster: null == isMaster
+          ? _value.isMaster
+          : isMaster // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isVerified: null == isVerified
+          ? _value.isVerified
+          : isVerified // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ChatUserModelImpl implements _ChatUserModel {
+  const _$ChatUserModelImpl(
+      {required this.id,
+      required this.firstName,
+      required this.lastName,
+      this.fullName,
+      this.avatarUrl,
+      this.isMaster = false,
+      this.isVerified = false});
+
+  factory _$ChatUserModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ChatUserModelImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String firstName;
+  @override
+  final String lastName;
+  @override
+  final String? fullName;
+  @override
+  final String? avatarUrl;
+  @override
+  @JsonKey()
+  final bool isMaster;
+  @override
+  @JsonKey()
+  final bool isVerified;
+
+  @override
+  String toString() {
+    return 'ChatUserModel(id: $id, firstName: $firstName, lastName: $lastName, fullName: $fullName, avatarUrl: $avatarUrl, isMaster: $isMaster, isVerified: $isVerified)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ChatUserModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
+            (identical(other.fullName, fullName) ||
+                other.fullName == fullName) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            (identical(other.isMaster, isMaster) ||
+                other.isMaster == isMaster) &&
+            (identical(other.isVerified, isVerified) ||
+                other.isVerified == isVerified));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, firstName, lastName,
+      fullName, avatarUrl, isMaster, isVerified);
+
+  /// Create a copy of ChatUserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ChatUserModelImplCopyWith<_$ChatUserModelImpl> get copyWith =>
+      __$$ChatUserModelImplCopyWithImpl<_$ChatUserModelImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ChatUserModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ChatUserModel implements ChatUserModel {
+  const factory _ChatUserModel(
+      {required final String id,
+      required final String firstName,
+      required final String lastName,
+      final String? fullName,
+      final String? avatarUrl,
+      final bool isMaster,
+      final bool isVerified}) = _$ChatUserModelImpl;
+
+  factory _ChatUserModel.fromJson(Map<String, dynamic> json) =
+      _$ChatUserModelImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  String get firstName;
+  @override
+  String get lastName;
+  @override
+  String? get fullName;
+  @override
+  String? get avatarUrl;
+  @override
+  bool get isMaster;
+  @override
+  bool get isVerified;
+
+  /// Create a copy of ChatUserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ChatUserModelImplCopyWith<_$ChatUserModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 ChatModel _$ChatModelFromJson(Map<String, dynamic> json) {
   return _ChatModel.fromJson(json);
 }
@@ -21,15 +303,20 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ChatModel {
   String get id => throw _privateConstructorUsedError;
-  String get user1Id => throw _privateConstructorUsedError;
-  String get user2Id => throw _privateConstructorUsedError;
-  UserModel? get user1 => throw _privateConstructorUsedError;
-  UserModel? get user2 => throw _privateConstructorUsedError;
-  MessageModel? get lastMessage => throw _privateConstructorUsedError;
-  int get unreadCount => throw _privateConstructorUsedError;
-  ChatParticipantModel? get myParticipant => throw _privateConstructorUsedError;
+  ChatType get type => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  String? get creatorId => throw _privateConstructorUsedError;
+  String? get lastMessageId => throw _privateConstructorUsedError;
+  DateTime? get lastMessageAt => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
+  ChatParticipantModel? get myParticipant =>
+      throw _privateConstructorUsedError; // Дополнительные поля для UI
+  List<ChatParticipantModel>? get participants =>
+      throw _privateConstructorUsedError;
+  MessageModel? get lastMessage => throw _privateConstructorUsedError;
+  ChatUserModel? get otherUser => throw _privateConstructorUsedError;
 
   /// Serializes this ChatModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,20 +335,22 @@ abstract class $ChatModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String user1Id,
-      String user2Id,
-      UserModel? user1,
-      UserModel? user2,
-      MessageModel? lastMessage,
-      int unreadCount,
-      ChatParticipantModel? myParticipant,
+      ChatType type,
+      String? name,
+      String? avatarUrl,
+      String? creatorId,
+      String? lastMessageId,
+      DateTime? lastMessageAt,
       DateTime createdAt,
-      DateTime updatedAt});
+      DateTime updatedAt,
+      ChatParticipantModel? myParticipant,
+      List<ChatParticipantModel>? participants,
+      MessageModel? lastMessage,
+      ChatUserModel? otherUser});
 
-  $UserModelCopyWith<$Res>? get user1;
-  $UserModelCopyWith<$Res>? get user2;
-  $MessageModelCopyWith<$Res>? get lastMessage;
   $ChatParticipantModelCopyWith<$Res>? get myParticipant;
+  $MessageModelCopyWith<$Res>? get lastMessage;
+  $ChatUserModelCopyWith<$Res>? get otherUser;
 }
 
 /// @nodoc
@@ -80,49 +369,48 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
   @override
   $Res call({
     Object? id = null,
-    Object? user1Id = null,
-    Object? user2Id = null,
-    Object? user1 = freezed,
-    Object? user2 = freezed,
-    Object? lastMessage = freezed,
-    Object? unreadCount = null,
-    Object? myParticipant = freezed,
+    Object? type = null,
+    Object? name = freezed,
+    Object? avatarUrl = freezed,
+    Object? creatorId = freezed,
+    Object? lastMessageId = freezed,
+    Object? lastMessageAt = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? myParticipant = freezed,
+    Object? participants = freezed,
+    Object? lastMessage = freezed,
+    Object? otherUser = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      user1Id: null == user1Id
-          ? _value.user1Id
-          : user1Id // ignore: cast_nullable_to_non_nullable
-              as String,
-      user2Id: null == user2Id
-          ? _value.user2Id
-          : user2Id // ignore: cast_nullable_to_non_nullable
-              as String,
-      user1: freezed == user1
-          ? _value.user1
-          : user1 // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
-      user2: freezed == user2
-          ? _value.user2
-          : user2 // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
-      lastMessage: freezed == lastMessage
-          ? _value.lastMessage
-          : lastMessage // ignore: cast_nullable_to_non_nullable
-              as MessageModel?,
-      unreadCount: null == unreadCount
-          ? _value.unreadCount
-          : unreadCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      myParticipant: freezed == myParticipant
-          ? _value.myParticipant
-          : myParticipant // ignore: cast_nullable_to_non_nullable
-              as ChatParticipantModel?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as ChatType,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      creatorId: freezed == creatorId
+          ? _value.creatorId
+          : creatorId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMessageId: freezed == lastMessageId
+          ? _value.lastMessageId
+          : lastMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMessageAt: freezed == lastMessageAt
+          ? _value.lastMessageAt
+          : lastMessageAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -131,6 +419,22 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      myParticipant: freezed == myParticipant
+          ? _value.myParticipant
+          : myParticipant // ignore: cast_nullable_to_non_nullable
+              as ChatParticipantModel?,
+      participants: freezed == participants
+          ? _value.participants
+          : participants // ignore: cast_nullable_to_non_nullable
+              as List<ChatParticipantModel>?,
+      lastMessage: freezed == lastMessage
+          ? _value.lastMessage
+          : lastMessage // ignore: cast_nullable_to_non_nullable
+              as MessageModel?,
+      otherUser: freezed == otherUser
+          ? _value.otherUser
+          : otherUser // ignore: cast_nullable_to_non_nullable
+              as ChatUserModel?,
     ) as $Val);
   }
 
@@ -138,27 +442,13 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserModelCopyWith<$Res>? get user1 {
-    if (_value.user1 == null) {
+  $ChatParticipantModelCopyWith<$Res>? get myParticipant {
+    if (_value.myParticipant == null) {
       return null;
     }
 
-    return $UserModelCopyWith<$Res>(_value.user1!, (value) {
-      return _then(_value.copyWith(user1: value) as $Val);
-    });
-  }
-
-  /// Create a copy of ChatModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $UserModelCopyWith<$Res>? get user2 {
-    if (_value.user2 == null) {
-      return null;
-    }
-
-    return $UserModelCopyWith<$Res>(_value.user2!, (value) {
-      return _then(_value.copyWith(user2: value) as $Val);
+    return $ChatParticipantModelCopyWith<$Res>(_value.myParticipant!, (value) {
+      return _then(_value.copyWith(myParticipant: value) as $Val);
     });
   }
 
@@ -180,13 +470,13 @@ class _$ChatModelCopyWithImpl<$Res, $Val extends ChatModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ChatParticipantModelCopyWith<$Res>? get myParticipant {
-    if (_value.myParticipant == null) {
+  $ChatUserModelCopyWith<$Res>? get otherUser {
+    if (_value.otherUser == null) {
       return null;
     }
 
-    return $ChatParticipantModelCopyWith<$Res>(_value.myParticipant!, (value) {
-      return _then(_value.copyWith(myParticipant: value) as $Val);
+    return $ChatUserModelCopyWith<$Res>(_value.otherUser!, (value) {
+      return _then(_value.copyWith(otherUser: value) as $Val);
     });
   }
 }
@@ -201,24 +491,25 @@ abstract class _$$ChatModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      String user1Id,
-      String user2Id,
-      UserModel? user1,
-      UserModel? user2,
-      MessageModel? lastMessage,
-      int unreadCount,
-      ChatParticipantModel? myParticipant,
+      ChatType type,
+      String? name,
+      String? avatarUrl,
+      String? creatorId,
+      String? lastMessageId,
+      DateTime? lastMessageAt,
       DateTime createdAt,
-      DateTime updatedAt});
+      DateTime updatedAt,
+      ChatParticipantModel? myParticipant,
+      List<ChatParticipantModel>? participants,
+      MessageModel? lastMessage,
+      ChatUserModel? otherUser});
 
   @override
-  $UserModelCopyWith<$Res>? get user1;
-  @override
-  $UserModelCopyWith<$Res>? get user2;
+  $ChatParticipantModelCopyWith<$Res>? get myParticipant;
   @override
   $MessageModelCopyWith<$Res>? get lastMessage;
   @override
-  $ChatParticipantModelCopyWith<$Res>? get myParticipant;
+  $ChatUserModelCopyWith<$Res>? get otherUser;
 }
 
 /// @nodoc
@@ -235,49 +526,48 @@ class __$$ChatModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? user1Id = null,
-    Object? user2Id = null,
-    Object? user1 = freezed,
-    Object? user2 = freezed,
-    Object? lastMessage = freezed,
-    Object? unreadCount = null,
-    Object? myParticipant = freezed,
+    Object? type = null,
+    Object? name = freezed,
+    Object? avatarUrl = freezed,
+    Object? creatorId = freezed,
+    Object? lastMessageId = freezed,
+    Object? lastMessageAt = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
+    Object? myParticipant = freezed,
+    Object? participants = freezed,
+    Object? lastMessage = freezed,
+    Object? otherUser = freezed,
   }) {
     return _then(_$ChatModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      user1Id: null == user1Id
-          ? _value.user1Id
-          : user1Id // ignore: cast_nullable_to_non_nullable
-              as String,
-      user2Id: null == user2Id
-          ? _value.user2Id
-          : user2Id // ignore: cast_nullable_to_non_nullable
-              as String,
-      user1: freezed == user1
-          ? _value.user1
-          : user1 // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
-      user2: freezed == user2
-          ? _value.user2
-          : user2 // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
-      lastMessage: freezed == lastMessage
-          ? _value.lastMessage
-          : lastMessage // ignore: cast_nullable_to_non_nullable
-              as MessageModel?,
-      unreadCount: null == unreadCount
-          ? _value.unreadCount
-          : unreadCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      myParticipant: freezed == myParticipant
-          ? _value.myParticipant
-          : myParticipant // ignore: cast_nullable_to_non_nullable
-              as ChatParticipantModel?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as ChatType,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      creatorId: freezed == creatorId
+          ? _value.creatorId
+          : creatorId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMessageId: freezed == lastMessageId
+          ? _value.lastMessageId
+          : lastMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastMessageAt: freezed == lastMessageAt
+          ? _value.lastMessageAt
+          : lastMessageAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -286,6 +576,22 @@ class __$$ChatModelImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      myParticipant: freezed == myParticipant
+          ? _value.myParticipant
+          : myParticipant // ignore: cast_nullable_to_non_nullable
+              as ChatParticipantModel?,
+      participants: freezed == participants
+          ? _value._participants
+          : participants // ignore: cast_nullable_to_non_nullable
+              as List<ChatParticipantModel>?,
+      lastMessage: freezed == lastMessage
+          ? _value.lastMessage
+          : lastMessage // ignore: cast_nullable_to_non_nullable
+              as MessageModel?,
+      otherUser: freezed == otherUser
+          ? _value.otherUser
+          : otherUser // ignore: cast_nullable_to_non_nullable
+              as ChatUserModel?,
     ));
   }
 }
@@ -295,15 +601,19 @@ class __$$ChatModelImplCopyWithImpl<$Res>
 class _$ChatModelImpl implements _ChatModel {
   const _$ChatModelImpl(
       {required this.id,
-      required this.user1Id,
-      required this.user2Id,
-      this.user1,
-      this.user2,
-      this.lastMessage,
-      required this.unreadCount,
-      this.myParticipant,
+      required this.type,
+      this.name,
+      this.avatarUrl,
+      this.creatorId,
+      this.lastMessageId,
+      this.lastMessageAt,
       required this.createdAt,
-      required this.updatedAt});
+      required this.updatedAt,
+      this.myParticipant,
+      final List<ChatParticipantModel>? participants,
+      this.lastMessage,
+      this.otherUser})
+      : _participants = participants;
 
   factory _$ChatModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatModelImplFromJson(json);
@@ -311,27 +621,43 @@ class _$ChatModelImpl implements _ChatModel {
   @override
   final String id;
   @override
-  final String user1Id;
+  final ChatType type;
   @override
-  final String user2Id;
+  final String? name;
   @override
-  final UserModel? user1;
+  final String? avatarUrl;
   @override
-  final UserModel? user2;
+  final String? creatorId;
   @override
-  final MessageModel? lastMessage;
+  final String? lastMessageId;
   @override
-  final int unreadCount;
-  @override
-  final ChatParticipantModel? myParticipant;
+  final DateTime? lastMessageAt;
   @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  @override
+  final ChatParticipantModel? myParticipant;
+// Дополнительные поля для UI
+  final List<ChatParticipantModel>? _participants;
+// Дополнительные поля для UI
+  @override
+  List<ChatParticipantModel>? get participants {
+    final value = _participants;
+    if (value == null) return null;
+    if (_participants is EqualUnmodifiableListView) return _participants;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  final MessageModel? lastMessage;
+  @override
+  final ChatUserModel? otherUser;
 
   @override
   String toString() {
-    return 'ChatModel(id: $id, user1Id: $user1Id, user2Id: $user2Id, user1: $user1, user2: $user2, lastMessage: $lastMessage, unreadCount: $unreadCount, myParticipant: $myParticipant, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ChatModel(id: $id, type: $type, name: $name, avatarUrl: $avatarUrl, creatorId: $creatorId, lastMessageId: $lastMessageId, lastMessageAt: $lastMessageAt, createdAt: $createdAt, updatedAt: $updatedAt, myParticipant: $myParticipant, participants: $participants, lastMessage: $lastMessage, otherUser: $otherUser)';
   }
 
   @override
@@ -340,26 +666,47 @@ class _$ChatModelImpl implements _ChatModel {
         (other.runtimeType == runtimeType &&
             other is _$ChatModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.user1Id, user1Id) || other.user1Id == user1Id) &&
-            (identical(other.user2Id, user2Id) || other.user2Id == user2Id) &&
-            (identical(other.user1, user1) || other.user1 == user1) &&
-            (identical(other.user2, user2) || other.user2 == user2) &&
-            (identical(other.lastMessage, lastMessage) ||
-                other.lastMessage == lastMessage) &&
-            (identical(other.unreadCount, unreadCount) ||
-                other.unreadCount == unreadCount) &&
-            (identical(other.myParticipant, myParticipant) ||
-                other.myParticipant == myParticipant) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            (identical(other.creatorId, creatorId) ||
+                other.creatorId == creatorId) &&
+            (identical(other.lastMessageId, lastMessageId) ||
+                other.lastMessageId == lastMessageId) &&
+            (identical(other.lastMessageAt, lastMessageAt) ||
+                other.lastMessageAt == lastMessageAt) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.myParticipant, myParticipant) ||
+                other.myParticipant == myParticipant) &&
+            const DeepCollectionEquality()
+                .equals(other._participants, _participants) &&
+            (identical(other.lastMessage, lastMessage) ||
+                other.lastMessage == lastMessage) &&
+            (identical(other.otherUser, otherUser) ||
+                other.otherUser == otherUser));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, user1Id, user2Id, user1,
-      user2, lastMessage, unreadCount, myParticipant, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      type,
+      name,
+      avatarUrl,
+      creatorId,
+      lastMessageId,
+      lastMessageAt,
+      createdAt,
+      updatedAt,
+      myParticipant,
+      const DeepCollectionEquality().hash(_participants),
+      lastMessage,
+      otherUser);
 
   /// Create a copy of ChatModel
   /// with the given fields replaced by the non-null parameter values.
@@ -380,15 +727,18 @@ class _$ChatModelImpl implements _ChatModel {
 abstract class _ChatModel implements ChatModel {
   const factory _ChatModel(
       {required final String id,
-      required final String user1Id,
-      required final String user2Id,
-      final UserModel? user1,
-      final UserModel? user2,
-      final MessageModel? lastMessage,
-      required final int unreadCount,
-      final ChatParticipantModel? myParticipant,
+      required final ChatType type,
+      final String? name,
+      final String? avatarUrl,
+      final String? creatorId,
+      final String? lastMessageId,
+      final DateTime? lastMessageAt,
       required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$ChatModelImpl;
+      required final DateTime updatedAt,
+      final ChatParticipantModel? myParticipant,
+      final List<ChatParticipantModel>? participants,
+      final MessageModel? lastMessage,
+      final ChatUserModel? otherUser}) = _$ChatModelImpl;
 
   factory _ChatModel.fromJson(Map<String, dynamic> json) =
       _$ChatModelImpl.fromJson;
@@ -396,23 +746,29 @@ abstract class _ChatModel implements ChatModel {
   @override
   String get id;
   @override
-  String get user1Id;
+  ChatType get type;
   @override
-  String get user2Id;
+  String? get name;
   @override
-  UserModel? get user1;
+  String? get avatarUrl;
   @override
-  UserModel? get user2;
+  String? get creatorId;
   @override
-  MessageModel? get lastMessage;
+  String? get lastMessageId;
   @override
-  int get unreadCount;
-  @override
-  ChatParticipantModel? get myParticipant;
+  DateTime? get lastMessageAt;
   @override
   DateTime get createdAt;
   @override
   DateTime get updatedAt;
+  @override
+  ChatParticipantModel? get myParticipant; // Дополнительные поля для UI
+  @override
+  List<ChatParticipantModel>? get participants;
+  @override
+  MessageModel? get lastMessage;
+  @override
+  ChatUserModel? get otherUser;
 
   /// Create a copy of ChatModel
   /// with the given fields replaced by the non-null parameter values.
@@ -431,10 +787,18 @@ mixin _$ChatParticipantModel {
   String get id => throw _privateConstructorUsedError;
   String get chatId => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  bool get isPinned => throw _privateConstructorUsedError;
-  bool get isArchived => throw _privateConstructorUsedError;
-  int get unreadCount => throw _privateConstructorUsedError;
+  ParticipantRole get role => throw _privateConstructorUsedError;
   String? get lastReadMessageId => throw _privateConstructorUsedError;
+  DateTime? get lastReadAt => throw _privateConstructorUsedError;
+  int get unreadCount => throw _privateConstructorUsedError;
+  bool get notificationsEnabled => throw _privateConstructorUsedError;
+  bool get isArchived => throw _privateConstructorUsedError;
+  bool get isPinned => throw _privateConstructorUsedError;
+  bool get isRemoved => throw _privateConstructorUsedError;
+  DateTime get joinedAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt =>
+      throw _privateConstructorUsedError; // User info для UI
+  ChatUserModel? get user => throw _privateConstructorUsedError;
 
   /// Serializes this ChatParticipantModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -456,10 +820,19 @@ abstract class $ChatParticipantModelCopyWith<$Res> {
       {String id,
       String chatId,
       String userId,
-      bool isPinned,
-      bool isArchived,
+      ParticipantRole role,
+      String? lastReadMessageId,
+      DateTime? lastReadAt,
       int unreadCount,
-      String? lastReadMessageId});
+      bool notificationsEnabled,
+      bool isArchived,
+      bool isPinned,
+      bool isRemoved,
+      DateTime joinedAt,
+      DateTime updatedAt,
+      ChatUserModel? user});
+
+  $ChatUserModelCopyWith<$Res>? get user;
 }
 
 /// @nodoc
@@ -481,10 +854,17 @@ class _$ChatParticipantModelCopyWithImpl<$Res,
     Object? id = null,
     Object? chatId = null,
     Object? userId = null,
-    Object? isPinned = null,
-    Object? isArchived = null,
-    Object? unreadCount = null,
+    Object? role = null,
     Object? lastReadMessageId = freezed,
+    Object? lastReadAt = freezed,
+    Object? unreadCount = null,
+    Object? notificationsEnabled = null,
+    Object? isArchived = null,
+    Object? isPinned = null,
+    Object? isRemoved = null,
+    Object? joinedAt = null,
+    Object? updatedAt = null,
+    Object? user = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -499,23 +879,65 @@ class _$ChatParticipantModelCopyWithImpl<$Res,
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      isPinned: null == isPinned
-          ? _value.isPinned
-          : isPinned // ignore: cast_nullable_to_non_nullable
+      role: null == role
+          ? _value.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as ParticipantRole,
+      lastReadMessageId: freezed == lastReadMessageId
+          ? _value.lastReadMessageId
+          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastReadAt: freezed == lastReadAt
+          ? _value.lastReadAt
+          : lastReadAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      notificationsEnabled: null == notificationsEnabled
+          ? _value.notificationsEnabled
+          : notificationsEnabled // ignore: cast_nullable_to_non_nullable
               as bool,
       isArchived: null == isArchived
           ? _value.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable
               as bool,
-      unreadCount: null == unreadCount
-          ? _value.unreadCount
-          : unreadCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      lastReadMessageId: freezed == lastReadMessageId
-          ? _value.lastReadMessageId
-          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
-              as String?,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isRemoved: null == isRemoved
+          ? _value.isRemoved
+          : isRemoved // ignore: cast_nullable_to_non_nullable
+              as bool,
+      joinedAt: null == joinedAt
+          ? _value.joinedAt
+          : joinedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      user: freezed == user
+          ? _value.user
+          : user // ignore: cast_nullable_to_non_nullable
+              as ChatUserModel?,
     ) as $Val);
+  }
+
+  /// Create a copy of ChatParticipantModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ChatUserModelCopyWith<$Res>? get user {
+    if (_value.user == null) {
+      return null;
+    }
+
+    return $ChatUserModelCopyWith<$Res>(_value.user!, (value) {
+      return _then(_value.copyWith(user: value) as $Val);
+    });
   }
 }
 
@@ -531,10 +953,20 @@ abstract class _$$ChatParticipantModelImplCopyWith<$Res>
       {String id,
       String chatId,
       String userId,
-      bool isPinned,
-      bool isArchived,
+      ParticipantRole role,
+      String? lastReadMessageId,
+      DateTime? lastReadAt,
       int unreadCount,
-      String? lastReadMessageId});
+      bool notificationsEnabled,
+      bool isArchived,
+      bool isPinned,
+      bool isRemoved,
+      DateTime joinedAt,
+      DateTime updatedAt,
+      ChatUserModel? user});
+
+  @override
+  $ChatUserModelCopyWith<$Res>? get user;
 }
 
 /// @nodoc
@@ -553,10 +985,17 @@ class __$$ChatParticipantModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? chatId = null,
     Object? userId = null,
-    Object? isPinned = null,
-    Object? isArchived = null,
-    Object? unreadCount = null,
+    Object? role = null,
     Object? lastReadMessageId = freezed,
+    Object? lastReadAt = freezed,
+    Object? unreadCount = null,
+    Object? notificationsEnabled = null,
+    Object? isArchived = null,
+    Object? isPinned = null,
+    Object? isRemoved = null,
+    Object? joinedAt = null,
+    Object? updatedAt = null,
+    Object? user = freezed,
   }) {
     return _then(_$ChatParticipantModelImpl(
       id: null == id
@@ -571,22 +1010,50 @@ class __$$ChatParticipantModelImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      isPinned: null == isPinned
-          ? _value.isPinned
-          : isPinned // ignore: cast_nullable_to_non_nullable
+      role: null == role
+          ? _value.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as ParticipantRole,
+      lastReadMessageId: freezed == lastReadMessageId
+          ? _value.lastReadMessageId
+          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastReadAt: freezed == lastReadAt
+          ? _value.lastReadAt
+          : lastReadAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      unreadCount: null == unreadCount
+          ? _value.unreadCount
+          : unreadCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      notificationsEnabled: null == notificationsEnabled
+          ? _value.notificationsEnabled
+          : notificationsEnabled // ignore: cast_nullable_to_non_nullable
               as bool,
       isArchived: null == isArchived
           ? _value.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable
               as bool,
-      unreadCount: null == unreadCount
-          ? _value.unreadCount
-          : unreadCount // ignore: cast_nullable_to_non_nullable
-              as int,
-      lastReadMessageId: freezed == lastReadMessageId
-          ? _value.lastReadMessageId
-          : lastReadMessageId // ignore: cast_nullable_to_non_nullable
-              as String?,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isRemoved: null == isRemoved
+          ? _value.isRemoved
+          : isRemoved // ignore: cast_nullable_to_non_nullable
+              as bool,
+      joinedAt: null == joinedAt
+          ? _value.joinedAt
+          : joinedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      user: freezed == user
+          ? _value.user
+          : user // ignore: cast_nullable_to_non_nullable
+              as ChatUserModel?,
     ));
   }
 }
@@ -598,10 +1065,17 @@ class _$ChatParticipantModelImpl implements _ChatParticipantModel {
       {required this.id,
       required this.chatId,
       required this.userId,
-      required this.isPinned,
-      required this.isArchived,
-      required this.unreadCount,
-      this.lastReadMessageId});
+      this.role = ParticipantRole.member,
+      this.lastReadMessageId,
+      this.lastReadAt,
+      this.unreadCount = 0,
+      this.notificationsEnabled = true,
+      this.isArchived = false,
+      this.isPinned = false,
+      this.isRemoved = false,
+      required this.joinedAt,
+      required this.updatedAt,
+      this.user});
 
   factory _$ChatParticipantModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatParticipantModelImplFromJson(json);
@@ -613,17 +1087,38 @@ class _$ChatParticipantModelImpl implements _ChatParticipantModel {
   @override
   final String userId;
   @override
-  final bool isPinned;
-  @override
-  final bool isArchived;
-  @override
-  final int unreadCount;
+  @JsonKey()
+  final ParticipantRole role;
   @override
   final String? lastReadMessageId;
+  @override
+  final DateTime? lastReadAt;
+  @override
+  @JsonKey()
+  final int unreadCount;
+  @override
+  @JsonKey()
+  final bool notificationsEnabled;
+  @override
+  @JsonKey()
+  final bool isArchived;
+  @override
+  @JsonKey()
+  final bool isPinned;
+  @override
+  @JsonKey()
+  final bool isRemoved;
+  @override
+  final DateTime joinedAt;
+  @override
+  final DateTime updatedAt;
+// User info для UI
+  @override
+  final ChatUserModel? user;
 
   @override
   String toString() {
-    return 'ChatParticipantModel(id: $id, chatId: $chatId, userId: $userId, isPinned: $isPinned, isArchived: $isArchived, unreadCount: $unreadCount, lastReadMessageId: $lastReadMessageId)';
+    return 'ChatParticipantModel(id: $id, chatId: $chatId, userId: $userId, role: $role, lastReadMessageId: $lastReadMessageId, lastReadAt: $lastReadAt, unreadCount: $unreadCount, notificationsEnabled: $notificationsEnabled, isArchived: $isArchived, isPinned: $isPinned, isRemoved: $isRemoved, joinedAt: $joinedAt, updatedAt: $updatedAt, user: $user)';
   }
 
   @override
@@ -634,20 +1129,46 @@ class _$ChatParticipantModelImpl implements _ChatParticipantModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.chatId, chatId) || other.chatId == chatId) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.isPinned, isPinned) ||
-                other.isPinned == isPinned) &&
-            (identical(other.isArchived, isArchived) ||
-                other.isArchived == isArchived) &&
+            (identical(other.role, role) || other.role == role) &&
+            (identical(other.lastReadMessageId, lastReadMessageId) ||
+                other.lastReadMessageId == lastReadMessageId) &&
+            (identical(other.lastReadAt, lastReadAt) ||
+                other.lastReadAt == lastReadAt) &&
             (identical(other.unreadCount, unreadCount) ||
                 other.unreadCount == unreadCount) &&
-            (identical(other.lastReadMessageId, lastReadMessageId) ||
-                other.lastReadMessageId == lastReadMessageId));
+            (identical(other.notificationsEnabled, notificationsEnabled) ||
+                other.notificationsEnabled == notificationsEnabled) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived) &&
+            (identical(other.isPinned, isPinned) ||
+                other.isPinned == isPinned) &&
+            (identical(other.isRemoved, isRemoved) ||
+                other.isRemoved == isRemoved) &&
+            (identical(other.joinedAt, joinedAt) ||
+                other.joinedAt == joinedAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.user, user) || other.user == user));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, chatId, userId, isPinned,
-      isArchived, unreadCount, lastReadMessageId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      chatId,
+      userId,
+      role,
+      lastReadMessageId,
+      lastReadAt,
+      unreadCount,
+      notificationsEnabled,
+      isArchived,
+      isPinned,
+      isRemoved,
+      joinedAt,
+      updatedAt,
+      user);
 
   /// Create a copy of ChatParticipantModel
   /// with the given fields replaced by the non-null parameter values.
@@ -672,10 +1193,17 @@ abstract class _ChatParticipantModel implements ChatParticipantModel {
       {required final String id,
       required final String chatId,
       required final String userId,
-      required final bool isPinned,
-      required final bool isArchived,
-      required final int unreadCount,
-      final String? lastReadMessageId}) = _$ChatParticipantModelImpl;
+      final ParticipantRole role,
+      final String? lastReadMessageId,
+      final DateTime? lastReadAt,
+      final int unreadCount,
+      final bool notificationsEnabled,
+      final bool isArchived,
+      final bool isPinned,
+      final bool isRemoved,
+      required final DateTime joinedAt,
+      required final DateTime updatedAt,
+      final ChatUserModel? user}) = _$ChatParticipantModelImpl;
 
   factory _ChatParticipantModel.fromJson(Map<String, dynamic> json) =
       _$ChatParticipantModelImpl.fromJson;
@@ -687,13 +1215,27 @@ abstract class _ChatParticipantModel implements ChatParticipantModel {
   @override
   String get userId;
   @override
-  bool get isPinned;
+  ParticipantRole get role;
   @override
-  bool get isArchived;
+  String? get lastReadMessageId;
+  @override
+  DateTime? get lastReadAt;
   @override
   int get unreadCount;
   @override
-  String? get lastReadMessageId;
+  bool get notificationsEnabled;
+  @override
+  bool get isArchived;
+  @override
+  bool get isPinned;
+  @override
+  bool get isRemoved;
+  @override
+  DateTime get joinedAt;
+  @override
+  DateTime get updatedAt; // User info для UI
+  @override
+  ChatUserModel? get user;
 
   /// Create a copy of ChatParticipantModel
   /// with the given fields replaced by the non-null parameter values.
@@ -712,8 +1254,7 @@ mixin _$MessageModel {
   String get id => throw _privateConstructorUsedError;
   String get chatId => throw _privateConstructorUsedError;
   String get senderId => throw _privateConstructorUsedError;
-  String get receiverId => throw _privateConstructorUsedError;
-  UserModel? get sender => throw _privateConstructorUsedError;
+  ChatUserModel? get sender => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   MessageType get type => throw _privateConstructorUsedError;
   String? get mediaUrl => throw _privateConstructorUsedError;
@@ -743,8 +1284,7 @@ abstract class $MessageModelCopyWith<$Res> {
       {String id,
       String chatId,
       String senderId,
-      String receiverId,
-      UserModel? sender,
+      ChatUserModel? sender,
       String content,
       MessageType type,
       String? mediaUrl,
@@ -754,7 +1294,7 @@ abstract class $MessageModelCopyWith<$Res> {
       DateTime createdAt,
       DateTime updatedAt});
 
-  $UserModelCopyWith<$Res>? get sender;
+  $ChatUserModelCopyWith<$Res>? get sender;
 }
 
 /// @nodoc
@@ -775,7 +1315,6 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
     Object? id = null,
     Object? chatId = null,
     Object? senderId = null,
-    Object? receiverId = null,
     Object? sender = freezed,
     Object? content = null,
     Object? type = null,
@@ -799,14 +1338,10 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
           ? _value.senderId
           : senderId // ignore: cast_nullable_to_non_nullable
               as String,
-      receiverId: null == receiverId
-          ? _value.receiverId
-          : receiverId // ignore: cast_nullable_to_non_nullable
-              as String,
       sender: freezed == sender
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
+              as ChatUserModel?,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -846,12 +1381,12 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserModelCopyWith<$Res>? get sender {
+  $ChatUserModelCopyWith<$Res>? get sender {
     if (_value.sender == null) {
       return null;
     }
 
-    return $UserModelCopyWith<$Res>(_value.sender!, (value) {
+    return $ChatUserModelCopyWith<$Res>(_value.sender!, (value) {
       return _then(_value.copyWith(sender: value) as $Val);
     });
   }
@@ -869,8 +1404,7 @@ abstract class _$$MessageModelImplCopyWith<$Res>
       {String id,
       String chatId,
       String senderId,
-      String receiverId,
-      UserModel? sender,
+      ChatUserModel? sender,
       String content,
       MessageType type,
       String? mediaUrl,
@@ -881,7 +1415,7 @@ abstract class _$$MessageModelImplCopyWith<$Res>
       DateTime updatedAt});
 
   @override
-  $UserModelCopyWith<$Res>? get sender;
+  $ChatUserModelCopyWith<$Res>? get sender;
 }
 
 /// @nodoc
@@ -900,7 +1434,6 @@ class __$$MessageModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? chatId = null,
     Object? senderId = null,
-    Object? receiverId = null,
     Object? sender = freezed,
     Object? content = null,
     Object? type = null,
@@ -924,14 +1457,10 @@ class __$$MessageModelImplCopyWithImpl<$Res>
           ? _value.senderId
           : senderId // ignore: cast_nullable_to_non_nullable
               as String,
-      receiverId: null == receiverId
-          ? _value.receiverId
-          : receiverId // ignore: cast_nullable_to_non_nullable
-              as String,
       sender: freezed == sender
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
-              as UserModel?,
+              as ChatUserModel?,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -975,13 +1504,12 @@ class _$MessageModelImpl implements _MessageModel {
       {required this.id,
       required this.chatId,
       required this.senderId,
-      required this.receiverId,
       this.sender,
       required this.content,
-      required this.type,
+      this.type = MessageType.text,
       this.mediaUrl,
       final Map<String, dynamic>? metadata,
-      required this.isRead,
+      this.isRead = false,
       this.readAt,
       required this.createdAt,
       required this.updatedAt})
@@ -997,12 +1525,11 @@ class _$MessageModelImpl implements _MessageModel {
   @override
   final String senderId;
   @override
-  final String receiverId;
-  @override
-  final UserModel? sender;
+  final ChatUserModel? sender;
   @override
   final String content;
   @override
+  @JsonKey()
   final MessageType type;
   @override
   final String? mediaUrl;
@@ -1017,6 +1544,7 @@ class _$MessageModelImpl implements _MessageModel {
   }
 
   @override
+  @JsonKey()
   final bool isRead;
   @override
   final DateTime? readAt;
@@ -1027,7 +1555,7 @@ class _$MessageModelImpl implements _MessageModel {
 
   @override
   String toString() {
-    return 'MessageModel(id: $id, chatId: $chatId, senderId: $senderId, receiverId: $receiverId, sender: $sender, content: $content, type: $type, mediaUrl: $mediaUrl, metadata: $metadata, isRead: $isRead, readAt: $readAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'MessageModel(id: $id, chatId: $chatId, senderId: $senderId, sender: $sender, content: $content, type: $type, mediaUrl: $mediaUrl, metadata: $metadata, isRead: $isRead, readAt: $readAt, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -1039,8 +1567,6 @@ class _$MessageModelImpl implements _MessageModel {
             (identical(other.chatId, chatId) || other.chatId == chatId) &&
             (identical(other.senderId, senderId) ||
                 other.senderId == senderId) &&
-            (identical(other.receiverId, receiverId) ||
-                other.receiverId == receiverId) &&
             (identical(other.sender, sender) || other.sender == sender) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.type, type) || other.type == type) &&
@@ -1062,7 +1588,6 @@ class _$MessageModelImpl implements _MessageModel {
       id,
       chatId,
       senderId,
-      receiverId,
       sender,
       content,
       type,
@@ -1094,13 +1619,12 @@ abstract class _MessageModel implements MessageModel {
       {required final String id,
       required final String chatId,
       required final String senderId,
-      required final String receiverId,
-      final UserModel? sender,
+      final ChatUserModel? sender,
       required final String content,
-      required final MessageType type,
+      final MessageType type,
       final String? mediaUrl,
       final Map<String, dynamic>? metadata,
-      required final bool isRead,
+      final bool isRead,
       final DateTime? readAt,
       required final DateTime createdAt,
       required final DateTime updatedAt}) = _$MessageModelImpl;
@@ -1115,9 +1639,7 @@ abstract class _MessageModel implements MessageModel {
   @override
   String get senderId;
   @override
-  String get receiverId;
-  @override
-  UserModel? get sender;
+  ChatUserModel? get sender;
   @override
   String get content;
   @override
@@ -1149,8 +1671,12 @@ CreateChatRequest _$CreateChatRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CreateChatRequest {
-  @JsonKey(name: 'user_id')
-  String get userId => throw _privateConstructorUsedError;
+  ChatType get type => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'participant_ids')
+  List<String> get participantIds => throw _privateConstructorUsedError;
 
   /// Serializes this CreateChatRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1168,7 +1694,11 @@ abstract class $CreateChatRequestCopyWith<$Res> {
           CreateChatRequest value, $Res Function(CreateChatRequest) then) =
       _$CreateChatRequestCopyWithImpl<$Res, CreateChatRequest>;
   @useResult
-  $Res call({@JsonKey(name: 'user_id') String userId});
+  $Res call(
+      {ChatType type,
+      String? name,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'participant_ids') List<String> participantIds});
 }
 
 /// @nodoc
@@ -1186,13 +1716,28 @@ class _$CreateChatRequestCopyWithImpl<$Res, $Val extends CreateChatRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
+    Object? type = null,
+    Object? name = freezed,
+    Object? avatarUrl = freezed,
+    Object? participantIds = null,
   }) {
     return _then(_value.copyWith(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as ChatType,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      participantIds: null == participantIds
+          ? _value.participantIds
+          : participantIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ) as $Val);
   }
 }
@@ -1205,7 +1750,11 @@ abstract class _$$CreateChatRequestImplCopyWith<$Res>
       __$$CreateChatRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'user_id') String userId});
+  $Res call(
+      {ChatType type,
+      String? name,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'participant_ids') List<String> participantIds});
 }
 
 /// @nodoc
@@ -1221,13 +1770,28 @@ class __$$CreateChatRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
+    Object? type = null,
+    Object? name = freezed,
+    Object? avatarUrl = freezed,
+    Object? participantIds = null,
   }) {
     return _then(_$CreateChatRequestImpl(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as ChatType,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      participantIds: null == participantIds
+          ? _value._participantIds
+          : participantIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
     ));
   }
 }
@@ -1236,18 +1800,36 @@ class __$$CreateChatRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateChatRequestImpl implements _CreateChatRequest {
   const _$CreateChatRequestImpl(
-      {@JsonKey(name: 'user_id') required this.userId});
+      {this.type = ChatType.direct,
+      this.name,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
+      @JsonKey(name: 'participant_ids')
+      required final List<String> participantIds})
+      : _participantIds = participantIds;
 
   factory _$CreateChatRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateChatRequestImplFromJson(json);
 
   @override
-  @JsonKey(name: 'user_id')
-  final String userId;
+  @JsonKey()
+  final ChatType type;
+  @override
+  final String? name;
+  @override
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+  final List<String> _participantIds;
+  @override
+  @JsonKey(name: 'participant_ids')
+  List<String> get participantIds {
+    if (_participantIds is EqualUnmodifiableListView) return _participantIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_participantIds);
+  }
 
   @override
   String toString() {
-    return 'CreateChatRequest(userId: $userId)';
+    return 'CreateChatRequest(type: $type, name: $name, avatarUrl: $avatarUrl, participantIds: $participantIds)';
   }
 
   @override
@@ -1255,12 +1837,18 @@ class _$CreateChatRequestImpl implements _CreateChatRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateChatRequestImpl &&
-            (identical(other.userId, userId) || other.userId == userId));
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            const DeepCollectionEquality()
+                .equals(other._participantIds, _participantIds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, userId);
+  int get hashCode => Object.hash(runtimeType, type, name, avatarUrl,
+      const DeepCollectionEquality().hash(_participantIds));
 
   /// Create a copy of CreateChatRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1281,15 +1869,25 @@ class _$CreateChatRequestImpl implements _CreateChatRequest {
 
 abstract class _CreateChatRequest implements CreateChatRequest {
   const factory _CreateChatRequest(
-          {@JsonKey(name: 'user_id') required final String userId}) =
-      _$CreateChatRequestImpl;
+      {final ChatType type,
+      final String? name,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
+      @JsonKey(name: 'participant_ids')
+      required final List<String> participantIds}) = _$CreateChatRequestImpl;
 
   factory _CreateChatRequest.fromJson(Map<String, dynamic> json) =
       _$CreateChatRequestImpl.fromJson;
 
   @override
-  @JsonKey(name: 'user_id')
-  String get userId;
+  ChatType get type;
+  @override
+  String? get name;
+  @override
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
+  @override
+  @JsonKey(name: 'participant_ids')
+  List<String> get participantIds;
 
   /// Create a copy of CreateChatRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1306,7 +1904,7 @@ SendMessageRequest _$SendMessageRequestFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$SendMessageRequest {
   String get content => throw _privateConstructorUsedError;
-  MessageType? get type => throw _privateConstructorUsedError;
+  MessageType get type => throw _privateConstructorUsedError;
   @JsonKey(name: 'media_url')
   String? get mediaUrl => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
@@ -1329,7 +1927,7 @@ abstract class $SendMessageRequestCopyWith<$Res> {
   @useResult
   $Res call(
       {String content,
-      MessageType? type,
+      MessageType type,
       @JsonKey(name: 'media_url') String? mediaUrl,
       Map<String, dynamic>? metadata});
 }
@@ -1350,7 +1948,7 @@ class _$SendMessageRequestCopyWithImpl<$Res, $Val extends SendMessageRequest>
   @override
   $Res call({
     Object? content = null,
-    Object? type = freezed,
+    Object? type = null,
     Object? mediaUrl = freezed,
     Object? metadata = freezed,
   }) {
@@ -1359,10 +1957,10 @@ class _$SendMessageRequestCopyWithImpl<$Res, $Val extends SendMessageRequest>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      type: freezed == type
+      type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as MessageType?,
+              as MessageType,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
@@ -1385,7 +1983,7 @@ abstract class _$$SendMessageRequestImplCopyWith<$Res>
   @useResult
   $Res call(
       {String content,
-      MessageType? type,
+      MessageType type,
       @JsonKey(name: 'media_url') String? mediaUrl,
       Map<String, dynamic>? metadata});
 }
@@ -1404,7 +2002,7 @@ class __$$SendMessageRequestImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? content = null,
-    Object? type = freezed,
+    Object? type = null,
     Object? mediaUrl = freezed,
     Object? metadata = freezed,
   }) {
@@ -1413,10 +2011,10 @@ class __$$SendMessageRequestImplCopyWithImpl<$Res>
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
               as String,
-      type: freezed == type
+      type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as MessageType?,
+              as MessageType,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
@@ -1434,7 +2032,7 @@ class __$$SendMessageRequestImplCopyWithImpl<$Res>
 class _$SendMessageRequestImpl implements _SendMessageRequest {
   const _$SendMessageRequestImpl(
       {required this.content,
-      this.type,
+      this.type = MessageType.text,
       @JsonKey(name: 'media_url') this.mediaUrl,
       final Map<String, dynamic>? metadata})
       : _metadata = metadata;
@@ -1445,7 +2043,8 @@ class _$SendMessageRequestImpl implements _SendMessageRequest {
   @override
   final String content;
   @override
-  final MessageType? type;
+  @JsonKey()
+  final MessageType type;
   @override
   @JsonKey(name: 'media_url')
   final String? mediaUrl;
@@ -1501,7 +2100,7 @@ class _$SendMessageRequestImpl implements _SendMessageRequest {
 abstract class _SendMessageRequest implements SendMessageRequest {
   const factory _SendMessageRequest(
       {required final String content,
-      final MessageType? type,
+      final MessageType type,
       @JsonKey(name: 'media_url') final String? mediaUrl,
       final Map<String, dynamic>? metadata}) = _$SendMessageRequestImpl;
 
@@ -1511,7 +2110,7 @@ abstract class _SendMessageRequest implements SendMessageRequest {
   @override
   String get content;
   @override
-  MessageType? get type;
+  MessageType get type;
   @override
   @JsonKey(name: 'media_url')
   String? get mediaUrl;

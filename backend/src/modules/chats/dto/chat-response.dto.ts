@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { ChatType } from '../entities/chat.entity';
 import { ChatParticipantResponseDto } from './chat-participant-response.dto';
+import { ChatUserResponseDto } from './chat-user-response.dto';
 
 /**
  * Response DTO для чата с camelCase полями
@@ -47,4 +48,14 @@ export class ChatResponseDto {
   @ApiProperty({ description: 'Информация об участии текущего пользователя в чате', type: ChatParticipantResponseDto, nullable: true })
   @Type(() => ChatParticipantResponseDto)
   myParticipant?: ChatParticipantResponseDto;
+
+  @Expose()
+  @ApiProperty({ description: 'Другой участник (для direct чатов)', type: ChatUserResponseDto, nullable: true })
+  @Type(() => ChatUserResponseDto)
+  otherUser?: ChatUserResponseDto;
+
+  @Expose()
+  @ApiProperty({ description: 'Список участников (для групповых чатов)', type: [ChatParticipantResponseDto], nullable: true })
+  @Type(() => ChatParticipantResponseDto)
+  participants?: ChatParticipantResponseDto[];
 }
