@@ -7,7 +7,7 @@ services:
     container_name: service-platform-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: service_platform
+      POSTGRES_DB: service_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

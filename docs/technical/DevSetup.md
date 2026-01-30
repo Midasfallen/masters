@@ -73,7 +73,7 @@ docker-compose up -d
 ```
 
 Это запустит:
-- **PostgreSQL** (порт 5432) - база данных
+- **PostgreSQL** (порт 5433) - база данных
 - **Redis** (порт 6379) - кэш и сессии
 - **Meilisearch** (порт 7700) - полнотекстовый поиск
 - **MinIO** (порты 9000, 9001) - хранилище медиа
@@ -102,6 +102,31 @@ docker-compose down -v
 
 ---
 
+### ВАЖНО: Выбор Docker Compose файла
+
+Проект содержит два Docker Compose файла с разными конфигурациями:
+
+| Файл | PostgreSQL | PostGIS | Порт | Использование |
+|------|------------|---------|------|---------------|
+| `docker-compose.yml` | postgres:15-alpine | Нет | 5433 | Production / Default |
+| `docker-compose.dev.yml` | postgis/postgis:15-3.4 | Да | 5432 | Development с геолокацией |
+
+**Для стандартной разработки (рекомендуется):**
+```bash
+docker-compose up -d
+```
+
+**Для разработки с геолокацией:**
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+> ⚠️ **Важно:** Убедитесь, что `backend/.env` соответствует выбранному compose файлу:
+> - `docker-compose.yml`: `DB_PORT=5433`, `DB_USERNAME=service_user`
+> - `docker-compose.dev.yml`: `DB_PORT=5432`, `DB_USERNAME=postgres`
+
+---
+
 ### 4. Настройка Backend (NestJS)
 
 #### Установить зависимости
@@ -114,13 +139,13 @@ npm install
 #### Запустить миграции базы данных
 
 ```bash
-npm run prisma:migrate
+npm run migration:run
 ```
 
 #### Заполнить базу начальными данными (seed)
 
 ```bash
-npm run prisma:seed
+npm run seed
 ```
 
 #### Запустить в режиме разработки
@@ -133,7 +158,7 @@ Backend будет доступен на `http://localhost:3000`.
 
 #### API документация (Swagger)
 
-Откройте в браузере: `http://localhost:3000/api/docs`
+Откройте в браузере: `http://localhost:3000/api/v2/docs`
 
 ---
 
@@ -175,7 +200,7 @@ flutter run -d emulator-5554
 
 ### Backend API
 - **URL:** `http://localhost:3000`
-- **Swagger docs:** `http://localhost:3000/api/docs`
+- **Swagger docs:** `http://localhost:3000/api/v2/docs`
 
 ### PostgreSQL (через Adminer)
 - **URL:** `http://localhost:8080`
@@ -227,10 +252,10 @@ service-platform/
 │   │   ├── notifications/    # Уведомления
 │   │   ├── admin/            # Админ-панель
 │   │   └── i18n/             # Переводы
-│   ├── prisma/
-│   │   ├── schema.prisma     # Prisma schema
-│   │   ├── migrations/       # Миграции
-│   │   └── seed.ts           # Начальные данные
+│   ├── database/
+│   │   ├── migrations/       # TypeORM миграции
+│   │   ├── seeds/            # Начальные данные
+│   │   └── init.sql          # SQL инициализация
 │   ├── test/                 # Тесты
 │   └── package.json
 │
@@ -298,8 +323,8 @@ nest g service users
 #### Создание миграции
 
 ```bash
-# После изменения schema.prisma
-npm run prisma:migrate:dev --name add_user_roles
+# После изменения entities
+npm run migration:generate -- -n AddUserRoles
 ```
 
 #### Запуск тестов
@@ -402,17 +427,41 @@ docker-compose up minio_createbuckets
 
 ### Backend не подключается к БД
 
-**Проблема:** `DATABASE_URL` неверный
+**Проблема:** Несоответствие конфигурации БД
 
 **Решение:**
-Убедитесь, что в `.env`:
-```
-DATABASE_URL=postgresql://service_user:service_password@localhost:5432/service_db
+
+1. **Проверьте какой docker-compose используется:**
+
+| Файл | PostgreSQL | Порт | БД |
+|------|------------|------|-----|
+| `docker-compose.yml` | postgres:15-alpine | 5433 | service_db |
+| `docker-compose.dev.yml` | postgis/postgis:15-3.4 | 5432 | service_db |
+
+2. **Убедитесь, что в `backend/.env` порт совпадает:**
+
+Для `docker-compose.yml` (production):
+```env
+DB_HOST=localhost
+DB_PORT=5433
+DB_DATABASE=service_db
+DB_USERNAME=service_user
+DB_PASSWORD=service_password
 ```
 
-Если backend в Docker, используйте имя сервиса:
+Для `docker-compose.dev.yml` (development с PostGIS):
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=service_db
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
 ```
-DATABASE_URL=postgresql://service_user:service_password@postgres:5432/service_db
+
+3. **Если backend в Docker**, используйте имя сервиса:
+```env
+DB_HOST=postgres
+DB_PORT=5432
 ```
 
 ---
@@ -467,10 +516,10 @@ flutter build web --release
 
 **Production миграции:**
 ```bash
-npm run prisma:migrate:deploy
+npm run migration:run
 ```
 
-❌ **НЕ используйте** `prisma:migrate:dev` в production!
+❌ **НЕ используйте** `synchronize: true` в production!
 
 ---
 
