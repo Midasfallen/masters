@@ -33,20 +33,31 @@ class PostCard extends StatelessWidget {
           // Main Image
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
-            child: CachedNetworkImage(
-              imageUrl: post.media.isNotEmpty ? post.media.first.url : '',
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: _greyBg,
-                child: const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              errorWidget: (context, url, error) => Container(
-                color: _greyBg,
-                child: const Icon(Icons.error),
-              ),
-            ),
+            child: post.media.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: post.media.first.url,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: _greyBg,
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: _greyBg,
+                      child: const Icon(Icons.error),
+                    ),
+                  )
+                : Container(
+                    color: _greyBg,
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: Colors.white54,
+                        size: 32,
+                      ),
+                    ),
+                  ),
           ),
 
           // Video indicator (centered)

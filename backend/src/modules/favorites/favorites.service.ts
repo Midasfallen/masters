@@ -11,6 +11,7 @@ import { AddFavoriteDto } from './dto/add-favorite.dto';
 import { FavoriteResponseDto } from './dto/favorite-response.dto';
 import { User } from '../users/entities/user.entity';
 import { Post } from '../posts/entities/post.entity';
+import { PostsMapper } from '../posts/posts.mapper';
 
 @Injectable()
 export class FavoritesService {
@@ -244,9 +245,9 @@ export class FavoritesService {
         case FavoriteEntityType.POST:
           const post = await this.postRepository.findOne({
             where: { id: favorite.entity_id },
-            relations: ['author', 'service'],
+            relations: ['author', 'media'],
           });
-          dto.entity = post;
+          dto.entity = post ? PostsMapper.toDto(post) : null;
           break;
       }
     } catch (error) {
