@@ -224,8 +224,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 padding: const EdgeInsets.all(4),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  crossAxisSpacing: 4,
-                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 2,
+                  mainAxisSpacing: 2,
                   childAspectRatio: 1.0,
                 ),
                 itemCount: posts.length + (hasMore ? 1 : 0),

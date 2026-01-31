@@ -28,37 +28,40 @@ class PostCard extends StatelessWidget {
       onTap: () {
         context.push('/post/${post.id}');
       },
-      child: Stack(
-        children: [
-          // Main Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: post.media.isNotEmpty
-                ? CachedNetworkImage(
-                    imageUrl: post.media.first.url,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: Stack(
+          children: [
+            // Main Image - заполняет всю ячейку
+            Positioned.fill(
+              child: post.media.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: post.media.first.url,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      placeholder: (context, url) => Container(
+                        color: _greyBg,
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: _greyBg,
+                        child: const Icon(Icons.error),
+                      ),
+                    )
+                  : Container(
                       color: _greyBg,
                       child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: Colors.white54,
+                          size: 32,
+                        ),
                       ),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: _greyBg,
-                      child: const Icon(Icons.error),
-                    ),
-                  )
-                : Container(
-                    color: _greyBg,
-                    child: const Center(
-                      child: Icon(
-                        Icons.image_not_supported_outlined,
-                        color: Colors.white54,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-          ),
+            ),
 
           // Video indicator (centered)
           if (post.media.isNotEmpty && post.media.first.type == MediaType.video)
@@ -170,6 +173,7 @@ class PostCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
