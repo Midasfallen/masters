@@ -28,11 +28,41 @@ Future<List<MasterProfileModel>> mastersList(
   );
 }
 
-/// Master by ID Provider
+/// Master by Profile ID Provider
+/// Gets master profile by master profile ID (not userId!)
 @riverpod
-Future<MasterProfileModel> masterById(MasterByIdRef ref, String masterId) async {
+Future<MasterProfileModel> masterByProfileId(
+  MasterByProfileIdRef ref,
+  String masterId,
+) async {
   final repository = ref.watch(masterRepositoryProvider);
   return await repository.getMasterById(masterId);
+}
+
+/// Master by User ID Provider
+/// Gets master profile by user ID (authorId from post)
+/// 
+/// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+/// поиск как по ID профиля мастера, так и по user_id.
+@riverpod
+Future<MasterProfileModel> masterByUserId(
+  MasterByUserIdRef ref,
+  String userId,
+) async {
+  final repository = ref.watch(masterRepositoryProvider);
+  return await repository.getMasterByUserId(userId);
+}
+
+/// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+/// 
+/// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+/// Используйте masterByProfileId для поиска по ID профиля мастера
+/// или masterByUserId для поиска по ID пользователя.
+@Deprecated('Use masterByProfileId or masterByUserId instead')
+@riverpod
+Future<MasterProfileModel> masterById(MasterByIdRef ref, String id) async {
+  final repository = ref.watch(masterRepositoryProvider);
+  return await repository.getMasterById(id);
 }
 
 /// Master Services Provider

@@ -252,37 +252,41 @@ class _MastersListProviderElement
   int? get radius => (origin as MastersListProvider).radius;
 }
 
-String _$masterByIdHash() => r'5903348f437b4e09a6d65fd402eb5d7b0962d584';
+String _$masterByProfileIdHash() => r'e7608d93f9a53dd9dd267b4a36b697d3790f34a1';
 
-/// Master by ID Provider
+/// Master by Profile ID Provider
+/// Gets master profile by master profile ID (not userId!)
 ///
-/// Copied from [masterById].
-@ProviderFor(masterById)
-const masterByIdProvider = MasterByIdFamily();
+/// Copied from [masterByProfileId].
+@ProviderFor(masterByProfileId)
+const masterByProfileIdProvider = MasterByProfileIdFamily();
 
-/// Master by ID Provider
+/// Master by Profile ID Provider
+/// Gets master profile by master profile ID (not userId!)
 ///
-/// Copied from [masterById].
-class MasterByIdFamily extends Family<AsyncValue<MasterProfileModel>> {
-  /// Master by ID Provider
+/// Copied from [masterByProfileId].
+class MasterByProfileIdFamily extends Family<AsyncValue<MasterProfileModel>> {
+  /// Master by Profile ID Provider
+  /// Gets master profile by master profile ID (not userId!)
   ///
-  /// Copied from [masterById].
-  const MasterByIdFamily();
+  /// Copied from [masterByProfileId].
+  const MasterByProfileIdFamily();
 
-  /// Master by ID Provider
+  /// Master by Profile ID Provider
+  /// Gets master profile by master profile ID (not userId!)
   ///
-  /// Copied from [masterById].
-  MasterByIdProvider call(
+  /// Copied from [masterByProfileId].
+  MasterByProfileIdProvider call(
     String masterId,
   ) {
-    return MasterByIdProvider(
+    return MasterByProfileIdProvider(
       masterId,
     );
   }
 
   @override
-  MasterByIdProvider getProviderOverride(
-    covariant MasterByIdProvider provider,
+  MasterByProfileIdProvider getProviderOverride(
+    covariant MasterByProfileIdProvider provider,
   ) {
     return call(
       provider.masterId,
@@ -301,36 +305,39 @@ class MasterByIdFamily extends Family<AsyncValue<MasterProfileModel>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'masterByIdProvider';
+  String? get name => r'masterByProfileIdProvider';
 }
 
-/// Master by ID Provider
+/// Master by Profile ID Provider
+/// Gets master profile by master profile ID (not userId!)
 ///
-/// Copied from [masterById].
-class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
-  /// Master by ID Provider
+/// Copied from [masterByProfileId].
+class MasterByProfileIdProvider
+    extends AutoDisposeFutureProvider<MasterProfileModel> {
+  /// Master by Profile ID Provider
+  /// Gets master profile by master profile ID (not userId!)
   ///
-  /// Copied from [masterById].
-  MasterByIdProvider(
+  /// Copied from [masterByProfileId].
+  MasterByProfileIdProvider(
     String masterId,
   ) : this._internal(
-          (ref) => masterById(
-            ref as MasterByIdRef,
+          (ref) => masterByProfileId(
+            ref as MasterByProfileIdRef,
             masterId,
           ),
-          from: masterByIdProvider,
-          name: r'masterByIdProvider',
+          from: masterByProfileIdProvider,
+          name: r'masterByProfileIdProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$masterByIdHash,
-          dependencies: MasterByIdFamily._dependencies,
+                  : _$masterByProfileIdHash,
+          dependencies: MasterByProfileIdFamily._dependencies,
           allTransitiveDependencies:
-              MasterByIdFamily._allTransitiveDependencies,
+              MasterByProfileIdFamily._allTransitiveDependencies,
           masterId: masterId,
         );
 
-  MasterByIdProvider._internal(
+  MasterByProfileIdProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -341,6 +348,359 @@ class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
   }) : super.internal();
 
   final String masterId;
+
+  @override
+  Override overrideWith(
+    FutureOr<MasterProfileModel> Function(MasterByProfileIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: MasterByProfileIdProvider._internal(
+        (ref) => create(ref as MasterByProfileIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        masterId: masterId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<MasterProfileModel> createElement() {
+    return _MasterByProfileIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MasterByProfileIdProvider && other.masterId == masterId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, masterId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin MasterByProfileIdRef on AutoDisposeFutureProviderRef<MasterProfileModel> {
+  /// The parameter `masterId` of this provider.
+  String get masterId;
+}
+
+class _MasterByProfileIdProviderElement
+    extends AutoDisposeFutureProviderElement<MasterProfileModel>
+    with MasterByProfileIdRef {
+  _MasterByProfileIdProviderElement(super.provider);
+
+  @override
+  String get masterId => (origin as MasterByProfileIdProvider).masterId;
+}
+
+String _$masterByUserIdHash() => r'de98625429b09eb87b36468c0b61fcbe4f6476b9';
+
+/// Master by User ID Provider
+/// Gets master profile by user ID (authorId from post)
+///
+/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+///
+/// Правильные решения:
+/// 1. Добавить masterId в PostModel (рекомендуется)
+/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+///
+/// Copied from [masterByUserId].
+@ProviderFor(masterByUserId)
+const masterByUserIdProvider = MasterByUserIdFamily();
+
+/// Master by User ID Provider
+/// Gets master profile by user ID (authorId from post)
+///
+/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+///
+/// Правильные решения:
+/// 1. Добавить masterId в PostModel (рекомендуется)
+/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+///
+/// Copied from [masterByUserId].
+class MasterByUserIdFamily extends Family<AsyncValue<MasterProfileModel>> {
+  /// Master by User ID Provider
+  /// Gets master profile by user ID (authorId from post)
+  ///
+  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+  ///
+  /// Правильные решения:
+  /// 1. Добавить masterId в PostModel (рекомендуется)
+  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  ///
+  /// Copied from [masterByUserId].
+  const MasterByUserIdFamily();
+
+  /// Master by User ID Provider
+  /// Gets master profile by user ID (authorId from post)
+  ///
+  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+  ///
+  /// Правильные решения:
+  /// 1. Добавить masterId в PostModel (рекомендуется)
+  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  ///
+  /// Copied from [masterByUserId].
+  MasterByUserIdProvider call(
+    String userId,
+  ) {
+    return MasterByUserIdProvider(
+      userId,
+    );
+  }
+
+  @override
+  MasterByUserIdProvider getProviderOverride(
+    covariant MasterByUserIdProvider provider,
+  ) {
+    return call(
+      provider.userId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'masterByUserIdProvider';
+}
+
+/// Master by User ID Provider
+/// Gets master profile by user ID (authorId from post)
+///
+/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+///
+/// Правильные решения:
+/// 1. Добавить masterId в PostModel (рекомендуется)
+/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+///
+/// Copied from [masterByUserId].
+class MasterByUserIdProvider
+    extends AutoDisposeFutureProvider<MasterProfileModel> {
+  /// Master by User ID Provider
+  /// Gets master profile by user ID (authorId from post)
+  ///
+  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
+  ///
+  /// Правильные решения:
+  /// 1. Добавить masterId в PostModel (рекомендуется)
+  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  ///
+  /// Copied from [masterByUserId].
+  MasterByUserIdProvider(
+    String userId,
+  ) : this._internal(
+          (ref) => masterByUserId(
+            ref as MasterByUserIdRef,
+            userId,
+          ),
+          from: masterByUserIdProvider,
+          name: r'masterByUserIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$masterByUserIdHash,
+          dependencies: MasterByUserIdFamily._dependencies,
+          allTransitiveDependencies:
+              MasterByUserIdFamily._allTransitiveDependencies,
+          userId: userId,
+        );
+
+  MasterByUserIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+  }) : super.internal();
+
+  final String userId;
+
+  @override
+  Override overrideWith(
+    FutureOr<MasterProfileModel> Function(MasterByUserIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: MasterByUserIdProvider._internal(
+        (ref) => create(ref as MasterByUserIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<MasterProfileModel> createElement() {
+    return _MasterByUserIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MasterByUserIdProvider && other.userId == userId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin MasterByUserIdRef on AutoDisposeFutureProviderRef<MasterProfileModel> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+}
+
+class _MasterByUserIdProviderElement
+    extends AutoDisposeFutureProviderElement<MasterProfileModel>
+    with MasterByUserIdRef {
+  _MasterByUserIdProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as MasterByUserIdProvider).userId;
+}
+
+String _$masterByIdHash() => r'af3f71aca6274ece113cd3879042f401e09841a9';
+
+/// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+///
+/// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+/// Используйте masterByProfileId для поиска по ID профиля мастера
+/// или masterByUserId для поиска по ID пользователя.
+///
+/// Copied from [masterById].
+@ProviderFor(masterById)
+const masterByIdProvider = MasterByIdFamily();
+
+/// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+///
+/// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+/// Используйте masterByProfileId для поиска по ID профиля мастера
+/// или masterByUserId для поиска по ID пользователя.
+///
+/// Copied from [masterById].
+class MasterByIdFamily extends Family<AsyncValue<MasterProfileModel>> {
+  /// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+  ///
+  /// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+  /// Используйте masterByProfileId для поиска по ID профиля мастера
+  /// или masterByUserId для поиска по ID пользователя.
+  ///
+  /// Copied from [masterById].
+  const MasterByIdFamily();
+
+  /// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+  ///
+  /// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+  /// Используйте masterByProfileId для поиска по ID профиля мастера
+  /// или masterByUserId для поиска по ID пользователя.
+  ///
+  /// Copied from [masterById].
+  MasterByIdProvider call(
+    String id,
+  ) {
+    return MasterByIdProvider(
+      id,
+    );
+  }
+
+  @override
+  MasterByIdProvider getProviderOverride(
+    covariant MasterByIdProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'masterByIdProvider';
+}
+
+/// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+///
+/// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+/// Используйте masterByProfileId для поиска по ID профиля мастера
+/// или masterByUserId для поиска по ID пользователя.
+///
+/// Copied from [masterById].
+class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
+  /// Master by ID Provider (deprecated - use masterByProfileId or masterByUserId)
+  ///
+  /// ⚠️ DEPRECATED: Этот провайдер больше не должен использоваться.
+  /// Используйте masterByProfileId для поиска по ID профиля мастера
+  /// или masterByUserId для поиска по ID пользователя.
+  ///
+  /// Copied from [masterById].
+  MasterByIdProvider(
+    String id,
+  ) : this._internal(
+          (ref) => masterById(
+            ref as MasterByIdRef,
+            id,
+          ),
+          from: masterByIdProvider,
+          name: r'masterByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$masterByIdHash,
+          dependencies: MasterByIdFamily._dependencies,
+          allTransitiveDependencies:
+              MasterByIdFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  MasterByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
 
   @override
   Override overrideWith(
@@ -355,7 +715,7 @@ class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        masterId: masterId,
+        id: id,
       ),
     );
   }
@@ -367,13 +727,13 @@ class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
 
   @override
   bool operator ==(Object other) {
-    return other is MasterByIdProvider && other.masterId == masterId;
+    return other is MasterByIdProvider && other.id == id;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, masterId.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -382,8 +742,8 @@ class MasterByIdProvider extends AutoDisposeFutureProvider<MasterProfileModel> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin MasterByIdRef on AutoDisposeFutureProviderRef<MasterProfileModel> {
-  /// The parameter `masterId` of this provider.
-  String get masterId;
+  /// The parameter `id` of this provider.
+  String get id;
 }
 
 class _MasterByIdProviderElement
@@ -392,7 +752,7 @@ class _MasterByIdProviderElement
   _MasterByIdProviderElement(super.provider);
 
   @override
-  String get masterId => (origin as MasterByIdProvider).masterId;
+  String get id => (origin as MasterByIdProvider).id;
 }
 
 String _$masterServicesHash() => r'e93653df7daf9010f1ada1783710d14fa974abfd';

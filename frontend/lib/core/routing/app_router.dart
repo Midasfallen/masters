@@ -112,12 +112,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
 
           // Master profile
+          // API теперь поддерживает поиск как по ID профиля мастера, так и по user_id
           GoRoute(
             path: 'master/:id',
             name: 'masterProfile',
             builder: (context, state) {
-              final masterId = state.pathParameters['id']!;
-              return MasterProfileScreen(masterId: masterId);
+              final id = state.pathParameters['id']!;
+              // API автоматически определит тип ID (master profile id или user_id)
+              return MasterProfileScreen(masterId: id, isUserId: false);
             },
           ),
 

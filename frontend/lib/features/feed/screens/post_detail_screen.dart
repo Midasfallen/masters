@@ -234,23 +234,73 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundImage: post.author?.avatarUrl != null
-                          ? CachedNetworkImageProvider(
-                              post.author!.avatarUrl!,
+                      backgroundColor: Colors.grey[300],
+                      child: post.author?.avatarUrl != null
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: post.author!.avatarUrl!,
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                                errorWidget: (context, url, error) => Center(
+                                  child: Text(
+                                    (post.author?.fullName ??
+                                            (post.author != null
+                                                ? '${post.author!.firstName} ${post.author!.lastName}'
+                                                : '?'))[0].toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                placeholder: (context, url) => const SizedBox(
+                                  width: 36,
+                                  height: 36,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             )
-                          : null,
-                      child: post.author?.avatarUrl == null
-                          ? const Icon(Icons.person)
-                          : null,
+                          : Center(
+                              child: Text(
+                                (post.author?.fullName ??
+                                        (post.author != null
+                                            ? '${post.author!.firstName} ${post.author!.lastName}'
+                                            : '?'))[0].toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        post.author?.fullName ?? 'Неизвестный мастер',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                      child: InkWell(
+                        onTap: () {
+                          // API теперь поддерживает поиск по userId через тот же эндпоинт
+                          if (post.authorId.isNotEmpty) {
+                            context.push('/master/${post.authorId}');
+                          }
+                        },
+                        child: Text(
+                          post.author?.fullName ??
+                              (post.author != null
+                                  ? '${post.author!.firstName} ${post.author!.lastName}'
+                                  : 'Неизвестный мастер'),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white70,
+                          ),
                         ),
                       ),
                     ),
@@ -258,7 +308,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Подписались на ${post.author?.fullName ?? 'мастера'}'),
+                            content: Text(
+                              'Подписались на ${post.author?.fullName ?? (post.author != null ? '${post.author!.firstName} ${post.author!.lastName}' : 'мастера')}',
+                            ),
                             duration: const Duration(milliseconds: 800),
                           ),
                         );
@@ -304,37 +356,17 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 const SizedBox(height: 16),
 
                 // CTA buttons
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          context.push('/master/${post.authorId}');
-                        },
-                        icon: const Icon(Icons.calendar_today, size: 18),
-                        label: const Text('Записаться'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          context.push('/master/${post.authorId}');
-                        },
-                        icon: const Icon(Icons.person_outline, size: 18),
-                        label: const Text('Мастер'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
+                FilledButton.icon(
+                  onPressed: () {
+                    // API теперь поддерживает поиск по userId через тот же эндпоинт
+                    context.push('/master/${post.authorId}');
+                  },
+                  icon: const Icon(Icons.calendar_today, size: 18),
+                  label: const Text('Записаться'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    minimumSize: const Size(double.infinity, 0),
+                  ),
                 ),
               ],
             ),
@@ -576,7 +608,12 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                                         comment.author!.avatarUrl!)
                                     : null,
                                 child: comment.author?.avatarUrl == null
-                                    ? Text((comment.author?.fullName ?? '?')[0].toUpperCase())
+                                    ? Text(
+                                        ((comment.author?.fullName ??
+                                                (comment.author != null
+                                                    ? '${comment.author!.firstName} ${comment.author!.lastName}'
+                                                    : '?')))[0].toUpperCase(),
+                                      )
                                     : null,
                               ),
                               const SizedBox(width: 12),
@@ -585,7 +622,10 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      comment.author?.fullName ?? 'Аноним',
+                                      comment.author?.fullName ??
+                                          (comment.author != null
+                                              ? '${comment.author!.firstName} ${comment.author!.lastName}'
+                                              : 'Аноним'),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),

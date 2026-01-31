@@ -293,15 +293,41 @@ export class MastersService {
   }
 
   /**
-   * Получить профиль мастера по ID профиля
+   * Получить профиль мастера по ID профиля или по user_id
+   * Сначала пытается найти по id профиля, если не находит - ищет по user_id
    */
-  async getProfileById(profileId: string): Promise<MasterProfileResponseDto> {
-    const profile = await this.masterProfileRepository.findOne({
-      where: { id: profileId },
+  async getProfileById(id: string): Promise<MasterProfileResponseDto> {
+    // Сначала пытаемся найти по id профиля мастера
+    let profile = await this.masterProfileRepository.findOne({
+      where: { id: id },
+      relations: ['user'], // Загружаем связанного пользователя
     });
 
+    // Если не нашли, пробуем найти по user_id
     if (!profile) {
-      throw new NotFoundException('Профиль мастера не найден');
+      profile = await this.masterProfileRepository.findOne({
+        where: { user_id: id },
+        relations: ['user'], // Загружаем связанного пользователя
+      });
+    }
+
+    if (!profile) {
+      // Проверяем, существует ли пользователь с таким ID
+      const user = await this.userRepository.findOne({
+        where: { id: id },
+      });
+
+      if (user) {
+        throw new NotFoundException(
+          `Профиль мастера не найден для пользователя ${user.first_name} ${user.last_name} (ID: ${id}). ` +
+            `Пользователь существует, но профиль мастера не создан. Проверьте таблицу master_profiles.`,
+        );
+      } else {
+        throw new NotFoundException(
+          `Профиль мастера не найден для ID: ${id}. ` +
+            `Проверьте, что пользователь существует и для него создан профиль мастера в таблице master_profiles.`,
+        );
+      }
     }
 
     return MastersMapper.toDto(profile);

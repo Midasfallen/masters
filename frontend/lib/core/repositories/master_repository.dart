@@ -44,14 +44,72 @@ class MasterRepository {
     }
   }
 
-  /// Get master by ID
+  /// Get master by ID (master profile ID)
   Future<MasterProfileModel> getMasterById(String id) async {
     try {
       final response = await _client.get(ApiEndpoints.masterById(id));
-      return MasterProfileModel.fromJson(response.data);
+      
+      // Жесткая проверка на null перед парсингом
+      if (response.data == null) {
+        throw ApiException(
+          message: 'Профиль мастера не найден (ответ сервера: null)',
+          statusCode: 404,
+        );
+      }
+      
+      // Проверяем, что это объект, а не массив или другой тип
+      if (response.data is! Map<String, dynamic>) {
+        throw ApiException(
+          message: 'Некорректный формат ответа от сервера. Ожидался объект, получен: ${response.data.runtimeType}',
+          statusCode: 500,
+          data: response.data,
+        );
+      }
+      
+      final data = response.data as Map<String, dynamic>;
+      
+      // Дополнительная проверка: убеждаемся, что есть обязательные поля
+      if (data['id'] == null || data['userId'] == null) {
+        throw ApiException(
+          message: 'Профиль мастера не найден (отсутствуют обязательные поля)',
+          statusCode: 404,
+          data: data,
+        );
+      }
+      
+      return MasterProfileModel.fromJson(data);
     } on DioException catch (e) {
+      // Если это 404 от Dio, преобразуем в ApiException
+      if (e.response?.statusCode == 404) {
+        throw ApiException(
+          message: e.response?.data?['message'] ?? 'Профиль мастера не найден',
+          statusCode: 404,
+          data: e.response?.data,
+        );
+      }
       throw ApiExceptionHandler.handleDioError(e);
+    } catch (e) {
+      // Обработка ошибок парсинга (TypeError: null и т.д.)
+      final errorString = e.toString();
+      if (errorString.contains('null') || 
+          errorString.contains('Null') ||
+          errorString.contains('is not a subtype')) {
+        throw ApiException(
+          message: 'Профиль мастера не найден или данные некорректны. Ошибка парсинга: $errorString',
+          statusCode: 404,
+        );
+      }
+      rethrow;
     }
+  }
+
+  /// Get master profile by user ID
+  /// 
+  /// Использует тот же эндпоинт GET /masters/:id, который теперь поддерживает
+  /// поиск как по ID профиля мастера, так и по user_id.
+  Future<MasterProfileModel> getMasterByUserId(String userId) async {
+    // Используем тот же метод, что и для masterId - бэкенд теперь умеет искать по user_id
+    return getMasterById(userId);
   }
 
   /// Create master profile

@@ -189,11 +189,13 @@ export class MastersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Получить профиль мастера по ID',
-    description: 'Публичный просмотр профиля мастера',
+    description:
+      'Публичный просмотр профиля мастера. Принимает как ID профиля мастера, так и ID пользователя (user_id). Сначала ищет по ID профиля, если не находит - ищет по user_id.',
   })
   @ApiParam({
     name: 'id',
-    description: 'UUID профиля мастера',
+    description:
+      'UUID профиля мастера или UUID пользователя (user_id). Система автоматически определит тип ID.',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiResponse({

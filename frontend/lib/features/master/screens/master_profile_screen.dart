@@ -4,40 +4,37 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import '../../../shared/models/master.dart';
-import '../../../shared/models/service.dart';
 import '../../../shared/widgets/review_card.dart';
 import '../../../shared/widgets/unreviewed_bookings_dialog.dart';
-import '../../../data/mock/mock_masters.dart';
-import '../../../data/mock/mock_services.dart';
 import '../../../core/providers/api/bookings_provider.dart';
+import '../../../core/providers/api/masters_provider.dart';
+import '../../../core/providers/api/feed_provider.dart';
+import '../../../core/providers/api/user_provider.dart';
 import '../../../core/models/api/booking_model.dart';
+import '../../../core/models/api/master_model.dart';
+import '../../../core/models/api/service_model.dart';
 import '../../../core/api/api_exceptions.dart';
 import '../../../core/repositories/review_reminders_repository.dart';
-import '../widgets/collapsible_services_list.dart';
 
-class MasterProfileScreen extends StatefulWidget {
+class MasterProfileScreen extends ConsumerStatefulWidget {
   final String masterId;
+  final bool isUserId;
 
-  const MasterProfileScreen({super.key, required this.masterId});
+  const MasterProfileScreen({
+    super.key,
+    required this.masterId,
+    this.isUserId = false,
+  });
 
   @override
-  State<MasterProfileScreen> createState() => _MasterProfileScreenState();
+  ConsumerState<MasterProfileScreen> createState() => _MasterProfileScreenState();
 }
 
-class _MasterProfileScreenState extends State<MasterProfileScreen>
+class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
     with SingleTickerProviderStateMixin {
   bool _isFavorite = false;
   bool _isSubscribed = false;
   late TabController _tabController;
-
-  Master? get _master {
-    try {
-      return mockMasters.firstWhere((m) => m.id == widget.masterId);
-    } catch (e) {
-      return null;
-    }
-  }
 
   @override
   void initState() {
@@ -53,17 +50,97 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (_master == null) {
-      return Scaffold(
+    // API теперь поддерживает поиск как по ID профиля мастера, так и по user_id
+    // Используем masterByProfileId, который теперь работает с обоими типами ID
+    final masterAsync = ref.watch(masterByProfileIdProvider(widget.masterId));
+    final theme = Theme.of(context);
+
+    return masterAsync.when(
+      data: (master) => _buildMasterProfile(master, theme),
+      loading: () => Scaffold(
         appBar: AppBar(),
         body: const Center(
-          child: Text('Мастер не найден'),
+          child: CircularProgressIndicator(),
         ),
-      );
-    }
+      ),
+      error: (error, stack) {
+        // Проверяем, является ли это ошибкой 404 (профиль мастера не найден)
+        // или TypeError: null (когда API возвращает null)
+        final errorString = error.toString();
+        final isNotFound = errorString.contains('404') ||
+            errorString.contains('NotFoundException') ||
+            errorString.contains('not found') ||
+            errorString.contains('не найден') ||
+            errorString.contains('TypeError: null') ||
+            errorString.contains('type \'Null\' is not a subtype') ||
+            (error is ApiException && error.statusCode == 404);
+        
+        return Scaffold(
+          appBar: AppBar(),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isNotFound ? Icons.person_off : Icons.error_outline,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    isNotFound
+                        ? 'Профиль мастера не найден'
+                        : 'Ошибка загрузки',
+                    style: Theme.of(context).textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (isNotFound) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'У этого пользователя еще нет профиля мастера',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      errorString,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      textAlign: TextAlign.center,
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.pop(),
+                child: const Text('Назад'),
+              ),
+              if (!isNotFound) ...[
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    ref.invalidate(masterByProfileIdProvider(widget.masterId));
+                  },
+                  child: const Text('Повторить'),
+                ),
+              ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-    final master = _master!;
-    final theme = Theme.of(context);
+  Widget _buildMasterProfile(MasterProfileModel master, ThemeData theme) {
 
     return Scaffold(
       body: NestedScrollView(
@@ -106,21 +183,33 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
-                background: master.portfolio != null &&
-                        master.portfolio!.isNotEmpty
+                background: master.portfolioUrls.isNotEmpty
                     ? PageView.builder(
-                        itemCount: master.portfolio!.length,
+                        itemCount: master.portfolioUrls.length,
                         itemBuilder: (context, index) {
                           return Image.network(
-                            master.portfolio![index],
+                            master.portfolioUrls[index],
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.image_not_supported),
+                            ),
                           );
                         },
                       )
-                    : Image.network(
-                        master.avatar,
-                        fit: BoxFit.cover,
-                      ),
+                    : master.user?.avatarUrl != null
+                        ? Image.network(
+                            master.user!.avatarUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.person),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.person, size: 64),
+                          ),
               ),
             ),
             SliverToBoxAdapter(
@@ -140,14 +229,20 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        master.name,
-                                        style:
-                                            theme.textTheme.headlineSmall?.copyWith(
-                                          fontWeight: FontWeight.w700,
+                                      Expanded(
+                                        child: Text(
+                                          master.businessName ??
+                                              master.user?.fullName ??
+                                              (master.user != null
+                                                  ? '${master.user!.firstName} ${master.user!.lastName}'
+                                                  : 'Мастер'),
+                                          style: theme.textTheme.headlineSmall
+                                              ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
-                                      if (master.verified) ...[
+                                      if (master.user?.isVerified ?? false) ...[
                                         const SizedBox(width: 8),
                                         Icon(
                                           Icons.verified,
@@ -157,13 +252,15 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                                       ],
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    master.category,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                  if (master.categoryIds.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Категория ${master.categoryIds.length}',
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: theme.colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -175,20 +272,16 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                             _buildInfoChip(
                               context,
                               icon: Icons.star,
-                              label: '${master.rating} (${master.reviewsCount})',
+                              label: '${master.rating.toStringAsFixed(1)} (${master.reviewsCount})',
                             ),
-                            const SizedBox(width: 8),
-                            _buildInfoChip(
-                              context,
-                              icon: Icons.location_on,
-                              label: '${master.distance} км',
-                            ),
-                            const SizedBox(width: 8),
-                            _buildInfoChip(
-                              context,
-                              icon: Icons.payments,
-                              label: 'от ${master.priceFrom}',
-                            ),
+                            if (master.serviceRadiusKm != null) ...[
+                              const SizedBox(width: 8),
+                              _buildInfoChip(
+                                context,
+                                icon: Icons.location_on,
+                                label: '${master.serviceRadiusKm} км',
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -201,8 +294,8 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(_isSubscribed
-                                    ? 'Вы подписались на ${master.name}'
-                                    : 'Вы отписались от ${master.name}'),
+                                    ? 'Вы подписались на ${master.businessName ?? master.user?.fullName ?? 'мастера'}'
+                                    : 'Вы отписались от ${master.businessName ?? master.user?.fullName ?? 'мастера'}'),
                               ),
                             );
                           },
@@ -217,7 +310,7 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '${master.reviewsCount * 15} подписчиков | 156 постов',
+                          '${master.subscribersCount} подписчиков | ${master.user?.postsCount ?? 0} постов',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -229,7 +322,8 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],
-                        if (master.address != null) ...[
+                        if (master.locationAddress != null ||
+                            master.locationName != null) ...[
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -241,7 +335,9 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  master.address!,
+                                  master.locationAddress ??
+                                      master.locationName ??
+                                      '',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -326,39 +422,69 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
     );
   }
 
-  Widget _buildPostsTab(Master master) {
-    // Mock posts data
-    final posts = List.generate(
-      12,
-      (index) => 'https://picsum.photos/400/400?random=$index',
-    );
+  Widget _buildPostsTab(MasterProfileModel master) {
+    final userPostsAsync = ref.watch(userPostsProvider(master.userId));
 
-    return MasonryGridView.count(
-      crossAxisCount: 3,
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
-      padding: const EdgeInsets.all(4),
-      itemCount: posts.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Открыть пост #${index + 1}')),
+    return userPostsAsync.when(
+      data: (posts) {
+        if (posts.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.grid_view_outlined, size: 64),
+                SizedBox(height: 16),
+                Text('Нет постов'),
+              ],
+            ),
+          );
+        }
+
+        return MasonryGridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
+          padding: const EdgeInsets.all(4),
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return GestureDetector(
+              onTap: () {
+                context.push('/post/${post.id}');
+              },
+              child: post.media.isNotEmpty
+                  ? Image.network(
+                      post.media.first.url,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      ),
+                    )
+                  : Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.text_fields),
+                    ),
             );
           },
-          child: Image.network(
-            posts[index],
-            fit: BoxFit.cover,
-          ),
         );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64),
+            const SizedBox(height: 16),
+            Text('Ошибка: ${error.toString()}'),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildPortfolioTab(Master master) {
-    final portfolio = master.portfolio ?? [];
-
-    if (portfolio.isEmpty) {
+  Widget _buildPortfolioTab(MasterProfileModel master) {
+    if (master.portfolioUrls.isEmpty) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -378,7 +504,7 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
       ),
-      itemCount: portfolio.length,
+      itemCount: master.portfolioUrls.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
@@ -387,64 +513,140 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
             );
           },
           child: Image.network(
-            portfolio[index],
+            master.portfolioUrls[index],
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.image_not_supported),
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildServicesTab(Master master) {
-    return CollapsibleServicesList(
-      services: mockServices,
-      onServiceTap: (service) {
-        _showBookingDialog(context, master, service);
+  Widget _buildServicesTab(MasterProfileModel master) {
+    final servicesAsync = ref.watch(masterServicesProvider(master.id));
+
+    return servicesAsync.when(
+      data: (services) {
+        if (services.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.work_outline, size: 64),
+                SizedBox(height: 16),
+                Text('Нет услуг'),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: services.length,
+          itemBuilder: (context, index) {
+            final service = services[index];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                title: Text(service.name),
+                subtitle: Text(
+                  service.description ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Text(
+                  '${service.price.toStringAsFixed(0)} ${service.currency}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                onTap: () {
+                  _showBookingDialog(context, master, service);
+                },
+              ),
+            );
+          },
+        );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64),
+            const SizedBox(height: 16),
+            Text('Ошибка: ${error.toString()}'),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildReviewsTab(Master master) {
-    // Mock reviews
-    final reviews = [
-      {
-        'name': 'Мария Иванова',
-        'avatar': 'https://i.pravatar.cc/100?img=10',
-        'rating': 5.0,
-        'comment':
-            'Отличный мастер! Очень профессионально выполнила работу. Обязательно вернусь снова!',
-        'date': DateTime.now().subtract(const Duration(days: 5)),
-      },
-      {
-        'name': 'Анна Петрова',
-        'avatar': 'https://i.pravatar.cc/100?img=20',
-        'rating': 4.5,
-        'comment': 'Хорошее качество работы, приятная атмосфера. Рекомендую!',
-        'date': DateTime.now().subtract(const Duration(days: 15)),
-      },
-      {
-        'name': 'Екатерина Смирнова',
-        'avatar': 'https://i.pravatar.cc/100?img=30',
-        'rating': 5.0,
-        'comment':
-            'Супер! Именно то, что я хотела. Мастер учла все мои пожелания.',
-        'date': DateTime.now().subtract(const Duration(days: 30)),
-      },
-    ];
+  Widget _buildReviewsTab(MasterProfileModel master) {
+    final reviewsAsync = ref.watch(masterReviewsProvider(master.id));
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: reviews.length,
-      itemBuilder: (context, index) {
-        final review = reviews[index];
-        return ReviewCard(
-          userName: review['name'] as String,
-          userAvatar: review['avatar'] as String,
-          rating: review['rating'] as double,
-          comment: review['comment'] as String,
-          date: review['date'] as DateTime,
+    return reviewsAsync.when(
+      data: (reviews) {
+        if (reviews.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.star_outline, size: 64),
+                SizedBox(height: 16),
+                Text('Нет отзывов'),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: reviews.length,
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            // Загружаем информацию о рецензенте
+            final reviewerAsync = ref.watch(userByIdProvider(review.reviewerId));
+            return reviewerAsync.when(
+              data: (reviewer) => ReviewCard(
+                userName: reviewer.fullName ??
+                    (reviewer.firstName.isNotEmpty && reviewer.lastName.isNotEmpty
+                        ? '${reviewer.firstName} ${reviewer.lastName}'
+                        : 'Аноним'),
+                userAvatar: reviewer.avatarUrl ?? '',
+                rating: review.rating.toDouble(),
+                comment: review.comment ?? '',
+                date: review.createdAt,
+              ),
+              loading: () => const ListTile(
+                leading: CircularProgressIndicator(),
+                title: Text('Загрузка...'),
+              ),
+              error: (_, __) => ReviewCard(
+                userName: 'Аноним',
+                userAvatar: '',
+                rating: review.rating.toDouble(),
+                comment: review.comment ?? '',
+                date: review.createdAt,
+              ),
+            );
+          },
         );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64),
+            const SizedBox(height: 16),
+            Text('Ошибка: ${error.toString()}'),
+          ],
+        ),
+      ),
     );
   }
 
@@ -472,7 +674,8 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
     );
   }
 
-  void _showBookingDialog(BuildContext context, Master master, Service? service) {
+  void _showBookingDialog(
+      BuildContext context, MasterProfileModel master, ServiceModel? service) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -496,8 +699,8 @@ class _MasterProfileScreenState extends State<MasterProfileScreen>
 }
 
 class _BookingSheet extends ConsumerStatefulWidget {
-  final Master master;
-  final Service? service;
+  final MasterProfileModel master;
+  final ServiceModel? service;
   final ScrollController scrollController;
 
   const _BookingSheet({
@@ -511,7 +714,7 @@ class _BookingSheet extends ConsumerStatefulWidget {
 }
 
 class _BookingSheetState extends ConsumerState<_BookingSheet> {
-  Service? _selectedService;
+  ServiceModel? _selectedService;
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
   bool _isLoading = false;
@@ -648,41 +851,64 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
             ),
           ),
           const SizedBox(height: 8),
-          ...mockServices.map((service) {
-            return InkWell(
-              onTap: () {
-                setState(() {
-                  _selectedService = service;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: _selectedService == service,
-                      onChanged: (value) {
-                        if (value == true) {
+          Builder(
+            builder: (context) {
+              final servicesAsync = ref.watch(masterServicesProvider(widget.master.id));
+              return servicesAsync.when(
+                data: (services) {
+                  if (services.isEmpty) {
+                    return const Text('Нет доступных услуг');
+                  }
+                  return Column(
+                    children: services.map((service) {
+                      return InkWell(
+                        onTap: () {
                           setState(() {
                             _selectedService = service;
                           });
-                        }
-                      },
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(service.name),
-                          Text('${service.durationMinutes} мин • ${service.price}'),
-                        ],
-                      ),
-                    ),
-                  ],
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: _selectedService?.id == service.id,
+                                onChanged: (value) {
+                                  if (value == true) {
+                                    setState(() {
+                                      _selectedService = service;
+                                    });
+                                  }
+                                },
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(service.name),
+                                    Text(
+                                        '${service.durationMinutes} мин • ${service.price.toStringAsFixed(0)} ${service.currency}'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
                 ),
-              ),
-            );
-          }),
+                error: (error, stack) => Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Ошибка: ${error.toString()}'),
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 16),
           Text(
             'Выберите дату',

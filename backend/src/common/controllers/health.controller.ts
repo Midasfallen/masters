@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../services/cache.service';
 import { EmailService } from '../services/email.service';
 import { SearchService } from '../../modules/search/search.service';
+import { Public } from '../../modules/auth/decorators/public.decorator';
 
 export interface HealthCheckResponse {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -51,6 +52,7 @@ export class HealthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Health check endpoint' })
   @ApiResponse({
@@ -135,6 +137,7 @@ export class HealthController {
     };
   }
 
+  @Public()
   @Get('liveness')
   @ApiOperation({ summary: 'Kubernetes liveness probe' })
   @ApiResponse({ status: 200, description: 'Service is alive' })
@@ -143,6 +146,7 @@ export class HealthController {
     return { status: 'alive' };
   }
 
+  @Public()
   @Get('readiness')
   @ApiOperation({ summary: 'Kubernetes readiness probe' })
   @ApiResponse({ status: 200, description: 'Service is ready to accept traffic' })
