@@ -434,25 +434,43 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
   }
 
   Future<void> _handleSendComment() async {
-    if (_commentController.text.trim().isEmpty) return;
+    final commentText = _commentController.text.trim();
+    if (commentText.isEmpty) return;
+
+    // Сохраняем текст для возможного отката
+    final savedText = commentText;
+
+    // Очищаем поле сразу (оптимистично)
+    _commentController.clear();
 
     try {
+      // Отправляем комментарий
+      // refresh уже вызывается внутри createComment в провайдере
       await ref.read(postNotifierProvider.notifier).createComment(
             widget.postId,
-            CreateCommentRequest(content: _commentController.text.trim()),
+            CreateCommentRequest(content: savedText),
           );
 
-      _commentController.clear();
+      // UI автоматически обновится благодаря ref.watch(postCommentsProvider)
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Комментарий отправлен')),
+          const SnackBar(
+            content: Text('Комментарий отправлен'),
+            duration: Duration(seconds: 2),
+          ),
         );
       }
     } catch (e) {
+      // При ошибке возвращаем текст обратно
+      _commentController.text = savedText;
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     }

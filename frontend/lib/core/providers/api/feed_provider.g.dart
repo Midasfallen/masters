@@ -566,7 +566,7 @@ class _UserPostsProviderElement
   int get limit => (origin as UserPostsProvider).limit;
 }
 
-String _$postCommentsHash() => r'7ccaf88b5defb32d8850e461b1c3e4e441a411fe';
+String _$postCommentsHash() => r'09907aefa294d9d0a810937ec759ecbbcc6a60cb';
 
 /// Post Comments Provider
 ///
@@ -743,7 +743,7 @@ class _PostCommentsProviderElement
   int get limit => (origin as PostCommentsProvider).limit;
 }
 
-String _$postNotifierHash() => r'd3ce59f1dbf3173b733c80a78b3c0c1ea329507a';
+String _$postNotifierHash() => r'89b96b9d37dd4308c153d4ba3ce417d87a9bb2eb';
 
 /// Post Notifier for mutations
 ///

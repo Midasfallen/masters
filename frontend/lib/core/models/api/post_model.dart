@@ -90,19 +90,45 @@ class UpdatePostRequest with _$UpdatePostRequest {
 class CommentModel with _$CommentModel {
   const factory CommentModel({
     required String id,
-    required String postId,
-    required String authorId,
+    @JsonKey(name: 'postId') required String postId,
+    @JsonKey(name: 'authorId') required String authorId,
     UserModel? author,
     required String content,
-    String? parentId,
-    required int likesCount,
-    required bool isLiked,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'parentCommentId') String? parentId,
+    @JsonKey(name: 'likesCount', defaultValue: 0) @Default(0) int likesCount,
+    @JsonKey(name: 'isLiked', defaultValue: false) @Default(false) bool isLiked,
+    @JsonKey(name: 'createdAt') required DateTime createdAt,
+    @JsonKey(name: 'updatedAt') required DateTime updatedAt,
   }) = _CommentModel;
 
-  factory CommentModel.fromJson(Map<String, dynamic> json) =>
-      _$CommentModelFromJson(json);
+  factory CommentModel.fromJson(Map<String, dynamic> json) {
+    // Обрабатываем отсутствующие поля и маппинг
+    final jsonWithDefaults = Map<String, dynamic>.from(json);
+    
+    // Маппим parentCommentId -> parentId (сервер возвращает parentCommentId)
+    if (json.containsKey('parentCommentId') && !json.containsKey('parentId')) {
+      jsonWithDefaults['parentId'] = json['parentCommentId'];
+    }
+    
+    // Устанавливаем дефолтные значения для отсутствующих полей
+    jsonWithDefaults['isLiked'] ??= false;
+    jsonWithDefaults['likesCount'] ??= 0;
+    
+    return CommentModel(
+      id: jsonWithDefaults['id'] as String,
+      postId: jsonWithDefaults['postId'] as String,
+      authorId: jsonWithDefaults['authorId'] as String,
+      author: jsonWithDefaults['author'] == null
+          ? null
+          : UserModel.fromJson(jsonWithDefaults['author'] as Map<String, dynamic>),
+      content: jsonWithDefaults['content'] as String,
+      parentId: jsonWithDefaults['parentId'] as String?,
+      likesCount: (jsonWithDefaults['likesCount'] as num?)?.toInt() ?? 0,
+      isLiked: jsonWithDefaults['isLiked'] as bool? ?? false,
+      createdAt: DateTime.parse(jsonWithDefaults['createdAt'] as String),
+      updatedAt: DateTime.parse(jsonWithDefaults['updatedAt'] as String),
+    );
+  }
 }
 
 /// Create Comment Request
@@ -110,7 +136,7 @@ class CommentModel with _$CommentModel {
 class CreateCommentRequest with _$CreateCommentRequest {
   const factory CreateCommentRequest({
     required String content,
-    @JsonKey(name: 'parent_id') String? parentId,
+    @JsonKey(name: 'parent_id', includeIfNull: false) String? parentId,
   }) = _CreateCommentRequest;
 
   factory CreateCommentRequest.fromJson(Map<String, dynamic> json) =>

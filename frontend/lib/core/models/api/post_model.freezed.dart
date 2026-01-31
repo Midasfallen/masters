@@ -1406,25 +1406,25 @@ abstract class _UpdatePostRequest implements UpdatePostRequest {
       throw _privateConstructorUsedError;
 }
 
-CommentModel _$CommentModelFromJson(Map<String, dynamic> json) {
-  return _CommentModel.fromJson(json);
-}
-
 /// @nodoc
 mixin _$CommentModel {
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'postId')
   String get postId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'authorId')
   String get authorId => throw _privateConstructorUsedError;
   UserModel? get author => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'parentCommentId')
   String? get parentId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'likesCount', defaultValue: 0)
   int get likesCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'isLiked', defaultValue: false)
   bool get isLiked => throw _privateConstructorUsedError;
+  @JsonKey(name: 'createdAt')
   DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updatedAt')
   DateTime get updatedAt => throw _privateConstructorUsedError;
-
-  /// Serializes this CommentModel to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of CommentModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1441,15 +1441,15 @@ abstract class $CommentModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String postId,
-      String authorId,
+      @JsonKey(name: 'postId') String postId,
+      @JsonKey(name: 'authorId') String authorId,
       UserModel? author,
       String content,
-      String? parentId,
-      int likesCount,
-      bool isLiked,
-      DateTime createdAt,
-      DateTime updatedAt});
+      @JsonKey(name: 'parentCommentId') String? parentId,
+      @JsonKey(name: 'likesCount', defaultValue: 0) int likesCount,
+      @JsonKey(name: 'isLiked', defaultValue: false) bool isLiked,
+      @JsonKey(name: 'createdAt') DateTime createdAt,
+      @JsonKey(name: 'updatedAt') DateTime updatedAt});
 
   $UserModelCopyWith<$Res>? get author;
 }
@@ -1549,15 +1549,15 @@ abstract class _$$CommentModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      String postId,
-      String authorId,
+      @JsonKey(name: 'postId') String postId,
+      @JsonKey(name: 'authorId') String authorId,
       UserModel? author,
       String content,
-      String? parentId,
-      int likesCount,
-      bool isLiked,
-      DateTime createdAt,
-      DateTime updatedAt});
+      @JsonKey(name: 'parentCommentId') String? parentId,
+      @JsonKey(name: 'likesCount', defaultValue: 0) int likesCount,
+      @JsonKey(name: 'isLiked', defaultValue: false) bool isLiked,
+      @JsonKey(name: 'createdAt') DateTime createdAt,
+      @JsonKey(name: 'updatedAt') DateTime updatedAt});
 
   @override
   $UserModelCopyWith<$Res>? get author;
@@ -1633,42 +1633,46 @@ class __$$CommentModelImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$CommentModelImpl implements _CommentModel {
   const _$CommentModelImpl(
       {required this.id,
-      required this.postId,
-      required this.authorId,
+      @JsonKey(name: 'postId') required this.postId,
+      @JsonKey(name: 'authorId') required this.authorId,
       this.author,
       required this.content,
-      this.parentId,
-      required this.likesCount,
-      required this.isLiked,
-      required this.createdAt,
-      required this.updatedAt});
-
-  factory _$CommentModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CommentModelImplFromJson(json);
+      @JsonKey(name: 'parentCommentId') this.parentId,
+      @JsonKey(name: 'likesCount', defaultValue: 0) this.likesCount = 0,
+      @JsonKey(name: 'isLiked', defaultValue: false) this.isLiked = false,
+      @JsonKey(name: 'createdAt') required this.createdAt,
+      @JsonKey(name: 'updatedAt') required this.updatedAt});
 
   @override
   final String id;
   @override
+  @JsonKey(name: 'postId')
   final String postId;
   @override
+  @JsonKey(name: 'authorId')
   final String authorId;
   @override
   final UserModel? author;
   @override
   final String content;
   @override
+  @JsonKey(name: 'parentCommentId')
   final String? parentId;
   @override
+  @JsonKey(name: 'likesCount', defaultValue: 0)
   final int likesCount;
   @override
+  @JsonKey(name: 'isLiked', defaultValue: false)
   final bool isLiked;
   @override
+  @JsonKey(name: 'createdAt')
   final DateTime createdAt;
   @override
+  @JsonKey(name: 'updatedAt')
   final DateTime updatedAt;
 
   @override
@@ -1698,7 +1702,6 @@ class _$CommentModelImpl implements _CommentModel {
                 other.updatedAt == updatedAt));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, postId, authorId, author,
       content, parentId, likesCount, isLiked, createdAt, updatedAt);
@@ -1710,50 +1713,48 @@ class _$CommentModelImpl implements _CommentModel {
   @pragma('vm:prefer-inline')
   _$$CommentModelImplCopyWith<_$CommentModelImpl> get copyWith =>
       __$$CommentModelImplCopyWithImpl<_$CommentModelImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$CommentModelImplToJson(
-      this,
-    );
-  }
 }
 
 abstract class _CommentModel implements CommentModel {
   const factory _CommentModel(
-      {required final String id,
-      required final String postId,
-      required final String authorId,
-      final UserModel? author,
-      required final String content,
-      final String? parentId,
-      required final int likesCount,
-      required final bool isLiked,
-      required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$CommentModelImpl;
-
-  factory _CommentModel.fromJson(Map<String, dynamic> json) =
-      _$CommentModelImpl.fromJson;
+          {required final String id,
+          @JsonKey(name: 'postId') required final String postId,
+          @JsonKey(name: 'authorId') required final String authorId,
+          final UserModel? author,
+          required final String content,
+          @JsonKey(name: 'parentCommentId') final String? parentId,
+          @JsonKey(name: 'likesCount', defaultValue: 0) final int likesCount,
+          @JsonKey(name: 'isLiked', defaultValue: false) final bool isLiked,
+          @JsonKey(name: 'createdAt') required final DateTime createdAt,
+          @JsonKey(name: 'updatedAt') required final DateTime updatedAt}) =
+      _$CommentModelImpl;
 
   @override
   String get id;
   @override
+  @JsonKey(name: 'postId')
   String get postId;
   @override
+  @JsonKey(name: 'authorId')
   String get authorId;
   @override
   UserModel? get author;
   @override
   String get content;
   @override
+  @JsonKey(name: 'parentCommentId')
   String? get parentId;
   @override
+  @JsonKey(name: 'likesCount', defaultValue: 0)
   int get likesCount;
   @override
+  @JsonKey(name: 'isLiked', defaultValue: false)
   bool get isLiked;
   @override
+  @JsonKey(name: 'createdAt')
   DateTime get createdAt;
   @override
+  @JsonKey(name: 'updatedAt')
   DateTime get updatedAt;
 
   /// Create a copy of CommentModel
@@ -1771,7 +1772,7 @@ CreateCommentRequest _$CreateCommentRequestFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CreateCommentRequest {
   String get content => throw _privateConstructorUsedError;
-  @JsonKey(name: 'parent_id')
+  @JsonKey(name: 'parent_id', includeIfNull: false)
   String? get parentId => throw _privateConstructorUsedError;
 
   /// Serializes this CreateCommentRequest to a JSON map.
@@ -1790,7 +1791,9 @@ abstract class $CreateCommentRequestCopyWith<$Res> {
           $Res Function(CreateCommentRequest) then) =
       _$CreateCommentRequestCopyWithImpl<$Res, CreateCommentRequest>;
   @useResult
-  $Res call({String content, @JsonKey(name: 'parent_id') String? parentId});
+  $Res call(
+      {String content,
+      @JsonKey(name: 'parent_id', includeIfNull: false) String? parentId});
 }
 
 /// @nodoc
@@ -1833,7 +1836,9 @@ abstract class _$$CreateCommentRequestImplCopyWith<$Res>
       __$$CreateCommentRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String content, @JsonKey(name: 'parent_id') String? parentId});
+  $Res call(
+      {String content,
+      @JsonKey(name: 'parent_id', includeIfNull: false) String? parentId});
 }
 
 /// @nodoc
@@ -1869,7 +1874,8 @@ class __$$CreateCommentRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateCommentRequestImpl implements _CreateCommentRequest {
   const _$CreateCommentRequestImpl(
-      {required this.content, @JsonKey(name: 'parent_id') this.parentId});
+      {required this.content,
+      @JsonKey(name: 'parent_id', includeIfNull: false) this.parentId});
 
   factory _$CreateCommentRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateCommentRequestImplFromJson(json);
@@ -1877,7 +1883,7 @@ class _$CreateCommentRequestImpl implements _CreateCommentRequest {
   @override
   final String content;
   @override
-  @JsonKey(name: 'parent_id')
+  @JsonKey(name: 'parent_id', includeIfNull: false)
   final String? parentId;
 
   @override
@@ -1919,9 +1925,9 @@ class _$CreateCommentRequestImpl implements _CreateCommentRequest {
 
 abstract class _CreateCommentRequest implements CreateCommentRequest {
   const factory _CreateCommentRequest(
-          {required final String content,
-          @JsonKey(name: 'parent_id') final String? parentId}) =
-      _$CreateCommentRequestImpl;
+      {required final String content,
+      @JsonKey(name: 'parent_id', includeIfNull: false)
+      final String? parentId}) = _$CreateCommentRequestImpl;
 
   factory _CreateCommentRequest.fromJson(Map<String, dynamic> json) =
       _$CreateCommentRequestImpl.fromJson;
@@ -1929,7 +1935,7 @@ abstract class _CreateCommentRequest implements CreateCommentRequest {
   @override
   String get content;
   @override
-  @JsonKey(name: 'parent_id')
+  @JsonKey(name: 'parent_id', includeIfNull: false)
   String? get parentId;
 
   /// Create a copy of CreateCommentRequest

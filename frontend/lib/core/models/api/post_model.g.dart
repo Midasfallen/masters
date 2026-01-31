@@ -129,36 +129,6 @@ Map<String, dynamic> _$$UpdatePostRequestImplToJson(
       'is_archived': instance.isArchived,
     };
 
-_$CommentModelImpl _$$CommentModelImplFromJson(Map<String, dynamic> json) =>
-    _$CommentModelImpl(
-      id: json['id'] as String,
-      postId: json['postId'] as String,
-      authorId: json['authorId'] as String,
-      author: json['author'] == null
-          ? null
-          : UserModel.fromJson(json['author'] as Map<String, dynamic>),
-      content: json['content'] as String,
-      parentId: json['parentId'] as String?,
-      likesCount: (json['likesCount'] as num).toInt(),
-      isLiked: json['isLiked'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
-
-Map<String, dynamic> _$$CommentModelImplToJson(_$CommentModelImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'postId': instance.postId,
-      'authorId': instance.authorId,
-      'author': instance.author,
-      'content': instance.content,
-      'parentId': instance.parentId,
-      'likesCount': instance.likesCount,
-      'isLiked': instance.isLiked,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-    };
-
 _$CreateCommentRequestImpl _$$CreateCommentRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateCommentRequestImpl(
@@ -170,5 +140,5 @@ Map<String, dynamic> _$$CreateCommentRequestImplToJson(
         _$CreateCommentRequestImpl instance) =>
     <String, dynamic>{
       'content': instance.content,
-      'parent_id': instance.parentId,
+      if (instance.parentId case final value?) 'parent_id': value,
     };

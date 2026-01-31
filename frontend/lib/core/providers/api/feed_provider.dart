@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
+import 'package:service_platform/core/providers/api/auth_provider.dart';
 import 'package:service_platform/core/repositories/post_repository.dart';
 
 part 'feed_provider.g.dart';
@@ -58,11 +59,25 @@ Future<List<CommentModel>> postComments(
   int limit = 20,
 }) async {
   final repository = ref.watch(postRepositoryProvider);
-  return await repository.getComments(
+  final comments = await repository.getComments(
     postId,
     page: page,
     limit: limit,
   );
+
+  // Если у комментариев нет информации об авторе, но authorId совпадает с текущим пользователем,
+  // добавляем информацию о текущем пользователе
+  final currentUser = ref.read(currentUserProvider);
+  if (currentUser != null) {
+    return comments.map((comment) {
+      if (comment.author == null && comment.authorId == currentUser.id) {
+        return comment.copyWith(author: currentUser);
+      }
+      return comment;
+    }).toList();
+  }
+
+  return comments;
 }
 
 /// Post Notifier for mutations
@@ -157,10 +172,19 @@ class PostNotifier extends _$PostNotifier {
     final repository = ref.read(postRepositoryProvider);
     final comment = await repository.createComment(postId, request);
 
-    // Invalidate comments
+    // Если сервер не вернул информацию об авторе, но authorId совпадает с текущим пользователем,
+    // добавляем информацию о текущем пользователе
+    final currentUser = ref.read(currentUserProvider);
+    CommentModel commentWithAuthor = comment;
+    if (comment.author == null && currentUser != null && comment.authorId == currentUser.id) {
+      commentWithAuthor = comment.copyWith(author: currentUser);
+    }
+
+    // Invalidate comments and post to trigger refresh
+    // Optimistic UI update is handled in post_detail_screen.dart
     ref.invalidate(postCommentsProvider(postId));
     ref.invalidate(postByIdProvider(postId));
 
-    return comment;
+    return commentWithAuthor;
   }
 }
