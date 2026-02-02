@@ -168,6 +168,31 @@ class DioClient {
       cancelToken: cancelToken,
     );
   }
+
+  // Upload bytes (for Web compatibility)
+  Future<Response<T>> uploadBytes<T>(
+    String path,
+    List<int> bytes, {
+    required String filename,
+    Map<String, dynamic>? data,
+    ProgressCallback? onSendProgress,
+    CancelToken? cancelToken,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(
+        bytes,
+        filename: filename, // ⚠️ Обязательно передавать filename!
+      ),
+      if (data != null) ...data,
+    });
+
+    return await _dio.post<T>(
+      path,
+      data: formData,
+      onSendProgress: onSendProgress,
+      cancelToken: cancelToken,
+    );
+  }
 }
 
 /// DioClient Provider

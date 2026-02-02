@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
@@ -158,10 +159,16 @@ class PostNotifier extends _$PostNotifier {
     ref.invalidate(feedPostsProvider);
   }
 
-  /// Upload post media file
+  /// Upload post media file (legacy method for mobile compatibility)
   Future<String> uploadPostMedia(String filePath) async {
     final repository = ref.read(postRepositoryProvider);
     return await repository.uploadPostMedia(filePath);
+  }
+
+  /// Upload post media from XFile (Web-compatible)
+  Future<String> uploadPostMediaFromXFile(XFile file) async {
+    final repository = ref.read(postRepositoryProvider);
+    return await repository.uploadPostMediaFromXFile(file);
   }
 
   /// Create comment

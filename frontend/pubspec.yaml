@@ -48,6 +48,9 @@ dependencies:
   # Image
   image_picker: ^1.0.7
 
+  # Share
+  share_plus: ^7.2.1
+
   # Location
   geolocator: ^13.0.2
   permission_handler: ^11.3.1

@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:service_platform/core/providers/api/feed_provider.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
+import 'package:service_platform/core/widgets/app_image_preview.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
@@ -147,26 +146,55 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   }
 
   Future<void> _submitPost() async {
+    // Дополнительная проверка перед отправкой
+    final content = _contentController.text.trim();
+    if (content.isEmpty && _selectedMedia.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Добавьте описание или фото')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
-      // Upload media files to server
-      final mediaUrls = <String>[];
-      for (final file in _selectedMedia) {
+      // Определяем тип поста
+      final postType = _selectedMedia.isEmpty
+          ? PostType.text
+          : PostType.photo; // TODO: определить video если есть видео
+
+      // Upload media files to server and create media DTOs
+      final mediaList = <CreatePostMediaDto>[];
+      for (int i = 0; i < _selectedMedia.length; i++) {
+        final file = _selectedMedia[i];
         final url = await ref
             .read(postNotifierProvider.notifier)
-            .uploadPostMedia(file.path);
-        mediaUrls.add(url);
+            .uploadPostMediaFromXFile(file);
+
+        // Определяем тип медиа (пока только photo, можно расширить для video)
+        mediaList.add(CreatePostMediaDto(
+          type: MediaType.photo,
+          url: url,
+          order: i,
+        ));
       }
 
+      // Формируем запрос согласно DTO бэкенда
       final request = CreatePostRequest(
-        content: _contentController.text.trim(),
-        mediaUrls: mediaUrls.isNotEmpty ? mediaUrls : null,
-        tags: _tags.isNotEmpty ? _tags : null,
+        type: postType,
+        content: content.isEmpty ? null : content,
+        media: mediaList.isNotEmpty ? mediaList : null,
+        // tags убраны - бэкенд их не принимает
       );
 
       await ref.read(postNotifierProvider.notifier).createPost(request);
 
+      // Обновляем ленту после успешного создания поста
+      // Инвалидируем провайдер, чтобы при следующем обращении загрузились свежие данные
+      ref.invalidate(feedPostsProvider);
+
+      // Также инвалидируем локальное состояние ленты, если экран еще открыт
+      // Это заставит FeedScreen перезагрузить данные при возврате
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Пост создан успешно!')),
@@ -351,8 +379,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(file.path),
+                      child: AppImagePreview(
+                        file: file,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -414,7 +442,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             maxLines: 6,
             maxLength: 2000,
             decoration: InputDecoration(
-              hintText: 'Напишите описание...\n\nИспользуйте #хештеги и @упоминания',
+              hintText:
+                  'Напишите описание...\n\nИспользуйте #хештеги и @упоминания',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -495,8 +524,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               aspectRatio: 1,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  File(_selectedMedia.first.path),
+                child: AppImagePreview(
+                  file: _selectedMedia.first,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -536,7 +565,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  backgroundColor:
+                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 );
               }).toList(),
             ),

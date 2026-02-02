@@ -248,4 +248,45 @@ class MockDioClient extends _i1.Mock implements _i3.DioClient {
           ),
         )),
       ) as _i4.Future<_i2.Response<T>>);
+
+  @override
+  _i4.Future<_i2.Response<T>> uploadBytes<T>(
+    String? path,
+    List<int>? bytes, {
+    required String? filename,
+    Map<String, dynamic>? data,
+    _i2.ProgressCallback? onSendProgress,
+    _i2.CancelToken? cancelToken,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #uploadBytes,
+          [
+            path,
+            bytes,
+          ],
+          {
+            #filename: filename,
+            #data: data,
+            #onSendProgress: onSendProgress,
+            #cancelToken: cancelToken,
+          },
+        ),
+        returnValue: _i4.Future<_i2.Response<T>>.value(_FakeResponse_0<T>(
+          this,
+          Invocation.method(
+            #uploadBytes,
+            [
+              path,
+              bytes,
+            ],
+            {
+              #filename: filename,
+              #data: data,
+              #onSendProgress: onSendProgress,
+              #cancelToken: cancelToken,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.Response<T>>);
 }

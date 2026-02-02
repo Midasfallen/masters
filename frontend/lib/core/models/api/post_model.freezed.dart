@@ -931,16 +931,295 @@ abstract class _PostModel implements PostModel {
       throw _privateConstructorUsedError;
 }
 
+CreatePostMediaDto _$CreatePostMediaDtoFromJson(Map<String, dynamic> json) {
+  return _CreatePostMediaDto.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CreatePostMediaDto {
+  MediaType get type => throw _privateConstructorUsedError;
+  String get url => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl => throw _privateConstructorUsedError;
+  int? get order => throw _privateConstructorUsedError;
+  int? get width => throw _privateConstructorUsedError;
+  int? get height => throw _privateConstructorUsedError;
+  int? get duration => throw _privateConstructorUsedError;
+
+  /// Serializes this CreatePostMediaDto to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CreatePostMediaDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $CreatePostMediaDtoCopyWith<CreatePostMediaDto> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $CreatePostMediaDtoCopyWith<$Res> {
+  factory $CreatePostMediaDtoCopyWith(
+          CreatePostMediaDto value, $Res Function(CreatePostMediaDto) then) =
+      _$CreatePostMediaDtoCopyWithImpl<$Res, CreatePostMediaDto>;
+  @useResult
+  $Res call(
+      {MediaType type,
+      String url,
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      int? order,
+      int? width,
+      int? height,
+      int? duration});
+}
+
+/// @nodoc
+class _$CreatePostMediaDtoCopyWithImpl<$Res, $Val extends CreatePostMediaDto>
+    implements $CreatePostMediaDtoCopyWith<$Res> {
+  _$CreatePostMediaDtoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of CreatePostMediaDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? url = null,
+    Object? thumbnailUrl = freezed,
+    Object? order = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+  }) {
+    return _then(_value.copyWith(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MediaType,
+      url: null == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      order: freezed == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int?,
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$CreatePostMediaDtoImplCopyWith<$Res>
+    implements $CreatePostMediaDtoCopyWith<$Res> {
+  factory _$$CreatePostMediaDtoImplCopyWith(_$CreatePostMediaDtoImpl value,
+          $Res Function(_$CreatePostMediaDtoImpl) then) =
+      __$$CreatePostMediaDtoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {MediaType type,
+      String url,
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      int? order,
+      int? width,
+      int? height,
+      int? duration});
+}
+
+/// @nodoc
+class __$$CreatePostMediaDtoImplCopyWithImpl<$Res>
+    extends _$CreatePostMediaDtoCopyWithImpl<$Res, _$CreatePostMediaDtoImpl>
+    implements _$$CreatePostMediaDtoImplCopyWith<$Res> {
+  __$$CreatePostMediaDtoImplCopyWithImpl(_$CreatePostMediaDtoImpl _value,
+      $Res Function(_$CreatePostMediaDtoImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of CreatePostMediaDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? url = null,
+    Object? thumbnailUrl = freezed,
+    Object? order = freezed,
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+  }) {
+    return _then(_$CreatePostMediaDtoImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MediaType,
+      url: null == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      order: freezed == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as int?,
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$CreatePostMediaDtoImpl implements _CreatePostMediaDto {
+  const _$CreatePostMediaDtoImpl(
+      {required this.type,
+      required this.url,
+      @JsonKey(name: 'thumbnail_url') this.thumbnailUrl,
+      this.order,
+      this.width,
+      this.height,
+      this.duration});
+
+  factory _$CreatePostMediaDtoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CreatePostMediaDtoImplFromJson(json);
+
+  @override
+  final MediaType type;
+  @override
+  final String url;
+  @override
+  @JsonKey(name: 'thumbnail_url')
+  final String? thumbnailUrl;
+  @override
+  final int? order;
+  @override
+  final int? width;
+  @override
+  final int? height;
+  @override
+  final int? duration;
+
+  @override
+  String toString() {
+    return 'CreatePostMediaDto(type: $type, url: $url, thumbnailUrl: $thumbnailUrl, order: $order, width: $width, height: $height, duration: $duration)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$CreatePostMediaDtoImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.order, order) || other.order == order) &&
+            (identical(other.width, width) || other.width == width) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, type, url, thumbnailUrl, order, width, height, duration);
+
+  /// Create a copy of CreatePostMediaDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$CreatePostMediaDtoImplCopyWith<_$CreatePostMediaDtoImpl> get copyWith =>
+      __$$CreatePostMediaDtoImplCopyWithImpl<_$CreatePostMediaDtoImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$CreatePostMediaDtoImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _CreatePostMediaDto implements CreatePostMediaDto {
+  const factory _CreatePostMediaDto(
+      {required final MediaType type,
+      required final String url,
+      @JsonKey(name: 'thumbnail_url') final String? thumbnailUrl,
+      final int? order,
+      final int? width,
+      final int? height,
+      final int? duration}) = _$CreatePostMediaDtoImpl;
+
+  factory _CreatePostMediaDto.fromJson(Map<String, dynamic> json) =
+      _$CreatePostMediaDtoImpl.fromJson;
+
+  @override
+  MediaType get type;
+  @override
+  String get url;
+  @override
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl;
+  @override
+  int? get order;
+  @override
+  int? get width;
+  @override
+  int? get height;
+  @override
+  int? get duration;
+
+  /// Create a copy of CreatePostMediaDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$CreatePostMediaDtoImplCopyWith<_$CreatePostMediaDtoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 CreatePostRequest _$CreatePostRequestFromJson(Map<String, dynamic> json) {
   return _CreatePostRequest.fromJson(json);
 }
 
 /// @nodoc
 mixin _$CreatePostRequest {
-  String get content => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media_urls')
-  List<String>? get mediaUrls => throw _privateConstructorUsedError;
-  List<String>? get tags => throw _privateConstructorUsedError;
+  PostType get type => throw _privateConstructorUsedError;
+  String? get content => throw _privateConstructorUsedError;
+  List<CreatePostMediaDto>? get media => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_name')
   String? get locationName => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_lat')
@@ -969,9 +1248,9 @@ abstract class $CreatePostRequestCopyWith<$Res> {
       _$CreatePostRequestCopyWithImpl<$Res, CreatePostRequest>;
   @useResult
   $Res call(
-      {String content,
-      @JsonKey(name: 'media_urls') List<String>? mediaUrls,
-      List<String>? tags,
+      {PostType type,
+      String? content,
+      List<CreatePostMediaDto>? media,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
       @JsonKey(name: 'location_lng') double? locationLng,
@@ -994,9 +1273,9 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? content = null,
-    Object? mediaUrls = freezed,
-    Object? tags = freezed,
+    Object? type = null,
+    Object? content = freezed,
+    Object? media = freezed,
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
@@ -1004,18 +1283,18 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
     Object? customServiceName = freezed,
   }) {
     return _then(_value.copyWith(
-      content: null == content
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as PostType,
+      content: freezed == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
-      mediaUrls: freezed == mediaUrls
-          ? _value.mediaUrls
-          : mediaUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      tags: freezed == tags
-          ? _value.tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as String?,
+      media: freezed == media
+          ? _value.media
+          : media // ignore: cast_nullable_to_non_nullable
+              as List<CreatePostMediaDto>?,
       locationName: freezed == locationName
           ? _value.locationName
           : locationName // ignore: cast_nullable_to_non_nullable
@@ -1049,9 +1328,9 @@ abstract class _$$CreatePostRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String content,
-      @JsonKey(name: 'media_urls') List<String>? mediaUrls,
-      List<String>? tags,
+      {PostType type,
+      String? content,
+      List<CreatePostMediaDto>? media,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
       @JsonKey(name: 'location_lng') double? locationLng,
@@ -1072,9 +1351,9 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? content = null,
-    Object? mediaUrls = freezed,
-    Object? tags = freezed,
+    Object? type = null,
+    Object? content = freezed,
+    Object? media = freezed,
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
@@ -1082,18 +1361,18 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
     Object? customServiceName = freezed,
   }) {
     return _then(_$CreatePostRequestImpl(
-      content: null == content
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as PostType,
+      content: freezed == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
-              as String,
-      mediaUrls: freezed == mediaUrls
-          ? _value._mediaUrls
-          : mediaUrls // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      tags: freezed == tags
-          ? _value._tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as String?,
+      media: freezed == media
+          ? _value._media
+          : media // ignore: cast_nullable_to_non_nullable
+              as List<CreatePostMediaDto>?,
       locationName: freezed == locationName
           ? _value.locationName
           : locationName // ignore: cast_nullable_to_non_nullable
@@ -1122,40 +1401,30 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreatePostRequestImpl implements _CreatePostRequest {
   const _$CreatePostRequestImpl(
-      {required this.content,
-      @JsonKey(name: 'media_urls') final List<String>? mediaUrls,
-      final List<String>? tags,
+      {required this.type,
+      this.content,
+      final List<CreatePostMediaDto>? media,
       @JsonKey(name: 'location_name') this.locationName,
       @JsonKey(name: 'location_lat') this.locationLat,
       @JsonKey(name: 'location_lng') this.locationLng,
       @JsonKey(name: 'service_ids') final List<String>? serviceIds,
       @JsonKey(name: 'custom_service_name') this.customServiceName})
-      : _mediaUrls = mediaUrls,
-        _tags = tags,
+      : _media = media,
         _serviceIds = serviceIds;
 
   factory _$CreatePostRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreatePostRequestImplFromJson(json);
 
   @override
-  final String content;
-  final List<String>? _mediaUrls;
+  final PostType type;
   @override
-  @JsonKey(name: 'media_urls')
-  List<String>? get mediaUrls {
-    final value = _mediaUrls;
-    if (value == null) return null;
-    if (_mediaUrls is EqualUnmodifiableListView) return _mediaUrls;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  final List<String>? _tags;
+  final String? content;
+  final List<CreatePostMediaDto>? _media;
   @override
-  List<String>? get tags {
-    final value = _tags;
+  List<CreatePostMediaDto>? get media {
+    final value = _media;
     if (value == null) return null;
-    if (_tags is EqualUnmodifiableListView) return _tags;
+    if (_media is EqualUnmodifiableListView) return _media;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
@@ -1186,7 +1455,7 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
 
   @override
   String toString() {
-    return 'CreatePostRequest(content: $content, mediaUrls: $mediaUrls, tags: $tags, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, serviceIds: $serviceIds, customServiceName: $customServiceName)';
+    return 'CreatePostRequest(type: $type, content: $content, media: $media, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, serviceIds: $serviceIds, customServiceName: $customServiceName)';
   }
 
   @override
@@ -1194,10 +1463,9 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreatePostRequestImpl &&
+            (identical(other.type, type) || other.type == type) &&
             (identical(other.content, content) || other.content == content) &&
-            const DeepCollectionEquality()
-                .equals(other._mediaUrls, _mediaUrls) &&
-            const DeepCollectionEquality().equals(other._tags, _tags) &&
+            const DeepCollectionEquality().equals(other._media, _media) &&
             (identical(other.locationName, locationName) ||
                 other.locationName == locationName) &&
             (identical(other.locationLat, locationLat) ||
@@ -1214,9 +1482,9 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      type,
       content,
-      const DeepCollectionEquality().hash(_mediaUrls),
-      const DeepCollectionEquality().hash(_tags),
+      const DeepCollectionEquality().hash(_media),
       locationName,
       locationLat,
       locationLng,
@@ -1242,9 +1510,9 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
 
 abstract class _CreatePostRequest implements CreatePostRequest {
   const factory _CreatePostRequest(
-      {required final String content,
-      @JsonKey(name: 'media_urls') final List<String>? mediaUrls,
-      final List<String>? tags,
+      {required final PostType type,
+      final String? content,
+      final List<CreatePostMediaDto>? media,
       @JsonKey(name: 'location_name') final String? locationName,
       @JsonKey(name: 'location_lat') final double? locationLat,
       @JsonKey(name: 'location_lng') final double? locationLng,
@@ -1256,12 +1524,11 @@ abstract class _CreatePostRequest implements CreatePostRequest {
       _$CreatePostRequestImpl.fromJson;
 
   @override
-  String get content;
+  PostType get type;
   @override
-  @JsonKey(name: 'media_urls')
-  List<String>? get mediaUrls;
+  String? get content;
   @override
-  List<String>? get tags;
+  List<CreatePostMediaDto>? get media;
   @override
   @JsonKey(name: 'location_name')
   String? get locationName;

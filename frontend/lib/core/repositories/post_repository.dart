@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
@@ -160,12 +161,30 @@ class PostRepository {
     }
   }
 
-  /// Upload post media file
+  /// Upload post media file (legacy method for mobile compatibility)
   Future<String> uploadPostMedia(String filePath) async {
     try {
       final response = await _client.uploadFile(
         ApiEndpoints.uploadPost,
         filePath,
+      );
+      return response.data['url'] as String;
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Upload post media from XFile (Web-compatible)
+  Future<String> uploadPostMediaFromXFile(XFile file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      // На Web file.name может быть пустым, используем fallback
+      final filename = file.name.isNotEmpty ? file.name : 'upload.jpg';
+      
+      final response = await _client.uploadBytes(
+        ApiEndpoints.uploadPost,
+        bytes,
+        filename: filename,
       );
       return response.data['url'] as String;
     } on DioException catch (e) {

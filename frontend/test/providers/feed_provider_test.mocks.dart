@@ -5,6 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
+import 'package:image_picker/image_picker.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:service_platform/core/models/api/post_model.dart' as _i2;
@@ -211,6 +212,22 @@ class MockPostRepository extends _i1.Mock implements _i3.PostRepository {
           Invocation.method(
             #uploadPostMedia,
             [filePath],
+          ),
+        )),
+      ) as _i4.Future<String>);
+
+  @override
+  _i4.Future<String> uploadPostMediaFromXFile(_i6.XFile? file) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #uploadPostMediaFromXFile,
+          [file],
+        ),
+        returnValue: _i4.Future<String>.value(_i5.dummyValue<String>(
+          this,
+          Invocation.method(
+            #uploadPostMediaFromXFile,
+            [file],
           ),
         )),
       ) as _i4.Future<String>);

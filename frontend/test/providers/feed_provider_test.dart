@@ -136,7 +136,10 @@ void main() {
 
       final notifier = container.read(postNotifierProvider.notifier);
       final result = await notifier.createPost(
-        const CreatePostRequest(content: 'Новый пост'),
+        const CreatePostRequest(
+          type: PostType.text,
+          content: 'Новый пост',
+        ),
       );
 
       expect(result.id, 'post1');

@@ -93,14 +93,38 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
+_$CreatePostMediaDtoImpl _$$CreatePostMediaDtoImplFromJson(
+        Map<String, dynamic> json) =>
+    _$CreatePostMediaDtoImpl(
+      type: $enumDecode(_$MediaTypeEnumMap, json['type']),
+      url: json['url'] as String,
+      thumbnailUrl: json['thumbnail_url'] as String?,
+      order: (json['order'] as num?)?.toInt(),
+      width: (json['width'] as num?)?.toInt(),
+      height: (json['height'] as num?)?.toInt(),
+      duration: (json['duration'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$$CreatePostMediaDtoImplToJson(
+        _$CreatePostMediaDtoImpl instance) =>
+    <String, dynamic>{
+      'type': _$MediaTypeEnumMap[instance.type]!,
+      'url': instance.url,
+      'thumbnail_url': instance.thumbnailUrl,
+      'order': instance.order,
+      'width': instance.width,
+      'height': instance.height,
+      'duration': instance.duration,
+    };
+
 _$CreatePostRequestImpl _$$CreatePostRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreatePostRequestImpl(
-      content: json['content'] as String,
-      mediaUrls: (json['media_urls'] as List<dynamic>?)
-          ?.map((e) => e as String)
+      type: $enumDecode(_$PostTypeEnumMap, json['type']),
+      content: json['content'] as String?,
+      media: (json['media'] as List<dynamic>?)
+          ?.map((e) => CreatePostMediaDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
       locationName: json['location_name'] as String?,
       locationLat: (json['location_lat'] as num?)?.toDouble(),
       locationLng: (json['location_lng'] as num?)?.toDouble(),
@@ -113,15 +137,22 @@ _$CreatePostRequestImpl _$$CreatePostRequestImplFromJson(
 Map<String, dynamic> _$$CreatePostRequestImplToJson(
         _$CreatePostRequestImpl instance) =>
     <String, dynamic>{
+      'type': _$PostTypeEnumMap[instance.type]!,
       'content': instance.content,
-      'media_urls': instance.mediaUrls,
-      'tags': instance.tags,
+      'media': instance.media,
       'location_name': instance.locationName,
       'location_lat': instance.locationLat,
       'location_lng': instance.locationLng,
       'service_ids': instance.serviceIds,
       'custom_service_name': instance.customServiceName,
     };
+
+const _$PostTypeEnumMap = {
+  PostType.text: 'text',
+  PostType.photo: 'photo',
+  PostType.video: 'video',
+  PostType.repost: 'repost',
+};
 
 _$UpdatePostRequestImpl _$$UpdatePostRequestImplFromJson(
         Map<String, dynamic> json) =>

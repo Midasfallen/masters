@@ -133,9 +133,14 @@ void main() {
       test('should create post successfully', () async {
         // Arrange
         final request = CreatePostRequest(
+          type: PostType.photo,
           content: 'New post content',
-          mediaUrls: ['https://example.com/image.jpg'],
-          tags: ['tag1', 'tag2'],
+          media: [
+            CreatePostMediaDto(
+              type: MediaType.photo,
+              url: 'https://example.com/image.jpg',
+            ),
+          ],
         );
 
         final mockResponse = Response(

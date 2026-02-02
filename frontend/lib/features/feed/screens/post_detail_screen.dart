@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/models/api/post_model.dart';
 import '../../../core/providers/api/feed_provider.dart';
+import '../../../shared/widgets/app_avatar.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   final String postId;
@@ -21,6 +24,8 @@ class PostDetailScreen extends ConsumerStatefulWidget {
 class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   final PageController _mediaController = PageController();
   int _currentMediaIndex = 0;
+  bool _isLiking = false; // Флаг для защиты от race conditions
+  PostModel? _optimisticPost; // Локальное оптимистичное состояние
 
   @override
   void dispose() {
@@ -29,17 +34,59 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   Future<void> _handleLike(String postId, bool isLiked) async {
+    // Защита от двойных кликов
+    if (_isLiking) return;
+    
+    // Сохраняем текущее состояние для отката
+    final currentPost = ref.read(postByIdProvider(postId)).value;
+    if (currentPost == null) return;
+
+    // Оптимистичное обновление - меняем UI СРАЗУ через локальное состояние
+    final optimisticPost = currentPost.copyWith(
+      isLiked: !isLiked,
+      likesCount: isLiked 
+          ? currentPost.likesCount - 1 
+          : currentPost.likesCount + 1,
+    );
+    
+    setState(() {
+      _optimisticPost = optimisticPost;
+      _isLiking = true;
+    });
+
     try {
+      // Отправляем запрос в фоне
       if (isLiked) {
         await ref.read(postNotifierProvider.notifier).unlikePost(postId);
       } else {
         await ref.read(postNotifierProvider.notifier).likePost(postId);
       }
+      
+      // При успехе обновляем состояние реальными данными (на случай, если счетчик изменился)
+      setState(() {
+        _optimisticPost = null; // Сбрасываем оптимистичное состояние
+      });
+      ref.invalidate(postByIdProvider(postId));
     } catch (e) {
+      // При ошибке ОТКАТЫВАЕМ изменения
+      setState(() {
+        _optimisticPost = null; // Сбрасываем оптимистичное состояние
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
+      }
+    } finally {
+      // Снимаем флаг блокировки
+      if (mounted) {
+        setState(() {
+          _isLiking = false;
+        });
       }
     }
   }
@@ -51,7 +98,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: postAsync.when(
-        data: (post) => _buildPostPage(post),
+        data: (post) {
+          // Используем оптимистичное состояние, если оно есть
+          final displayPost = _optimisticPost ?? post;
+          return _buildPostPage(displayPost);
+        },
         loading: () => const Center(
           child: CircularProgressIndicator(color: Colors.white),
         ),
@@ -181,7 +232,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
                 label: '${post.likesCount}',
                 color: post.isLiked ? Colors.red : Colors.white,
-                onTap: () => _handleLike(post.id, post.isLiked),
+                onTap: _isLiking ? null : () => _handleLike(post.id, post.isLiked),
               ),
               const SizedBox(height: 24),
               _buildActionButton(
@@ -193,14 +244,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               _buildActionButton(
                 icon: Icons.share_outlined,
                 label: '',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Поделиться'),
-                      duration: Duration(milliseconds: 500),
-                    ),
-                  );
-                },
+                onTap: () => _sharePost(post),
               ),
               const SizedBox(height: 24),
               _buildActionButton(
@@ -249,53 +293,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 // Master info
                 Row(
                   children: [
-                    CircleAvatar(
+                    AppAvatar(
+                      avatarUrl: post.author?.avatarUrl,
+                      userId: post.authorId,
+                      fallbackName: post.author?.fullName ?? 
+                          (post.author != null
+                              ? '${post.author!.firstName} ${post.author!.lastName}'
+                              : null),
                       radius: 18,
-                      backgroundColor: Colors.grey[300],
-                      child: post.author?.avatarUrl != null
-                          ? ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl: post.author!.avatarUrl!,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.cover,
-                                errorWidget: (context, url, error) => Center(
-                                  child: Text(
-                                    (post.author?.fullName ??
-                                            (post.author != null
-                                                ? '${post.author!.firstName} ${post.author!.lastName}'
-                                                : '?'))[0].toUpperCase(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                placeholder: (context, url) => const SizedBox(
-                                  width: 36,
-                                  height: 36,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Center(
-                              child: Text(
-                                (post.author?.fullName ??
-                                        (post.author != null
-                                            ? '${post.author!.firstName} ${post.author!.lastName}'
-                                            : '?'))[0].toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -412,7 +417,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     required IconData icon,
     required String label,
     Color color = Colors.white,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -460,6 +465,34 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => _CommentsSheet(postId: widget.postId),
     );
+  }
+
+  Future<void> _sharePost(PostModel post) async {
+    // Формируем URL поста (в будущем можно взять из AppConfig)
+    final postUrl = 'https://service-platform.com/post/${post.id}';
+    final text = post.content != null 
+        ? '${post.content}\n\n$postUrl'
+        : 'Посмотри этот пост: $postUrl';
+    
+    try {
+      // Попытка использовать нативный шаринг
+      await Share.share(
+        text,
+        subject: 'Пост от ${post.author?.fullName ?? (post.author != null ? '${post.author!.firstName} ${post.author!.lastName}' : 'мастера')}',
+      );
+    } catch (e) {
+      // На веб Share.share может выбросить исключение, если не поддерживается
+      // ⚠️ ОБЯЗАТЕЛЬНЫЙ FALLBACK для веба и десктопа
+      await Clipboard.setData(ClipboardData(text: postUrl));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ссылка скопирована в буфер обмена'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -618,20 +651,14 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatar(
+                              AppAvatar(
+                                avatarUrl: comment.author?.avatarUrl,
+                                userId: comment.authorId,
+                                fallbackName: comment.author?.fullName ?? 
+                                    (comment.author != null
+                                        ? '${comment.author!.firstName} ${comment.author!.lastName}'
+                                        : null),
                                 radius: 18,
-                                backgroundImage: comment.author?.avatarUrl != null
-                                    ? CachedNetworkImageProvider(
-                                        comment.author!.avatarUrl!)
-                                    : null,
-                                child: comment.author?.avatarUrl == null
-                                    ? Text(
-                                        ((comment.author?.fullName ??
-                                                (comment.author != null
-                                                    ? '${comment.author!.firstName} ${comment.author!.lastName}'
-                                                    : '?')))[0].toUpperCase(),
-                                      )
-                                    : null,
                               ),
                               const SizedBox(width: 12),
                               Expanded(

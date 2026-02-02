@@ -20,25 +20,39 @@ class FeedScreen extends ConsumerStatefulWidget {
   ConsumerState<FeedScreen> createState() => _FeedScreenState();
 }
 
-class _FeedScreenState extends ConsumerState<FeedScreen> {
+class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadFeed();
+      _hasLoadedOnce = true;
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Обновляем ленту при возврате приложения в активное состояние
+    if (state == AppLifecycleState.resumed && _hasLoadedOnce) {
+      _loadFeed(refresh: true);
+    }
+  }
+
+
 
   void _onScroll() {
     if (_scrollController.position.pixels >=

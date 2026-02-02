@@ -28,6 +28,17 @@ enum MediaType {
   video,
 }
 
+enum PostType {
+  @JsonValue('text')
+  text,
+  @JsonValue('photo')
+  photo,
+  @JsonValue('video')
+  video,
+  @JsonValue('repost')
+  repost,
+}
+
 @freezed
 class PostMediaModel with _$PostMediaModel {
   const factory PostMediaModel({
@@ -73,13 +84,30 @@ class PostModel with _$PostModel {
       _$PostModelFromJson(json);
 }
 
+/// Create Post Media DTO (for request)
+@freezed
+class CreatePostMediaDto with _$CreatePostMediaDto {
+  const factory CreatePostMediaDto({
+    required MediaType type,
+    required String url,
+    @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+    int? order,
+    int? width,
+    int? height,
+    int? duration,
+  }) = _CreatePostMediaDto;
+
+  factory CreatePostMediaDto.fromJson(Map<String, dynamic> json) =>
+      _$CreatePostMediaDtoFromJson(json);
+}
+
 /// Create Post Request
 @freezed
 class CreatePostRequest with _$CreatePostRequest {
   const factory CreatePostRequest({
-    required String content,
-    @JsonKey(name: 'media_urls') List<String>? mediaUrls,
-    List<String>? tags,
+    required PostType type,
+    String? content,
+    List<CreatePostMediaDto>? media,
     @JsonKey(name: 'location_name') String? locationName,
     @JsonKey(name: 'location_lat') double? locationLat,
     @JsonKey(name: 'location_lng') double? locationLng,
@@ -134,19 +162,20 @@ class CommentModel with _$CommentModel {
     jsonWithDefaults['isLiked'] ??= false;
     jsonWithDefaults['likesCount'] ??= 0;
     
+    // Безопасные касты с проверкой на null
     return CommentModel(
-      id: jsonWithDefaults['id'] as String,
-      postId: jsonWithDefaults['postId'] as String,
-      authorId: jsonWithDefaults['authorId'] as String,
+      id: (jsonWithDefaults['id'] ?? '') as String,
+      postId: (jsonWithDefaults['postId'] ?? '') as String,
+      authorId: (jsonWithDefaults['authorId'] ?? '') as String,
       author: jsonWithDefaults['author'] == null
           ? null
           : UserModel.fromJson(jsonWithDefaults['author'] as Map<String, dynamic>),
-      content: jsonWithDefaults['content'] as String,
+      content: (jsonWithDefaults['content'] ?? '') as String,
       parentId: jsonWithDefaults['parentId'] as String?,
       likesCount: (jsonWithDefaults['likesCount'] as num?)?.toInt() ?? 0,
       isLiked: jsonWithDefaults['isLiked'] as bool? ?? false,
-      createdAt: DateTime.parse(jsonWithDefaults['createdAt'] as String),
-      updatedAt: DateTime.parse(jsonWithDefaults['updatedAt'] as String),
+      createdAt: DateTime.parse((jsonWithDefaults['createdAt'] ?? DateTime.now().toIso8601String()) as String),
+      updatedAt: DateTime.parse((jsonWithDefaults['updatedAt'] ?? DateTime.now().toIso8601String()) as String),
     );
   }
 }
