@@ -6,12 +6,16 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
   JoinColumn,
+  JoinTable,
   Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 import { PostMedia } from './post-media.entity';
+import { Service } from '../../services/entities/service.entity';
+import { PostService } from './post-service.entity';
 
 export enum PostType {
   TEXT = 'text',
@@ -91,6 +95,22 @@ export class Post {
   @Column({ type: 'varchar', length: 255, nullable: true })
   location_name: string;
 
+  @ApiProperty({ description: 'Название кастомной услуги', nullable: true })
+  @Column({ type: 'text', nullable: true })
+  custom_service_name: string;
+
+  @ApiProperty({
+    description: 'ID категорий, связанных с постом (прямая связь)',
+    type: [String],
+    nullable: true,
+  })
+  @Column({ type: 'uuid', array: true, default: () => "'{}'" })
+  @Index()
+  category_ids: string[];
+
+  // location_geography не добавляем в Entity, т.к. TypeORM не поддерживает geography напрямую
+  // Работаем с ним через raw SQL в сервисе
+
   @ApiProperty({ description: 'Комментарии отключены', default: false })
   @Column({ type: 'boolean', default: false })
   comments_disabled: boolean;
@@ -121,4 +141,18 @@ export class Post {
   @ManyToOne(() => Post, { nullable: true })
   @JoinColumn({ name: 'repost_of_id' })
   repost_of: Post;
+
+  @OneToMany(() => PostService, (postService) => postService.post, {
+    cascade: true,
+    eager: false,
+  })
+  post_services: PostService[];
+
+  @ManyToMany(() => Service, { eager: false })
+  @JoinTable({
+    name: 'post_services',
+    joinColumn: { name: 'post_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'service_id', referencedColumnName: 'id' },
+  })
+  services: Service[];
 }

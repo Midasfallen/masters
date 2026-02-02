@@ -57,8 +57,11 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       repostsCount: (json['repostsCount'] as num?)?.toInt() ?? 0,
       isLiked: json['isLiked'] as bool? ?? false,
       locationName: json['locationName'] as String?,
-      locationLat: (json['locationLat'] as num?)?.toDouble(),
-      locationLng: (json['locationLng'] as num?)?.toDouble(),
+      locationLat:
+          const NullableStringToDoubleConverter().fromJson(json['locationLat']),
+      locationLng:
+          const NullableStringToDoubleConverter().fromJson(json['locationLng']),
+      customServiceName: json['custom_service_name'] as String?,
       isPinned: json['isPinned'] as bool? ?? false,
       isArchived: json['isArchived'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -79,8 +82,11 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'repostsCount': instance.repostsCount,
       'isLiked': instance.isLiked,
       'locationName': instance.locationName,
-      'locationLat': instance.locationLat,
-      'locationLng': instance.locationLng,
+      'locationLat':
+          const NullableStringToDoubleConverter().toJson(instance.locationLat),
+      'locationLng':
+          const NullableStringToDoubleConverter().toJson(instance.locationLng),
+      'custom_service_name': instance.customServiceName,
       'isPinned': instance.isPinned,
       'isArchived': instance.isArchived,
       'createdAt': instance.createdAt.toIso8601String(),
@@ -98,6 +104,10 @@ _$CreatePostRequestImpl _$$CreatePostRequestImplFromJson(
       locationName: json['location_name'] as String?,
       locationLat: (json['location_lat'] as num?)?.toDouble(),
       locationLng: (json['location_lng'] as num?)?.toDouble(),
+      serviceIds: (json['service_ids'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      customServiceName: json['custom_service_name'] as String?,
     );
 
 Map<String, dynamic> _$$CreatePostRequestImplToJson(
@@ -109,6 +119,8 @@ Map<String, dynamic> _$$CreatePostRequestImplToJson(
       'location_name': instance.locationName,
       'location_lat': instance.locationLat,
       'location_lng': instance.locationLng,
+      'service_ids': instance.serviceIds,
+      'custom_service_name': instance.customServiceName,
     };
 
 _$UpdatePostRequestImpl _$$UpdatePostRequestImplFromJson(

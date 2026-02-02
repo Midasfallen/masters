@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # PostgreSQL 15+ with PostGIS
   postgres:
-    image: postgres:15-alpine
+    image: postgis/postgis:15-3.4-alpine
     container_name: service_postgres
     restart: unless-stopped
     environment:
@@ -92,6 +92,8 @@ services:
     container_name: service_minio_setup
     depends_on:
       - minio
+    volumes:
+      - ./docker/minio-cors.json:/tmp/minio-cors.json:ro
     entrypoint: >
       /bin/sh -c "
       sleep 5;
@@ -104,6 +106,10 @@ services:
       /usr/bin/mc anonymous set download myminio/posts;
       /usr/bin/mc anonymous set download myminio/videos;
       /usr/bin/mc anonymous set download myminio/portfolios;
+      /usr/bin/mc cors set /tmp/minio-cors.json myminio/avatars;
+      /usr/bin/mc cors set /tmp/minio-cors.json myminio/posts;
+      /usr/bin/mc cors set /tmp/minio-cors.json myminio/videos;
+      /usr/bin/mc cors set /tmp/minio-cors.json myminio/portfolios;
       exit 0;
       "
     networks:
@@ -134,36 +140,8 @@ services:
     depends_on:
       - postgres
 
-  # Backend (NestJS)
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: service_backend
-    restart: unless-stopped
-    env_file:
-      - ./backend/.env.docker
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./backend/logs:/app/logs
-    networks:
-      - service_network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      meilisearch:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/api/v2/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+  # Backend запускается локально через npm run start:dev
+  # Удалено из Docker для ускорения разработки (Hot Reload)
 
 networks:
   service_network:

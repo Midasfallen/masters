@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsUUID, IsNumber, IsDateString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsEnum, IsUUID, IsNumber, IsDateString, IsString } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { PostType } from '../entities/post.entity';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
@@ -34,11 +34,21 @@ export class FilterPostsDto extends PaginationDto {
   radius?: number;
 
   @ApiPropertyOptional({
-    description: 'Фильтр по категориям мастеров',
+    description: 'Фильтр по категориям (любого уровня: корневые, подкатегории, услуги)',
     type: [String],
     example: ['uuid-1', 'uuid-2']
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    // Обработка случая, когда параметр передается как строка или массив
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return [value];
+    }
+    return [];
+  })
   @IsUUID('4', { each: true })
   category_ids?: string[];
 

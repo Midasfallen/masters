@@ -4,6 +4,23 @@ import 'package:service_platform/core/models/api/user_model.dart';
 part 'post_model.freezed.dart';
 part 'post_model.g.dart';
 
+/// Converter for nullable double (handles API returning numbers as strings from DECIMAL)
+class NullableStringToDoubleConverter implements JsonConverter<double?, dynamic> {
+  const NullableStringToDoubleConverter();
+
+  @override
+  double? fromJson(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  @override
+  dynamic toJson(double? value) => value;
+}
+
 enum MediaType {
   @JsonValue('photo')
   photo,
@@ -43,8 +60,9 @@ class PostModel with _$PostModel {
     @Default(0) int repostsCount,
     @Default(false) bool isLiked,
     String? locationName,
-    double? locationLat,
-    double? locationLng,
+    @NullableStringToDoubleConverter() @JsonKey(name: 'locationLat') double? locationLat,
+    @NullableStringToDoubleConverter() @JsonKey(name: 'locationLng') double? locationLng,
+    @JsonKey(name: 'custom_service_name') String? customServiceName,
     @Default(false) bool isPinned,
     @Default(false) bool isArchived,
     required DateTime createdAt,
@@ -65,6 +83,8 @@ class CreatePostRequest with _$CreatePostRequest {
     @JsonKey(name: 'location_name') String? locationName,
     @JsonKey(name: 'location_lat') double? locationLat,
     @JsonKey(name: 'location_lng') double? locationLng,
+    @JsonKey(name: 'service_ids') List<String>? serviceIds,
+    @JsonKey(name: 'custom_service_name') String? customServiceName,
   }) = _CreatePostRequest;
 
   factory CreatePostRequest.fromJson(Map<String, dynamic> json) =>

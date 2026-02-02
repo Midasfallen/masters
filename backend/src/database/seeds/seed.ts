@@ -1,12 +1,16 @@
-import { DataSource } from 'typeorm';
+import { DataSource, TreeRepository } from 'typeorm';
 import { faker } from '@faker-js/faker/locale/ru';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../modules/users/entities/user.entity';
 import { MasterProfile } from '../../modules/masters/entities/master-profile.entity';
 import { Category } from '../../modules/categories/entities/category.entity';
+import { CategoryTranslation } from '../../modules/categories/entities/category-translation.entity';
 import { Service } from '../../modules/services/entities/service.entity';
 import { Booking, BookingStatus } from '../../modules/bookings/entities/booking.entity';
 import { Review, ReviewerType } from '../../modules/reviews/entities/review.entity';
+import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
+import { PostService } from '../../modules/posts/entities/post-service.entity';
+import { PostMedia } from '../../modules/posts/entities/post-media.entity';
 
 /**
  * Seed Script for Service Platform
@@ -155,7 +159,7 @@ async function seed() {
     username: process.env.DB_USERNAME || 'service_user',
     password: process.env.DB_PASSWORD || 'service_password',
     database: process.env.DB_DATABASE || 'service_db',
-    entities: [User, MasterProfile, Category, Service, Booking, Review],
+    entities: [User, MasterProfile, Category, CategoryTranslation, Service, Booking, Review, Post, PostService, PostMedia],
     synchronize: false,
   });
 
@@ -164,39 +168,27 @@ async function seed() {
 
   const userRepository = dataSource.getRepository(User);
   const masterProfileRepository = dataSource.getRepository(MasterProfile);
-  const categoryRepository = dataSource.getRepository(Category);
+  const categoryRepository = dataSource.getTreeRepository(Category);
+  const categoryTranslationRepository = dataSource.getRepository(CategoryTranslation);
   const serviceRepository = dataSource.getRepository(Service);
   const bookingRepository = dataSource.getRepository(Booking);
   const reviewRepository = dataSource.getRepository(Review);
+  const postRepository = dataSource.getRepository(Post);
+  const postServiceRepository = dataSource.getRepository(PostService);
 
-  // Clear existing data (optional - uncomment if needed)
-  // await reviewRepository.delete({});
-  // await bookingRepository.delete({});
-  // await serviceRepository.delete({});
-  // await masterProfileRepository.delete({});
-  // await categoryRepository.delete({});
-  // await userRepository.delete({});
-  // console.log('🗑️  Old data cleared');
-
-  // 1. Create Categories
-  console.log('📂 Creating categories...');
-  const categories: Category[] = [];
-  for (const catData of CATEGORIES) {
-    const category = categoryRepository.create({
-      slug: catData.slug,
-      icon_url: catData.icon_url,
-      color: catData.color,
-      level: 0,
-      display_order: categories.length,
-      is_active: true,
-      is_popular: faker.datatype.boolean(),
-      masters_count: 0,
-      services_count: 0,
-    });
-    await categoryRepository.save(category);
-    categories.push(category);
+  // Категории уже должны быть созданы через seed-catalog.ts
+  // Получаем категории из БД
+  console.log('📂 Loading categories from catalog...');
+  const rootCategories = await categoryRepository.find({ where: { level: 0 } });
+  const subCategories = await categoryRepository.find({ where: { level: 1 } });
+  const serviceCategories = await categoryRepository.find({ where: { level: 2 } });
+  
+  if (rootCategories.length === 0) {
+    console.warn('⚠️  No categories found! Please run seed-catalog first.');
+    process.exit(1);
   }
-  console.log(`✅ Created ${categories.length} categories`);
+  
+  console.log(`✅ Loaded ${rootCategories.length} root, ${subCategories.length} sub, ${serviceCategories.length} service categories`);
 
   // 2. Create Users (5 regular + 5 masters)
   console.log('👥 Creating users...');
@@ -258,15 +250,24 @@ async function seed() {
   const masterProfiles: MasterProfile[] = [];
   for (let i = 0; i < masterUsers.length; i++) {
     const user = masterUsers[i];
-    const category = categories[i % categories.length];
-    const secondCategory = categories[(i + 1) % categories.length];
+    
+    // Заполняем category_ids из реального каталога (любого уровня)
+    const selectedRootCategories = faker.helpers.arrayElements(rootCategories, { min: 1, max: 3 });
+    const selectedSubCategories = faker.helpers.arrayElements(subCategories, { min: 0, max: 2 });
+    const selectedServiceCategories = faker.helpers.arrayElements(serviceCategories, { min: 0, max: 2 });
+    
+    const allCategoryIds = [
+      ...selectedRootCategories.map(c => c.id),
+      ...selectedSubCategories.map(c => c.id),
+      ...selectedServiceCategories.map(c => c.id)
+    ];
 
     const profile = masterProfileRepository.create({
       user_id: user.id,
       business_name: faker.company.name(),
       bio: faker.lorem.paragraph(),
-      category_ids: [category.id, secondCategory.id],
-      subcategory_ids: [],
+      category_ids: allCategoryIds,
+      subcategory_ids: selectedSubCategories.map(c => c.id),
       rating: user.rating,
       reviews_count: user.reviews_count,
       completed_bookings: faker.number.int({ min: 10, max: 300 }),
@@ -314,12 +315,10 @@ async function seed() {
     await masterProfileRepository.save(profile);
     masterProfiles.push(profile);
 
-    // Update category counts
-    category.masters_count += 1;
-    await categoryRepository.save(category);
-    if (secondCategory.id !== category.id) {
-      secondCategory.masters_count += 1;
-      await categoryRepository.save(secondCategory);
+    // Update category counts для всех выбранных категорий
+    for (const cat of [...selectedRootCategories, ...selectedSubCategories, ...selectedServiceCategories]) {
+      cat.masters_count = (cat.masters_count || 0) + 1;
+      await categoryRepository.save(cat);
     }
   }
   console.log(`✅ Created ${masterProfiles.length} master profiles`);
@@ -328,22 +327,39 @@ async function seed() {
   console.log('💼 Creating services...');
   const services: Service[] = [];
   for (const profile of masterProfiles) {
-    const categoryId = profile.category_ids[0];
-    const category = categories.find((c) => c.id === categoryId);
-    const categorySlug = category?.slug || 'beauty';
+    // Используем категории уровня 2 (услуги) для создания services
+    // Берем категории уровня 2, которые есть в category_ids мастера
+    const masterServiceCategories = serviceCategories.filter(c => 
+      profile.category_ids.includes(c.id)
+    );
+    
+    // Если у мастера нет категорий уровня 2, выбираем случайные
+    const categoriesToUse = masterServiceCategories.length > 0 
+      ? masterServiceCategories 
+      : faker.helpers.arrayElements(serviceCategories, { min: 2, max: 5 });
 
-    const templates = SERVICE_TEMPLATES[categorySlug] || SERVICE_TEMPLATES.beauty;
+    // Создаем 3-5 услуг для каждого мастера
+    const servicesCount = faker.number.int({ min: 3, max: 5 });
+    for (let j = 0; j < servicesCount; j++) {
+      const serviceCategory = faker.helpers.arrayElement(categoriesToUse);
+      
+      // Получаем название услуги из категории через translations
+      const translation = await categoryTranslationRepository.findOne({
+        where: { category_id: serviceCategory.id, language: 'ru' }
+      });
+      const serviceName = translation?.name || serviceCategory.slug.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
 
-    // Create 4 services per master
-    for (const template of templates) {
       const service = serviceRepository.create({
         master_id: profile.id,
-        category_id: categoryId,
-        name: template.name,
+        category_id: serviceCategory.id, // Используем category_id уровня 2
+        subcategory_id: serviceCategory.parent_id || null,
+        name: serviceName,
         description: faker.lorem.sentences(2),
-        price: faker.number.int({ min: template.price[0], max: template.price[1] }),
+        price: faker.number.int({ min: 500, max: 5000 }),
         currency: 'RUB',
-        duration_minutes: template.duration,
+        duration_minutes: faker.helpers.arrayElement([30, 45, 60, 90, 120]),
         is_bookable_online: true,
         is_mobile: profile.is_mobile,
         is_in_salon: profile.has_location,
@@ -363,10 +379,8 @@ async function seed() {
       services.push(service);
 
       // Update category service count
-      if (category) {
-        category.services_count += 1;
-        await categoryRepository.save(category);
-      }
+      serviceCategory.services_count = (serviceCategory.services_count || 0) + 1;
+      await categoryRepository.save(serviceCategory);
     }
   }
   console.log(`✅ Created ${services.length} services`);
@@ -444,26 +458,105 @@ async function seed() {
   }
   console.log(`✅ Created 20 reviews`);
 
+  // 7. Create Posts
+  console.log('📝 Creating posts...');
+  const posts: Post[] = [];
+  for (let i = 0; i < 20; i++) {
+    const author = faker.helpers.arrayElement(masterUsers);
+    const post = postRepository.create({
+      author_id: author.id,
+      type: faker.helpers.arrayElement([PostType.TEXT, PostType.PHOTO]),
+      content: faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 })),
+      privacy: PostPrivacy.PUBLIC,
+      likes_count: faker.number.int({ min: 0, max: 100 }),
+      comments_count: faker.number.int({ min: 0, max: 50 }),
+      reposts_count: faker.number.int({ min: 0, max: 20 }),
+      views_count: faker.number.int({ min: 0, max: 500 }),
+      location_lat: author.last_location_lat,
+      location_lng: author.last_location_lng,
+      location_name: faker.location.city(),
+      comments_disabled: false,
+      is_pinned: false,
+    });
+    await postRepository.save(post);
+    posts.push(post);
+  }
+  console.log(`✅ Created ${posts.length} posts`);
+
+  // 8. Create Post-Service links and populate category_ids
+  console.log('🔗 Creating post-service links and populating category_ids...');
+  let postServiceLinksCount = 0;
+  for (const post of posts) {
+    const authorProfile = masterProfiles.find(p => p.user_id === post.author_id);
+    const postCategoryIds = new Set<string>();
+    
+    if (authorProfile) {
+      const masterServices = services.filter(s => s.master_id === authorProfile.id);
+      if (masterServices.length > 0) {
+        // Связываем пост с 1-3 услугами мастера
+        const selectedServices = faker.helpers.arrayElements(masterServices, { 
+          min: 1, 
+          max: Math.min(3, masterServices.length) 
+        });
+        for (const service of selectedServices) {
+          const postService = postServiceRepository.create({
+            post_id: post.id,
+            service_id: service.id,
+          });
+          await postServiceRepository.save(postService);
+          postServiceLinksCount++;
+          
+          // Собираем category_id из услуги
+          if (service.category_id) {
+            postCategoryIds.add(service.category_id);
+          }
+        }
+      }
+    }
+
+    // Обновляем category_ids в посте
+    if (postCategoryIds.size > 0) {
+      await postRepository.update(post.id, {
+        category_ids: Array.from(postCategoryIds),
+      });
+    } else if (authorProfile && authorProfile.category_ids && authorProfile.category_ids.length > 0) {
+      // Если нет услуг, используем категории мастера
+      await postRepository.update(post.id, {
+        category_ids: authorProfile.category_ids,
+      });
+    }
+  }
+  console.log(`✅ Created ${postServiceLinksCount} post-service links`);
+
   await dataSource.destroy();
   console.log('🎉 Seed completed successfully!');
   console.log(`
 Summary:
-  - ${categories.length} categories
+  - ${rootCategories.length} root categories (from catalog)
+  - ${subCategories.length} subcategories (from catalog)
+  - ${serviceCategories.length} service categories (from catalog)
   - ${users.length} users (${masterUsers.length} masters)
   - ${masterProfiles.length} master profiles
   - ${services.length} services
   - ${bookings.length} bookings
   - 20 reviews
+  - ${posts.length} posts
+  - ${postServiceLinksCount} post-service links
   `);
 }
 
-// Run the seed
-seed()
-  .then(() => {
-    console.log('✅ Seeding finished');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('❌ Seeding failed:', error);
-    process.exit(1);
-  });
+// Export seed function for use in seed.cli.ts
+export { seed };
+
+// Run the seed if called directly
+if (require.main === module) {
+  seed()
+    .then(() => {
+      console.log('✅ Seeding finished');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Seeding failed:', error);
+      process.exit(1);
+    });
+}

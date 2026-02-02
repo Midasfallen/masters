@@ -219,9 +219,9 @@ export class HealthController {
   private async checkMinIO(): Promise<ServiceStatus> {
     const startTime = Date.now();
     try {
-      const minioEndpoint = this.configService.get<string>('MINIO_ENDPOINT');
-      const minioPort = this.configService.get<number>('MINIO_PORT');
-      const minioUseSSL = this.configService.get<boolean>('MINIO_USE_SSL');
+      const minioEndpoint = this.configService.get<string>('minio.endPoint') || 'localhost';
+      const minioPort = this.configService.get<number>('minio.port') || 9000;
+      const minioUseSSL = this.configService.get<boolean>('minio.useSSL') || false;
 
       const protocol = minioUseSSL ? 'https' : 'http';
       const url = `${protocol}://${minioEndpoint}:${minioPort}/minio/health/live`;

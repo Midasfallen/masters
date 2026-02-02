@@ -144,19 +144,18 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   void _onCreatePostTap() => context.push('/create-post');
 
   Future<void> _onFiltersTap() async {
+    if (!mounted) return;
+    
     final currentFilters = ref.read(feedFiltersProvider);
+    
     final result = await showModalBottomSheet<FeedFilters>(
       context: context,
       isScrollControlled: true,
-      builder: (context) => FeedFiltersSheet(
-        initialFilters: currentFilters,
-        availableCategories: const [
-          CategoryOption(id: 'cat-1', name: 'Парикмахер', icon: '💇'),
-          CategoryOption(id: 'cat-2', name: 'Косметолог', icon: '💆'),
-          CategoryOption(id: 'cat-3', name: 'Маникюр', icon: '💅'),
-          CategoryOption(id: 'cat-4', name: 'Массажист', icon: '💆'),
-        ],
-      ),
+      builder: (context) {
+        return FeedFiltersSheet(
+          initialFilters: currentFilters,
+        );
+      },
     );
 
     if (result != null && mounted) {

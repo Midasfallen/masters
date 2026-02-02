@@ -83,20 +83,37 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       children: [
         // Full-screen media
         Positioned.fill(
-          child: post.media.length > 1
-              ? PageView.builder(
-                  controller: _mediaController,
-                  itemCount: post.media.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentMediaIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    return _buildMediaItem(post.media[index]);
-                  },
+          child: post.media.isEmpty
+              ? Container(
+                  color: Colors.black,
+                  child: const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.image_not_supported, color: Colors.white54, size: 64),
+                        SizedBox(height: 16),
+                        Text(
+                          'Нет медиа для отображения',
+                          style: TextStyle(color: Colors.white54),
+                        ),
+                      ],
+                    ),
+                  ),
                 )
-              : _buildMediaItem(post.media.first),
+              : post.media.length > 1
+                  ? PageView.builder(
+                      controller: _mediaController,
+                      itemCount: post.media.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentMediaIndex = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return _buildMediaItem(post.media[index]);
+                      },
+                    )
+                  : _buildMediaItem(post.media.first),
         ),
 
         // Top gradient overlay

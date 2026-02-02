@@ -79,8 +79,8 @@ export class PostResponseDto {
   // Relations
   @Expose()
   @Type(() => AuthUserDto)
-  @ApiProperty({ description: 'Автор поста', type: AuthUserDto })
-  author: AuthUserDto;
+  @ApiProperty({ description: 'Автор поста', type: AuthUserDto, nullable: true })
+  author: AuthUserDto | null;
 
   @Expose()
   @Type(() => PostMediaResponseDto)

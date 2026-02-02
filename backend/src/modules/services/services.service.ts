@@ -309,4 +309,27 @@ export class ServicesService {
     const updatedService = await this.serviceRepository.save(service);
     return ServicesMapper.toDto(updatedService);
   }
+
+  /**
+   * Получить услуги по категориям
+   * Публичный метод для фильтрации услуг по категориям
+   */
+  async findByCategoryIds(categoryIds?: string[]): Promise<ServiceResponseDto[]> {
+    const queryBuilder = this.serviceRepository
+      .createQueryBuilder('service')
+      .where('service.is_active = :isActive', { isActive: true });
+
+    if (categoryIds && categoryIds.length > 0) {
+      queryBuilder.andWhere('service.category_id IN (:...categoryIds)', {
+        categoryIds,
+      });
+    }
+
+    const services = await queryBuilder
+      .orderBy('service.display_order', 'ASC')
+      .addOrderBy('service.created_at', 'DESC')
+      .getMany();
+
+    return services.map((service) => ServicesMapper.toDto(service));
+  }
 }

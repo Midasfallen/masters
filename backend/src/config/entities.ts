@@ -17,11 +17,13 @@ import { Notification } from '../modules/notifications/entities/notification.ent
 import { DeviceToken } from '../modules/notifications/entities/device-token.entity';
 import { Post } from '../modules/posts/entities/post.entity';
 import { PostMedia } from '../modules/posts/entities/post-media.entity';
+import { PostService } from '../modules/posts/entities/post-service.entity';
 import { Like } from '../modules/social/entities/like.entity';
 import { Comment } from '../modules/social/entities/comment.entity';
 import { Repost } from '../modules/social/entities/repost.entity';
 import { AutoProposal } from '../modules/auto-proposals/entities/auto-proposal.entity';
 import { AutoProposalSettings } from '../modules/auto-proposals/entities/auto-proposal-settings.entity';
+import { Favorite } from '../modules/favorites/entities/favorite.entity';
 
 export const entities = [
   User,
@@ -40,9 +42,11 @@ export const entities = [
   DeviceToken,
   Post,
   PostMedia,
+  PostService,
   Like,
   Comment,
   Repost,
   AutoProposal,
   AutoProposalSettings,
+  Favorite,
 ];

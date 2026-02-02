@@ -99,4 +99,33 @@ export class CreatePostDto {
   @IsOptional()
   @IsBoolean()
   comments_disabled?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'ID категорий, связанных с постом (прямая связь)',
+    type: [String],
+    example: ['uuid-cat-1', 'uuid-cat-2']
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  category_ids?: string[];
+
+  @ApiPropertyOptional({
+    description: 'ID услуг из справочника',
+    type: [String],
+    example: ['uuid-1', 'uuid-2']
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  service_ids?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Название кастомной услуги',
+    example: 'Мужская стрижка'
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  custom_service_name?: string;
 }

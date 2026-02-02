@@ -9,6 +9,7 @@ export class UploadService {
   private readonly logger = new Logger(UploadService.name);
   private readonly s3: AWS.S3;
   private readonly buckets: Record<string, string>;
+  private readonly publicUrl: string;
 
   constructor(private configService: ConfigService) {
     // Configure AWS SDK for MinIO
@@ -19,6 +20,7 @@ export class UploadService {
     const secretKey = this.configService.get<string>('minio.secretKey');
 
     this.buckets = this.configService.get<Record<string, string>>('minio.buckets');
+    this.publicUrl = this.configService.get<string>('minio.publicUrl');
 
     this.s3 = new AWS.S3({
       endpoint: `${useSSL ? 'https' : 'http'}://${endpoint}:${port}`,
@@ -28,7 +30,7 @@ export class UploadService {
       signatureVersion: 'v4',
     });
 
-    this.logger.log(`MinIO configured: ${endpoint}:${port}`);
+    this.logger.log(`MinIO configured: ${endpoint}:${port}, public URL: ${this.publicUrl}`);
   }
 
   /**
@@ -92,8 +94,12 @@ export class UploadService {
         })
         .promise();
 
-      this.logger.log(`File uploaded: ${uploadResult.Location}`);
-      return uploadResult.Location;
+      // Generate public URL using MINIO_PUBLIC_URL instead of uploadResult.Location
+      // This ensures the URL is accessible from the browser (localhost) rather than
+      // internal Docker network names (service_minio)
+      const publicUrl = `${this.publicUrl}/${bucket}/${fileName}`;
+      this.logger.log(`File uploaded: ${publicUrl}`);
+      return publicUrl;
     } catch (error) {
       this.logger.error(`Upload failed: ${error.message}`, error.stack);
       throw new BadRequestException(`Failed to upload file: ${error.message}`);

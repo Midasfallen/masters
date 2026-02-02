@@ -21,10 +21,12 @@ async function bootstrap() {
   const apiPrefix = process.env.API_PREFIX || 'api/v2';
   app.setGlobalPrefix(apiPrefix);
 
-  // CORS
+  // CORS - разрешаем все источники для разработки
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+    origin: true, // Разрешаем все источники (включая localhost с любым портом)
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   // Global validation pipe

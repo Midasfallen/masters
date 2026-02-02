@@ -5,9 +5,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Post, PostType, PostPrivacy } from './entities/post.entity';
 import { PostMedia } from './entities/post-media.entity';
+import { PostService } from './entities/post-service.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FilterPostsDto } from './dto/filter-posts.dto';
@@ -15,6 +16,7 @@ import { PostResponseDto } from './dto/post-response.dto';
 import { Friendship, FriendshipStatus } from '../friends/entities/friendship.entity';
 import { Subscription } from '../friends/entities/subscription.entity';
 import { PostsMapper } from './posts.mapper';
+import { Service } from '../services/entities/service.entity';
 
 @Injectable()
 export class PostsService {
@@ -23,6 +25,10 @@ export class PostsService {
     private readonly postRepository: Repository<Post>,
     @InjectRepository(PostMedia)
     private readonly postMediaRepository: Repository<PostMedia>,
+    @InjectRepository(PostService)
+    private readonly postServiceRepository: Repository<PostService>,
+    @InjectRepository(Service)
+    private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Friendship)
     private readonly friendshipRepository: Repository<Friendship>,
     @InjectRepository(Subscription)
@@ -47,6 +53,16 @@ export class PostsService {
 
     const savedPost = await this.postRepository.save(post);
 
+    // Заполнить location_geography из координат, если они указаны (через raw SQL)
+    if (createPostDto.location_lat && createPostDto.location_lng) {
+      await this.postRepository.query(
+        `UPDATE posts 
+         SET location_geography = ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography 
+         WHERE id = $3`,
+        [createPostDto.location_lng, createPostDto.location_lat, savedPost.id],
+      );
+    }
+
     // Сохранение медиа файлов
     if (createPostDto.media && createPostDto.media.length > 0) {
       const mediaEntities = createPostDto.media.map((media) =>
@@ -56,6 +72,48 @@ export class PostsService {
         }),
       );
       await this.postMediaRepository.save(mediaEntities);
+    }
+
+    // Определяем category_ids для поста
+    let categoryIds: string[] = [];
+    
+    // Если category_ids переданы напрямую, используем их
+    if (createPostDto.category_ids && createPostDto.category_ids.length > 0) {
+      categoryIds = createPostDto.category_ids;
+    }
+    // Иначе получаем category_ids из service_ids
+    else if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
+      const services = await this.serviceRepository.find({
+        where: { id: In(createPostDto.service_ids) },
+        select: ['category_id'],
+      });
+      categoryIds = Array.from(new Set(services.map(s => s.category_id).filter(Boolean)));
+    }
+    // Если ничего не передано, пытаемся получить из master_profile
+    else {
+      const masterProfile = await this.postRepository.query(
+        `SELECT category_ids FROM master_profiles WHERE user_id = $1`,
+        [userId],
+      );
+      if (masterProfile && masterProfile[0] && masterProfile[0].category_ids) {
+        categoryIds = masterProfile[0].category_ids;
+      }
+    }
+
+    // Сохраняем category_ids в пост
+    if (categoryIds.length > 0) {
+      await this.postRepository.update(savedPost.id, { category_ids: categoryIds });
+    }
+
+    // Сохранение связей с услугами
+    if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
+      const postServices = createPostDto.service_ids.map((serviceId) =>
+        this.postServiceRepository.create({
+          post_id: savedPost.id,
+          service_id: serviceId,
+        }),
+      );
+      await this.postServiceRepository.save(postServices);
     }
 
     // Обновление счетчика репостов для оригинального поста
@@ -71,7 +129,15 @@ export class PostsService {
   }
 
   async getFeed(userId: string, filterDto: FilterPostsDto) {
-    const { page = 1, limit = 20, lat, lng, radius = 10, cursor, category_ids } = filterDto;
+    const {
+      page = 1,
+      limit = 20,
+      lat,
+      lng,
+      radius = 10,
+      cursor,
+      category_ids,
+    } = filterDto;
 
     // Получаем ID друзей пользователя
     const friendships = await this.friendshipRepository.find({
@@ -102,7 +168,8 @@ export class PostsService {
       .leftJoinAndSelect('post.author', 'author')
       .leftJoinAndSelect('post.media', 'media')
       .leftJoinAndSelect('post.repost_of', 'repost_of')
-      .leftJoinAndSelect('repost_of.author', 'repost_author');
+      .leftJoinAndSelect('repost_of.author', 'repost_author')
+      .leftJoin('post.post_services', 'post_service'); // Добавляем join для фильтрации по категориям
 
     // Фильтрация по приватности:
     // 1. Публичные посты от всех
@@ -132,20 +199,67 @@ export class PostsService {
       });
     }
 
-    // Фильтрация по категориям мастеров
+    // Фильтрация по категориям (любого уровня: корневые, подкатегории, услуги)
+    // Используем closure table для поиска всех потомков выбранных категорий
     if (category_ids && category_ids.length > 0) {
-      queryBuilder
-        .leftJoin('author.master_profile', 'master_profile')
-        .leftJoin('master_profile.categories', 'category')
-        .andWhere('category.id IN (:...category_ids)', { category_ids });
+      // Получаем все ID категорий, включая выбранные и всех их потомков
+      // Используем подзапрос с closure table
+      // Сначала получаем все потомки выбранных категорий через raw query
+      // ВАЖНО: колонки в categories_closure называются id_ancestor и id_descendant
+      const descendantIdsResult = await this.postRepository.query(
+        `SELECT DISTINCT id_descendant 
+         FROM categories_closure 
+         WHERE id_ancestor = ANY($1::uuid[])`,
+        [category_ids],
+      );
+      
+      const descendantIds = descendantIdsResult.map(
+        (row: { id_descendant: string }) => row.id_descendant,
+      );
+      
+      // Объединяем выбранные категории с их потомками
+      const allCategoryIds = [...category_ids, ...descendantIds];
+      
+      // Убираем дубликаты
+      const uniqueCategoryIds = Array.from(new Set(allCategoryIds));
+      
+      if (uniqueCategoryIds.length > 0) {
+        // Используем оператор && для проверки пересечения массивов
+        // TypeORM автоматически обрабатывает массивы в параметрах
+        // Но для UUID массивов нужен явный CAST через raw SQL
+        // Используем безопасный подход с параметризацией через setParameter
+        queryBuilder.andWhere(
+          `(post.category_ids IS NOT NULL 
+           AND array_length(post.category_ids, 1) > 0
+           AND post.category_ids && CAST(:uniqueCategoryIds AS uuid[]))`,
+        );
+        queryBuilder.setParameter('uniqueCategoryIds', uniqueCategoryIds);
+      } else {
+        // Если нет категорий для фильтрации, возвращаем пустой результат
+        queryBuilder.andWhere('1 = 0');
+      }
+      // Если category_ids не переданы, показываем все посты (без фильтрации по категориям)
     }
 
-    // Фильтрация по геолокации
+    // Фильтрация по геолокации через PostGIS
     if (lat && lng) {
-      queryBuilder.andWhere(
-        `(6371 * acos(cos(radians(:lat)) * cos(radians(post.location_lat)) * cos(radians(post.location_lng) - radians(:lng)) + sin(radians(:lat)) * sin(radians(post.location_lat)))) <= :radius`,
-        { lat, lng, radius },
-      );
+      const radiusMeters = radius * 1000; // конвертируем км в метры
+      queryBuilder
+        .andWhere(
+          `post.location_geography IS NOT NULL AND ST_DWithin(
+            post.location_geography,
+            ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
+            :radiusMeters
+          )`,
+          { lng, lat, radiusMeters },
+        )
+        .addSelect(
+          `ST_Distance(
+            post.location_geography,
+            ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography
+          ) / 1000`,
+          'distance_km',
+        );
     }
 
     // Cursor-based pagination (если указан cursor)
@@ -273,6 +387,29 @@ export class PostsService {
     }
 
     await this.postRepository.update(id, updatePostDto);
+
+    // Обновить location_geography, если координаты были в updatePostDto
+    // (проверяем через any, т.к. UpdatePostDto может не содержать эти поля)
+    const updateData = updatePostDto as any;
+    if (
+      updateData.location_lat !== undefined &&
+      updateData.location_lng !== undefined
+    ) {
+      if (updateData.location_lat && updateData.location_lng) {
+        await this.postRepository.query(
+          `UPDATE posts 
+           SET location_geography = ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography 
+           WHERE id = $3`,
+          [updateData.location_lng, updateData.location_lat, id],
+        );
+      } else {
+        // Если координаты null, очищаем geography
+        await this.postRepository.query(
+          `UPDATE posts SET location_geography = NULL WHERE id = $1`,
+          [id],
+        );
+      }
+    }
 
     return this.findOne(id, userId);
   }

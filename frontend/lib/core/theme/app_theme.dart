@@ -19,7 +19,8 @@ class AppTheme {
   );
 
   static ThemeData get lightTheme {
-    final textTheme = GoogleFonts.interTextTheme();
+    // Используем Roboto для лучшей поддержки кириллицы
+    final textTheme = GoogleFonts.robotoTextTheme();
 
     return ThemeData(
       useMaterial3: true,
@@ -188,7 +189,8 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    final textTheme = GoogleFonts.interTextTheme();
+    // Используем Roboto для лучшей поддержки кириллицы
+    final textTheme = GoogleFonts.robotoTextTheme();
 
     return ThemeData(
       useMaterial3: true,

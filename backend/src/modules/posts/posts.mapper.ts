@@ -47,6 +47,14 @@ export class PostsMapper {
    * @param post - Post entity с loaded relations (author, media, repost_of)
    */
   static toDto(post: Post): PostResponseDto {
+    // Преобразуем DECIMAL (который может быть строкой) в число
+    const locationLat = post.location_lat != null 
+      ? (typeof post.location_lat === 'string' ? parseFloat(post.location_lat) : post.location_lat)
+      : null;
+    const locationLng = post.location_lng != null
+      ? (typeof post.location_lng === 'string' ? parseFloat(post.location_lng) : post.location_lng)
+      : null;
+
     return {
       id: post.id,
       authorId: post.author_id,
@@ -58,8 +66,8 @@ export class PostsMapper {
       commentsCount: post.comments_count,
       repostsCount: post.reposts_count,
       viewsCount: post.views_count,
-      locationLat: post.location_lat,
-      locationLng: post.location_lng,
+      locationLat,
+      locationLng,
       locationName: post.location_name,
       commentsDisabled: post.comments_disabled,
       isPinned: post.is_pinned,

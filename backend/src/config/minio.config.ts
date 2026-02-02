@@ -6,6 +6,7 @@ export default registerAs('minio', () => ({
   useSSL: process.env.MINIO_USE_SSL === 'true',
   accessKey: process.env.MINIO_ACCESS_KEY || 'minio_access_key',
   secretKey: process.env.MINIO_SECRET_KEY || 'minio_secret_key',
+  publicUrl: process.env.MINIO_PUBLIC_URL || 'http://localhost:9000',
   buckets: {
     avatars: 'avatars',
     posts: 'posts',

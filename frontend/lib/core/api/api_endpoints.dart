@@ -35,6 +35,7 @@ class ApiEndpoints {
 
   // ==================== CATEGORIES ====================
   static const String categories = '/categories';
+  static const String categoriesTree = '/categories/tree';
   static String categoryById(String id) => '/categories/$id';
   static String categoryServices(String categoryId) => '/categories/$categoryId/services';
 

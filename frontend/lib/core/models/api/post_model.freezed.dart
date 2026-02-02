@@ -330,8 +330,14 @@ mixin _$PostModel {
   int get repostsCount => throw _privateConstructorUsedError;
   bool get isLiked => throw _privateConstructorUsedError;
   String? get locationName => throw _privateConstructorUsedError;
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLat')
   double? get locationLat => throw _privateConstructorUsedError;
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLng')
   double? get locationLng => throw _privateConstructorUsedError;
+  @JsonKey(name: 'custom_service_name')
+  String? get customServiceName => throw _privateConstructorUsedError;
   bool get isPinned => throw _privateConstructorUsedError;
   bool get isArchived => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -365,8 +371,13 @@ abstract class $PostModelCopyWith<$Res> {
       int repostsCount,
       bool isLiked,
       String? locationName,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLat')
       double? locationLat,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLng')
       double? locationLng,
+      @JsonKey(name: 'custom_service_name') String? customServiceName,
       bool isPinned,
       bool isArchived,
       DateTime createdAt,
@@ -404,6 +415,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
+    Object? customServiceName = freezed,
     Object? isPinned = null,
     Object? isArchived = null,
     Object? createdAt = null,
@@ -466,6 +478,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.locationLng
           : locationLng // ignore: cast_nullable_to_non_nullable
               as double?,
+      customServiceName: freezed == customServiceName
+          ? _value.customServiceName
+          : customServiceName // ignore: cast_nullable_to_non_nullable
+              as String?,
       isPinned: null == isPinned
           ? _value.isPinned
           : isPinned // ignore: cast_nullable_to_non_nullable
@@ -521,8 +537,13 @@ abstract class _$$PostModelImplCopyWith<$Res>
       int repostsCount,
       bool isLiked,
       String? locationName,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLat')
       double? locationLat,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLng')
       double? locationLng,
+      @JsonKey(name: 'custom_service_name') String? customServiceName,
       bool isPinned,
       bool isArchived,
       DateTime createdAt,
@@ -559,6 +580,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
+    Object? customServiceName = freezed,
     Object? isPinned = null,
     Object? isArchived = null,
     Object? createdAt = null,
@@ -621,6 +643,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.locationLng
           : locationLng // ignore: cast_nullable_to_non_nullable
               as double?,
+      customServiceName: freezed == customServiceName
+          ? _value.customServiceName
+          : customServiceName // ignore: cast_nullable_to_non_nullable
+              as String?,
       isPinned: null == isPinned
           ? _value.isPinned
           : isPinned // ignore: cast_nullable_to_non_nullable
@@ -657,8 +683,13 @@ class _$PostModelImpl implements _PostModel {
       this.repostsCount = 0,
       this.isLiked = false,
       this.locationName,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLat')
       this.locationLat,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLng')
       this.locationLng,
+      @JsonKey(name: 'custom_service_name') this.customServiceName,
       this.isPinned = false,
       this.isArchived = false,
       required this.createdAt,
@@ -713,9 +744,16 @@ class _$PostModelImpl implements _PostModel {
   @override
   final String? locationName;
   @override
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLat')
   final double? locationLat;
   @override
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLng')
   final double? locationLng;
+  @override
+  @JsonKey(name: 'custom_service_name')
+  final String? customServiceName;
   @override
   @JsonKey()
   final bool isPinned;
@@ -729,7 +767,7 @@ class _$PostModelImpl implements _PostModel {
 
   @override
   String toString() {
-    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, media: $media, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, repostsCount: $repostsCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, isPinned: $isPinned, isArchived: $isArchived, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, media: $media, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, repostsCount: $repostsCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, customServiceName: $customServiceName, isPinned: $isPinned, isArchived: $isArchived, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -759,6 +797,8 @@ class _$PostModelImpl implements _PostModel {
                 other.locationLat == locationLat) &&
             (identical(other.locationLng, locationLng) ||
                 other.locationLng == locationLng) &&
+            (identical(other.customServiceName, customServiceName) ||
+                other.customServiceName == customServiceName) &&
             (identical(other.isPinned, isPinned) ||
                 other.isPinned == isPinned) &&
             (identical(other.isArchived, isArchived) ||
@@ -771,26 +811,28 @@ class _$PostModelImpl implements _PostModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      authorId,
-      author,
-      content,
-      const DeepCollectionEquality().hash(_media),
-      const DeepCollectionEquality().hash(_tags),
-      likesCount,
-      commentsCount,
-      sharesCount,
-      repostsCount,
-      isLiked,
-      locationName,
-      locationLat,
-      locationLng,
-      isPinned,
-      isArchived,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        authorId,
+        author,
+        content,
+        const DeepCollectionEquality().hash(_media),
+        const DeepCollectionEquality().hash(_tags),
+        likesCount,
+        commentsCount,
+        sharesCount,
+        repostsCount,
+        isLiked,
+        locationName,
+        locationLat,
+        locationLng,
+        customServiceName,
+        isPinned,
+        isArchived,
+        createdAt,
+        updatedAt
+      ]);
 
   /// Create a copy of PostModel
   /// with the given fields replaced by the non-null parameter values.
@@ -822,8 +864,13 @@ abstract class _PostModel implements PostModel {
       final int repostsCount,
       final bool isLiked,
       final String? locationName,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLat')
       final double? locationLat,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'locationLng')
       final double? locationLng,
+      @JsonKey(name: 'custom_service_name') final String? customServiceName,
       final bool isPinned,
       final bool isArchived,
       required final DateTime createdAt,
@@ -857,9 +904,16 @@ abstract class _PostModel implements PostModel {
   @override
   String? get locationName;
   @override
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLat')
   double? get locationLat;
   @override
+  @NullableStringToDoubleConverter()
+  @JsonKey(name: 'locationLng')
   double? get locationLng;
+  @override
+  @JsonKey(name: 'custom_service_name')
+  String? get customServiceName;
   @override
   bool get isPinned;
   @override
@@ -893,6 +947,10 @@ mixin _$CreatePostRequest {
   double? get locationLat => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_lng')
   double? get locationLng => throw _privateConstructorUsedError;
+  @JsonKey(name: 'service_ids')
+  List<String>? get serviceIds => throw _privateConstructorUsedError;
+  @JsonKey(name: 'custom_service_name')
+  String? get customServiceName => throw _privateConstructorUsedError;
 
   /// Serializes this CreatePostRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -916,7 +974,9 @@ abstract class $CreatePostRequestCopyWith<$Res> {
       List<String>? tags,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng});
+      @JsonKey(name: 'location_lng') double? locationLng,
+      @JsonKey(name: 'service_ids') List<String>? serviceIds,
+      @JsonKey(name: 'custom_service_name') String? customServiceName});
 }
 
 /// @nodoc
@@ -940,6 +1000,8 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
+    Object? serviceIds = freezed,
+    Object? customServiceName = freezed,
   }) {
     return _then(_value.copyWith(
       content: null == content
@@ -966,6 +1028,14 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
           ? _value.locationLng
           : locationLng // ignore: cast_nullable_to_non_nullable
               as double?,
+      serviceIds: freezed == serviceIds
+          ? _value.serviceIds
+          : serviceIds // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
+      customServiceName: freezed == customServiceName
+          ? _value.customServiceName
+          : customServiceName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -984,7 +1054,9 @@ abstract class _$$CreatePostRequestImplCopyWith<$Res>
       List<String>? tags,
       @JsonKey(name: 'location_name') String? locationName,
       @JsonKey(name: 'location_lat') double? locationLat,
-      @JsonKey(name: 'location_lng') double? locationLng});
+      @JsonKey(name: 'location_lng') double? locationLng,
+      @JsonKey(name: 'service_ids') List<String>? serviceIds,
+      @JsonKey(name: 'custom_service_name') String? customServiceName});
 }
 
 /// @nodoc
@@ -1006,6 +1078,8 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
     Object? locationName = freezed,
     Object? locationLat = freezed,
     Object? locationLng = freezed,
+    Object? serviceIds = freezed,
+    Object? customServiceName = freezed,
   }) {
     return _then(_$CreatePostRequestImpl(
       content: null == content
@@ -1032,6 +1106,14 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
           ? _value.locationLng
           : locationLng // ignore: cast_nullable_to_non_nullable
               as double?,
+      serviceIds: freezed == serviceIds
+          ? _value._serviceIds
+          : serviceIds // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
+      customServiceName: freezed == customServiceName
+          ? _value.customServiceName
+          : customServiceName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -1045,9 +1127,12 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
       final List<String>? tags,
       @JsonKey(name: 'location_name') this.locationName,
       @JsonKey(name: 'location_lat') this.locationLat,
-      @JsonKey(name: 'location_lng') this.locationLng})
+      @JsonKey(name: 'location_lng') this.locationLng,
+      @JsonKey(name: 'service_ids') final List<String>? serviceIds,
+      @JsonKey(name: 'custom_service_name') this.customServiceName})
       : _mediaUrls = mediaUrls,
-        _tags = tags;
+        _tags = tags,
+        _serviceIds = serviceIds;
 
   factory _$CreatePostRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreatePostRequestImplFromJson(json);
@@ -1084,10 +1169,24 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
   @override
   @JsonKey(name: 'location_lng')
   final double? locationLng;
+  final List<String>? _serviceIds;
+  @override
+  @JsonKey(name: 'service_ids')
+  List<String>? get serviceIds {
+    final value = _serviceIds;
+    if (value == null) return null;
+    if (_serviceIds is EqualUnmodifiableListView) return _serviceIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  @JsonKey(name: 'custom_service_name')
+  final String? customServiceName;
 
   @override
   String toString() {
-    return 'CreatePostRequest(content: $content, mediaUrls: $mediaUrls, tags: $tags, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng)';
+    return 'CreatePostRequest(content: $content, mediaUrls: $mediaUrls, tags: $tags, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, serviceIds: $serviceIds, customServiceName: $customServiceName)';
   }
 
   @override
@@ -1104,7 +1203,11 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
             (identical(other.locationLat, locationLat) ||
                 other.locationLat == locationLat) &&
             (identical(other.locationLng, locationLng) ||
-                other.locationLng == locationLng));
+                other.locationLng == locationLng) &&
+            const DeepCollectionEquality()
+                .equals(other._serviceIds, _serviceIds) &&
+            (identical(other.customServiceName, customServiceName) ||
+                other.customServiceName == customServiceName));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1116,7 +1219,9 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
       const DeepCollectionEquality().hash(_tags),
       locationName,
       locationLat,
-      locationLng);
+      locationLng,
+      const DeepCollectionEquality().hash(_serviceIds),
+      customServiceName);
 
   /// Create a copy of CreatePostRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1137,13 +1242,15 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
 
 abstract class _CreatePostRequest implements CreatePostRequest {
   const factory _CreatePostRequest(
-          {required final String content,
-          @JsonKey(name: 'media_urls') final List<String>? mediaUrls,
-          final List<String>? tags,
-          @JsonKey(name: 'location_name') final String? locationName,
-          @JsonKey(name: 'location_lat') final double? locationLat,
-          @JsonKey(name: 'location_lng') final double? locationLng}) =
-      _$CreatePostRequestImpl;
+      {required final String content,
+      @JsonKey(name: 'media_urls') final List<String>? mediaUrls,
+      final List<String>? tags,
+      @JsonKey(name: 'location_name') final String? locationName,
+      @JsonKey(name: 'location_lat') final double? locationLat,
+      @JsonKey(name: 'location_lng') final double? locationLng,
+      @JsonKey(name: 'service_ids') final List<String>? serviceIds,
+      @JsonKey(name: 'custom_service_name')
+      final String? customServiceName}) = _$CreatePostRequestImpl;
 
   factory _CreatePostRequest.fromJson(Map<String, dynamic> json) =
       _$CreatePostRequestImpl.fromJson;
@@ -1164,6 +1271,12 @@ abstract class _CreatePostRequest implements CreatePostRequest {
   @override
   @JsonKey(name: 'location_lng')
   double? get locationLng;
+  @override
+  @JsonKey(name: 'service_ids')
+  List<String>? get serviceIds;
+  @override
+  @JsonKey(name: 'custom_service_name')
+  String? get customServiceName;
 
   /// Create a copy of CreatePostRequest
   /// with the given fields replaced by the non-null parameter values.

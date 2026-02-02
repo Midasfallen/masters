@@ -407,11 +407,8 @@ String _$masterByUserIdHash() => r'de98625429b09eb87b36468c0b61fcbe4f6476b9';
 /// Master by User ID Provider
 /// Gets master profile by user ID (authorId from post)
 ///
-/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-///
-/// Правильные решения:
-/// 1. Добавить masterId в PostModel (рекомендуется)
-/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+/// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+/// поиск как по ID профиля мастера, так и по user_id.
 ///
 /// Copied from [masterByUserId].
 @ProviderFor(masterByUserId)
@@ -420,22 +417,16 @@ const masterByUserIdProvider = MasterByUserIdFamily();
 /// Master by User ID Provider
 /// Gets master profile by user ID (authorId from post)
 ///
-/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-///
-/// Правильные решения:
-/// 1. Добавить masterId в PostModel (рекомендуется)
-/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+/// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+/// поиск как по ID профиля мастера, так и по user_id.
 ///
 /// Copied from [masterByUserId].
 class MasterByUserIdFamily extends Family<AsyncValue<MasterProfileModel>> {
   /// Master by User ID Provider
   /// Gets master profile by user ID (authorId from post)
   ///
-  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-  ///
-  /// Правильные решения:
-  /// 1. Добавить masterId в PostModel (рекомендуется)
-  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  /// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+  /// поиск как по ID профиля мастера, так и по user_id.
   ///
   /// Copied from [masterByUserId].
   const MasterByUserIdFamily();
@@ -443,11 +434,8 @@ class MasterByUserIdFamily extends Family<AsyncValue<MasterProfileModel>> {
   /// Master by User ID Provider
   /// Gets master profile by user ID (authorId from post)
   ///
-  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-  ///
-  /// Правильные решения:
-  /// 1. Добавить masterId в PostModel (рекомендуется)
-  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  /// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+  /// поиск как по ID профиля мастера, так и по user_id.
   ///
   /// Copied from [masterByUserId].
   MasterByUserIdProvider call(
@@ -485,11 +473,8 @@ class MasterByUserIdFamily extends Family<AsyncValue<MasterProfileModel>> {
 /// Master by User ID Provider
 /// Gets master profile by user ID (authorId from post)
 ///
-/// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-///
-/// Правильные решения:
-/// 1. Добавить masterId в PostModel (рекомендуется)
-/// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+/// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+/// поиск как по ID профиля мастера, так и по user_id.
 ///
 /// Copied from [masterByUserId].
 class MasterByUserIdProvider
@@ -497,11 +482,8 @@ class MasterByUserIdProvider
   /// Master by User ID Provider
   /// Gets master profile by user ID (authorId from post)
   ///
-  /// ⚠️ ВНИМАНИЕ: Текущая реализация выбрасывает ошибку 501 (Not Implemented).
-  ///
-  /// Правильные решения:
-  /// 1. Добавить masterId в PostModel (рекомендуется)
-  /// 2. Создать эндпоинт GET /masters/user/:userId на бэкенде
+  /// Использует эндпоинт GET /masters/:id, который теперь поддерживает
+  /// поиск как по ID профиля мастера, так и по user_id.
   ///
   /// Copied from [masterByUserId].
   MasterByUserIdProvider(

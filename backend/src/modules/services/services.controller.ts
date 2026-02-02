@@ -16,7 +16,9 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
 import { ServicesService } from './services.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -57,6 +59,38 @@ export class ServicesController {
     @Body() createServiceDto: CreateServiceDto,
   ): Promise<ServiceResponseDto> {
     return this.servicesService.create(user.id, createServiceDto);
+  }
+
+  @Public()
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Получить услуги по категориям',
+    description: 'Публичный endpoint для получения услуг, отфильтрованных по категориям',
+  })
+  @ApiQuery({
+    name: 'category_ids',
+    required: false,
+    type: [String],
+    description: 'Список UUID категорий для фильтрации',
+    example: ['uuid-1', 'uuid-2'],
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список услуг',
+    type: ServiceResponseDto,
+    isArray: true,
+  })
+  async findByCategories(
+    @Query('category_ids') categoryIds?: string[],
+  ): Promise<ServiceResponseDto[]> {
+    // Преобразуем строку или массив строк в массив
+    const ids = Array.isArray(categoryIds)
+      ? categoryIds
+      : categoryIds
+        ? [categoryIds]
+        : undefined;
+    return this.servicesService.findByCategoryIds(ids);
   }
 
   @Get('my')

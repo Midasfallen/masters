@@ -1,5 +1,5 @@
 -- Enable PostGIS extension for geolocation features
--- CREATE EXTENSION IF NOT EXISTS postgis;  -- Will install PostGIS later
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
