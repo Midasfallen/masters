@@ -56,9 +56,26 @@ export class FavoritesService {
       entity_id,
     });
 
-    const saved = await this.favoriteRepository.save(favorite);
+    // Обрабатываем нарушения БД (уникальность / внешние ключи), чтобы не отдавать сырой 500
+    try {
+      const saved = await this.favoriteRepository.save(favorite);
+      return this.mapToResponseDto(saved);
+    } catch (error) {
+      const pgCode = (error as any)?.code ?? (error as any)?.driverError?.code;
 
-    return this.mapToResponseDto(saved);
+      // 23505 — нарушение уникального индекса (дубликат)
+      if (pgCode === '23505') {
+        throw new ConflictException('Уже добавлено в избранное');
+      }
+
+      // 23503 — нарушение внешнего ключа (несуществующий пользователь или сущность)
+      if (pgCode === '23503') {
+        throw new BadRequestException('Невозможно добавить в избранное');
+      }
+
+      // Остальные ошибки пробрасываем дальше (будут залогированы глобальным фильтром)
+      throw error;
+    }
   }
 
   /**

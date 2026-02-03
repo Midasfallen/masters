@@ -7,6 +7,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/models/api/post_model.dart';
 import '../../../core/providers/api/feed_provider.dart';
+import '../../../core/api/api_exceptions.dart';
+import '../../../core/providers/favorites_provider.dart';
+import '../../../core/models/favorite.dart';
 import '../../../shared/widgets/app_avatar.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
@@ -25,6 +28,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   final PageController _mediaController = PageController();
   int _currentMediaIndex = 0;
   bool _isLiking = false; // Флаг для защиты от race conditions
+  bool _isTogglingFavorite =
+      false; // Флаг для защиты от race conditions при переключении закладок
   PostModel? _optimisticPost; // Локальное оптимистичное состояние
 
   @override
@@ -36,7 +41,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Future<void> _handleLike(String postId, bool isLiked) async {
     // Защита от двойных кликов
     if (_isLiking) return;
-    
+
     // Сохраняем текущее состояние для отката
     final currentPost = ref.read(postByIdProvider(postId)).value;
     if (currentPost == null) return;
@@ -44,11 +49,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     // Оптимистичное обновление - меняем UI СРАЗУ через локальное состояние
     final optimisticPost = currentPost.copyWith(
       isLiked: !isLiked,
-      likesCount: isLiked 
-          ? currentPost.likesCount - 1 
-          : currentPost.likesCount + 1,
+      likesCount:
+          isLiked ? currentPost.likesCount - 1 : currentPost.likesCount + 1,
     );
-    
+
     setState(() {
       _optimisticPost = optimisticPost;
       _isLiking = true;
@@ -61,7 +65,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       } else {
         await ref.read(postNotifierProvider.notifier).likePost(postId);
       }
-      
+
       // При успехе обновляем состояние реальными данными (на случай, если счетчик изменился)
       setState(() {
         _optimisticPost = null; // Сбрасываем оптимистичное состояние
@@ -72,14 +76,21 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       setState(() {
         _optimisticPost = null; // Сбрасываем оптимистичное состояние
       });
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        // Ошибка 409 (Conflict) означает, что лайк уже поставлен/удален - это нормально
+        final errorMessage = e.toString();
+        if (errorMessage.contains('409') || errorMessage.contains('Conflict')) {
+          // Просто обновляем состояние без показа ошибки
+          ref.invalidate(postByIdProvider(postId));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Ошибка: ${e.toString()}'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
       }
     } finally {
       // Снимаем флаг блокировки
@@ -88,6 +99,102 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           _isLiking = false;
         });
       }
+    }
+  }
+
+  Future<void> _toggleFavorite(PostModel post, bool currentIsFavorite) async {
+    // DEBUG: Проверка, что метод вызывается
+    debugPrint(
+        'DEBUG: Toggle favorite started for post ${post.id}, currentIsFavorite: $currentIsFavorite');
+
+    // Защита от двойных кликов
+    if (_isTogglingFavorite) {
+      debugPrint('DEBUG: Already toggling, ignoring');
+      return;
+    }
+
+    // Сохраняем значение до клика для оптимизации (избегаем лишнего запроса)
+    final wasFavorite = currentIsFavorite;
+
+    setState(() {
+      _isTogglingFavorite = true;
+    });
+
+    try {
+      debugPrint('DEBUG: Calling toggleFavorite on notifier');
+
+      // Сначала выполняем запрос к серверу (без оптимистичного обновления для диагностики)
+      await ref.read(favoritesNotifierProvider.notifier).toggleFavorite(
+            FavoriteEntityType.post,
+            post.id,
+          );
+
+      debugPrint('DEBUG: Toggle favorite SUCCESS');
+
+      // После успешного запроса инвалидируем провайдер для обновления UI
+      ref.invalidate(isFavoriteProvider(FavoriteEntityType.post, post.id));
+
+      // Показываем уведомление на основе значения ДО клика (инвертированное)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              !wasFavorite ? 'Сохранено в закладки' : 'Удалено из закладок',
+            ),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('DEBUG: Toggle favorite ERROR: $e');
+      debugPrint('DEBUG: Stack trace: $stackTrace');
+
+      // Если это ApiException, логируем дополнительную информацию от сервера
+      if (e is ApiException) {
+        debugPrint(
+            'DEBUG: Toggle favorite ApiException status=${e.statusCode}, data=${e.data}');
+
+        // 409 для избранного считаем «нормальным» конфликтом (уже в нужном состоянии)
+        if (e.statusCode == 409) {
+          ref.invalidate(
+              isFavoriteProvider(FavoriteEntityType.post, post.id));
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  !wasFavorite
+                      ? 'Уже было в закладках'
+                      : 'Уже было удалено из закладок',
+                ),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          }
+
+          return;
+        }
+      }
+
+      // При ошибке инвалидируем провайдер для отката
+      ref.invalidate(isFavoriteProvider(FavoriteEntityType.post, post.id));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTogglingFavorite = false;
+        });
+      }
+      debugPrint('DEBUG: Toggle favorite finished');
     }
   }
 
@@ -119,7 +226,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.invalidate(postByIdProvider(widget.postId)),
+                onPressed: () =>
+                    ref.invalidate(postByIdProvider(widget.postId)),
                 child: const Text('Повторить'),
               ),
             ],
@@ -130,6 +238,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   Widget _buildPostPage(PostModel post) {
+    // Проверка статуса избранного
+    final isFavoriteAsync = ref.watch(
+      isFavoriteProvider(
+        FavoriteEntityType.post,
+        post.id,
+      ),
+    );
+
+    final isFavorite = isFavoriteAsync.when(
+      data: (value) => value,
+      loading: () => false, // Правильно для первого рендера
+      error: (_, __) => false,
+    );
+
     return Stack(
       children: [
         // Full-screen media
@@ -141,7 +263,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.image_not_supported, color: Colors.white54, size: 64),
+                        Icon(Icons.image_not_supported,
+                            color: Colors.white54, size: 64),
                         SizedBox(height: 16),
                         Text(
                           'Нет медиа для отображения',
@@ -205,7 +328,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
@@ -221,47 +345,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               ),
             ),
           ),
-
-        // Right action buttons (vertical)
-        Positioned(
-          right: 12,
-          bottom: 160,
-          child: Column(
-            children: [
-              _buildActionButton(
-                icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
-                label: '${post.likesCount}',
-                color: post.isLiked ? Colors.red : Colors.white,
-                onTap: _isLiking ? null : () => _handleLike(post.id, post.isLiked),
-              ),
-              const SizedBox(height: 24),
-              _buildActionButton(
-                icon: Icons.chat_bubble_outline,
-                label: '${post.commentsCount}',
-                onTap: _showComments,
-              ),
-              const SizedBox(height: 24),
-              _buildActionButton(
-                icon: Icons.share_outlined,
-                label: '',
-                onTap: () => _sharePost(post),
-              ),
-              const SizedBox(height: 24),
-              _buildActionButton(
-                icon: Icons.bookmark_border,
-                label: '',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Сохранено'),
-                      duration: Duration(milliseconds: 500),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
 
         // Bottom gradient overlay
         Positioned(
@@ -296,7 +379,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     AppAvatar(
                       avatarUrl: post.author?.avatarUrl,
                       userId: post.authorId,
-                      fallbackName: post.author?.fullName ?? 
+                      fallbackName: post.author?.fullName ??
                           (post.author != null
                               ? '${post.author!.firstName} ${post.author!.lastName}'
                               : null),
@@ -362,7 +445,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                ),
+                  ),
                 if (post.tags.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
@@ -394,6 +477,44 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             ),
           ),
         ),
+
+        // Right action buttons (vertical) — поверх нижнего оверлея и контента
+        Positioned(
+          right: 12,
+          bottom: 160,
+          child: Column(
+            children: [
+              _buildActionButton(
+                icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
+                label: '${post.likesCount}',
+                color: post.isLiked ? Colors.red : Colors.white,
+                onTap:
+                    _isLiking ? null : () => _handleLike(post.id, post.isLiked),
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: Icons.chat_bubble_outline,
+                label: '${post.commentsCount}',
+                onTap: _showComments,
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: Icons.share_outlined,
+                label: '',
+                onTap: () => _sharePost(post),
+              ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                icon: isFavorite ? Icons.bookmark : Icons.bookmark_border,
+                color: isFavorite ? Colors.amber : Colors.white,
+                label: '',
+                onTap: _isTogglingFavorite
+                    ? null
+                    : () => _toggleFavorite(post, isFavorite),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -419,41 +540,62 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     Color color = Colors.white,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
-          ),
-          if (label.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                shadows: [
-                  Shadow(
-                    blurRadius: 4,
-                    color: Colors.black,
+    return Material(
+      color: Colors.transparent,
+      child: SizedBox(
+        // Минимальная область клика 56x56 для удобства на мобильных устройствах
+        // (Material Design guidelines рекомендуют минимум 48x48, но 56x56 более комфортно)
+        width: 56,
+        height: label.isNotEmpty ? null : 56,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(28),
+          onTap: onTap != null
+              ? () {
+                  debugPrint('DEBUG: Action button tapped: $icon');
+                  onTap();
+                }
+              : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IgnorePointer(
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
                   ),
-                ],
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 28,
+                  ),
+                ),
               ),
-            ),
-          ],
-        ],
+              if (label.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                IgnorePointer(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 4,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -470,15 +612,16 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Future<void> _sharePost(PostModel post) async {
     // Формируем URL поста (в будущем можно взять из AppConfig)
     final postUrl = 'https://service-platform.com/post/${post.id}';
-    final text = post.content != null 
+    final text = post.content != null
         ? '${post.content}\n\n$postUrl'
         : 'Посмотри этот пост: $postUrl';
-    
+
     try {
       // Попытка использовать нативный шаринг
       await Share.share(
         text,
-        subject: 'Пост от ${post.author?.fullName ?? (post.author != null ? '${post.author!.firstName} ${post.author!.lastName}' : 'мастера')}',
+        subject:
+            'Пост от ${post.author?.fullName ?? (post.author != null ? '${post.author!.firstName} ${post.author!.lastName}' : 'мастера')}',
       );
     } catch (e) {
       // На веб Share.share может выбросить исключение, если не поддерживается
@@ -654,7 +797,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                               AppAvatar(
                                 avatarUrl: comment.author?.avatarUrl,
                                 userId: comment.authorId,
-                                fallbackName: comment.author?.fullName ?? 
+                                fallbackName: comment.author?.fullName ??
                                     (comment.author != null
                                         ? '${comment.author!.firstName} ${comment.author!.lastName}'
                                         : null),
@@ -705,8 +848,8 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                         Text('Ошибка: ${error.toString()}'),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () =>
-                              ref.invalidate(postCommentsProvider(widget.postId)),
+                          onPressed: () => ref
+                              .invalidate(postCommentsProvider(widget.postId)),
                           child: const Text('Повторить'),
                         ),
                       ],
@@ -715,55 +858,55 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                 ),
               ),
               Container(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 12,
-                    bottom: 12 + MediaQuery.of(context).padding.bottom,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          decoration: InputDecoration(
-                            hintText: 'Добавить комментарий...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 12,
+                  bottom: 12 + MediaQuery.of(context).padding.bottom,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        decoration: InputDecoration(
+                          hintText: 'Добавить комментарий...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: Icon(
-                          Icons.send,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        onPressed: _handleSendComment,
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        Icons.send,
+                        color: Theme.of(context).primaryColor,
                       ),
-                    ],
-                  ),
+                      onPressed: _handleSendComment,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
         );
       },
     );

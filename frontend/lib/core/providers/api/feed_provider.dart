@@ -144,9 +144,9 @@ class PostNotifier extends _$PostNotifier {
     final repository = ref.read(postRepositoryProvider);
     await repository.likePost(postId);
 
-    // Invalidate post
+    // Invalidate только конкретный пост, НЕ всю ленту
+    // Лента использует локальный StateProvider и не нуждается в инвалидации
     ref.invalidate(postByIdProvider(postId));
-    ref.invalidate(feedPostsProvider);
   }
 
   /// Unlike post
@@ -154,9 +154,9 @@ class PostNotifier extends _$PostNotifier {
     final repository = ref.read(postRepositoryProvider);
     await repository.unlikePost(postId);
 
-    // Invalidate post
+    // Invalidate только конкретный пост, НЕ всю ленту
+    // Лента использует локальный StateProvider и не нуждается в инвалидации
     ref.invalidate(postByIdProvider(postId));
-    ref.invalidate(feedPostsProvider);
   }
 
   /// Upload post media file (legacy method for mobile compatibility)

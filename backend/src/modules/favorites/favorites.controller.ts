@@ -48,7 +48,9 @@ export class FavoritesController {
     @Request() req,
     @Body() addFavoriteDto: AddFavoriteDto,
   ): Promise<FavoriteResponseDto> {
-    return this.favoritesService.addFavorite(req.user.sub, addFavoriteDto);
+    // JwtStrategy.validate возвращает сущность User, у которой есть поле id
+    // Ранее использовался payload.sub, но здесь уже лежит сам пользователь
+    return this.favoritesService.addFavorite(req.user.id, addFavoriteDto);
   }
 
   @Get()
@@ -71,7 +73,7 @@ export class FavoritesController {
     @Request() req,
     @Query('entity_type') entityType?: FavoriteEntityType,
   ): Promise<FavoriteResponseDto[]> {
-    return this.favoritesService.getFavorites(req.user.sub, entityType);
+    return this.favoritesService.getFavorites(req.user.id, entityType);
   }
 
   @Get('count')
@@ -99,7 +101,7 @@ export class FavoritesController {
     @Query('entity_type') entityType?: FavoriteEntityType,
   ): Promise<{ count: number }> {
     const count = await this.favoritesService.getFavoritesCount(
-      req.user.sub,
+      req.user.id,
       entityType,
     );
     return { count };
@@ -128,7 +130,7 @@ export class FavoritesController {
     @Param('entityId') entityId: string,
   ): Promise<{ is_favorite: boolean }> {
     const isFavorite = await this.favoritesService.isFavorite(
-      req.user.sub,
+      req.user.id,
       entityType,
       entityId,
     );
@@ -148,7 +150,7 @@ export class FavoritesController {
     @Request() req,
     @Param('id') favoriteId: string,
   ): Promise<void> {
-    return this.favoritesService.removeFavorite(req.user.sub, favoriteId);
+    return this.favoritesService.removeFavorite(req.user.id, favoriteId);
   }
 
   @Delete(':entityType/:entityId')
@@ -167,7 +169,7 @@ export class FavoritesController {
     @Param('entityId') entityId: string,
   ): Promise<void> {
     return this.favoritesService.removeFavoriteByEntity(
-      req.user.sub,
+      req.user.id,
       entityType,
       entityId,
     );

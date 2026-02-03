@@ -35,7 +35,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79001111111',
       first_name: 'Анна',
       last_name: 'Иванова',
-      avatar_url: 'https://i.pravatar.cc/150?img=1',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: true,
       master_profile_completed: true,
       is_verified: true,
@@ -66,7 +66,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79002222222',
       first_name: 'Дмитрий',
       last_name: 'Петров',
-      avatar_url: 'https://i.pravatar.cc/150?img=12',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: true,
       master_profile_completed: true,
       is_verified: true,
@@ -98,7 +98,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79003333333',
       first_name: 'Елена',
       last_name: 'Смирнова',
-      avatar_url: 'https://i.pravatar.cc/150?img=5',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: true,
       master_profile_completed: true,
       is_verified: true,
@@ -133,7 +133,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79004444444',
       first_name: 'Мария',
       last_name: 'Козлова',
-      avatar_url: 'https://i.pravatar.cc/150?img=9',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: false,
       password_hash: passwordHash,
     },
@@ -142,7 +142,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79005555555',
       first_name: 'Иван',
       last_name: 'Сидоров',
-      avatar_url: 'https://i.pravatar.cc/150?img=13',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: false,
       password_hash: passwordHash,
     },
@@ -151,7 +151,7 @@ export async function seedTestData(dataSource: DataSource) {
       phone: '+79006666666',
       first_name: 'Ольга',
       last_name: 'Васильева',
-      avatar_url: 'https://i.pravatar.cc/150?img=10',
+      avatar_url: null, // Будет загружено через upload-local-images.ts
       is_master: false,
       password_hash: passwordHash,
     },
