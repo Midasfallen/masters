@@ -4,8 +4,8 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
+import { Repository, In, DataSource } from 'typeorm';
 import { Post, PostType, PostPrivacy } from './entities/post.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { PostService } from './entities/post-service.entity';
@@ -33,10 +33,12 @@ export class PostsService {
     private readonly friendshipRepository: Repository<Friendship>,
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(userId: string, createPostDto: CreatePostDto) {
-    // Валидация: repost должен существовать
+    // Валидация: repost должен существовать (выполняется вне транзакции, т.к. это только чтение)
     if (createPostDto.repost_of_id) {
       const originalPost = await this.postRepository.findOne({
         where: { id: createPostDto.repost_of_id },
@@ -46,86 +48,96 @@ export class PostsService {
       }
     }
 
-    const post = this.postRepository.create({
-      ...createPostDto,
-      author_id: userId,
-    });
-
-    const savedPost = await this.postRepository.save(post);
-
-    // Заполнить location_geography из координат, если они указаны (через raw SQL)
-    if (createPostDto.location_lat && createPostDto.location_lng) {
-      await this.postRepository.query(
-        `UPDATE posts 
-         SET location_geography = ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography 
-         WHERE id = $3`,
-        [createPostDto.location_lng, createPostDto.location_lat, savedPost.id],
-      );
-    }
-
-    // Сохранение медиа файлов
-    if (createPostDto.media && createPostDto.media.length > 0) {
-      const mediaEntities = createPostDto.media.map((media) =>
-        this.postMediaRepository.create({
-          ...media,
-          post_id: savedPost.id,
-        }),
-      );
-      await this.postMediaRepository.save(mediaEntities);
-    }
-
-    // Определяем category_ids для поста
-    let categoryIds: string[] = [];
-    
-    // Если category_ids переданы напрямую, используем их
-    if (createPostDto.category_ids && createPostDto.category_ids.length > 0) {
-      categoryIds = createPostDto.category_ids;
-    }
-    // Иначе получаем category_ids из service_ids
-    else if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
-      const services = await this.serviceRepository.find({
-        where: { id: In(createPostDto.service_ids) },
-        select: ['category_id'],
+    // Обертываем сохранение поста и медиа в транзакцию для атомарности
+    return await this.dataSource.transaction(async (manager) => {
+      // Создание и сохранение поста через manager
+      const post = manager.create(Post, {
+        ...createPostDto,
+        author_id: userId,
       });
-      categoryIds = Array.from(new Set(services.map(s => s.category_id).filter(Boolean)));
-    }
-    // Если ничего не передано, пытаемся получить из master_profile
-    else {
-      const masterProfile = await this.postRepository.query(
-        `SELECT category_ids FROM master_profiles WHERE user_id = $1`,
-        [userId],
-      );
-      if (masterProfile && masterProfile[0] && masterProfile[0].category_ids) {
-        categoryIds = masterProfile[0].category_ids;
+
+      const savedPost = await manager.save(Post, post);
+
+      // Заполнить location_geography из координат, если они указаны (через raw SQL)
+      if (createPostDto.location_lat && createPostDto.location_lng) {
+        await manager.query(
+          `UPDATE posts 
+           SET location_geography = ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography 
+           WHERE id = $3`,
+          [createPostDto.location_lng, createPostDto.location_lat, savedPost.id],
+        );
       }
-    }
 
-    // Сохраняем category_ids в пост
-    if (categoryIds.length > 0) {
-      await this.postRepository.update(savedPost.id, { category_ids: categoryIds });
-    }
+      // Сохранение медиа файлов через manager
+      if (createPostDto.media && createPostDto.media.length > 0) {
+        const mediaEntities = createPostDto.media.map((media) =>
+          manager.create(PostMedia, {
+            ...media,
+            post_id: savedPost.id,
+          }),
+        );
+        await manager.save(PostMedia, mediaEntities);
+      }
 
-    // Сохранение связей с услугами
-    if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
-      const postServices = createPostDto.service_ids.map((serviceId) =>
-        this.postServiceRepository.create({
-          post_id: savedPost.id,
-          service_id: serviceId,
-        }),
-      );
-      await this.postServiceRepository.save(postServices);
-    }
+      // Определяем category_ids для поста
+      let categoryIds: string[] = [];
+      
+      // Если category_ids переданы напрямую, используем их
+      if (createPostDto.category_ids && createPostDto.category_ids.length > 0) {
+        categoryIds = createPostDto.category_ids;
+      }
+      // Иначе получаем category_ids из service_ids
+      else if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
+        const services = await manager.find(Service, {
+          where: { id: In(createPostDto.service_ids) },
+          select: ['category_id'],
+        });
+        categoryIds = Array.from(new Set(services.map(s => s.category_id).filter(Boolean)));
+      }
+      // Если ничего не передано, пытаемся получить из master_profile
+      else {
+        const masterProfile = await manager.query(
+          `SELECT category_ids FROM master_profiles WHERE user_id = $1`,
+          [userId],
+        );
+        if (masterProfile && masterProfile[0] && masterProfile[0].category_ids) {
+          categoryIds = masterProfile[0].category_ids;
+        }
+      }
 
-    // Обновление счетчика репостов для оригинального поста
-    if (createPostDto.repost_of_id) {
-      await this.postRepository.increment(
-        { id: createPostDto.repost_of_id },
-        'reposts_count',
-        1,
-      );
-    }
+      // Сохраняем category_ids в пост через manager
+      if (categoryIds.length > 0) {
+        await manager.update(Post, savedPost.id, { category_ids: categoryIds });
+      }
 
-    return this.findOne(savedPost.id, userId);
+      // Сохранение связей с услугами через manager
+      if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {
+        const postServices = createPostDto.service_ids.map((serviceId) =>
+          manager.create(PostService, {
+            post_id: savedPost.id,
+            service_id: serviceId,
+          }),
+        );
+        await manager.save(PostService, postServices);
+      }
+
+      // Обновление счетчика репостов для оригинального поста (выполняется вне транзакции,
+      // т.к. это обновление другого поста и не критично для атомарности создания текущего поста)
+      // Но для консистентности лучше выполнить в транзакции
+      if (createPostDto.repost_of_id) {
+        await manager.increment(
+          Post,
+          { id: createPostDto.repost_of_id },
+          'reposts_count',
+          1,
+        );
+      }
+
+      // Возврат через findOne (загружает медиа через relations: ['media'])
+      // findOne использует postRepository, который работает вне транзакции,
+      // но это нормально, т.к. данные уже сохранены в БД
+      return this.findOne(savedPost.id, userId);
+    });
   }
 
   async getFeed(userId: string, filterDto: FilterPostsDto) {

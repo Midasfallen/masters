@@ -133,7 +133,7 @@ export class Post {
   author: User;
 
   @OneToMany(() => PostMedia, (media) => media.post, {
-    cascade: true,
+    cascade: false, // Отключено каскадное сохранение - медиа сохраняются вручную в posts.service.ts
     eager: false,
   })
   media: PostMedia[];
