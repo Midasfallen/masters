@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -36,6 +37,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _emailController.text.trim(),
             _passwordController.text,
           );
+
+      // Mark onboarding as completed after successful login
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isFirstRun', false);
 
       if (mounted) {
         // Navigate to Feed on successful login

@@ -39,6 +39,18 @@ class AuthNotifier extends _$AuthNotifier {
   @override
   Future<AuthState> build() async {
     final repository = ref.watch(authRepositoryProvider);
+    
+    // Parallel execution: check auth and minimum delay for smooth transition
+    final results = await Future.wait([
+      _initializeAuth(repository),
+      Future.delayed(const Duration(milliseconds: 500)), // Smooth transition delay
+    ]);
+    
+    return results[0] as AuthState;
+  }
+
+  /// Initialize authentication state
+  Future<AuthState> _initializeAuth(AuthRepository repository) async {
     final isLoggedIn = await repository.isLoggedIn();
 
     if (isLoggedIn) {
@@ -46,6 +58,8 @@ class AuthNotifier extends _$AuthNotifier {
         final user = await repository.getMe();
         return AuthState(user: user, isAuthenticated: true);
       } catch (e) {
+        // If getMe fails (e.g., 401), clear tokens and return unauthenticated
+        await repository.logout();
         return const AuthState(isAuthenticated: false);
       }
     }

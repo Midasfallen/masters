@@ -16,6 +16,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  bool _hasNavigated = false; // Prevent multiple navigations
 
   @override
   void initState() {
@@ -28,15 +29,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
     _controller.forward();
-
-    // Check auth and navigate
-    _checkAuthAndNavigate();
   }
 
-  Future<void> _checkAuthAndNavigate() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
+  Future<void> _navigateBasedOnAuth(bool isAuthenticated) async {
+    if (!mounted || _hasNavigated) return;
+    _hasNavigated = true;
 
     // Check first run flag
     final prefs = await SharedPreferences.getInstance();
@@ -44,21 +41,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     final isFirstRun = prefs.getBool('isFirstRun') ?? true;
 
-    // Check authentication
-    final authState = ref.read(authNotifierProvider);
-    final isAuthenticated = authState.value?.user != null;
-
     if (!mounted) return;
 
-    // Navigation logic according to UX/UI Guide v2.0
-    if (isFirstRun) {
-      // First run - show onboarding
-      context.go('/onboarding');
-    } else if (isAuthenticated) {
-      // Not first run + authenticated - go to Feed
+    // Navigation logic: Auth has priority over onboarding
+    // 1. If authenticated - always go to Feed (ignore isFirstRun)
+    if (isAuthenticated) {
       context.go('/');
-    } else {
-      // Not first run + not authenticated - go to Login
+    } 
+    // 2. If not authenticated AND first run - show onboarding
+    else if (isFirstRun) {
+      context.go('/onboarding');
+    } 
+    // 3. If not authenticated AND not first run - go to Login
+    else {
       context.go('/login');
     }
   }
@@ -71,6 +66,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth state reactively - this will rebuild when state changes
+    final authState = ref.watch(authNotifierProvider);
+
+    // Handle navigation based on auth state
+    authState.when(
+      data: (state) {
+        // Navigate after frame is built to avoid navigation during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _hasNavigated) return;
+          _navigateBasedOnAuth(state.isAuthenticated);
+        });
+      },
+      loading: () {
+        // Show splash screen while loading
+      },
+      error: (error, stackTrace) {
+        // On error, navigate to login
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _hasNavigated) return;
+          _hasNavigated = true;
+          context.go('/login');
+        });
+      },
+    );
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
