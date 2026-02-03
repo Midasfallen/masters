@@ -105,9 +105,10 @@ class ApiEndpoints {
 
   // ==================== SUBSCRIPTIONS (v2.0) ====================
   static const String subscriptions = '/subscriptions';
-  static String subscriptionCreate(String userId) => '/subscriptions/$userId';
   static String subscriptionRemove(String userId) => '/subscriptions/$userId';
-  static const String subscriptionsList = '/subscriptions/my';
+  /// [targetId] - ID пользователя, на которого проверяем подписку
+  static String subscriptionCheck(String targetId) => '/subscriptions/check/$targetId';
+  static const String subscriptionsList = '/subscriptions/following'; // Исправлено: было /subscriptions/my
   static const String subscribersList = '/subscriptions/followers';
 
   // ==================== AUTO PROPOSALS (v2.0) ====================

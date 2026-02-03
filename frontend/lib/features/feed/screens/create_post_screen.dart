@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:service_platform/core/providers/api/feed_provider.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
 import 'package:service_platform/core/widgets/app_image_preview.dart';
@@ -27,6 +28,28 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final TextEditingController _tagController = TextEditingController();
 
   bool _isLoading = false;
+
+  /// Определить тип поста на основе медиафайлов
+  PostType _determinePostType(List<XFile> media) {
+    if (media.isEmpty) return PostType.text;
+
+    // Проверяем, есть ли хотя бы одно видео
+    final hasVideo = media.any((file) {
+      final mimeType = lookupMimeType(file.path) ?? '';
+      return mimeType.startsWith('video/');
+    });
+
+    return hasVideo ? PostType.video : PostType.photo;
+  }
+
+  /// Определить тип медиафайла
+  MediaType _determineMediaType(XFile file) {
+    final mimeType = lookupMimeType(file.path) ?? '';
+    if (mimeType.startsWith('video/')) {
+      return MediaType.video;
+    }
+    return MediaType.photo;
+  }
 
   @override
   void dispose() {
@@ -159,9 +182,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     try {
       // Определяем тип поста
-      final postType = _selectedMedia.isEmpty
-          ? PostType.text
-          : PostType.photo; // TODO: определить video если есть видео
+      final postType = _determinePostType(_selectedMedia);
 
       // Upload media files to server and create media DTOs
       final mediaList = <CreatePostMediaDto>[];
@@ -171,9 +192,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             .read(postNotifierProvider.notifier)
             .uploadPostMediaFromXFile(file);
 
-        // Определяем тип медиа (пока только photo, можно расширить для video)
+        // Определяем тип медиа
         mediaList.add(CreatePostMediaDto(
-          type: MediaType.photo,
+          type: _determineMediaType(file),
           url: url,
           order: i,
         ));

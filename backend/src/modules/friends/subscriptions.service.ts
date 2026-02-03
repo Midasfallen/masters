@@ -114,6 +114,17 @@ export class SubscriptionsService {
     };
   }
 
+  async checkSubscription(userId: string, targetId: string): Promise<{ is_following: boolean }> {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: {
+        subscriber_id: userId,
+        target_id: targetId,
+      },
+    });
+
+    return { is_following: subscription !== null };
+  }
+
   async update(userId: string, targetId: string, updateSubscriptionDto: UpdateSubscriptionDto) {
     const subscription = await this.subscriptionRepository.findOne({
       where: {

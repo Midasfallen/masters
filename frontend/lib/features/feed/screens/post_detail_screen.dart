@@ -10,6 +10,9 @@ import '../../../core/providers/api/feed_provider.dart';
 import '../../../core/api/api_exceptions.dart';
 import '../../../core/providers/favorites_provider.dart';
 import '../../../core/models/favorite.dart';
+import '../../../core/providers/api/subscriptions_provider.dart';
+import '../../../core/providers/api/auth_provider.dart';
+import '../../../core/providers/api/user_provider.dart';
 import '../../../shared/widgets/app_avatar.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
@@ -30,6 +33,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   bool _isLiking = false; // Флаг для защиты от race conditions
   bool _isTogglingFavorite =
       false; // Флаг для защиты от race conditions при переключении закладок
+  bool _isTogglingFollow =
+      false; // Флаг для защиты от race conditions при переключении подписки
   PostModel? _optimisticPost; // Локальное оптимистичное состояние
 
   @override
@@ -198,6 +203,110 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     }
   }
 
+  Future<void> _toggleFollow(PostModel post, bool wasFollowing) async {
+    if (_isTogglingFollow) return;
+
+    setState(() {
+      _isTogglingFollow = true;
+    });
+
+    final authorId = post.authorId;
+    debugPrint('DEBUG: Toggle follow START: authorId=$authorId, wasFollowing=$wasFollowing');
+
+    try {
+      final notifier = ref.read(subscriptionNotifierProvider.notifier);
+
+      if (wasFollowing) {
+        await notifier.unsubscribe(authorId);
+      } else {
+        await notifier.subscribe(authorId);
+      }
+
+      // КРИТИЧНО: Инвалидировать ПОСЛЕ await, чтобы избежать race conditions
+      ref.invalidate(isFollowingProvider(authorId));
+      ref.invalidate(mySubscriptionsListProvider());
+
+      // Инвалидировать профиль автора для обновления счетчиков followers_count
+      ref.invalidate(userByIdProvider(authorId));
+
+      debugPrint('DEBUG: Toggle follow SUCCESS');
+
+      if (mounted) {
+        final authorName = post.author?.fullName ??
+            (post.author != null
+                ? '${post.author!.firstName} ${post.author!.lastName}'
+                : 'мастера');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              wasFollowing ? 'Отписались от $authorName' : 'Подписались на $authorName',
+            ),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('DEBUG: Toggle follow ERROR: $e');
+      debugPrint('DEBUG: Stack trace: $stackTrace');
+
+      // Обработка ошибок по аналогии с favorites
+      if (e is ApiException) {
+        debugPrint('DEBUG: Toggle follow ApiException status=${e.statusCode}, data=${e.data}');
+
+        // 400 Bad Request - подписка на самого себя
+        if (e.statusCode == 400) {
+          ref.invalidate(isFollowingProvider(authorId));
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Нельзя подписаться на самого себя'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+          return;
+        }
+
+        // 409 для подписки считаем "нормальным" конфликтом
+        if (e.statusCode == 409) {
+          ref.invalidate(isFollowingProvider(authorId));
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  !wasFollowing
+                      ? 'Уже подписаны на этого мастера'
+                      : 'Уже отписаны от этого мастера',
+                ),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      // Откат при других ошибках
+      ref.invalidate(isFollowingProvider(authorId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isTogglingFollow = false;
+        });
+      }
+      debugPrint('DEBUG: Toggle follow finished');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final postAsync = ref.watch(postByIdProvider(widget.postId));
@@ -251,6 +360,20 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       loading: () => false, // Правильно для первого рендера
       error: (_, __) => false,
     );
+
+    // Проверка статуса подписки
+    final isFollowingAsync = ref.watch(isFollowingProvider(post.authorId));
+
+    final isFollowing = isFollowingAsync.when(
+      data: (value) => value,
+      loading: () => false, // Правильно для первого рендера
+      error: (_, __) => false,
+    );
+
+    // Проверка: не показывать кнопку подписки на свой пост
+    final authState = ref.watch(authNotifierProvider);
+    final currentUserId = authState.value?.user?.id;
+    final isMe = post.authorId == currentUserId;
 
     return Stack(
       children: [
@@ -409,28 +532,54 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         ),
                       ),
                     ),
-                    OutlinedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Подписались на ${post.author?.fullName ?? (post.author != null ? '${post.author!.firstName} ${post.author!.lastName}' : 'мастера')}',
+                    // Кнопка подписки (не показываем на свой пост)
+                    if (!isMe)
+                      isFollowing
+                          ? OutlinedButton(
+                              onPressed: _isTogglingFollow
+                                  ? null
+                                  : () => _toggleFollow(post, isFollowing),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white70, // "Тухлый" цвет для отписки
+                                side: const BorderSide(color: Colors.white38), // Слабая граница
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                minimumSize: Size.zero,
+                              ),
+                              child: _isTogglingFollow
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Text('Отписаться'),
+                            )
+                          : ElevatedButton(
+                              onPressed: _isTogglingFollow
+                                  ? null
+                                  : () => _toggleFollow(post, isFollowing),
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                backgroundColor: Colors.white, // Акцентный цвет
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                minimumSize: Size.zero,
+                              ),
+                              child: _isTogglingFollow
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.black,
+                                      ),
+                                    )
+                                  : const Text('Подписаться'),
                             ),
-                            duration: const Duration(milliseconds: 800),
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        minimumSize: Size.zero,
-                      ),
-                      child: const Text('Подписаться'),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 12),

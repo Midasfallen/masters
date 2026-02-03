@@ -42,6 +42,15 @@ export class SubscriptionsController {
     return this.subscriptionsService.getFollowers(userId, paginationDto);
   }
 
+  @Get('check/:targetId')
+  @ApiOperation({ summary: 'Проверить, подписан ли текущий пользователь на targetId' })
+  checkSubscription(
+    @CurrentUser('id') userId: string,
+    @Param('targetId') targetId: string,
+  ): Promise<{ is_following: boolean }> {
+    return this.subscriptionsService.checkSubscription(userId, targetId);
+  }
+
   @Patch(':targetId')
   @ApiOperation({ summary: 'Обновить настройки подписки' })
   update(

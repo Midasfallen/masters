@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/api/api_endpoints.dart';
 import 'package:service_platform/core/api/api_exceptions.dart';
@@ -60,10 +61,23 @@ class SubscriptionRepository {
   Future<SubscriptionModel> subscribe(String userId) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.subscriptionCreate(userId),
+        ApiEndpoints.subscriptions,
+        data: {
+          'target_id': userId, // КРИТИЧНО: target_id должен быть String, не объект
+          'notifications_enabled': true,
+        },
       );
       return SubscriptionModel.fromJson(response.data);
     } on DioException catch (e) {
+      // КРИТИЧНО: Dio по умолчанию кидает исключение на статусы > 300
+      // Поэтому проверка 409 должна быть здесь, а не до try-catch
+      
+      // Логирование для отладки
+      debugPrint('DEBUG: Subscribe DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+      
+      // При 409 бэкенд возвращает {message, error, statusCode}, а не SubscriptionModel
+      // ApiExceptionHandler должен правильно извлечь message из e.response?.data['message']
+      // Просто пробрасываем исключение - ApiExceptionHandler обработает его корректно
       throw ApiExceptionHandler.handleDioError(e);
     }
   }
@@ -103,6 +117,24 @@ class SubscriptionRepository {
       );
       return SubscriptionModel.fromJson(response.data);
     } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Check if following user
+  /// [targetUserId] - ID пользователя, на которого проверяем подписку (targetId)
+  Future<bool> checkSubscription(String targetUserId) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.subscriptionCheck(targetUserId), // targetUserId передается как targetId в URL
+      );
+      // Предполагаемый формат ответа: {is_following: boolean}
+      return response.data['is_following'] as bool? ?? false;
+    } on DioException catch (e) {
+      // Если endpoint не существует (404), вернуть false
+      if (e.response?.statusCode == 404) {
+        return false;
+      }
       throw ApiExceptionHandler.handleDioError(e);
     }
   }

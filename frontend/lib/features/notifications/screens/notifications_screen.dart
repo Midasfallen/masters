@@ -241,6 +241,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
                           (notification) => _NotificationTile(
                             notification: notification,
                             onTap: () => _handleNotificationTap(notification),
+                            onDismissed: () => _handleNotificationDismiss(notification),
                           ),
                         ),
                   ],
@@ -403,15 +404,70 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
       context.push(notification.actionUrl!);
     }
   }
+
+  /// Обработка удаления уведомления с оптимистичным обновлением UI
+  Future<void> _handleNotificationDismiss(NotificationModel notification) async {
+    // Оптимистичное удаление: сразу удаляем из локального списка UI
+    final notificationToDelete = notification;
+    final typeFilter = _getTypeFilter();
+
+    // Сохраняем индекс для возможного отката
+    final localIndex = _notifications.indexWhere((n) => n.id == notification.id);
+
+    setState(() {
+      if (localIndex != -1) {
+        _notifications.removeAt(localIndex);
+      }
+    });
+
+    try {
+      await ref.read(notificationNotifierProvider.notifier).deleteNotification(notificationToDelete.id);
+
+      // Инвалидируем провайдеры для обновления данных и счетчика в хедере
+      ref.invalidate(notificationsListProvider(type: typeFilter));
+      ref.invalidate(notificationsUnreadCountProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${notificationToDelete.title} удалено'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Откат при ошибке: возвращаем уведомление в локальный список
+      if (mounted) {
+        setState(() {
+          if (localIndex != -1) {
+            _notifications.insert(localIndex, notificationToDelete);
+          } else {
+            // Если не было в локальном списке, добавляем в начало
+            _notifications.insert(0, notificationToDelete);
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при удалении: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _NotificationTile extends StatelessWidget {
   final NotificationModel notification;
   final VoidCallback onTap;
+  final VoidCallback onDismissed;
 
   const _NotificationTile({
     required this.notification,
     required this.onTap,
+    required this.onDismissed,
   });
 
   @override
@@ -429,10 +485,7 @@ class _NotificationTile extends StatelessWidget {
         ),
       ),
       onDismissed: (direction) {
-        // TODO: Implement delete notification
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${notification.title} удалено')),
-        );
+        onDismissed();
       },
       child: InkWell(
         onTap: onTap,

@@ -81,4 +81,20 @@ class NotificationNotifier extends _$NotificationNotifier {
       state = asyncValue as AsyncValue<NotificationModel?>;
     });
   }
+
+  /// Delete notification
+  Future<void> deleteNotification(String notificationId) async {
+    state = const AsyncValue.loading();
+
+    await AsyncValue.guard(() async {
+      final repository = ref.read(notificationRepositoryProvider);
+      await repository.deleteNotification(notificationId);
+
+      // Инвалидировать список уведомлений и счетчик
+      ref.invalidate(notificationsListProvider);
+      ref.invalidate(notificationsUnreadCountProvider);
+    }).then((asyncValue) {
+      state = asyncValue as AsyncValue<NotificationModel?>;
+    });
+  }
 }

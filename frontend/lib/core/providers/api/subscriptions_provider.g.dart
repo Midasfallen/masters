@@ -496,8 +496,156 @@ class _SubscriptionByIdProviderElement
       (origin as SubscriptionByIdProvider).subscriptionId;
 }
 
+String _$isFollowingHash() => r'ebe94e01fe0f5ca401d2f5ce5e8f0b7e04dff8c9';
+
+/// Check if following user Provider
+/// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+///
+/// Copied from [isFollowing].
+@ProviderFor(isFollowing)
+const isFollowingProvider = IsFollowingFamily();
+
+/// Check if following user Provider
+/// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+///
+/// Copied from [isFollowing].
+class IsFollowingFamily extends Family<AsyncValue<bool>> {
+  /// Check if following user Provider
+  /// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+  ///
+  /// Copied from [isFollowing].
+  const IsFollowingFamily();
+
+  /// Check if following user Provider
+  /// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+  ///
+  /// Copied from [isFollowing].
+  IsFollowingProvider call(
+    String userId,
+  ) {
+    return IsFollowingProvider(
+      userId,
+    );
+  }
+
+  @override
+  IsFollowingProvider getProviderOverride(
+    covariant IsFollowingProvider provider,
+  ) {
+    return call(
+      provider.userId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'isFollowingProvider';
+}
+
+/// Check if following user Provider
+/// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+///
+/// Copied from [isFollowing].
+class IsFollowingProvider extends AutoDisposeFutureProvider<bool> {
+  /// Check if following user Provider
+  /// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+  ///
+  /// Copied from [isFollowing].
+  IsFollowingProvider(
+    String userId,
+  ) : this._internal(
+          (ref) => isFollowing(
+            ref as IsFollowingRef,
+            userId,
+          ),
+          from: isFollowingProvider,
+          name: r'isFollowingProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$isFollowingHash,
+          dependencies: IsFollowingFamily._dependencies,
+          allTransitiveDependencies:
+              IsFollowingFamily._allTransitiveDependencies,
+          userId: userId,
+        );
+
+  IsFollowingProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userId,
+  }) : super.internal();
+
+  final String userId;
+
+  @override
+  Override overrideWith(
+    FutureOr<bool> Function(IsFollowingRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: IsFollowingProvider._internal(
+        (ref) => create(ref as IsFollowingRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userId: userId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<bool> createElement() {
+    return _IsFollowingProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is IsFollowingProvider && other.userId == userId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin IsFollowingRef on AutoDisposeFutureProviderRef<bool> {
+  /// The parameter `userId` of this provider.
+  String get userId;
+}
+
+class _IsFollowingProviderElement extends AutoDisposeFutureProviderElement<bool>
+    with IsFollowingRef {
+  _IsFollowingProviderElement(super.provider);
+
+  @override
+  String get userId => (origin as IsFollowingProvider).userId;
+}
+
 String _$subscriptionNotifierHash() =>
-    r'b3934a188d82e7efc4d1a3d936d2aab2efa85321';
+    r'20ed9aeb2b856919c5ad7d3b9090182b00389208';
 
 /// Subscription Notifier for mutations
 ///

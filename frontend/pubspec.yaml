@@ -51,6 +51,9 @@ dependencies:
   # Share
   share_plus: ^7.2.1
 
+  # MIME type detection
+  mime: ^1.0.4
+
   # Location
   geolocator: ^13.0.2
   permission_handler: ^11.3.1

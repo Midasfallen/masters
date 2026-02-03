@@ -82,6 +82,17 @@ class NotificationRepository {
       throw ApiExceptionHandler.handleDioError(e);
     }
   }
+
+  /// Delete notification
+  Future<void> deleteNotification(String id) async {
+    try {
+      await _client.delete(
+        ApiEndpoints.notificationById(id), // Используем тот же endpoint, что и для получения
+      );
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
 }
 
 @riverpod

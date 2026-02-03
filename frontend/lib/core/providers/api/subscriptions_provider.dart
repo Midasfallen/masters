@@ -37,6 +37,14 @@ Future<SubscriptionModel> subscriptionById(
   return await repository.getSubscriptionById(subscriptionId);
 }
 
+/// Check if following user Provider
+/// [userId] - ID пользователя, на которого проверяем подписку (targetId)
+@riverpod
+Future<bool> isFollowing(IsFollowingRef ref, String userId) async {
+  final repository = ref.watch(subscriptionRepositoryProvider);
+  return await repository.checkSubscription(userId);
+}
+
 /// Subscription Notifier for mutations
 @riverpod
 class SubscriptionNotifier extends _$SubscriptionNotifier {
@@ -53,8 +61,9 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
       final repository = ref.read(subscriptionRepositoryProvider);
       final subscription = await repository.subscribe(userId);
 
-      // Invalidate subscriptions list
+      // КРИТИЧНО: Инвалидировать ПОСЛЕ await для избежания race conditions
       ref.invalidate(mySubscriptionsListProvider);
+      ref.invalidate(isFollowingProvider(userId));
 
       return subscription;
     }).then((asyncValue) {
@@ -71,8 +80,9 @@ class SubscriptionNotifier extends _$SubscriptionNotifier {
       final repository = ref.read(subscriptionRepositoryProvider);
       await repository.unsubscribe(userId);
 
-      // Invalidate subscriptions list
+      // КРИТИЧНО: Инвалидировать ПОСЛЕ await для избежания race conditions
       ref.invalidate(mySubscriptionsListProvider);
+      ref.invalidate(isFollowingProvider(userId));
     }).then((asyncValue) {
       state = asyncValue as AsyncValue<SubscriptionModel?>;
     });

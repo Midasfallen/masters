@@ -391,7 +391,7 @@ final notificationsUnreadCountProvider =
 // ignore: unused_element
 typedef NotificationsUnreadCountRef = AutoDisposeFutureProviderRef<int>;
 String _$notificationNotifierHash() =>
-    r'ad4be5375bf396e6c779db006e5ec1364f564a70';
+    r'af999c9f164b018555646ef9432879c8158df04c';
 
 /// Notification Notifier for mutations
 ///
