@@ -586,7 +586,9 @@ class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
   }
 
   Widget _buildReviewsTab(MasterProfileModel master) {
-    final reviewsAsync = ref.watch(masterReviewsProvider(master.id));
+    // Для отзывов backend фильтрует по пользователю, которому оставлены отзывы (reviewed_user_id),
+    // поэтому используем userId, а не master.id (master_profile.id).
+    final reviewsAsync = ref.watch(masterReviewsProvider(master.userId));
 
     return reviewsAsync.when(
       data: (reviews) {

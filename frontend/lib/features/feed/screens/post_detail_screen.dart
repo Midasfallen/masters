@@ -612,8 +612,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 // CTA buttons
                 FilledButton.icon(
                   onPressed: () {
-                    // API теперь поддерживает поиск по userId через тот же эндпоинт
-                    context.push('/master/${post.authorId}');
+                    // Переходим на экран мастера по userId (authorId).
+                    // На экране мастера пользователь уже выбирает услугу и оформляет запись.
+                    context.pushNamed(
+                      'masterProfile',
+                      pathParameters: {'id': post.authorId},
+                    );
                   },
                   icon: const Icon(Icons.calendar_today, size: 18),
                   label: const Text('Записаться'),

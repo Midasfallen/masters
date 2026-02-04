@@ -11,6 +11,7 @@ import { Comment } from './entities/comment.entity';
 import { Repost } from './entities/repost.entity';
 import { Post } from '../posts/entities/post.entity';
 import { WebSocketModule } from '../websocket/websocket.module';
+import { CacheService } from '../../common/services/cache.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { WebSocketModule } from '../websocket/websocket.module';
     WebSocketModule,
   ],
   controllers: [LikesController, CommentsController, RepostsController],
-  providers: [LikesService, CommentsService, RepostsService],
-  exports: [LikesService, CommentsService, RepostsService],
+  providers: [LikesService, CommentsService, RepostsService, CacheService],
+  exports: [LikesService, CommentsService, RepostsService, CacheService],
 })
 export class SocialModule {}

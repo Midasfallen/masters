@@ -23,8 +23,15 @@ class ApiEndpoints {
   static const String masterCreate = '/masters';
   static const String masterUpdate = '/masters/me';
   static const String masterMe = '/masters/me';
-  static String masterServices(String masterId) => '/masters/$masterId/services';
-  static String masterReviews(String masterId) => '/masters/$masterId/reviews';
+  /// Public services of a master profile
+  /// Backend route: GET /services/master/:masterId
+  static String masterServices(String masterId) => '/services/master/$masterId';
+
+  /// Public reviews about a user (master)
+  /// Backend route: GET /reviews?reviewed_user_id=:userId
+  /// NOTE: [masterId] here is actually the target userId (authorId),
+  /// it is only kept in the signature for backwards compatibility.
+  static String masterReviews(String masterId) => '/reviews';
 
   // ==================== SERVICES ====================
   static const String services = '/services';

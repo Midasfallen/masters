@@ -63,6 +63,8 @@ export class PostsMapper {
       privacy: post.privacy,
       repostOfId: post.repost_of_id,
       likesCount: post.likes_count,
+      // Может быть проставлено в сервисе перед маппингом, по умолчанию false
+      isLiked: (post as any).isLiked ?? false,
       commentsCount: post.comments_count,
       repostsCount: post.reposts_count,
       viewsCount: post.views_count,

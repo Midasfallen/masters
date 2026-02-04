@@ -133,10 +133,20 @@ export class PostsService {
         );
       }
 
-      // Возврат через findOne (загружает медиа через relations: ['media'])
-      // findOne использует postRepository, который работает вне транзакции,
-      // но это нормально, т.к. данные уже сохранены в БД
-      return this.findOne(savedPost.id, userId);
+      // Загружаем пост с необходимыми связями через transactional manager
+      const fullPost = await manager.findOne(Post, {
+        where: { id: savedPost.id },
+        relations: ['author', 'media', 'repost_of', 'repost_of.author'],
+      });
+
+      if (!fullPost) {
+        throw new NotFoundException('Post not found');
+      }
+
+      // Для только что созданного поста текущий пользователь всегда лайкнул = false
+      (fullPost as any).isLiked = false;
+
+      return PostsMapper.toDto(fullPost);
     });
   }
 
@@ -201,15 +211,6 @@ export class PostsService {
         userId,
       },
     );
-
-    // Приоритет постов от друзей и подписок
-    // Если у пользователя есть друзья/подписки - показываем только их посты
-    // Если нет - показываем все публичные посты (фильтр по privacy выше)
-    if (subscriptionIds.length > 0 || friendIds.length > 0) {
-      queryBuilder.andWhere('post.author_id IN (:...relevantUserIds)', {
-        relevantUserIds,
-      });
-    }
 
     // Фильтрация по категориям (любого уровня: корневые, подкатегории, услуги)
     // Используем closure table для поиска всех потомков выбранных категорий
@@ -296,6 +297,9 @@ export class PostsService {
 
     const [posts, total] = await queryBuilder.getManyAndCount();
 
+    // Отмечаем посты, которые уже лайкнул текущий пользователь
+    await this.markPostsLikedForUser(posts, userId);
+
     // Вычисляем следующий курсор (created_at последнего поста)
     const nextCursor = posts.length > 0
       ? posts[posts.length - 1].created_at.toISOString()
@@ -334,6 +338,9 @@ export class PostsService {
       .skip((page - 1) * limit)
       .take(limit)
       .getManyAndCount();
+
+    // Отмечаем посты, которые уже лайкнул текущий пользователь
+    await this.markPostsLikedForUser(posts, userId);
 
     return {
       data: PostsMapper.toDtoArray(posts),
@@ -384,7 +391,57 @@ export class PostsService {
       }
     }
 
+    // Вычисляем, лайкнул ли текущий пользователь этот пост
+    (post as any).isLiked = await this.isPostLikedByUser(post.id, userId);
+
     return PostsMapper.toDto(post);
+  }
+
+  /**
+   * Помечает переданные посты флагом isLiked для указанного пользователя
+   */
+  private async markPostsLikedForUser(posts: Post[], userId?: string): Promise<void> {
+    if (!userId || posts.length === 0) {
+      return;
+    }
+
+    const postIds = posts.map((p) => p.id);
+
+    const rows: { likable_id: string }[] = await this.dataSource.query(
+      `SELECT likable_id
+       FROM likes
+       WHERE user_id = $1
+         AND likable_type = $2
+         AND likable_id = ANY($3::uuid[])`,
+      [userId, 'post', postIds],
+    );
+
+    const likedIds = new Set(rows.map((row) => row.likable_id));
+
+    for (const post of posts) {
+      (post as any).isLiked = likedIds.has(post.id);
+    }
+  }
+
+  /**
+   * Проверяет, лайкнул ли пользователь конкретный пост
+   */
+  private async isPostLikedByUser(postId: string, userId?: string): Promise<boolean> {
+    if (!userId) {
+      return false;
+    }
+
+    const rows = await this.dataSource.query(
+      `SELECT 1
+       FROM likes
+       WHERE user_id = $1
+         AND likable_type = $2
+         AND likable_id = $3
+       LIMIT 1`,
+      [userId, 'post', postId],
+    );
+
+    return rows.length > 0;
   }
 
   async update(id: string, userId: string, updatePostDto: UpdatePostDto) {

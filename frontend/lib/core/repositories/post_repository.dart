@@ -134,7 +134,8 @@ class PostRepository {
   /// Unlike post
   Future<void> unlikePost(String id) async {
     try {
-      await _client.post(ApiEndpoints.postUnlike(id));
+      // Backend ожидает DELETE /posts/:id/unlike
+      await _client.delete(ApiEndpoints.postUnlike(id));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

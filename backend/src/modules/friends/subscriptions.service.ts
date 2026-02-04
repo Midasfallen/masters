@@ -1,16 +1,17 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Subscription } from './entities/subscription.entity';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { SubscriptionResponseDto } from './dto/subscription-response.dto';
+import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { Subscription } from './entities/subscription.entity';
 
 @Injectable()
 export class SubscriptionsService {
@@ -21,7 +22,10 @@ export class SubscriptionsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(userId: string, createSubscriptionDto: CreateSubscriptionDto) {
+  async create(
+    userId: string,
+    createSubscriptionDto: CreateSubscriptionDto,
+  ): Promise<SubscriptionResponseDto> {
     const { target_id, notifications_enabled = true } = createSubscriptionDto;
 
     if (userId === target_id) {
@@ -61,7 +65,7 @@ export class SubscriptionsService {
     await this.userRepository.increment({ id: userId }, 'following_count', 1);
     await this.userRepository.increment({ id: target_id }, 'followers_count', 1);
 
-    return savedSubscription;
+    return this.toResponseDto(savedSubscription);
   }
 
   async getFollowing(userId: string, paginationDto: PaginationDto) {
@@ -161,5 +165,15 @@ export class SubscriptionsService {
     await this.userRepository.decrement({ id: targetId }, 'followers_count', 1);
 
     return { message: 'Unsubscribed successfully' };
+  }
+
+  private toResponseDto(subscription: Subscription): SubscriptionResponseDto {
+    const dto = new SubscriptionResponseDto();
+    dto.id = subscription.id;
+    dto.subscriberId = subscription.subscriber_id;
+    dto.targetId = subscription.target_id;
+    dto.notificationsEnabled = subscription.notifications_enabled;
+    dto.createdAt = subscription.created_at;
+    return dto;
   }
 }

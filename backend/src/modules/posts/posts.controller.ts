@@ -127,8 +127,10 @@ export class PostsController {
       likable_type: LikableType.POST,
       likable_id: id,
     });
-    // Return updated post with likes_count
-    return this.postsService.findOne(id);
+    // Чистим кэш и возвращаем обновленный пост (с корректным isLiked)
+    await this.cacheService.delByPattern(`post:${id}:*`);
+    await this.cacheService.delByPattern(`feed:${userId}:*`);
+    return this.postsService.findOne(id, userId);
   }
 
   @Delete(':id/unlike')
@@ -136,8 +138,10 @@ export class PostsController {
   @ApiOperation({ summary: 'Убрать лайк с поста' })
   async unlikePost(@Param('id') id: string, @CurrentUser('id') userId: string) {
     await this.likesService.remove(userId, LikableType.POST, id);
-    // Return updated post with likes_count
-    return this.postsService.findOne(id);
+    // Чистим кэш и возвращаем обновленный пост (с корректным isLiked)
+    await this.cacheService.delByPattern(`post:${id}:*`);
+    await this.cacheService.delByPattern(`feed:${userId}:*`);
+    return this.postsService.findOne(id, userId);
   }
 
   @Post(':id/comments')

@@ -37,6 +37,13 @@ export class PostResponseDto {
   likesCount: number;
 
   @Expose()
+  @ApiProperty({
+    description: 'Текущий пользователь поставил лайк этому посту',
+    default: false,
+  })
+  isLiked: boolean;
+
+  @Expose()
   @ApiProperty({ description: 'Количество комментариев', default: 0 })
   commentsCount: number;
 

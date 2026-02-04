@@ -158,16 +158,18 @@ class MasterRepository {
 
   /// Get master reviews
   Future<List<ReviewModel>> getMasterReviews(
-    String masterId, {
+    String userId, {
     int page = 1,
     int limit = 20,
   }) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.masterReviews(masterId),
+        ApiEndpoints.masterReviews(userId),
         queryParameters: {
           'page': page,
           'limit': limit,
+          // Backend expects reviewed_user_id = ID пользователя (а не master_profile.id)
+          'reviewed_user_id': userId,
         },
       );
 

@@ -14,6 +14,7 @@ import { CommentResponseDto } from './dto/comment-response.dto';
 import { SocialMapper } from './social.mapper';
 import { Post } from '../posts/entities/post.entity';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
+import { CacheService } from '../../common/services/cache.service';
 
 @Injectable()
 export class CommentsService {
@@ -23,6 +24,7 @@ export class CommentsService {
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
     private readonly websocketGateway: AppWebSocketGateway,
+    private readonly cacheService: CacheService,
   ) {}
 
   async create(userId: string, createCommentDto: CreateCommentDto): Promise<CommentResponseDto> {
@@ -103,6 +105,10 @@ export class CommentsService {
         timestamp: new Date().toISOString(),
       });
     }
+
+    // Инвалидируем кэш поста и фида, чтобы счётчики комментариев обновились везде
+    await this.cacheService.delByPattern(`post:${createCommentDto.post_id}:*`);
+    await this.cacheService.delByPattern('feed:*');
 
     return SocialMapper.toCommentDto(fullComment);
   }
@@ -206,6 +212,10 @@ export class CommentsService {
     }
 
     await this.commentRepository.remove(comment);
+
+    // Инвалидируем кэш поста и фида, чтобы счётчики комментариев обновились везде
+    await this.cacheService.delByPattern(`post:${comment.post_id}:*`);
+    await this.cacheService.delByPattern('feed:*');
 
     return { message: 'Comment deleted successfully' };
   }

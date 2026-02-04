@@ -69,23 +69,24 @@ Future<MasterProfileModel> masterById(MasterByIdRef ref, String id) async {
 @riverpod
 Future<List<ServiceModel>> masterServices(
   MasterServicesRef ref,
-  String masterId,
+  String masterProfileId,
 ) async {
   final repository = ref.watch(masterRepositoryProvider);
-  return await repository.getMasterServices(masterId);
+  // Backend endpoint ожидает ID профиля мастера
+  return await repository.getMasterServices(masterProfileId);
 }
 
 /// Master Reviews Provider
 @riverpod
 Future<List<ReviewModel>> masterReviews(
   MasterReviewsRef ref,
-  String masterId, {
+  String userId, {
   int page = 1,
   int limit = 20,
 }) async {
   final repository = ref.watch(masterRepositoryProvider);
   return await repository.getMasterReviews(
-    masterId,
+    userId,
     page: page,
     limit: limit,
   );
