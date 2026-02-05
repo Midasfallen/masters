@@ -1,5 +1,7 @@
 # Database Seeding Guide
 
+> **Примечание:** Устаревший SQL скрипт `seed-data.sql` был перемещен в `archive/scripts/`. Используйте TypeScript seed через `npm run seed`.
+
 ## Наполнение базы данных тестовыми данными
 
 ### Быстрый старт
@@ -73,7 +75,22 @@ docker exec service_postgres psql -U service_user -d service_db -c "SELECT autho
 
 ### Примечания
 
+- Seed использует TypeScript (`backend/src/database/seeds/seed.cli.ts`)
 - Аватары загружаются с `pravatar.cc` в MinIO bucket `avatars`
 - Медиа постов используют `picsum.photos` (можно обновить для загрузки в MinIO)
 - Все данные создаются с фиксированными email для удобства тестирования
 - MinIO buckets создаются автоматически при запуске docker-compose
+- Для загрузки локальных изображений используйте: `npm run upload-images`
+
+### Дополнительные команды
+
+```bash
+# Загрузить локальные изображения из папки images/ в MinIO
+npm run upload-images
+
+# Заполнить только каталог категорий из Catalog.md
+npm run seed:catalog
+
+# Полный сброс БД (миграции + seed + загрузка изображений)
+npm run db:reset:dev
+```

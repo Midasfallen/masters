@@ -2,10 +2,11 @@
 
 **Платформа поиска мастеров**
 **Версия:** 2.0
-**Дата:** 27 декабря 2025
+**Дата:** 5 февраля 2026
 **Автор:** Глеб
 
 > **Обновлено для v2.0:** Переход от маркетплейса к социальной платформе
+> **Статус:** MVP v2.0 реализован, документ отражает фактическую реализацию.
 
 ---
 
@@ -597,26 +598,15 @@
 
 ## Связанные документы
 
-- [User Stories](./UserStories.md) - Пользовательские истории
-- [Catalog](./Catalog.md) - Каталог услуг
-- [Database Schema](../technical/Database.md) - Схема базы данных
-- [API Specification](../technical/API.md) - API спецификация
-- [Technical Specification](../technical/TechSpec.md) - Техническое задание
+- [User Stories](./UserStories.md) - Пользовательские истории (актуально)
+- [Catalog](./Catalog.md) - Каталог услуг (актуально)
+
+Техническая документация, на которой основывается данный BRD, перенесена в архив (исторические документы):
+
+- TechSpec, Database Schema, API Specification, UX/UI Guide v2.0 и др. — см. `archive/docs-temporary/`
 
 ---
 
-## Связанные документы v2.0
-
-- [CHANGELOG v2.0](../CHANGELOG_V2.md) - Полный обзор изменений v2.0
-- [User Stories](./UserStories.md) - Пользовательские истории
-- [Catalog](./Catalog.md) - Каталог услуг
-- [Database Schema v2.0](../technical/Database-v2.md) - Схема базы данных v2.0 (29 таблиц)
-- [API Specification v2.0](../technical/API-v2-Summary.md) - API спецификация v2.0 (165 endpoints)
-- [Technical Specification](../technical/TechSpec.md) - Техническое задание
-- [UX/UI Guide v2.0](../design/UXUI-Guide-v2.md) - UX/UI для v2.0
-
----
-
-**Статус:** Утверждён (v2.0)
-**Последнее обновление:** 27 декабря 2025
+**Статус:** Утверждён и реализован (v2.0, MVP завершён)
+**Последнее обновление:** 5 февраля 2026
 **Версия:** 2.0

@@ -25,6 +25,7 @@ Thumbs.db
 # Logs
 logs/
 *.log
+backend-dev.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -70,3 +71,19 @@ coverage/
 tmpclaude-*
 nul
 .cursor/
+
+# Build artifacts
+bundle/
+flutter-apk/
+*.aab
+*.apk
+*.apks
+
+# Temporary files
+FILES_CREATED.txt
+*-results.txt
+*-build-results.txt
+
+# Test results
+frontend/test-results/
+frontend/playwright-report/

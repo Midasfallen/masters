@@ -1,7 +1,7 @@
 # РИСКИ И МИТИГАЦИЯ - Платформа Service
 
 **Версия:** 2.0
-**Дата:** Декабрь 2025
+**Дата:** 5 февраля 2026
 
 ---
 
@@ -813,16 +813,14 @@ Feed как главный экран - новая парадигма. Риск 
 
 ## Связанные документы
 
-- [BRD](../business/BRD.md) - Бизнес-требования v2.0
-- [Technical Specification](../technical/TechSpec.md) - Техническая спецификация v2.0
-- [Database Schema](../technical/Database.md) - Схема БД v2.0 (29 таблиц)
-- [API Specification](../technical/API.md) - REST API v2.0 (165 endpoints)
-- [Roadmap](./Roadmap.md) - Дорожная карта v2.0
-- [User Stories](../business/UserStories.md) - User Stories v2.0 (148 историй)
+- [BRD](../business/BRD.md) - Бизнес-требования v2.0 (актуально)
+- [User Stories](../business/UserStories.md) - User Stories v2.0 (148 историй, актуально)
+
+Технические детали (TechSpec, Database Schema, API Specification, Roadmap) перенесены в архив (`archive/docs-temporary/`) и используются как историческая справка.
 
 ---
 
-**Статус:** ✅ Актуален (v2.0)
-**Последнее обновление:** Декабрь 2025
-**Следующий пересмотр:** Январь 2026
+**Статус:** ✅ Пересмотрено после завершения MVP v2.0**
+**Последнее обновление:** 5 февраля 2026
+**Следующий пересмотр:** По мере выхода в production и масштабирования нагрузки
 **Всего рисков:** 18 (10 базовых + 8 новых v2.0)
