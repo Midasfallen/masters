@@ -5,11 +5,16 @@ import { MeiliSearch } from 'meilisearch';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { Service } from '../services/entities/service.entity';
+import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
+import { ServiceTemplateTranslation } from '../service-templates/entities/service-template-translation.entity';
+import { Category } from '../categories/entities/category.entity';
 import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
+import { SearchTemplatesDto } from './dto/search-templates.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
+  ServiceTemplateSearchResultDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
 
@@ -18,6 +23,7 @@ export class SearchService implements OnModuleInit {
   private meiliClient: MeiliSearch;
   private mastersIndex;
   private servicesIndex;
+  private serviceTemplatesIndex;
 
   constructor(
     @InjectRepository(User)
@@ -26,6 +32,12 @@ export class SearchService implements OnModuleInit {
     private readonly masterProfileRepository: Repository<MasterProfile>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(ServiceTemplate)
+    private readonly serviceTemplateRepository: Repository<ServiceTemplate>,
+    @InjectRepository(ServiceTemplateTranslation)
+    private readonly serviceTemplateTranslationRepository: Repository<ServiceTemplateTranslation>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {
     // Инициализация Meilisearch клиента
     this.meiliClient = new MeiliSearch({
@@ -35,12 +47,25 @@ export class SearchService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    // Создание индексов при старте приложения
+    // ⚠️ ВАЖНО: Очистка индексов при первом деплое нового кода
+    // Это исключит появление старых данных категорий level 2 в результатах поиска
     try {
+      // Удаляем старые индексы (включая данные с level 2 категориями)
+      try {
+        await this.meiliClient.deleteIndex('masters');
+        await this.meiliClient.deleteIndex('services');
+        console.log('✅ Old Meilisearch indices deleted');
+      } catch (deleteError) {
+        // Индексы могут не существовать при первом запуске - это нормально
+        console.log('ℹ️  Indices do not exist yet (first run)');
+      }
+
+      // Создаем новые индексы
       this.mastersIndex = this.meiliClient.index('masters');
       this.servicesIndex = this.meiliClient.index('services');
+      this.serviceTemplatesIndex = this.meiliClient.index('service_templates');
 
-      // Настройка searchable и filterable атрибутов
+      // Настройка searchable и filterable атрибутов для мастеров
       await this.mastersIndex.updateSettings({
         searchableAttributes: [
           'first_name',
@@ -59,10 +84,12 @@ export class SearchService implements OnModuleInit {
         sortableAttributes: ['average_rating', 'reviews_count'],
       });
 
+      // Настройка для услуг
       await this.servicesIndex.updateSettings({
         searchableAttributes: ['name', 'description', 'tags', 'category_name'],
         filterableAttributes: [
           'category_id',
+          'service_template_id',
           'price',
           'duration_minutes',
           'is_active',
@@ -70,6 +97,27 @@ export class SearchService implements OnModuleInit {
         ],
         sortableAttributes: ['price', 'duration_minutes', 'bookings_count'],
       });
+
+      // Настройка для шаблонов услуг
+      await this.serviceTemplatesIndex.updateSettings({
+        searchableAttributes: [
+          'name',
+          'description',
+          'keywords_text',
+          'keywords',
+        ],
+        filterableAttributes: [
+          'category_id',
+          'is_active',
+          'default_duration_minutes',
+          'default_price_range_min',
+          'default_price_range_max',
+        ],
+        sortableAttributes: ['display_order', 'name'],
+      });
+
+      // Переиндексируем данные (если они есть)
+      await this.reindexAll();
     } catch (error) {
       console.warn('Meilisearch initialization warning:', error.message);
       // В production это должно быть критической ошибкой
@@ -87,7 +135,15 @@ export class SearchService implements OnModuleInit {
     // Формируем фильтры
     const filters: string[] = ['is_active = true'];
 
-    if (searchDto.category_id) {
+    // Поддержка как одиночного category_id, так и массива category_ids
+    if (searchDto.category_ids && searchDto.category_ids.length > 0) {
+      // Если передан массив, используем его
+      const categoryFilter = searchDto.category_ids
+        .map((id) => `category_ids = ${id}`)
+        .join(' OR ');
+      filters.push(`(${categoryFilter})`);
+    } else if (searchDto.category_id) {
+      // Если передан одиночный ID, используем его
       filters.push(`category_ids = ${searchDto.category_id}`);
     }
 
@@ -166,7 +222,15 @@ export class SearchService implements OnModuleInit {
     // Формируем фильтры
     const filters: string[] = ['is_active = true'];
 
-    if (searchDto.category_id) {
+    // Поддержка как одиночного category_id, так и массива category_ids
+    if (searchDto.category_ids && searchDto.category_ids.length > 0) {
+      // Если передан массив, используем его
+      const categoryFilter = searchDto.category_ids
+        .map((id) => `category_id = ${id}`)
+        .join(' OR ');
+      filters.push(`(${categoryFilter})`);
+    } else if (searchDto.category_id) {
+      // Если передан одиночный ID, используем его
       filters.push(`category_id = ${searchDto.category_id}`);
     }
 
@@ -250,6 +314,58 @@ export class SearchService implements OnModuleInit {
   }
 
   /**
+   * Поиск шаблонов услуг (для приоритета в глобальной строке поиска)
+   */
+  async searchServiceTemplates(
+    searchDto: SearchTemplatesDto,
+  ): Promise<SearchResponseDto<ServiceTemplateSearchResultDto>> {
+    const { query = '', page = 1, limit = 20 } = searchDto;
+
+    const filters: string[] = ['is_active = true'];
+    if (searchDto.category_id) {
+      filters.push(`category_id = ${searchDto.category_id}`);
+    }
+
+    const startTime = Date.now();
+
+    try {
+      const searchResults = await this.serviceTemplatesIndex.search(query, {
+        filter: filters.join(' AND '),
+        sort: ['display_order:asc', 'name:asc'],
+        limit,
+        offset: (page - 1) * limit,
+      });
+
+      const processingTimeMs = Date.now() - startTime;
+
+      const data: ServiceTemplateSearchResultDto[] = searchResults.hits.map(
+        (hit: any) => ({
+          id: hit.id,
+          slug: hit.slug,
+          name: hit.name,
+          description: hit.description,
+          category_id: hit.category_id,
+          default_duration_minutes: hit.default_duration_minutes,
+          default_price_range_min: hit.default_price_range_min,
+          default_price_range_max: hit.default_price_range_max,
+        }),
+      );
+
+      return {
+        data,
+        total: searchResults.estimatedTotalHits || 0,
+        page,
+        limit,
+        processing_time_ms: processingTimeMs,
+        query,
+      };
+    } catch (error) {
+      console.error('Meilisearch error (templates):', error);
+      return this.fallbackSearchTemplates(searchDto);
+    }
+  }
+
+  /**
    * Индексация мастера (вызывается при создании/обновлении)
    */
   async indexMaster(userId: string): Promise<void> {
@@ -311,7 +427,8 @@ export class SearchService implements OnModuleInit {
       price: service.price,
       duration_minutes: service.duration_minutes,
       category_id: service.category_id,
-      category_name: '', // TODO: Загрузить из Category
+      service_template_id: service.service_template_id || null,
+      category_name: '', // Можно загрузить из Category при необходимости
       tags: service.tags,
       photo_urls: service.photo_urls,
       is_active: service.is_active,
@@ -328,6 +445,90 @@ export class SearchService implements OnModuleInit {
       await this.servicesIndex.addDocuments([document]);
     } catch (error) {
       console.error('Error indexing service:', error);
+    }
+  }
+
+  /**
+   * Индексация шаблона услуги (вызывается при создании/обновлении)
+   */
+  async indexServiceTemplate(templateId: string): Promise<void> {
+    const template = await this.serviceTemplateRepository.findOne({
+      where: { id: templateId },
+    });
+
+    if (!template) return;
+
+    // Загружаем переводы для получения keywords
+    const translations = await this.serviceTemplateTranslationRepository.find({
+      where: { service_template_id: templateId },
+    });
+
+    const ruTranslation = translations.find((t) => t.language === 'ru');
+
+    // Преобразуем массив keywords в строку для лучшего ранжирования
+    const keywordsText =
+      ruTranslation?.keywords?.join(' ') || '';
+
+    const document = {
+      id: template.id,
+      category_id: template.category_id,
+      slug: template.slug,
+      name: ruTranslation?.name || template.name,
+      description: ruTranslation?.description || template.description,
+      keywords_text: keywordsText, // Строка для поиска
+      keywords: ruTranslation?.keywords || [], // Массив для фильтрации
+      default_duration_minutes: template.default_duration_minutes,
+      default_price_range_min: template.default_price_range_min
+        ? Number(template.default_price_range_min)
+        : null,
+      default_price_range_max: template.default_price_range_max
+        ? Number(template.default_price_range_max)
+        : null,
+      is_active: template.is_active,
+      display_order: template.display_order,
+    };
+
+    try {
+      await this.serviceTemplatesIndex.addDocuments([document]);
+    } catch (error) {
+      console.error('Error indexing service template:', error);
+    }
+  }
+
+  /**
+   * Переиндексация всех данных
+   */
+  private async reindexAll(): Promise<void> {
+    try {
+      console.log('🔄 Reindexing all data...');
+
+      // Переиндексируем мастеров
+      const masters = await this.masterProfileRepository.find({
+        where: { is_active: true },
+      });
+      for (const master of masters) {
+        await this.indexMaster(master.user_id);
+      }
+
+      // Переиндексируем услуги
+      const services = await this.serviceRepository.find({
+        where: { is_active: true },
+      });
+      for (const service of services) {
+        await this.indexService(service.id);
+      }
+
+      // Переиндексируем шаблоны услуг
+      const templates = await this.serviceTemplateRepository.find({
+        where: { is_active: true },
+      });
+      for (const template of templates) {
+        await this.indexServiceTemplate(template.id);
+      }
+
+      console.log('✅ Reindexing completed');
+    } catch (error) {
+      console.error('Error during reindexing:', error);
     }
   }
 
@@ -368,8 +569,17 @@ export class SearchService implements OnModuleInit {
         }
       }
 
-      // Category filter
-      if (searchDto.category_id) {
+      // Category filter - поддержка как одиночного category_id, так и массива category_ids
+      if (searchDto.category_ids && searchDto.category_ids.length > 0) {
+        // Если передан массив, проверяем что хотя бы одна категория есть в профиле мастера
+        qb.andWhere(
+          `(${searchDto.category_ids.map((_, i) => `:categoryId${i} = ANY(profile.category_ids)`).join(' OR ')})`,
+          searchDto.category_ids.reduce((acc, id, i) => {
+            acc[`categoryId${i}`] = id;
+            return acc;
+          }, {} as Record<string, string>),
+        );
+      } else if (searchDto.category_id) {
         qb.andWhere(':categoryId = ANY(profile.category_ids)', {
           categoryId: searchDto.category_id,
         });
@@ -506,8 +716,12 @@ export class SearchService implements OnModuleInit {
         }
       }
 
-      // Category filter
-      if (searchDto.category_id) {
+      // Category filter - поддержка как одиночного category_id, так и массива category_ids
+      if (searchDto.category_ids && searchDto.category_ids.length > 0) {
+        qb.andWhere('service.category_id IN (:...categoryIds)', {
+          categoryIds: searchDto.category_ids,
+        });
+      } else if (searchDto.category_id) {
         qb.andWhere('service.category_id = :categoryId', {
           categoryId: searchDto.category_id,
         });
@@ -643,6 +857,100 @@ export class SearchService implements OnModuleInit {
         limit,
         processing_time_ms: Date.now() - startTime,
         query,
+      };
+    }
+  }
+
+  /**
+   * Fallback поиск шаблонов по БД (если Meilisearch недоступен)
+   */
+  private async fallbackSearchTemplates(
+    searchDto: SearchTemplatesDto,
+  ): Promise<SearchResponseDto<ServiceTemplateSearchResultDto>> {
+    const { query = '', page = 1, limit = 20 } = searchDto;
+    const startTime = Date.now();
+
+    console.warn(
+      '⚠️  Using fallback PostgreSQL search for templates (Meilisearch unavailable)',
+    );
+
+    try {
+      const qb = this.serviceTemplateRepository
+        .createQueryBuilder('t')
+        .leftJoin(
+          ServiceTemplateTranslation,
+          'tr',
+          "tr.service_template_id = t.id AND tr.language = 'ru'",
+        )
+        .where('t.is_active = :isActive', { isActive: true });
+
+      if (searchDto.category_id) {
+        qb.andWhere('t.category_id = :categoryId', {
+          categoryId: searchDto.category_id,
+        });
+      }
+
+      if (query) {
+        const cleanQuery = query.replace(/[&|!():]/g, ' ').trim();
+        if (cleanQuery) {
+          qb.andWhere(
+            `(
+              to_tsvector('russian', COALESCE(tr.name, t.name, '')) @@ plainto_tsquery('russian', :query)
+              OR to_tsvector('russian', COALESCE(tr.description, t.description, '')) @@ plainto_tsquery('russian', :query)
+            )`,
+            { query: cleanQuery },
+          );
+        }
+      }
+
+      qb.orderBy('t.display_order', 'ASC').addOrderBy('t.name', 'ASC');
+
+      const offset = (page - 1) * limit;
+      qb.skip(offset).take(limit);
+
+      const [templates, total] = await qb.getManyAndCount();
+
+      const data: ServiceTemplateSearchResultDto[] = await Promise.all(
+        templates.map(async (t) => {
+          const tr = await this.serviceTemplateTranslationRepository.findOne({
+            where: { service_template_id: t.id, language: 'ru' },
+          });
+          return {
+            id: t.id,
+            slug: t.slug,
+            name: tr?.name ?? t.name,
+            description: tr?.description ?? t.description,
+            category_id: t.category_id,
+            default_duration_minutes: t.default_duration_minutes ?? undefined,
+            default_price_range_min: t.default_price_range_min
+              ? Number(t.default_price_range_min)
+              : undefined,
+            default_price_range_max: t.default_price_range_max
+              ? Number(t.default_price_range_max)
+              : undefined,
+          };
+        }),
+      );
+
+      const processingTimeMs = Date.now() - startTime;
+
+      return {
+        data,
+        total,
+        page,
+        limit,
+        processing_time_ms: processingTimeMs,
+        query,
+      };
+    } catch (error) {
+      console.error('❌ Fallback templates search error:', error);
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        processing_time_ms: Date.now() - startTime,
+        query: searchDto.query,
       };
     }
   }

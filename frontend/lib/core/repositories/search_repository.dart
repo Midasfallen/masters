@@ -16,10 +16,11 @@ class SearchRepository {
 
   /// Search masters
   Future<List<MasterProfileModel>> searchMasters({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? lat,
     double? lng,
     int? radius,
@@ -27,19 +28,22 @@ class SearchRepository {
     int? maxPrice,
   }) async {
     try {
+      final queryParams = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+        if (query.isNotEmpty) 'q': query,
+        if (categoryIds != null && categoryIds.isNotEmpty) 'category_ids': categoryIds,
+        if (categoryId != null && (categoryIds == null || categoryIds.isEmpty)) 'category_id': categoryId,
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+        if (radius != null) 'radius_km': radius,
+        if (minRating != null) 'min_rating': minRating,
+        if (maxPrice != null) 'max_price': maxPrice,
+      };
+
       final response = await _client.get(
         ApiEndpoints.searchMasters,
-        queryParameters: {
-          'q': query,
-          'page': page,
-          'limit': limit,
-          if (categoryId != null) 'category_id': categoryId,
-          if (lat != null) 'lat': lat,
-          if (lng != null) 'lng': lng,
-          if (radius != null) 'radius': radius,
-          if (minRating != null) 'min_rating': minRating,
-          if (maxPrice != null) 'max_price': maxPrice,
-        },
+        queryParameters: queryParams,
       );
 
       final data = ApiHelpers.parseListResponse(response.data);
@@ -51,24 +55,28 @@ class SearchRepository {
 
   /// Search services
   Future<List<ServiceModel>> searchServices({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? minPrice,
     double? maxPrice,
   }) async {
     try {
+      final queryParams = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+        if (query.isNotEmpty) 'q': query,
+        if (categoryIds != null && categoryIds.isNotEmpty) 'category_ids': categoryIds,
+        if (categoryId != null && (categoryIds == null || categoryIds.isEmpty)) 'category_id': categoryId,
+        if (minPrice != null) 'min_price': minPrice,
+        if (maxPrice != null) 'max_price': maxPrice,
+      };
+
       final response = await _client.get(
         ApiEndpoints.searchServices,
-        queryParameters: {
-          'q': query,
-          'page': page,
-          'limit': limit,
-          if (categoryId != null) 'category_id': categoryId,
-          if (minPrice != null) 'min_price': minPrice,
-          if (maxPrice != null) 'max_price': maxPrice,
-        },
+        queryParameters: queryParams,
       );
 
       final data = ApiHelpers.parseListResponse(response.data);

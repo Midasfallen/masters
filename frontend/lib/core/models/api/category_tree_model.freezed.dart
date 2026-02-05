@@ -33,7 +33,8 @@ mixin _$CategoryTreeModel {
   @JsonKey(name: 'is_popular')
   bool get isPopular => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
+  String? get description =>
+      throw _privateConstructorUsedError; // ВАЖНО: children отсутствует для level 1 категорий (шаблоны теперь в service_templates)
   List<CategoryTreeModel> get children => throw _privateConstructorUsedError;
 
   /// Serializes this CategoryTreeModel to a JSON map.
@@ -282,7 +283,9 @@ class _$CategoryTreeModelImpl implements _CategoryTreeModel {
   final String name;
   @override
   final String? description;
+// ВАЖНО: children отсутствует для level 1 категорий (шаблоны теперь в service_templates)
   final List<CategoryTreeModel> _children;
+// ВАЖНО: children отсутствует для level 1 категорий (шаблоны теперь в service_templates)
   @override
   @JsonKey()
   List<CategoryTreeModel> get children {
@@ -391,7 +394,8 @@ abstract class _CategoryTreeModel implements CategoryTreeModel {
   @override
   String get name;
   @override
-  String? get description;
+  String?
+      get description; // ВАЖНО: children отсутствует для level 1 категорий (шаблоны теперь в service_templates)
   @override
   List<CategoryTreeModel> get children;
 

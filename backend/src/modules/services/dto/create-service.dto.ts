@@ -14,15 +14,24 @@ import {
 
 export class CreateServiceDto {
   @ApiProperty({
-    description: 'UUID категории услуги',
+    description: 'UUID категории услуги (level 1)',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsUUID('4')
   category_id: string;
 
   @ApiPropertyOptional({
-    description: 'UUID подкатегории (опционально)',
+    description: 'UUID шаблона услуги (опционально)',
     example: '660e8400-e29b-41d4-a716-446655440001',
+  })
+  @IsOptional()
+  @IsUUID('4')
+  service_template_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'UUID подкатегории (опционально, deprecated)',
+    example: '660e8400-e29b-41d4-a716-446655440001',
+    deprecated: true,
   })
   @IsOptional()
   @IsUUID('4')

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
+import 'package:service_platform/features/auth/utils/auth_error_messages.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -74,7 +75,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка регистрации: ${e.toString()}'),
+            content: Text(authErrorMessage(e, isLogin: false)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

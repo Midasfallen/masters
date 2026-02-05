@@ -6,7 +6,7 @@ part of 'search_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$searchMastersHash() => r'55f82d331664ea6bd685bf8227ee940b02d7a191';
+String _$searchMastersHash() => r'8705268f03af98d2c6f3429ae17f63d85584cbeb';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -48,10 +48,11 @@ class SearchMastersFamily extends Family<AsyncValue<List<MasterProfileModel>>> {
   ///
   /// Copied from [searchMasters].
   SearchMastersProvider call({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? lat,
     double? lng,
     int? radius,
@@ -63,6 +64,7 @@ class SearchMastersFamily extends Family<AsyncValue<List<MasterProfileModel>>> {
       page: page,
       limit: limit,
       categoryId: categoryId,
+      categoryIds: categoryIds,
       lat: lat,
       lng: lng,
       radius: radius,
@@ -80,6 +82,7 @@ class SearchMastersFamily extends Family<AsyncValue<List<MasterProfileModel>>> {
       page: provider.page,
       limit: provider.limit,
       categoryId: provider.categoryId,
+      categoryIds: provider.categoryIds,
       lat: provider.lat,
       lng: provider.lng,
       radius: provider.radius,
@@ -112,10 +115,11 @@ class SearchMastersProvider
   ///
   /// Copied from [searchMasters].
   SearchMastersProvider({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? lat,
     double? lng,
     int? radius,
@@ -128,6 +132,7 @@ class SearchMastersProvider
             page: page,
             limit: limit,
             categoryId: categoryId,
+            categoryIds: categoryIds,
             lat: lat,
             lng: lng,
             radius: radius,
@@ -147,6 +152,7 @@ class SearchMastersProvider
           page: page,
           limit: limit,
           categoryId: categoryId,
+          categoryIds: categoryIds,
           lat: lat,
           lng: lng,
           radius: radius,
@@ -165,6 +171,7 @@ class SearchMastersProvider
     required this.page,
     required this.limit,
     required this.categoryId,
+    required this.categoryIds,
     required this.lat,
     required this.lng,
     required this.radius,
@@ -176,6 +183,7 @@ class SearchMastersProvider
   final int page;
   final int limit;
   final String? categoryId;
+  final List<String>? categoryIds;
   final double? lat;
   final double? lng;
   final int? radius;
@@ -200,6 +208,7 @@ class SearchMastersProvider
         page: page,
         limit: limit,
         categoryId: categoryId,
+        categoryIds: categoryIds,
         lat: lat,
         lng: lng,
         radius: radius,
@@ -221,6 +230,7 @@ class SearchMastersProvider
         other.page == page &&
         other.limit == limit &&
         other.categoryId == categoryId &&
+        other.categoryIds == categoryIds &&
         other.lat == lat &&
         other.lng == lng &&
         other.radius == radius &&
@@ -235,6 +245,7 @@ class SearchMastersProvider
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
     hash = _SystemHash.combine(hash, categoryId.hashCode);
+    hash = _SystemHash.combine(hash, categoryIds.hashCode);
     hash = _SystemHash.combine(hash, lat.hashCode);
     hash = _SystemHash.combine(hash, lng.hashCode);
     hash = _SystemHash.combine(hash, radius.hashCode);
@@ -260,6 +271,9 @@ mixin SearchMastersRef
 
   /// The parameter `categoryId` of this provider.
   String? get categoryId;
+
+  /// The parameter `categoryIds` of this provider.
+  List<String>? get categoryIds;
 
   /// The parameter `lat` of this provider.
   double? get lat;
@@ -291,6 +305,9 @@ class _SearchMastersProviderElement
   @override
   String? get categoryId => (origin as SearchMastersProvider).categoryId;
   @override
+  List<String>? get categoryIds =>
+      (origin as SearchMastersProvider).categoryIds;
+  @override
   double? get lat => (origin as SearchMastersProvider).lat;
   @override
   double? get lng => (origin as SearchMastersProvider).lng;
@@ -302,7 +319,7 @@ class _SearchMastersProviderElement
   int? get maxPrice => (origin as SearchMastersProvider).maxPrice;
 }
 
-String _$searchServicesHash() => r'7174ca110cd2272435c58cb2490ac3846a49090c';
+String _$searchServicesHash() => r'a0b7a08aa7fda62edcd074b59a81ea28b37ee7b1';
 
 /// Search Services Provider
 ///
@@ -323,10 +340,11 @@ class SearchServicesFamily extends Family<AsyncValue<List<ServiceModel>>> {
   ///
   /// Copied from [searchServices].
   SearchServicesProvider call({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? minPrice,
     double? maxPrice,
   }) {
@@ -335,6 +353,7 @@ class SearchServicesFamily extends Family<AsyncValue<List<ServiceModel>>> {
       page: page,
       limit: limit,
       categoryId: categoryId,
+      categoryIds: categoryIds,
       minPrice: minPrice,
       maxPrice: maxPrice,
     );
@@ -349,6 +368,7 @@ class SearchServicesFamily extends Family<AsyncValue<List<ServiceModel>>> {
       page: provider.page,
       limit: provider.limit,
       categoryId: provider.categoryId,
+      categoryIds: provider.categoryIds,
       minPrice: provider.minPrice,
       maxPrice: provider.maxPrice,
     );
@@ -378,10 +398,11 @@ class SearchServicesProvider
   ///
   /// Copied from [searchServices].
   SearchServicesProvider({
-    required String query,
+    String query = '',
     int page = 1,
     int limit = 20,
     String? categoryId,
+    List<String>? categoryIds,
     double? minPrice,
     double? maxPrice,
   }) : this._internal(
@@ -391,6 +412,7 @@ class SearchServicesProvider
             page: page,
             limit: limit,
             categoryId: categoryId,
+            categoryIds: categoryIds,
             minPrice: minPrice,
             maxPrice: maxPrice,
           ),
@@ -407,6 +429,7 @@ class SearchServicesProvider
           page: page,
           limit: limit,
           categoryId: categoryId,
+          categoryIds: categoryIds,
           minPrice: minPrice,
           maxPrice: maxPrice,
         );
@@ -422,6 +445,7 @@ class SearchServicesProvider
     required this.page,
     required this.limit,
     required this.categoryId,
+    required this.categoryIds,
     required this.minPrice,
     required this.maxPrice,
   }) : super.internal();
@@ -430,6 +454,7 @@ class SearchServicesProvider
   final int page;
   final int limit;
   final String? categoryId;
+  final List<String>? categoryIds;
   final double? minPrice;
   final double? maxPrice;
 
@@ -450,6 +475,7 @@ class SearchServicesProvider
         page: page,
         limit: limit,
         categoryId: categoryId,
+        categoryIds: categoryIds,
         minPrice: minPrice,
         maxPrice: maxPrice,
       ),
@@ -468,6 +494,7 @@ class SearchServicesProvider
         other.page == page &&
         other.limit == limit &&
         other.categoryId == categoryId &&
+        other.categoryIds == categoryIds &&
         other.minPrice == minPrice &&
         other.maxPrice == maxPrice;
   }
@@ -479,6 +506,7 @@ class SearchServicesProvider
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
     hash = _SystemHash.combine(hash, categoryId.hashCode);
+    hash = _SystemHash.combine(hash, categoryIds.hashCode);
     hash = _SystemHash.combine(hash, minPrice.hashCode);
     hash = _SystemHash.combine(hash, maxPrice.hashCode);
 
@@ -501,6 +529,9 @@ mixin SearchServicesRef on AutoDisposeFutureProviderRef<List<ServiceModel>> {
   /// The parameter `categoryId` of this provider.
   String? get categoryId;
 
+  /// The parameter `categoryIds` of this provider.
+  List<String>? get categoryIds;
+
   /// The parameter `minPrice` of this provider.
   double? get minPrice;
 
@@ -521,6 +552,9 @@ class _SearchServicesProviderElement
   int get limit => (origin as SearchServicesProvider).limit;
   @override
   String? get categoryId => (origin as SearchServicesProvider).categoryId;
+  @override
+  List<String>? get categoryIds =>
+      (origin as SearchServicesProvider).categoryIds;
   @override
   double? get minPrice => (origin as SearchServicesProvider).minPrice;
   @override

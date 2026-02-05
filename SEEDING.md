@@ -24,33 +24,44 @@ npm run seed
 
 ### Что будет создано
 
-Seed создает следующие тестовые данные:
+Текущий сид (`npm run seed` → `seed.cli.ts`) создаёт:
 
-- **3 мастера** с профилями:
-  - anna.master@test.com (Анна Иванова)
-  - dmitry.master@test.com (Дмитрий Петров)
-  - elena.master@test.com (Елена Смирнова)
+- **Каталог:** 10 категорий L0, 53 L1, 340 шаблонов услуг (при повторном запуске пересоздаётся).
+- **Пользователи:** 10 случайных (faker) + **2 фиксированных тестовых:**
+  - **master@test.com** (Тест Мастер) — мастер с профилем
+  - **client@test.com** (Тест Клиент) — клиент
+- **Остальное:** 5 мастеров и 5 клиентов со случайными email, 22+ услуг, бронирования, отзывы, **20 постов** (у части есть записи в `post_media` для типа PHOTO).
 
-- **3 студента/клиента**:
-  - maria.student@test.com (Мария Козлова)
-  - ivan.student@test.com (Иван Сидоров)
-  - olga.student@test.com (Ольга Васильева)
+**Лента постов (GET /posts/feed) доступна только авторизованным пользователям.** Чтобы увидеть ленту после сида, войдите как **master@test.com** или **client@test.com**.
 
-- **6 постов** с медиа контентом
-- **6 подписок** между пользователями
-
-### Пароль для всех пользователей
+### Пароль для всех тестовых пользователей
 
 ```
-test123
+qwerty123
 ```
 
-### MinIO интеграция
+(Все пользователи в сиде, включая фиксированных `master@test.com` и `client@test.com`, используют пароль `qwerty123`, который соответствует требованиям фронтенда: минимум 8 символов, буквы и цифры.)
 
-Seed автоматически:
-- Скачивает тестовые аватары с placeholder-сервисов
-- Загружает их в MinIO buckets (avatars, posts)
-- Сохраняет MinIO URLs в базе данных
+### MinIO: посты и аватары
+
+Сид сразу пишет в БД **корректные ссылки** на MinIO:
+
+- **Посты:** `post_media.url` → `{MINIO_PUBLIC_URL}/posts/test-1.jpg` … `test-24.jpg` (циклически для PHOTO-постов).
+- **Пользователи:** `users.avatar_url` → `{MINIO_PUBLIC_URL}/avatars/avatar-1.jpg` … `avatar-11.jpg` (циклически для 12 пользователей).
+
+Чтобы картинки и аватары отображались, нужно один раз залить файлы в MinIO:
+
+1. Положите изображения в две папки:
+   - **`backend/src/database/seeds/test-images/posts/`** — до **24** файлов (JPG/PNG) → в MinIO появятся как `posts/test-1.jpg` … `test-24.jpg`.
+   - **`backend/src/database/seeds/test-images/avatars/`** — до **11** файлов (JPG/PNG) → в MinIO как `avatars/avatar-1.jpg` … `avatar-11.jpg`.
+2. Выполните:
+   ```bash
+   npm run upload-test-images
+   ```
+
+Скрипт загрузит оба набора в соответствующие бакеты MinIO. После этого при запуске сида ссылки в БД будут вести на эти файлы.
+
+Для загрузки из своей папки с обновлением только постов можно по-прежнему использовать `npm run upload-images` (путь в `upload-local-images.ts`).
 
 ### Доступ к сервисам
 
@@ -75,22 +86,24 @@ docker exec service_postgres psql -U service_user -d service_db -c "SELECT autho
 
 ### Примечания
 
-- Seed использует TypeScript (`backend/src/database/seeds/seed.cli.ts`)
-- Аватары загружаются с `pravatar.cc` в MinIO bucket `avatars`
-- Медиа постов используют `picsum.photos` (можно обновить для загрузки в MinIO)
-- Все данные создаются с фиксированными email для удобства тестирования
-- MinIO buckets создаются автоматически при запуске docker-compose
-- Для загрузки локальных изображений используйте: `npm run upload-images`
+- Сид идемпотентен: повторный `npm run seed` очищает данные основного сида и каталог, затем создаёт всё заново.
+- Фиксированные пользователи **master@test.com** и **client@test.com** (пароль **qwerty123**) всегда создаются для входа и проверки ленты.
+- Эндпоинт **POST /auth/logout** доступен (200 OK); клиент сбрасывает токены локально.
+- Подробный разбор проблемы «лента не грузится» и связь сидов с MinIO/API: [docs/analysis/FEED_AND_SEEDS_ANALYSIS.md](docs/analysis/FEED_AND_SEEDS_ANALYSIS.md).
 
 ### Дополнительные команды
 
 ```bash
-# Загрузить локальные изображения из папки images/ в MinIO
+# Загрузить тестовые изображения в MinIO (posts + avatars)
+# Положите до 24 файлов в test-images/posts/ и до 11 в test-images/avatars/
+npm run upload-test-images
+
+# Загрузить свои изображения постов из произвольной папки (путь в upload-local-images.ts)
 npm run upload-images
 
 # Заполнить только каталог категорий из Catalog.md
 npm run seed:catalog
 
-# Полный сброс БД (миграции + seed + загрузка изображений)
+# Полный сброс БД (миграции + seed)
 npm run db:reset:dev
 ```

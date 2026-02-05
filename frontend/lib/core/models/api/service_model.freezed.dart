@@ -23,6 +23,8 @@ mixin _$ServiceModel {
   String get id => throw _privateConstructorUsedError;
   String get masterId => throw _privateConstructorUsedError;
   String get categoryId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'service_template_id')
+  String? get serviceTemplateId => throw _privateConstructorUsedError;
   String? get subcategoryId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
@@ -63,6 +65,7 @@ abstract class $ServiceModelCopyWith<$Res> {
       {String id,
       String masterId,
       String categoryId,
+      @JsonKey(name: 'service_template_id') String? serviceTemplateId,
       String? subcategoryId,
       String name,
       String? description,
@@ -102,6 +105,7 @@ class _$ServiceModelCopyWithImpl<$Res, $Val extends ServiceModel>
     Object? id = null,
     Object? masterId = null,
     Object? categoryId = null,
+    Object? serviceTemplateId = freezed,
     Object? subcategoryId = freezed,
     Object? name = null,
     Object? description = freezed,
@@ -135,6 +139,10 @@ class _$ServiceModelCopyWithImpl<$Res, $Val extends ServiceModel>
           ? _value.categoryId
           : categoryId // ignore: cast_nullable_to_non_nullable
               as String,
+      serviceTemplateId: freezed == serviceTemplateId
+          ? _value.serviceTemplateId
+          : serviceTemplateId // ignore: cast_nullable_to_non_nullable
+              as String?,
       subcategoryId: freezed == subcategoryId
           ? _value.subcategoryId
           : subcategoryId // ignore: cast_nullable_to_non_nullable
@@ -227,6 +235,7 @@ abstract class _$$ServiceModelImplCopyWith<$Res>
       {String id,
       String masterId,
       String categoryId,
+      @JsonKey(name: 'service_template_id') String? serviceTemplateId,
       String? subcategoryId,
       String name,
       String? description,
@@ -264,6 +273,7 @@ class __$$ServiceModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? masterId = null,
     Object? categoryId = null,
+    Object? serviceTemplateId = freezed,
     Object? subcategoryId = freezed,
     Object? name = null,
     Object? description = freezed,
@@ -297,6 +307,10 @@ class __$$ServiceModelImplCopyWithImpl<$Res>
           ? _value.categoryId
           : categoryId // ignore: cast_nullable_to_non_nullable
               as String,
+      serviceTemplateId: freezed == serviceTemplateId
+          ? _value.serviceTemplateId
+          : serviceTemplateId // ignore: cast_nullable_to_non_nullable
+              as String?,
       subcategoryId: freezed == subcategoryId
           ? _value.subcategoryId
           : subcategoryId // ignore: cast_nullable_to_non_nullable
@@ -384,6 +398,7 @@ class _$ServiceModelImpl implements _ServiceModel {
       {required this.id,
       required this.masterId,
       required this.categoryId,
+      @JsonKey(name: 'service_template_id') this.serviceTemplateId,
       this.subcategoryId,
       required this.name,
       this.description,
@@ -415,6 +430,9 @@ class _$ServiceModelImpl implements _ServiceModel {
   final String masterId;
   @override
   final String categoryId;
+  @override
+  @JsonKey(name: 'service_template_id')
+  final String? serviceTemplateId;
   @override
   final String? subcategoryId;
   @override
@@ -468,7 +486,7 @@ class _$ServiceModelImpl implements _ServiceModel {
 
   @override
   String toString() {
-    return 'ServiceModel(id: $id, masterId: $masterId, categoryId: $categoryId, subcategoryId: $subcategoryId, name: $name, description: $description, price: $price, currency: $currency, priceFrom: $priceFrom, priceTo: $priceTo, durationMinutes: $durationMinutes, isBookableOnline: $isBookableOnline, isMobile: $isMobile, isInSalon: $isInSalon, tags: $tags, photoUrls: $photoUrls, bookingsCount: $bookingsCount, averageRating: $averageRating, isActive: $isActive, displayOrder: $displayOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ServiceModel(id: $id, masterId: $masterId, categoryId: $categoryId, serviceTemplateId: $serviceTemplateId, subcategoryId: $subcategoryId, name: $name, description: $description, price: $price, currency: $currency, priceFrom: $priceFrom, priceTo: $priceTo, durationMinutes: $durationMinutes, isBookableOnline: $isBookableOnline, isMobile: $isMobile, isInSalon: $isInSalon, tags: $tags, photoUrls: $photoUrls, bookingsCount: $bookingsCount, averageRating: $averageRating, isActive: $isActive, displayOrder: $displayOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -481,6 +499,8 @@ class _$ServiceModelImpl implements _ServiceModel {
                 other.masterId == masterId) &&
             (identical(other.categoryId, categoryId) ||
                 other.categoryId == categoryId) &&
+            (identical(other.serviceTemplateId, serviceTemplateId) ||
+                other.serviceTemplateId == serviceTemplateId) &&
             (identical(other.subcategoryId, subcategoryId) ||
                 other.subcategoryId == subcategoryId) &&
             (identical(other.name, name) || other.name == name) &&
@@ -524,6 +544,7 @@ class _$ServiceModelImpl implements _ServiceModel {
         id,
         masterId,
         categoryId,
+        serviceTemplateId,
         subcategoryId,
         name,
         description,
@@ -566,6 +587,7 @@ abstract class _ServiceModel implements ServiceModel {
       {required final String id,
       required final String masterId,
       required final String categoryId,
+      @JsonKey(name: 'service_template_id') final String? serviceTemplateId,
       final String? subcategoryId,
       required final String name,
       final String? description,
@@ -595,6 +617,9 @@ abstract class _ServiceModel implements ServiceModel {
   String get masterId;
   @override
   String get categoryId;
+  @override
+  @JsonKey(name: 'service_template_id')
+  String? get serviceTemplateId;
   @override
   String? get subcategoryId;
   @override
@@ -650,9 +675,11 @@ CreateServiceRequest _$CreateServiceRequestFromJson(Map<String, dynamic> json) {
 mixin _$CreateServiceRequest {
   @JsonKey(name: 'category_id')
   String get categoryId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'service_template_id')
+  String? get serviceTemplateId => throw _privateConstructorUsedError;
   @JsonKey(name: 'subcategory_id')
   String? get subcategoryId => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
   String? get currency => throw _privateConstructorUsedError;
@@ -688,8 +715,9 @@ abstract class $CreateServiceRequestCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'category_id') String categoryId,
+      @JsonKey(name: 'service_template_id') String? serviceTemplateId,
       @JsonKey(name: 'subcategory_id') String? subcategoryId,
-      String name,
+      String? name,
       String? description,
       double price,
       String? currency,
@@ -719,8 +747,9 @@ class _$CreateServiceRequestCopyWithImpl<$Res,
   @override
   $Res call({
     Object? categoryId = null,
+    Object? serviceTemplateId = freezed,
     Object? subcategoryId = freezed,
-    Object? name = null,
+    Object? name = freezed,
     Object? description = freezed,
     Object? price = null,
     Object? currency = freezed,
@@ -737,14 +766,18 @@ class _$CreateServiceRequestCopyWithImpl<$Res,
           ? _value.categoryId
           : categoryId // ignore: cast_nullable_to_non_nullable
               as String,
+      serviceTemplateId: freezed == serviceTemplateId
+          ? _value.serviceTemplateId
+          : serviceTemplateId // ignore: cast_nullable_to_non_nullable
+              as String?,
       subcategoryId: freezed == subcategoryId
           ? _value.subcategoryId
           : subcategoryId // ignore: cast_nullable_to_non_nullable
               as String?,
-      name: null == name
+      name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -799,8 +832,9 @@ abstract class _$$CreateServiceRequestImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'category_id') String categoryId,
+      @JsonKey(name: 'service_template_id') String? serviceTemplateId,
       @JsonKey(name: 'subcategory_id') String? subcategoryId,
-      String name,
+      String? name,
       String? description,
       double price,
       String? currency,
@@ -827,8 +861,9 @@ class __$$CreateServiceRequestImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? categoryId = null,
+    Object? serviceTemplateId = freezed,
     Object? subcategoryId = freezed,
-    Object? name = null,
+    Object? name = freezed,
     Object? description = freezed,
     Object? price = null,
     Object? currency = freezed,
@@ -845,14 +880,18 @@ class __$$CreateServiceRequestImplCopyWithImpl<$Res>
           ? _value.categoryId
           : categoryId // ignore: cast_nullable_to_non_nullable
               as String,
+      serviceTemplateId: freezed == serviceTemplateId
+          ? _value.serviceTemplateId
+          : serviceTemplateId // ignore: cast_nullable_to_non_nullable
+              as String?,
       subcategoryId: freezed == subcategoryId
           ? _value.subcategoryId
           : subcategoryId // ignore: cast_nullable_to_non_nullable
               as String?,
-      name: null == name
+      name: freezed == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -902,8 +941,9 @@ class __$$CreateServiceRequestImplCopyWithImpl<$Res>
 class _$CreateServiceRequestImpl implements _CreateServiceRequest {
   const _$CreateServiceRequestImpl(
       {@JsonKey(name: 'category_id') required this.categoryId,
+      @JsonKey(name: 'service_template_id') this.serviceTemplateId,
       @JsonKey(name: 'subcategory_id') this.subcategoryId,
-      required this.name,
+      this.name,
       this.description,
       required this.price,
       this.currency,
@@ -923,10 +963,13 @@ class _$CreateServiceRequestImpl implements _CreateServiceRequest {
   @JsonKey(name: 'category_id')
   final String categoryId;
   @override
+  @JsonKey(name: 'service_template_id')
+  final String? serviceTemplateId;
+  @override
   @JsonKey(name: 'subcategory_id')
   final String? subcategoryId;
   @override
-  final String name;
+  final String? name;
   @override
   final String? description;
   @override
@@ -963,7 +1006,7 @@ class _$CreateServiceRequestImpl implements _CreateServiceRequest {
 
   @override
   String toString() {
-    return 'CreateServiceRequest(categoryId: $categoryId, subcategoryId: $subcategoryId, name: $name, description: $description, price: $price, currency: $currency, priceFrom: $priceFrom, priceTo: $priceTo, durationMinutes: $durationMinutes, isBookableOnline: $isBookableOnline, isMobile: $isMobile, isInSalon: $isInSalon, tags: $tags)';
+    return 'CreateServiceRequest(categoryId: $categoryId, serviceTemplateId: $serviceTemplateId, subcategoryId: $subcategoryId, name: $name, description: $description, price: $price, currency: $currency, priceFrom: $priceFrom, priceTo: $priceTo, durationMinutes: $durationMinutes, isBookableOnline: $isBookableOnline, isMobile: $isMobile, isInSalon: $isInSalon, tags: $tags)';
   }
 
   @override
@@ -973,6 +1016,8 @@ class _$CreateServiceRequestImpl implements _CreateServiceRequest {
             other is _$CreateServiceRequestImpl &&
             (identical(other.categoryId, categoryId) ||
                 other.categoryId == categoryId) &&
+            (identical(other.serviceTemplateId, serviceTemplateId) ||
+                other.serviceTemplateId == serviceTemplateId) &&
             (identical(other.subcategoryId, subcategoryId) ||
                 other.subcategoryId == subcategoryId) &&
             (identical(other.name, name) || other.name == name) &&
@@ -1000,6 +1045,7 @@ class _$CreateServiceRequestImpl implements _CreateServiceRequest {
   int get hashCode => Object.hash(
       runtimeType,
       categoryId,
+      serviceTemplateId,
       subcategoryId,
       name,
       description,
@@ -1034,8 +1080,9 @@ class _$CreateServiceRequestImpl implements _CreateServiceRequest {
 abstract class _CreateServiceRequest implements CreateServiceRequest {
   const factory _CreateServiceRequest(
       {@JsonKey(name: 'category_id') required final String categoryId,
+      @JsonKey(name: 'service_template_id') final String? serviceTemplateId,
       @JsonKey(name: 'subcategory_id') final String? subcategoryId,
-      required final String name,
+      final String? name,
       final String? description,
       required final double price,
       final String? currency,
@@ -1054,10 +1101,13 @@ abstract class _CreateServiceRequest implements CreateServiceRequest {
   @JsonKey(name: 'category_id')
   String get categoryId;
   @override
+  @JsonKey(name: 'service_template_id')
+  String? get serviceTemplateId;
+  @override
   @JsonKey(name: 'subcategory_id')
   String? get subcategoryId;
   @override
-  String get name;
+  String? get name;
   @override
   String? get description;
   @override

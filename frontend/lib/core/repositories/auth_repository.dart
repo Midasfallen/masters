@@ -23,6 +23,8 @@ class AuthRepository {
         data: request.toJson(),
       );
 
+      _throwIfErrorResponse(response);
+
       final authResponse = AuthResponseModel.fromJson(response.data);
 
       // Store tokens
@@ -41,6 +43,8 @@ class AuthRepository {
         ApiEndpoints.authRegister,
         data: request.toJson(),
       );
+
+      _throwIfErrorResponse(response);
 
       final authResponse = AuthResponseModel.fromJson(response.data);
 
@@ -66,6 +70,8 @@ class AuthRepository {
         ApiEndpoints.authRefresh,
         data: {'refresh_token': refreshToken},
       );
+
+      _throwIfErrorResponse(response);
 
       final authResponse = AuthResponseModel.fromJson(response.data);
 
@@ -95,6 +101,7 @@ class AuthRepository {
   Future<UserModel> getMe() async {
     try {
       final response = await _client.get(ApiEndpoints.userMe);
+      _throwIfErrorResponse(response);
       return UserModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
@@ -138,6 +145,19 @@ class AuthRepository {
     await _storage.delete(key: AppConfig.accessTokenKey);
     await _storage.delete(key: AppConfig.refreshTokenKey);
     await _storage.delete(key: AppConfig.userIdKey);
+  }
+
+  /// Throws ApiException when status is 4xx/5xx (Dio with validateStatus doesn't throw).
+  void _throwIfErrorResponse(Response<dynamic> response) {
+    final status = response.statusCode;
+    if (status == null || status < 400) return;
+    throw ApiExceptionHandler.handleDioError(
+      DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      ),
+    );
   }
 }
 

@@ -10,9 +10,11 @@ import {
 import { SearchService } from './search.service';
 import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
+import { SearchTemplatesDto } from './dto/search-templates.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
+  ServiceTemplateSearchResultDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
 import { Public } from '../auth/decorators/public.decorator';
@@ -219,5 +221,70 @@ export class SearchController {
     @Query() searchDto: SearchServicesDto,
   ): Promise<SearchResponseDto<ServiceSearchResultDto>> {
     return this.searchService.searchServices(searchDto);
+  }
+
+  @Public()
+  @Get('templates')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Поиск шаблонов услуг',
+    description:
+      'Полнотекстовый поиск шаблонов услуг по названию и ключевым словам. Используется для приоритета в глобальной строке поиска. Фильтр по категории (уровень 1) опционален.',
+  })
+  @ApiQuery({
+    name: 'q',
+    required: false,
+    type: String,
+    description: 'Поисковый запрос',
+    example: 'стрижка',
+  })
+  @ApiQuery({
+    name: 'category_id',
+    required: false,
+    type: String,
+    description: 'ID категории (уровень 1) для фильтрации',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Номер страницы',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Количество результатов на странице',
+    example: 20,
+  })
+  @ApiOkResponse({
+    description: 'Результаты поиска шаблонов услуг',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            slug: 'muzhskaya-strizhka',
+            name: 'Мужская стрижка',
+            description: 'Классическая мужская стрижка',
+            category_id: '550e8400-e29b-41d4-a716-446655440001',
+            default_duration_minutes: 60,
+            default_price_range_min: 500,
+            default_price_range_max: 2000,
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+        processing_time_ms: 5,
+        query: 'стрижка',
+      },
+    },
+  })
+  async searchTemplates(
+    @Query() searchDto: SearchTemplatesDto,
+  ): Promise<SearchResponseDto<ServiceTemplateSearchResultDto>> {
+    return this.searchService.searchServiceTemplates(searchDto);
   }
 }

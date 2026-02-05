@@ -14,11 +14,15 @@ export class ServiceResponseDto {
   masterId: string;
 
   @Expose()
-  @ApiProperty({ description: 'ID категории' })
+  @ApiProperty({ description: 'ID категории (level 1)' })
   categoryId: string;
 
   @Expose()
-  @ApiProperty({ description: 'ID подкатегории', nullable: true })
+  @ApiProperty({ description: 'ID шаблона услуги', nullable: true, required: false })
+  serviceTemplateId: string | null;
+
+  @Expose()
+  @ApiProperty({ description: 'ID подкатегории', nullable: true, deprecated: true })
   subcategoryId: string | null;
 
   @Expose()

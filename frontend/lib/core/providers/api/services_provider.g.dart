@@ -182,5 +182,153 @@ class _ServicesByCategoryIdsProviderElement
   List<String> get categoryIds =>
       (origin as ServicesByCategoryIdsProvider).categoryIds;
 }
+
+String _$serviceByIdHash() => r'85abd2f32b3dd0af6a6e7de500986c1c681a4e8a';
+
+/// Service by ID Provider
+/// Получает услугу по ID
+///
+/// Copied from [serviceById].
+@ProviderFor(serviceById)
+const serviceByIdProvider = ServiceByIdFamily();
+
+/// Service by ID Provider
+/// Получает услугу по ID
+///
+/// Copied from [serviceById].
+class ServiceByIdFamily extends Family<AsyncValue<ServiceModel>> {
+  /// Service by ID Provider
+  /// Получает услугу по ID
+  ///
+  /// Copied from [serviceById].
+  const ServiceByIdFamily();
+
+  /// Service by ID Provider
+  /// Получает услугу по ID
+  ///
+  /// Copied from [serviceById].
+  ServiceByIdProvider call(
+    String serviceId,
+  ) {
+    return ServiceByIdProvider(
+      serviceId,
+    );
+  }
+
+  @override
+  ServiceByIdProvider getProviderOverride(
+    covariant ServiceByIdProvider provider,
+  ) {
+    return call(
+      provider.serviceId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'serviceByIdProvider';
+}
+
+/// Service by ID Provider
+/// Получает услугу по ID
+///
+/// Copied from [serviceById].
+class ServiceByIdProvider extends AutoDisposeFutureProvider<ServiceModel> {
+  /// Service by ID Provider
+  /// Получает услугу по ID
+  ///
+  /// Copied from [serviceById].
+  ServiceByIdProvider(
+    String serviceId,
+  ) : this._internal(
+          (ref) => serviceById(
+            ref as ServiceByIdRef,
+            serviceId,
+          ),
+          from: serviceByIdProvider,
+          name: r'serviceByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$serviceByIdHash,
+          dependencies: ServiceByIdFamily._dependencies,
+          allTransitiveDependencies:
+              ServiceByIdFamily._allTransitiveDependencies,
+          serviceId: serviceId,
+        );
+
+  ServiceByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.serviceId,
+  }) : super.internal();
+
+  final String serviceId;
+
+  @override
+  Override overrideWith(
+    FutureOr<ServiceModel> Function(ServiceByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ServiceByIdProvider._internal(
+        (ref) => create(ref as ServiceByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        serviceId: serviceId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ServiceModel> createElement() {
+    return _ServiceByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ServiceByIdProvider && other.serviceId == serviceId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, serviceId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ServiceByIdRef on AutoDisposeFutureProviderRef<ServiceModel> {
+  /// The parameter `serviceId` of this provider.
+  String get serviceId;
+}
+
+class _ServiceByIdProviderElement
+    extends AutoDisposeFutureProviderElement<ServiceModel> with ServiceByIdRef {
+  _ServiceByIdProviderElement(super.provider);
+
+  @override
+  String get serviceId => (origin as ServiceByIdProvider).serviceId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

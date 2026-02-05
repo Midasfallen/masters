@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/models/api/master_model.dart';
 import '../../../core/models/api/service_model.dart';
 import '../../../core/providers/api/search_provider.dart';
+import '../widgets/category_grid_widget.dart';
 
 /// State provider for search query
 final searchQueryProvider = StateProvider<String>((ref) => '');
@@ -17,21 +18,12 @@ class SearchScreen extends ConsumerStatefulWidget {
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen>
-    with SingleTickerProviderStateMixin {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -50,152 +42,115 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Column(
-            children: [
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Поиск мастеров и услуг...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              _onSearchChanged('');
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(28),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                  ),
-                  onChanged: _onSearchChanged,
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Поиск мастеров и услуг...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _onSearchChanged('');
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  borderSide: BorderSide.none,
                 ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
-              // Tabs
-              TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Мастера'),
-                  Tab(text: 'Услуги'),
-                ],
-              ),
-            ],
+              onChanged: _onSearchChanged,
+            ),
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildMastersTab(searchQuery),
-          _buildServicesTab(searchQuery),
-        ],
-      ),
+      body: _buildSearchContent(searchQuery),
     );
   }
 
-  Widget _buildMastersTab(String query) {
+  Widget _buildSearchContent(String query) {
+    // При пустом запросе показываем каталог категорий
     if (query.trim().isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.search,
-        title: 'Начните поиск',
-        subtitle: 'Введите имя мастера или категорию услуг',
-      );
+      return const CategoryGridWidget();
     }
 
+    // При наличии запроса показываем результаты поиска (мастера и услуги вместе)
     final mastersAsync = ref.watch(searchMastersProvider(query: query));
+    final servicesAsync = ref.watch(searchServicesProvider(query: query));
 
     return mastersAsync.when(
       data: (masters) {
-        if (masters.isEmpty) {
-          return _buildEmptyState(
-            icon: Icons.search_off,
-            title: 'Ничего не найдено',
-            subtitle: 'Попробуйте изменить запрос',
-          );
-        }
+        return servicesAsync.when(
+          data: (services) {
+            if (masters.isEmpty && services.isEmpty) {
+              return _buildEmptyState(
+                icon: Icons.search_off,
+                title: 'Ничего не найдено',
+                subtitle: 'Попробуйте изменить запрос',
+              );
+            }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: masters.length,
-          itemBuilder: (context, index) {
-            final master = masters[index];
-            return _buildMasterCard(master);
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // Мастера
+                if (masters.isNotEmpty) ...[
+                  const Text(
+                    'Мастера',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...masters.map((master) => _buildMasterCard(master)),
+                  const SizedBox(height: 24),
+                ],
+                // Услуги
+                if (services.isNotEmpty) ...[
+                  const Text(
+                    'Услуги',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...services.map((service) => _buildServiceCard(service)),
+                ],
+              ],
+            );
           },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => _buildErrorWidget(error, () => ref.invalidate(searchServicesProvider)),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Ошибка: ${error.toString()}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.invalidate(searchMastersProvider),
-              child: const Text('Повторить'),
-            ),
-          ],
-        ),
-      ),
+      error: (error, stack) => _buildErrorWidget(error, () => ref.invalidate(searchMastersProvider)),
     );
   }
 
-  Widget _buildServicesTab(String query) {
-    if (query.trim().isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.search,
-        title: 'Начните поиск',
-        subtitle: 'Введите название услуги',
-      );
-    }
-
-    final servicesAsync = ref.watch(searchServicesProvider(query: query));
-
-    return servicesAsync.when(
-      data: (services) {
-        if (services.isEmpty) {
-          return _buildEmptyState(
-            icon: Icons.search_off,
-            title: 'Ничего не найдено',
-            subtitle: 'Попробуйте изменить запрос',
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: services.length,
-          itemBuilder: (context, index) {
-            final service = services[index];
-            return _buildServiceCard(service);
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Ошибка: ${error.toString()}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.invalidate(searchServicesProvider),
-              child: const Text('Повторить'),
-            ),
-          ],
-        ),
+  Widget _buildErrorWidget(Object error, VoidCallback onRetry) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          const SizedBox(height: 16),
+          Text('Ошибка: ${error.toString()}'),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text('Повторить'),
+          ),
+        ],
       ),
     );
   }

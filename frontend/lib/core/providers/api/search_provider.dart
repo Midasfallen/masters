@@ -9,17 +9,19 @@ part 'search_provider.g.dart';
 @riverpod
 Future<List<MasterProfileModel>> searchMasters(
   SearchMastersRef ref, {
-  required String query,
+  String query = '',
   int page = 1,
   int limit = 20,
   String? categoryId,
+  List<String>? categoryIds,
   double? lat,
   double? lng,
   int? radius,
   double? minRating,
   int? maxPrice,
 }) async {
-  if (query.trim().isEmpty) {
+  // Разрешаем поиск без текстового запроса, если есть фильтры по категориям
+  if (query.trim().isEmpty && categoryId == null && (categoryIds == null || categoryIds.isEmpty)) {
     return [];
   }
 
@@ -29,6 +31,7 @@ Future<List<MasterProfileModel>> searchMasters(
     page: page,
     limit: limit,
     categoryId: categoryId,
+    categoryIds: categoryIds,
     lat: lat,
     lng: lng,
     radius: radius,
@@ -41,14 +44,16 @@ Future<List<MasterProfileModel>> searchMasters(
 @riverpod
 Future<List<ServiceModel>> searchServices(
   SearchServicesRef ref, {
-  required String query,
+  String query = '',
   int page = 1,
   int limit = 20,
   String? categoryId,
+  List<String>? categoryIds,
   double? minPrice,
   double? maxPrice,
 }) async {
-  if (query.trim().isEmpty) {
+  // Разрешаем поиск без текстового запроса, если есть фильтры по категориям
+  if (query.trim().isEmpty && categoryId == null && (categoryIds == null || categoryIds.isEmpty)) {
     return [];
   }
 
@@ -58,6 +63,7 @@ Future<List<ServiceModel>> searchServices(
     page: page,
     limit: limit,
     categoryId: categoryId,
+    categoryIds: categoryIds,
     minPrice: minPrice,
     maxPrice: maxPrice,
   );

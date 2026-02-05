@@ -137,6 +137,24 @@ export class AuthController {
   }
 
   @Public()
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Выход из системы',
+    description:
+      'Клиент должен удалить сохранённые access и refresh токены. Сервер не хранит сессии, инвалидация на клиенте.',
+  })
+  @ApiOkResponse({
+    description: 'Успешный выход',
+    schema: {
+      example: { message: 'Logged out' },
+    },
+  })
+  async logout(): Promise<{ message: string }> {
+    return { message: 'Logged out' };
+  }
+
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

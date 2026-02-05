@@ -26,7 +26,8 @@
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.cli.ts",
     "seed:catalog": "ts-node -r tsconfig-paths/register src/database/seeds/seed-catalog.ts",
     "upload-images": "ts-node -r tsconfig-paths/register src/database/seeds/upload-local-images.ts",
-    "db:reset:dev": "npm run migration:run && npm run seed && npm run upload-images",
+    "upload-test-images": "ts-node -r tsconfig-paths/register src/database/seeds/upload-test-images.ts",
+    "db:reset:dev": "npm run migration:run && npm run seed",
     "docker:logs": "docker logs service_backend --tail 50",
     "docker:ps": "docker-compose ps"
   },

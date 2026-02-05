@@ -28,3 +28,17 @@ Future<List<ServiceModel>> servicesByCategoryIds(
       .map((json) => ServiceModel.fromJson(json as Map<String, dynamic>))
       .toList();
 }
+
+/// Service by ID Provider
+/// Получает услугу по ID
+@riverpod
+Future<ServiceModel> serviceById(
+  ServiceByIdRef ref,
+  String serviceId,
+) async {
+  final client = ref.watch(dioClientProvider);
+  final response = await client.get(ApiEndpoints.serviceById(serviceId));
+
+  final data = ApiHelpers.parseObjectResponse(response.data);
+  return ServiceModel.fromJson(data);
+}

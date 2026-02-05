@@ -9,6 +9,7 @@ class ServiceModel with _$ServiceModel {
     required String id,
     required String masterId,
     required String categoryId,
+    @JsonKey(name: 'service_template_id') String? serviceTemplateId,
     String? subcategoryId,
     required String name,
     String? description,
@@ -39,8 +40,9 @@ class ServiceModel with _$ServiceModel {
 class CreateServiceRequest with _$CreateServiceRequest {
   const factory CreateServiceRequest({
     @JsonKey(name: 'category_id') required String categoryId,
+    @JsonKey(name: 'service_template_id') String? serviceTemplateId,
     @JsonKey(name: 'subcategory_id') String? subcategoryId,
-    required String name,
+    String? name,
     String? description,
     required double price,
     String? currency,

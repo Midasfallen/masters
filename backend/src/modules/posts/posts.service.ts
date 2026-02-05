@@ -17,6 +17,7 @@ import { Friendship, FriendshipStatus } from '../friends/entities/friendship.ent
 import { Subscription } from '../friends/entities/subscription.entity';
 import { PostsMapper } from './posts.mapper';
 import { Service } from '../services/entities/service.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class PostsService {
@@ -29,6 +30,8 @@ export class PostsService {
     private readonly postServiceRepository: Repository<PostService>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Friendship)
     private readonly friendshipRepository: Repository<Friendship>,
     @InjectRepository(Subscription)
@@ -79,12 +82,16 @@ export class PostsService {
         await manager.save(PostMedia, mediaEntities);
       }
 
-      // Определяем category_ids для поста
+      // Определяем category_ids для поста (только level 0 и level 1)
       let categoryIds: string[] = [];
-      
-      // Если category_ids переданы напрямую, используем их
+
+      // Если category_ids переданы напрямую, нормализуем: оставляем только существующие level 0/1
       if (createPostDto.category_ids && createPostDto.category_ids.length > 0) {
-        categoryIds = createPostDto.category_ids;
+        const categories = await manager.getRepository(Category).find({
+          where: { id: In(createPostDto.category_ids), level: In([0, 1]) },
+          select: ['id'],
+        });
+        categoryIds = categories.map((c) => c.id);
       }
       // Иначе получаем category_ids из service_ids
       else if (createPostDto.service_ids && createPostDto.service_ids.length > 0) {

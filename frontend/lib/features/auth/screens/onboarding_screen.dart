@@ -50,6 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
+                key: const Key('onboarding-skip-button'),
                 onPressed: () => context.go('/register'),
                 child: const Text('Пропустить'),
               ),

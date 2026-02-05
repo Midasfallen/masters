@@ -15,6 +15,7 @@ import { ApiProperty } from '@nestjs/swagger';
 @Index(['category_id'])
 @Index(['is_active'])
 @Index(['price'])
+@Index(['service_template_id'])
 export class Service {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
@@ -31,6 +32,10 @@ export class Service {
   @ApiProperty({ description: 'ID подкатегории', required: false })
   @Column({ type: 'uuid', nullable: true })
   subcategory_id: string;
+
+  @ApiProperty({ description: 'ID шаблона услуги', required: false })
+  @Column({ type: 'uuid', nullable: true })
+  service_template_id: string;
 
   @ApiProperty({ example: 'Мужская стрижка' })
   @Column({ type: 'varchar', length: 255 })

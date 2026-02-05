@@ -11,6 +11,7 @@ _$ServiceModelImpl _$$ServiceModelImplFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       masterId: json['masterId'] as String,
       categoryId: json['categoryId'] as String,
+      serviceTemplateId: json['service_template_id'] as String?,
       subcategoryId: json['subcategoryId'] as String?,
       name: json['name'] as String,
       description: json['description'] as String?,
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$ServiceModelImplToJson(_$ServiceModelImpl instance) =>
       'id': instance.id,
       'masterId': instance.masterId,
       'categoryId': instance.categoryId,
+      'service_template_id': instance.serviceTemplateId,
       'subcategoryId': instance.subcategoryId,
       'name': instance.name,
       'description': instance.description,
@@ -63,8 +65,9 @@ _$CreateServiceRequestImpl _$$CreateServiceRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateServiceRequestImpl(
       categoryId: json['category_id'] as String,
+      serviceTemplateId: json['service_template_id'] as String?,
       subcategoryId: json['subcategory_id'] as String?,
-      name: json['name'] as String,
+      name: json['name'] as String?,
       description: json['description'] as String?,
       price: (json['price'] as num).toDouble(),
       currency: json['currency'] as String?,
@@ -81,6 +84,7 @@ Map<String, dynamic> _$$CreateServiceRequestImplToJson(
         _$CreateServiceRequestImpl instance) =>
     <String, dynamic>{
       'category_id': instance.categoryId,
+      'service_template_id': instance.serviceTemplateId,
       'subcategory_id': instance.subcategoryId,
       'name': instance.name,
       'description': instance.description,

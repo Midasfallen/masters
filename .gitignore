@@ -87,3 +87,5 @@ FILES_CREATED.txt
 # Test results
 frontend/test-results/
 frontend/playwright-report/
+test-results/
+playwright-report/

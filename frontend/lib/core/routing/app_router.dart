@@ -24,6 +24,9 @@ import '../../features/settings/screens/privacy_settings_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../features/settings/screens/terms_screen.dart';
 import '../../shared/widgets/main_navigation_screen.dart';
+import '../../features/search/screens/category_services_screen.dart';
+import '../../features/search/screens/service_masters_screen.dart';
+import '../../features/search/screens/template_masters_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -191,6 +194,57 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'settings',
             name: 'settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+
+          // Search - Category Services
+          GoRoute(
+            path: 'search/category/:id',
+            name: 'categoryServices',
+            builder: (context, state) {
+              final categoryId = state.pathParameters['id']!;
+              final extra = state.extra as Map<String, dynamic>?;
+              final categoryName = extra?['categoryName'] as String? ?? 'Категория';
+              return CategoryServicesScreen(
+                categoryId: categoryId,
+                categoryName: categoryName,
+              );
+            },
+          ),
+
+          // Search - Service Masters
+          GoRoute(
+            path: 'search/service/:id',
+            name: 'serviceMasters',
+            builder: (context, state) {
+              final serviceId = state.pathParameters['id']!;
+              final extra = state.extra as Map<String, dynamic>?;
+              final serviceName = extra?['serviceName'] as String? ?? 'Услуга';
+              final categoryId = extra?['categoryId'] as String? ?? '';
+              return ServiceMastersScreen(
+                serviceId: serviceId,
+                serviceName: serviceName,
+                categoryId: categoryId,
+              );
+            },
+          ),
+
+          // Search - Template Masters (по шаблону услуги)
+          GoRoute(
+            path: 'search/template/:slug',
+            name: 'templateMasters',
+            builder: (context, state) {
+              final templateSlug = state.pathParameters['slug']!;
+              final extra = state.extra as Map<String, dynamic>?;
+              final templateName = extra?['templateName'] as String? ?? 'Услуга';
+              final templateId = extra?['templateId'] as String? ?? '';
+              final categoryId = extra?['categoryId'] as String? ?? '';
+              return TemplateMastersScreen(
+                templateId: templateId,
+                templateSlug: templateSlug,
+                templateName: templateName,
+                categoryId: categoryId,
+              );
+            },
           ),
         ],
       ),

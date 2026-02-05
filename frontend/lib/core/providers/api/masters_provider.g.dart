@@ -737,7 +737,7 @@ class _MasterByIdProviderElement
   String get id => (origin as MasterByIdProvider).id;
 }
 
-String _$masterServicesHash() => r'e93653df7daf9010f1ada1783710d14fa974abfd';
+String _$masterServicesHash() => r'8347dcaec55f7fb797acc249fc812a85fb62cde2';
 
 /// Master Services Provider
 ///
@@ -758,10 +758,10 @@ class MasterServicesFamily extends Family<AsyncValue<List<ServiceModel>>> {
   ///
   /// Copied from [masterServices].
   MasterServicesProvider call(
-    String masterId,
+    String masterProfileId,
   ) {
     return MasterServicesProvider(
-      masterId,
+      masterProfileId,
     );
   }
 
@@ -770,7 +770,7 @@ class MasterServicesFamily extends Family<AsyncValue<List<ServiceModel>>> {
     covariant MasterServicesProvider provider,
   ) {
     return call(
-      provider.masterId,
+      provider.masterProfileId,
     );
   }
 
@@ -798,11 +798,11 @@ class MasterServicesProvider
   ///
   /// Copied from [masterServices].
   MasterServicesProvider(
-    String masterId,
+    String masterProfileId,
   ) : this._internal(
           (ref) => masterServices(
             ref as MasterServicesRef,
-            masterId,
+            masterProfileId,
           ),
           from: masterServicesProvider,
           name: r'masterServicesProvider',
@@ -813,7 +813,7 @@ class MasterServicesProvider
           dependencies: MasterServicesFamily._dependencies,
           allTransitiveDependencies:
               MasterServicesFamily._allTransitiveDependencies,
-          masterId: masterId,
+          masterProfileId: masterProfileId,
         );
 
   MasterServicesProvider._internal(
@@ -823,10 +823,10 @@ class MasterServicesProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.masterId,
+    required this.masterProfileId,
   }) : super.internal();
 
-  final String masterId;
+  final String masterProfileId;
 
   @override
   Override overrideWith(
@@ -841,7 +841,7 @@ class MasterServicesProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        masterId: masterId,
+        masterProfileId: masterProfileId,
       ),
     );
   }
@@ -853,13 +853,14 @@ class MasterServicesProvider
 
   @override
   bool operator ==(Object other) {
-    return other is MasterServicesProvider && other.masterId == masterId;
+    return other is MasterServicesProvider &&
+        other.masterProfileId == masterProfileId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, masterId.hashCode);
+    hash = _SystemHash.combine(hash, masterProfileId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -868,8 +869,8 @@ class MasterServicesProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin MasterServicesRef on AutoDisposeFutureProviderRef<List<ServiceModel>> {
-  /// The parameter `masterId` of this provider.
-  String get masterId;
+  /// The parameter `masterProfileId` of this provider.
+  String get masterProfileId;
 }
 
 class _MasterServicesProviderElement
@@ -878,10 +879,11 @@ class _MasterServicesProviderElement
   _MasterServicesProviderElement(super.provider);
 
   @override
-  String get masterId => (origin as MasterServicesProvider).masterId;
+  String get masterProfileId =>
+      (origin as MasterServicesProvider).masterProfileId;
 }
 
-String _$masterReviewsHash() => r'1312dd6888c4c34410ad98acfdd1bbeec1253a85';
+String _$masterReviewsHash() => r'14da0c8087b1afae662b98a0ef89c81f4ff673b7';
 
 /// Master Reviews Provider
 ///
@@ -902,12 +904,12 @@ class MasterReviewsFamily extends Family<AsyncValue<List<ReviewModel>>> {
   ///
   /// Copied from [masterReviews].
   MasterReviewsProvider call(
-    String masterId, {
+    String userId, {
     int page = 1,
     int limit = 20,
   }) {
     return MasterReviewsProvider(
-      masterId,
+      userId,
       page: page,
       limit: limit,
     );
@@ -918,7 +920,7 @@ class MasterReviewsFamily extends Family<AsyncValue<List<ReviewModel>>> {
     covariant MasterReviewsProvider provider,
   ) {
     return call(
-      provider.masterId,
+      provider.userId,
       page: provider.page,
       limit: provider.limit,
     );
@@ -948,13 +950,13 @@ class MasterReviewsProvider
   ///
   /// Copied from [masterReviews].
   MasterReviewsProvider(
-    String masterId, {
+    String userId, {
     int page = 1,
     int limit = 20,
   }) : this._internal(
           (ref) => masterReviews(
             ref as MasterReviewsRef,
-            masterId,
+            userId,
             page: page,
             limit: limit,
           ),
@@ -967,7 +969,7 @@ class MasterReviewsProvider
           dependencies: MasterReviewsFamily._dependencies,
           allTransitiveDependencies:
               MasterReviewsFamily._allTransitiveDependencies,
-          masterId: masterId,
+          userId: userId,
           page: page,
           limit: limit,
         );
@@ -979,12 +981,12 @@ class MasterReviewsProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.masterId,
+    required this.userId,
     required this.page,
     required this.limit,
   }) : super.internal();
 
-  final String masterId;
+  final String userId;
   final int page;
   final int limit;
 
@@ -1001,7 +1003,7 @@ class MasterReviewsProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        masterId: masterId,
+        userId: userId,
         page: page,
         limit: limit,
       ),
@@ -1016,7 +1018,7 @@ class MasterReviewsProvider
   @override
   bool operator ==(Object other) {
     return other is MasterReviewsProvider &&
-        other.masterId == masterId &&
+        other.userId == userId &&
         other.page == page &&
         other.limit == limit;
   }
@@ -1024,7 +1026,7 @@ class MasterReviewsProvider
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, masterId.hashCode);
+    hash = _SystemHash.combine(hash, userId.hashCode);
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, limit.hashCode);
 
@@ -1035,8 +1037,8 @@ class MasterReviewsProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin MasterReviewsRef on AutoDisposeFutureProviderRef<List<ReviewModel>> {
-  /// The parameter `masterId` of this provider.
-  String get masterId;
+  /// The parameter `userId` of this provider.
+  String get userId;
 
   /// The parameter `page` of this provider.
   int get page;
@@ -1051,7 +1053,7 @@ class _MasterReviewsProviderElement
   _MasterReviewsProviderElement(super.provider);
 
   @override
-  String get masterId => (origin as MasterReviewsProvider).masterId;
+  String get userId => (origin as MasterReviewsProvider).userId;
   @override
   int get page => (origin as MasterReviewsProvider).page;
   @override

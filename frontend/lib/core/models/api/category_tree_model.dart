@@ -17,6 +17,7 @@ class CategoryTreeModel with _$CategoryTreeModel {
     @JsonKey(name: 'is_popular') @Default(false) bool isPopular,
     required String name,
     String? description,
+    // ВАЖНО: children отсутствует для level 1 категорий (шаблоны теперь в service_templates)
     @Default([]) List<CategoryTreeModel> children,
   }) = _CategoryTreeModel;
 

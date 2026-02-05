@@ -6,6 +6,7 @@ import { Post } from './entities/post.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { PostService } from './entities/post-service.entity';
 import { Service } from '../services/entities/service.entity';
+import { Category } from '../categories/entities/category.entity';
 import { Friendship } from '../friends/entities/friendship.entity';
 import { Subscription } from '../friends/entities/subscription.entity';
 import { SocialModule } from '../social/social.module';
@@ -13,7 +14,7 @@ import { CommonModule } from '../../common/common.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, PostMedia, PostService, Service, Friendship, Subscription]),
+    TypeOrmModule.forFeature([Post, PostMedia, PostService, Service, Category, Friendship, Subscription]),
     SocialModule,
     CommonModule,
   ],

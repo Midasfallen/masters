@@ -9,7 +9,7 @@ import {
   IsInt,
   IsArray,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class SearchMastersDto {
   @ApiProperty({
@@ -18,16 +18,37 @@ export class SearchMastersDto {
     example: 'парикмахер',
   })
   @IsOptional()
+  @Transform(({ obj }) => obj.q || obj.query || '')
   @IsString()
   query?: string;
 
   @ApiProperty({
-    description: 'ID категории для фильтрации',
+    description: 'ID категории для фильтрации (одиночный)',
     required: false,
   })
   @IsOptional()
   @IsUUID('4')
   category_id?: string;
+
+  @ApiProperty({
+    description: 'ID категорий для фильтрации (массив)',
+    required: false,
+    type: [String],
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    // Обработка случая, когда параметр передается как строка или массив
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return [value];
+    }
+    return [];
+  })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  category_ids?: string[];
 
   @ApiProperty({
     description: 'Минимальный рейтинг',

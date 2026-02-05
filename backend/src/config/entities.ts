@@ -24,6 +24,8 @@ import { Repost } from '../modules/social/entities/repost.entity';
 import { AutoProposal } from '../modules/auto-proposals/entities/auto-proposal.entity';
 import { AutoProposalSettings } from '../modules/auto-proposals/entities/auto-proposal-settings.entity';
 import { Favorite } from '../modules/favorites/entities/favorite.entity';
+import { ServiceTemplate } from '../modules/service-templates/entities/service-template.entity';
+import { ServiceTemplateTranslation } from '../modules/service-templates/entities/service-template-translation.entity';
 
 export const entities = [
   User,
@@ -49,4 +51,6 @@ export const entities = [
   AutoProposal,
   AutoProposalSettings,
   Favorite,
+  ServiceTemplate,
+  ServiceTemplateTranslation,
 ];

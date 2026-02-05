@@ -71,7 +71,7 @@ class AuthNotifier extends _$AuthNotifier {
   Future<void> login(String email, String password) async {
     state = const AsyncValue.loading();
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repository = ref.read(authRepositoryProvider);
       await repository.login(
         LoginRequest(email: email, password: password),
@@ -80,8 +80,12 @@ class AuthNotifier extends _$AuthNotifier {
       // Convert AuthUserModel to UserModel
       final user = await repository.getMe();
 
-      return AuthState(user: user, isAuthenticated: true);
-    });
+      state = AsyncValue.data(AuthState(user: user, isAuthenticated: true));
+    } catch (e) {
+      // Бросаем исключение дальше, чтобы экран мог его обработать
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
   }
 
   /// Register
@@ -94,7 +98,7 @@ class AuthNotifier extends _$AuthNotifier {
   }) async {
     state = const AsyncValue.loading();
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repository = ref.read(authRepositoryProvider);
       await repository.register(
         RegisterRequest(
@@ -108,8 +112,12 @@ class AuthNotifier extends _$AuthNotifier {
 
       final user = await repository.getMe();
 
-      return AuthState(user: user, isAuthenticated: true);
-    });
+      state = AsyncValue.data(AuthState(user: user, isAuthenticated: true));
+    } catch (e) {
+      // Бросаем исключение дальше, чтобы экран мог его обработать
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    }
   }
 
   /// Logout

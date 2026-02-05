@@ -1,14 +1,16 @@
-import { DataSource, TreeRepository } from 'typeorm';
+import { DataSource, TreeRepository, Repository } from 'typeorm';
 import { Category } from '../../modules/categories/entities/category.entity';
 import { CategoryTranslation } from '../../modules/categories/entities/category-translation.entity';
+import { ServiceTemplate } from '../../modules/service-templates/entities/service-template.entity';
+import { ServiceTemplateTranslation } from '../../modules/service-templates/entities/service-template-translation.entity';
 
 /**
  * Seed Script for Catalog Categories from Catalog.md
  *
- * Creates 3-level category structure:
+ * Creates 2-level category structure + service templates:
  * - Level 0: Root categories (10 categories)
  * - Level 1: Subcategories (53 subcategories)
- * - Level 2: Services (340+ service categories)
+ * - Service Templates: Шаблоны услуг (340+ templates) - вместо level 2 категорий
  *
  * Usage:
  *   npm run seed:catalog
@@ -735,7 +737,12 @@ async function seedCatalog() {
     username: process.env.DB_USERNAME || 'service_user',
     password: process.env.DB_PASSWORD || 'service_password',
     database: process.env.DB_DATABASE || 'service_db',
-    entities: [Category, CategoryTranslation],
+    entities: [
+      Category,
+      CategoryTranslation,
+      ServiceTemplate,
+      ServiceTemplateTranslation,
+    ],
     synchronize: false,
   });
 
@@ -747,15 +754,21 @@ async function seedCatalog() {
   const translationRepository = dataSource.getRepository(CategoryTranslation);
 
   // Clear existing categories and translations
-  console.log('🗑️  Clearing existing categories...');
+  console.log('🗑️  Clearing existing data...');
   // Use raw SQL to delete all records (TypeORM doesn't allow delete({}))
+  // ВАЖНО: Удаляем в правильном порядке из-за внешних ключей
+  await dataSource.query('DELETE FROM service_template_translations');
+  await dataSource.query('DELETE FROM service_templates');
   await dataSource.query('DELETE FROM category_translations');
   await dataSource.query('DELETE FROM categories');
-  console.log('✅ Old categories cleared');
+  console.log('✅ Old data cleared');
+
+  const serviceTemplateRepository = dataSource.getRepository(ServiceTemplate);
+  const serviceTemplateTranslationRepository = dataSource.getRepository(ServiceTemplateTranslation);
 
   let totalCategories = 0;
   let totalSubcategories = 0;
-  let totalServices = 0;
+  let totalTemplates = 0;
 
   // Process each root category
   for (let rootIndex = 0; rootIndex < CATALOG_DATA.length; rootIndex++) {
@@ -819,30 +832,27 @@ async function seedCatalog() {
         }),
       );
 
-      // Process services (level 2)
+      // Process service templates (вместо level 2 категорий)
       for (let serviceIndex = 0; serviceIndex < subCat.services.length; serviceIndex++) {
         const serviceName = subCat.services[serviceIndex];
 
-        const serviceCategory = categoryRepository.create({
+        // Создаем шаблон услуги
+        const serviceTemplate = serviceTemplateRepository.create({
+          category_id: savedSubCategory.id,
           slug: `${generateSlug(rootCat.name)}-${generateSlug(subCat.name)}-${generateSlug(serviceName)}`,
-          level: 2,
+          name: serviceName,
+          description: `${serviceName} - услуга в категории ${subCat.name}`,
           display_order: serviceIndex,
           is_active: true,
-          is_popular: false,
-          masters_count: 0,
-          services_count: 0,
         });
-        
-        // Устанавливаем parent для TreeRepository
-        serviceCategory.parent = savedSubCategory;
 
-        const savedServiceCategory = await categoryRepository.save(serviceCategory);
-        totalServices++;
+        const savedTemplate = await serviceTemplateRepository.save(serviceTemplate);
+        totalTemplates++;
 
-        // Create service category translation
-        await translationRepository.save(
-          translationRepository.create({
-            category_id: savedServiceCategory.id,
+        // Create service template translation
+        await serviceTemplateTranslationRepository.save(
+          serviceTemplateTranslationRepository.create({
+            service_template_id: savedTemplate.id,
             language: 'ru',
             name: serviceName,
             description: `${serviceName} - услуга в категории ${subCat.name}`,
@@ -855,7 +865,7 @@ async function seedCatalog() {
         );
       }
 
-      // Update subcategory services_count
+      // Update subcategory services_count (количество шаблонов)
       await categoryRepository.update(savedSubCategory.id, {
         services_count: subCat.services.length,
       });
@@ -873,10 +883,11 @@ async function seedCatalog() {
   }
 
   console.log(`✅ Catalog seeded successfully!`);
-  console.log(`   - Root categories: ${totalCategories}`);
-  console.log(`   - Subcategories: ${totalSubcategories}`);
-  console.log(`   - Service categories: ${totalServices}`);
-  console.log(`   - Total: ${totalCategories + totalSubcategories + totalServices}`);
+  console.log(`   - Root categories (level 0): ${totalCategories}`);
+  console.log(`   - Subcategories (level 1): ${totalSubcategories}`);
+  console.log(`   - Service templates: ${totalTemplates}`);
+  console.log(`   - Total categories: ${totalCategories + totalSubcategories}`);
+  console.log(`   - Total templates: ${totalTemplates}`);
 
   await dataSource.destroy();
 }

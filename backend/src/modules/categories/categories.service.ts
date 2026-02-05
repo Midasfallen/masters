@@ -464,6 +464,7 @@ export class CategoriesService {
 
   /**
    * Рекурсивный маппинг дерева в DTO
+   * ВАЖНО: Level 1 категории больше не содержат children (level 2 удалены)
    */
   private async mapTreeToResponseDto(
     category: Category,
@@ -487,12 +488,24 @@ export class CategoriesService {
       description: translation?.description,
     };
 
-    if (includeChildren && category.children && category.children.length > 0) {
-      result.children = await Promise.all(
-        category.children.map((child) =>
-          this.mapTreeToResponseDto(child, language, true),
-        ),
-      );
+    // Включаем children только для level 0 категорий
+    // Level 1 категории больше не содержат level 2 (они теперь в service_templates)
+    if (
+      includeChildren &&
+      category.level === 0 &&
+      category.children &&
+      category.children.length > 0
+    ) {
+      // Фильтруем только level 1 children (убираем level 2, если они есть)
+      const level1Children = category.children.filter((child) => child.level === 1);
+      
+      if (level1Children.length > 0) {
+        result.children = await Promise.all(
+          level1Children.map((child) =>
+            this.mapTreeToResponseDto(child, language, false), // false - не включаем children для level 1
+          ),
+        );
+      }
     }
 
     return result;

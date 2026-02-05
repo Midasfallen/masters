@@ -5,9 +5,10 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { MasterProfile } from './entities/master-profile.entity';
 import { User } from '../users/entities/user.entity';
+import { Category } from '../categories/entities/category.entity';
 import { MasterProfileResponseDto } from './dto/master-profile-response.dto';
 import { MastersMapper } from './masters.mapper';
 import { Step1CategoriesDto } from './dto/step1-categories.dto';
@@ -23,6 +24,8 @@ export class MastersService {
     private readonly masterProfileRepository: Repository<MasterProfile>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   /**
@@ -71,6 +74,31 @@ export class MastersService {
       throw new BadRequestException(
         'Шаг 1 уже завершен. Используйте обновление профиля.',
       );
+    }
+
+    // Валидация: category_ids только level 0 и level 1
+    const allCategoryIds = [
+      ...step1Dto.category_ids,
+      ...(step1Dto.subcategory_ids || []),
+    ];
+    if (allCategoryIds.length > 0) {
+      const categories = await this.categoryRepository.find({
+        where: { id: In(allCategoryIds) },
+        select: ['id', 'level'],
+      });
+      const foundIds = new Set(categories.map((c) => c.id));
+      const invalidLevel = categories.find((c) => c.level !== 0 && c.level !== 1);
+      if (invalidLevel) {
+        throw new BadRequestException(
+          'category_ids и subcategory_ids должны ссылаться только на категории level 0 или level 1.',
+        );
+      }
+      const notFound = allCategoryIds.filter((id) => !foundIds.has(id));
+      if (notFound.length > 0) {
+        throw new BadRequestException(
+          `Категории не найдены: ${notFound.join(', ')}`,
+        );
+      }
     }
 
     // Обновление данных

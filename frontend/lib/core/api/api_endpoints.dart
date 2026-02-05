@@ -46,6 +46,15 @@ class ApiEndpoints {
   static String categoryById(String id) => '/categories/$id';
   static String categoryServices(String categoryId) => '/categories/$categoryId/services';
 
+  // ==================== SERVICE TEMPLATES ====================
+  /// Получить шаблоны услуг для категории level 1
+  static String serviceTemplatesByCategoryId(String categoryId) =>
+      '/categories/$categoryId/templates';
+  /// Получить шаблон услуги по slug
+  static String serviceTemplateBySlug(String slug) => '/service-templates/$slug';
+  /// Получить шаблон услуги по ID
+  static String serviceTemplateById(String id) => '/service-templates/id/$id';
+
   // ==================== BOOKINGS ====================
   static const String bookings = '/bookings';
   static String bookingById(String id) => '/bookings/$id';

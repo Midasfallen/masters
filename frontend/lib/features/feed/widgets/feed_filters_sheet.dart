@@ -458,6 +458,7 @@ class _FeedFiltersSheetState extends ConsumerState<FeedFiltersSheet> {
                 const Spacer(),
                 if (_filters.hasActiveFilters)
                   TextButton(
+                    key: const Key('feed-filters-reset-button'),
                     onPressed: _resetFilters,
                     child: const Text('Сбросить'),
                   ),
@@ -579,6 +580,7 @@ class _FeedFiltersSheetState extends ConsumerState<FeedFiltersSheet> {
                   Expanded(
                     flex: 2,
                     child: FilledButton(
+                      key: const Key('feed-filters-apply-button'),
                       onPressed: () => Navigator.of(context).pop(_filters),
                       child: Text(
                         _filters.hasActiveFilters

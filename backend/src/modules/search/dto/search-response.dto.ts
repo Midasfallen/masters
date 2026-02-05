@@ -70,6 +70,33 @@ export class ServiceSearchResultDto {
   };
 }
 
+/** Результат поиска по шаблонам услуг (для приоритета в глобальном поиске) */
+export class ServiceTemplateSearchResultDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  slug: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty({ required: false })
+  description?: string;
+
+  @ApiProperty()
+  category_id: string;
+
+  @ApiProperty({ required: false })
+  default_duration_minutes?: number;
+
+  @ApiProperty({ required: false })
+  default_price_range_min?: number;
+
+  @ApiProperty({ required: false })
+  default_price_range_max?: number;
+}
+
 export class SearchResponseDto<T> {
   @ApiProperty()
   data: T[];

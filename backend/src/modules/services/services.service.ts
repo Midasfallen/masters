@@ -9,6 +9,8 @@ import { Repository } from 'typeorm';
 import { Service } from './entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { Category } from '../categories/entities/category.entity';
+import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { FilterServicesDto } from './dto/filter-services.dto';
@@ -25,6 +27,10 @@ export class ServicesService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MasterProfile)
     private readonly masterProfileRepository: Repository<MasterProfile>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(ServiceTemplate)
+    private readonly serviceTemplateRepository: Repository<ServiceTemplate>,
   ) {}
 
   /**
@@ -52,6 +58,21 @@ export class ServicesService {
       throw new NotFoundException('Профиль мастера не найден');
     }
 
+    // Валидация категории: должна быть level 1
+    const category = await this.categoryRepository.findOne({
+      where: { id: createServiceDto.category_id },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Категория не найдена');
+    }
+
+    if (category.level !== 1) {
+      throw new BadRequestException(
+        'category_id должен ссылаться на категорию level 1',
+      );
+    }
+
     // Проверка, что категория услуги есть в профиле мастера
     if (!masterProfile.category_ids.includes(createServiceDto.category_id)) {
       throw new BadRequestException(
@@ -68,11 +89,50 @@ export class ServicesService {
       }
     }
 
+    // Логика работы с шаблоном (если передан service_template_id)
+    let template: ServiceTemplate | null = null;
+    if (createServiceDto.service_template_id) {
+      template = await this.serviceTemplateRepository.findOne({
+        where: { id: createServiceDto.service_template_id },
+      });
+
+      if (!template) {
+        throw new NotFoundException('Шаблон услуги не найден');
+      }
+
+      // ⚠️ ВАЖНО: Валидация консистентности
+      // category_id должен совпадать с category_id шаблона
+      if (createServiceDto.category_id !== template.category_id) {
+        throw new BadRequestException(
+          'category_id услуги должен совпадать с category_id шаблона',
+        );
+      }
+    }
+
+    // Логика переопределения (Override) с приоритетами:
+    // 1. Если мастер заполнил поле сам — берем его значение
+    // 2. Если поле пустое — подтягиваем из шаблона (fallback)
+    const serviceName = createServiceDto.name || template?.name || '';
+    const serviceDescription =
+      createServiceDto.description || template?.description || null;
+    const serviceDurationMinutes =
+      createServiceDto.duration_minutes ||
+      template?.default_duration_minutes ||
+      60;
+
     // Создание услуги
     const service = this.serviceRepository.create({
-      ...createServiceDto,
       master_id: userId, // Use user_id, not masterProfile.id
+      category_id: template?.category_id || createServiceDto.category_id, // Всегда берем из шаблона, если есть
+      service_template_id: template?.id || null,
+      subcategory_id: null, // Больше не используется
+      name: serviceName,
+      description: serviceDescription,
+      price: createServiceDto.price,
       currency: createServiceDto.currency || 'RUB',
+      price_from: createServiceDto.price_from || null,
+      price_to: createServiceDto.price_to || null,
+      duration_minutes: serviceDurationMinutes,
       is_bookable_online: createServiceDto.is_bookable_online ?? true,
       is_mobile: createServiceDto.is_mobile ?? false,
       is_in_salon: createServiceDto.is_in_salon ?? true,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
+import 'package:service_platform/features/auth/utils/auth_error_messages.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -50,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ошибка входа: ${e.toString()}'),
+            content: Text(authErrorMessage(e, isLogin: true)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -96,6 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
+                  key: const Key('login_email_field'),
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   enabled: !_isLoading,
@@ -115,6 +117,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  key: const Key('login_password_field'),
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   enabled: !_isLoading,
@@ -162,6 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
+                  key: const Key('login-submit-button'),
                   onPressed: _isLoading ? null : _handleLogin,
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),

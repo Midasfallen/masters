@@ -25,8 +25,8 @@ export async function seedTestData(dataSource: DataSource) {
 
   console.log('[SEED] MinIO buckets skip (logic will be handled by upload-local-images.ts)');
 
-  // Хеш пароля для тестовых пользователей (password: "test123")
-  const passwordHash = await bcrypt.hash('test123', 10);
+  // Хеш пароля для тестовых пользователей (password: "qwerty123")
+  const passwordHash = await bcrypt.hash('qwerty123', 10);
 
   // Создаем тестовых мастеров
   const masters = [

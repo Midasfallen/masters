@@ -1,4 +1,4 @@
-import { DataSource, TreeRepository } from 'typeorm';
+import { DataSource, TreeRepository, Repository } from 'typeorm';
 import { faker } from '@faker-js/faker/locale/ru';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../modules/users/entities/user.entity';
@@ -6,11 +6,13 @@ import { MasterProfile } from '../../modules/masters/entities/master-profile.ent
 import { Category } from '../../modules/categories/entities/category.entity';
 import { CategoryTranslation } from '../../modules/categories/entities/category-translation.entity';
 import { Service } from '../../modules/services/entities/service.entity';
+import { ServiceTemplate } from '../../modules/service-templates/entities/service-template.entity';
+import { ServiceTemplateTranslation } from '../../modules/service-templates/entities/service-template-translation.entity';
 import { Booking, BookingStatus } from '../../modules/bookings/entities/booking.entity';
 import { Review, ReviewerType } from '../../modules/reviews/entities/review.entity';
 import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
 import { PostService } from '../../modules/posts/entities/post-service.entity';
-import { PostMedia } from '../../modules/posts/entities/post-media.entity';
+import { PostMedia, MediaType } from '../../modules/posts/entities/post-media.entity';
 
 /**
  * Seed Script for Service Platform
@@ -159,7 +161,20 @@ async function seed() {
     username: process.env.DB_USERNAME || 'service_user',
     password: process.env.DB_PASSWORD || 'service_password',
     database: process.env.DB_DATABASE || 'service_db',
-    entities: [User, MasterProfile, Category, CategoryTranslation, Service, Booking, Review, Post, PostService, PostMedia],
+    entities: [
+      User,
+      MasterProfile,
+      Category,
+      CategoryTranslation,
+      Service,
+      ServiceTemplate,
+      ServiceTemplateTranslation,
+      Booking,
+      Review,
+      Post,
+      PostService,
+      PostMedia,
+    ],
     synchronize: false,
   });
 
@@ -175,26 +190,37 @@ async function seed() {
   const reviewRepository = dataSource.getRepository(Review);
   const postRepository = dataSource.getRepository(Post);
   const postServiceRepository = dataSource.getRepository(PostService);
+  const postMediaRepository = dataSource.getRepository(PostMedia);
 
   // Категории уже должны быть созданы через seed-catalog.ts
-  // Получаем категории из БД
-  console.log('📂 Loading categories from catalog...');
+  // Получаем категории и шаблоны услуг из БД
+  console.log('📂 Loading categories and service templates from catalog...');
   const rootCategories = await categoryRepository.find({ where: { level: 0 } });
   const subCategories = await categoryRepository.find({ where: { level: 1 } });
-  const serviceCategories = await categoryRepository.find({ where: { level: 2 } });
+  const serviceTemplateRepository = dataSource.getRepository(ServiceTemplate);
+  const serviceTemplateTranslationRepository = dataSource.getRepository(ServiceTemplateTranslation);
+  const serviceTemplates = await serviceTemplateRepository.find({ where: { is_active: true } });
   
   if (rootCategories.length === 0) {
     console.warn('⚠️  No categories found! Please run seed-catalog first.');
     process.exit(1);
   }
   
-  console.log(`✅ Loaded ${rootCategories.length} root, ${subCategories.length} sub, ${serviceCategories.length} service categories`);
+  if (serviceTemplates.length === 0) {
+    console.warn('⚠️  No service templates found! Please run seed-catalog first.');
+    process.exit(1);
+  }
+  
+  console.log(`✅ Loaded ${rootCategories.length} root, ${subCategories.length} sub categories, ${serviceTemplates.length} service templates`);
 
-  // 2. Create Users (5 regular + 5 masters)
+  // 2. Create Users (5 regular + 5 masters + 2 фиксированных тестовых с паролем qwerty123)
   console.log('👥 Creating users...');
   const users: User[] = [];
-  const hashedPassword = await bcrypt.hash('Password123!', 10);
+  const hashedPassword = await bcrypt.hash('qwerty123', 10);
+  const minioBase = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+  const avatarUrl = (userIndex: number) => `${minioBase}/avatars/avatar-${(userIndex % 11) + 1}.jpg`;
 
+  let userIndex = 0;
   // Regular users
   for (let i = 0; i < 5; i++) {
     const firstName = faker.person.firstName();
@@ -205,7 +231,7 @@ async function seed() {
       password_hash: hashedPassword,
       first_name: firstName,
       last_name: lastName,
-      avatar_url: faker.image.avatar(),
+      avatar_url: avatarUrl(userIndex++),
       is_master: false,
       language: 'ru',
       timezone: 'Europe/Moscow',
@@ -227,7 +253,7 @@ async function seed() {
       password_hash: hashedPassword,
       first_name: firstName,
       last_name: lastName,
-      avatar_url: faker.image.avatar(),
+      avatar_url: avatarUrl(userIndex++),
       is_master: true,
       master_profile_completed: true,
       is_verified: faker.datatype.boolean(),
@@ -243,7 +269,46 @@ async function seed() {
     users.push(user);
     masterUsers.push(user);
   }
-  console.log(`✅ Created ${users.length} users (${masterUsers.length} masters)`);
+
+  // Фиксированные тестовые пользователи (пароль qwerty123) для входа и проверки ленты
+  const fixedMasterUser = userRepository.create({
+    email: 'master@test.com',
+    phone: '+79000000001',
+    password_hash: hashedPassword,
+    first_name: 'Тест',
+    last_name: 'Мастер',
+    avatar_url: avatarUrl(userIndex++),
+    is_master: true,
+    master_profile_completed: true,
+    is_verified: true,
+    rating: 4.5,
+    reviews_count: 10,
+    language: 'ru',
+    timezone: 'Europe/Moscow',
+    last_location_lat: 55.7558,
+    last_location_lng: 37.6173,
+  });
+  await userRepository.save(fixedMasterUser);
+  users.push(fixedMasterUser);
+  masterUsers.push(fixedMasterUser);
+
+  const fixedClientUser = userRepository.create({
+    email: 'client@test.com',
+    phone: '+79000000002',
+    password_hash: hashedPassword,
+    first_name: 'Тест',
+    last_name: 'Клиент',
+    avatar_url: avatarUrl(userIndex++),
+    is_master: false,
+    language: 'ru',
+    timezone: 'Europe/Moscow',
+    last_location_lat: 55.7558,
+    last_location_lng: 37.6173,
+  });
+  await userRepository.save(fixedClientUser);
+  users.push(fixedClientUser);
+
+  console.log(`✅ Created ${users.length} users (${masterUsers.length} masters, в т.ч. master@test.com / client@test.com с паролем qwerty123)`);
 
   // 3. Create Master Profiles
   console.log('🎨 Creating master profiles...');
@@ -251,15 +316,13 @@ async function seed() {
   for (let i = 0; i < masterUsers.length; i++) {
     const user = masterUsers[i];
     
-    // Заполняем category_ids из реального каталога (любого уровня)
+    // Заполняем category_ids только level 0 и level 1 (без level 2)
     const selectedRootCategories = faker.helpers.arrayElements(rootCategories, { min: 1, max: 3 });
-    const selectedSubCategories = faker.helpers.arrayElements(subCategories, { min: 0, max: 2 });
-    const selectedServiceCategories = faker.helpers.arrayElements(serviceCategories, { min: 0, max: 2 });
+    const selectedSubCategories = faker.helpers.arrayElements(subCategories, { min: 2, max: 5 });
     
     const allCategoryIds = [
       ...selectedRootCategories.map(c => c.id),
       ...selectedSubCategories.map(c => c.id),
-      ...selectedServiceCategories.map(c => c.id)
     ];
 
     const profile = masterProfileRepository.create({
@@ -315,8 +378,8 @@ async function seed() {
     await masterProfileRepository.save(profile);
     masterProfiles.push(profile);
 
-    // Update category counts для всех выбранных категорий
-    for (const cat of [...selectedRootCategories, ...selectedSubCategories, ...selectedServiceCategories]) {
+    // Update category counts для всех выбранных категорий (только level 0 и level 1)
+    for (const cat of [...selectedRootCategories, ...selectedSubCategories]) {
       cat.masters_count = (cat.masters_count || 0) + 1;
       await categoryRepository.save(cat);
     }
@@ -327,39 +390,40 @@ async function seed() {
   console.log('💼 Creating services...');
   const services: Service[] = [];
   for (const profile of masterProfiles) {
-    // Используем категории уровня 2 (услуги) для создания services
-    // Берем категории уровня 2, которые есть в category_ids мастера
-    const masterServiceCategories = serviceCategories.filter(c => 
-      profile.category_ids.includes(c.id)
+    // Используем шаблоны услуг из категорий мастера (level 1)
+    // Берем шаблоны, которые относятся к категориям мастера
+    const masterTemplates = serviceTemplates.filter(t => 
+      profile.category_ids.includes(t.category_id)
     );
     
-    // Если у мастера нет категорий уровня 2, выбираем случайные
-    const categoriesToUse = masterServiceCategories.length > 0 
-      ? masterServiceCategories 
-      : faker.helpers.arrayElements(serviceCategories, { min: 2, max: 5 });
+    // Если у мастера нет шаблонов в его категориях, выбираем случайные
+    const templatesToUse = masterTemplates.length > 0 
+      ? masterTemplates 
+      : faker.helpers.arrayElements(serviceTemplates, { min: 2, max: 5 });
 
     // Создаем 3-5 услуг для каждого мастера
     const servicesCount = faker.number.int({ min: 3, max: 5 });
     for (let j = 0; j < servicesCount; j++) {
-      const serviceCategory = faker.helpers.arrayElement(categoriesToUse);
+      const template = faker.helpers.arrayElement(templatesToUse);
       
-      // Получаем название услуги из категории через translations
-      const translation = await categoryTranslationRepository.findOne({
-        where: { category_id: serviceCategory.id, language: 'ru' }
+      // Получаем название и описание из шаблона через translations
+      const templateTranslation = await serviceTemplateTranslationRepository.findOne({
+        where: { service_template_id: template.id, language: 'ru' }
       });
-      const serviceName = translation?.name || serviceCategory.slug.split('-').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-      ).join(' ');
+      const serviceName = templateTranslation?.name || template.name;
+      const serviceDescription = templateTranslation?.description || template.description || faker.lorem.sentences(2);
 
+      // Используем данные из шаблона с возможностью переопределения
       const service = serviceRepository.create({
         master_id: profile.id,
-        category_id: serviceCategory.id, // Используем category_id уровня 2
-        subcategory_id: serviceCategory.parent_id || null,
+        category_id: template.category_id, // Level 1 категория из шаблона
+        service_template_id: template.id, // Ссылка на шаблон
+        subcategory_id: null, // Больше не используется
         name: serviceName,
-        description: faker.lorem.sentences(2),
+        description: serviceDescription,
         price: faker.number.int({ min: 500, max: 5000 }),
         currency: 'RUB',
-        duration_minutes: faker.helpers.arrayElement([30, 45, 60, 90, 120]),
+        duration_minutes: template.default_duration_minutes || faker.helpers.arrayElement([30, 45, 60, 90, 120]),
         is_bookable_online: true,
         is_mobile: profile.is_mobile,
         is_in_salon: profile.has_location,
@@ -378,9 +442,13 @@ async function seed() {
       await serviceRepository.save(service);
       services.push(service);
 
-      // Update category service count
-      serviceCategory.services_count = (serviceCategory.services_count || 0) + 1;
-      await categoryRepository.save(serviceCategory);
+      // Обновляем счетчик шаблонов не нужно - это делается автоматически
+      // Обновляем счетчик услуг в категории level 1 (если нужно)
+      const category = await categoryRepository.findOne({ where: { id: template.category_id } });
+      if (category) {
+        // Счетчик services_count в категории level 1 показывает количество шаблонов
+        // Реальные услуги считаются отдельно
+      }
     }
   }
   console.log(`✅ Created ${services.length} services`);
@@ -458,14 +526,18 @@ async function seed() {
   }
   console.log(`✅ Created 20 reviews`);
 
-  // 7. Create Posts
+  // 7. Create Posts и post_media со ссылками на тестовые изображения MinIO (posts/test-1.jpg … test-24.jpg)
   console.log('📝 Creating posts...');
   const posts: Post[] = [];
+  const minioPostsBase = `${minioBase}/posts`;
+  let photoMediaIndex = 0;
+  const maxTestImages = 24;
   for (let i = 0; i < 20; i++) {
     const author = faker.helpers.arrayElement(masterUsers);
+    const postType = faker.helpers.arrayElement([PostType.TEXT, PostType.PHOTO]);
     const post = postRepository.create({
       author_id: author.id,
-      type: faker.helpers.arrayElement([PostType.TEXT, PostType.PHOTO]),
+      type: postType,
       content: faker.lorem.paragraphs(faker.number.int({ min: 1, max: 3 })),
       privacy: PostPrivacy.PUBLIC,
       likes_count: faker.number.int({ min: 0, max: 100 }),
@@ -480,8 +552,24 @@ async function seed() {
     });
     await postRepository.save(post);
     posts.push(post);
+
+    if (postType === PostType.PHOTO) {
+      const n = (photoMediaIndex % maxTestImages) + 1;
+      const imageUrl = `${minioPostsBase}/test-${n}.jpg`;
+      const media = postMediaRepository.create({
+        post_id: post.id,
+        type: MediaType.PHOTO,
+        url: imageUrl,
+        thumbnail_url: imageUrl,
+        order: 0,
+        width: 400,
+        height: 400,
+      });
+      await postMediaRepository.save(media);
+      photoMediaIndex++;
+    }
   }
-  console.log(`✅ Created ${posts.length} posts`);
+  console.log(`✅ Created ${posts.length} posts (с медиа для PHOTO-постов, URL: ${minioPostsBase}/test-1.jpg … test-${maxTestImages}.jpg)`);
 
   // 8. Create Post-Service links and populate category_ids
   console.log('🔗 Creating post-service links and populating category_ids...');
@@ -528,19 +616,21 @@ async function seed() {
   }
   console.log(`✅ Created ${postServiceLinksCount} post-service links`);
 
+  const postMediaCount = await postMediaRepository.count();
   await dataSource.destroy();
   console.log('🎉 Seed completed successfully!');
   console.log(`
 Summary:
   - ${rootCategories.length} root categories (from catalog)
   - ${subCategories.length} subcategories (from catalog)
-  - ${serviceCategories.length} service categories (from catalog)
-  - ${users.length} users (${masterUsers.length} masters)
+  - ${serviceTemplates.length} service templates (from catalog)
+  - ${users.length} users (${masterUsers.length} masters). Тестовый вход: master@test.com / client@test.com, пароль qwerty123
   - ${masterProfiles.length} master profiles
   - ${services.length} services
   - ${bookings.length} bookings
   - 20 reviews
   - ${posts.length} posts
+  - ${postMediaCount} post_media (URL: ${minioBase}/posts/test-1.jpg … test-24.jpg; загрузите 24 изображения в MinIO бакет posts или запустите npm run upload-test-images)
   - ${postServiceLinksCount} post-service links
   `);
 }

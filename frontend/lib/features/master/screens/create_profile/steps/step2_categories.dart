@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../core/models/api/category_tree_model.dart';
+import '../../../../../core/providers/api/categories_tree_provider.dart';
 
-class Step2Categories extends StatefulWidget {
+class Step2Categories extends ConsumerStatefulWidget {
   final Map<String, dynamic> initialData;
   final Function(Map<String, dynamic>) onNext;
   final VoidCallback onBack;
@@ -13,54 +16,57 @@ class Step2Categories extends StatefulWidget {
   });
 
   @override
-  State<Step2Categories> createState() => _Step2CategoriesState();
+  ConsumerState<Step2Categories> createState() => _Step2CategoriesState();
 }
 
-class _Step2CategoriesState extends State<Step2Categories> {
-  final List<String> _allCategories = [
-    'Красота',
-    'Маникюр',
-    'Педикюр',
-    'Стрижка',
-    'Окрашивание',
-    'Макияж',
-    'Массаж',
-    'Косметология',
-    'Наращивание ресниц',
-    'Брови',
-    'Депиляция',
-    'Татуаж',
-    'Перманентный макияж',
-  ];
-
-  Set<String> _selectedCategories = {};
+class _Step2CategoriesState extends ConsumerState<Step2Categories> {
+  /// Выбранные ID категорий level 1 (для API и шаблонов)
+  Set<String> _selectedCategoryIds = {};
 
   @override
   void initState() {
     super.initState();
-    _selectedCategories = Set<String>.from(widget.initialData['categories'] ?? []);
+    final saved = widget.initialData['category_ids'];
+    if (saved is List) {
+      _selectedCategoryIds = Set<String>.from(
+        saved.map((e) => e.toString()),
+      );
+    }
   }
 
   void _continue() {
-    if (_selectedCategories.isEmpty) {
+    if (_selectedCategoryIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Выберите хотя бы одну категорию')),
       );
       return;
     }
 
-    if (_selectedCategories.length > 5) {
+    if (_selectedCategoryIds.length > 5) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Максимум 5 категорий')),
       );
       return;
     }
 
-    widget.onNext({'categories': _selectedCategories.toList()});
+    widget.onNext({'category_ids': _selectedCategoryIds.toList()});
+  }
+
+  /// Собираем все категории level 1 из дерева (дети корневых)
+  static List<CategoryTreeModel> _level1Categories(List<CategoryTreeModel> roots) {
+    final list = <CategoryTreeModel>[];
+    for (final root in roots) {
+      for (final child in root.children) {
+        list.add(child);
+      }
+    }
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(categoriesTreeProvider(language: 'ru'));
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -74,35 +80,58 @@ class _Step2CategoriesState extends State<Step2Categories> {
           ),
           const SizedBox(height: 8),
           Text(
-            'От 1 до 5 категорий услуг, которые вы предоставляете',
+            'От 1 до 5 категорий услуг (level 1). На следующем шаге вы сможете выбрать шаблоны услуг.',
             style: TextStyle(color: Colors.grey[600], fontSize: 14),
           ),
           const SizedBox(height: 24),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _allCategories.map((category) {
-              final isSelected = _selectedCategories.contains(category);
-              return FilterChip(
-                label: Text(category),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    if (selected) {
-                      if (_selectedCategories.length < 5) {
-                        _selectedCategories.add(category);
-                      }
-                    } else {
-                      _selectedCategories.remove(category);
-                    }
-                  });
-                },
+          categoriesAsync.when(
+            data: (roots) {
+              final level1 = _level1Categories(roots);
+              if (level1.isEmpty) {
+                return const Text(
+                  'Категории не загружены. Проверьте подключение.',
+                  style: TextStyle(color: Colors.red),
+                );
+              }
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: level1.map((cat) {
+                  final id = cat.id;
+                  final name = cat.name;
+                  final isSelected = _selectedCategoryIds.contains(id);
+                  return FilterChip(
+                    label: Text(name),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        if (selected) {
+                          if (_selectedCategoryIds.length < 5) {
+                            _selectedCategoryIds.add(id);
+                          }
+                        } else {
+                          _selectedCategoryIds.remove(id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (err, _) => Text(
+              'Ошибка загрузки категорий: $err',
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
           const SizedBox(height: 24),
           Text(
-            'Выбрано: ${_selectedCategories.length}/5',
+            'Выбрано: ${_selectedCategoryIds.length}/5',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,

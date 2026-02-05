@@ -376,6 +376,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final isMe = post.authorId == currentUserId;
 
     return Stack(
+      key: const Key('post-screen-root'),
       children: [
         // Full-screen media
         Positioned.fill(
@@ -511,6 +512,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: InkWell(
+                        key: const Key('post-master-profile-link'),
                         onTap: () {
                           // API теперь поддерживает поиск по userId через тот же эндпоинт
                           if (post.authorId.isNotEmpty) {
@@ -536,6 +538,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     if (!isMe)
                       isFollowing
                           ? OutlinedButton(
+                              key: const Key('post-subscribe-button'),
                               onPressed: _isTogglingFollow
                                   ? null
                                   : () => _toggleFollow(post, isFollowing),
@@ -557,6 +560,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                   : const Text('Отписаться'),
                             )
                           : ElevatedButton(
+                              key: const Key('post-subscribe-button'),
                               onPressed: _isTogglingFollow
                                   ? null
                                   : () => _toggleFollow(post, isFollowing),
@@ -638,6 +642,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           child: Column(
             children: [
               _buildActionButton(
+                key: const Key('post-like-button'),
                 icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
                 label: '${post.likesCount}',
                 color: post.isLiked ? Colors.red : Colors.white,
@@ -646,6 +651,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               ),
               const SizedBox(height: 24),
               _buildActionButton(
+                key: const Key('post-comment-button'),
                 icon: Icons.chat_bubble_outline,
                 label: '${post.commentsCount}',
                 onTap: _showComments,
@@ -658,6 +664,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               ),
               const SizedBox(height: 24),
               _buildActionButton(
+                key: const Key('post-bookmark-button'),
                 icon: isFavorite ? Icons.bookmark : Icons.bookmark_border,
                 color: isFavorite ? Colors.amber : Colors.white,
                 label: '',
@@ -688,12 +695,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   Widget _buildActionButton({
+    Key? key,
     required IconData icon,
     required String label,
     Color color = Colors.white,
     VoidCallback? onTap,
   }) {
     return Material(
+      key: key,
       color: Colors.transparent,
       child: SizedBox(
         // Минимальная область клика 56x56 для удобства на мобильных устройствах
@@ -1031,6 +1040,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                   children: [
                     Expanded(
                       child: TextField(
+                        key: const Key('post-comment-input'),
                         controller: _commentController,
                         decoration: InputDecoration(
                           hintText: 'Добавить комментарий...',
@@ -1049,6 +1059,7 @@ class _CommentsSheetState extends ConsumerState<_CommentsSheet> {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
+                      key: const Key('post-comment-send-button'),
                       icon: Icon(
                         Icons.send,
                         color: Theme.of(context).primaryColor,

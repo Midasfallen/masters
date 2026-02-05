@@ -167,6 +167,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
       isScrollControlled: true,
       builder: (context) {
         return FeedFiltersSheet(
+          key: const Key('feed-filters-sheet'),
           initialFilters: currentFilters,
         );
       },
@@ -187,6 +188,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          key: const Key('feed-filters-button'),
           icon: Icon(
             Icons.filter_list,
             color: hasActiveFilters
@@ -253,7 +255,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
                       ),
                     );
                   }
-                  return PostCard(post: posts[index]);
+                  return PostCard(
+                    key: Key('feed-post-${posts[index].id}'),
+                    post: posts[index],
+                  );
                 },
               ),
             ),

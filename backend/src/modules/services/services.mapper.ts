@@ -13,6 +13,7 @@ export class ServicesMapper {
       id: service.id,
       masterId: service.master_id,
       categoryId: service.category_id,
+      serviceTemplateId: service.service_template_id || null,
       subcategoryId: service.subcategory_id,
       name: service.name,
       description: service.description,

@@ -36,31 +36,49 @@ describe('BookingsController (e2e)', () => {
     );
     await app.init();
 
-    // Create test category if it doesn't exist
+    // Create test categories: level 0 (root) + level 1 (для услуг; POST /services требует level 1)
     let dataSource = app.get(DataSource);
     const categoryRepo = dataSource.getRepository(Category);
     const categoryTranslationRepo = dataSource.getRepository(CategoryTranslation);
 
-    let testCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty' } });
-    if (!testCategory) {
-      testCategory = categoryRepo.create({
+    let rootCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty' } });
+    if (!rootCategory) {
+      rootCategory = categoryRepo.create({
         slug: 'test-beauty',
         level: 0,
         icon_url: '💇',
         display_order: 999,
         is_active: true,
       });
-      await categoryRepo.save(testCategory);
+      await categoryRepo.save(rootCategory);
+      const transRoot = categoryTranslationRepo.create({
+        category_id: rootCategory.id,
+        language: 'en',
+        name: 'Test Beauty',
+        description: 'Test root category',
+      });
+      await categoryTranslationRepo.save(transRoot);
+    }
 
-      // Create English translation
-      const translation = categoryTranslationRepo.create({
+    let testCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty-hair' } });
+    if (!testCategory) {
+      testCategory = categoryRepo.create({
+        slug: 'test-beauty-hair',
+        level: 1,
+        parent_id: rootCategory.id,
+        icon_url: '💇',
+        display_order: 999,
+        is_active: true,
+      });
+      await categoryRepo.save(testCategory);
+      const transSub = categoryTranslationRepo.create({
         category_id: testCategory.id,
         language: 'en',
-        name: 'Test Beauty Services',
-        description: 'Test category for E2E tests',
+        name: 'Test Hair Services',
+        description: 'Test category for E2E (level 1)',
       });
-      await categoryTranslationRepo.save(translation);
-      console.log('Created test category:', testCategory.id);
+      await categoryTranslationRepo.save(transSub);
+      console.log('Created test category (level 1):', testCategory.id);
     } else {
       console.log('Using existing test category:', testCategory.id);
     }
@@ -144,12 +162,15 @@ describe('BookingsController (e2e)', () => {
       masterProfile.setup_step = 5;
       masterProfile.is_active = true;
 
-      // Get test category
+      // Используем категорию level 1 для профиля и создания услуги (валидация допускает только level 0/1)
       const categoryRepo = dataSource.getRepository(Category);
-      testCategory = await categoryRepo.findOne({ where: { slug: 'test-beauty' } });
-      if (!testCategory) {
-        throw new Error('Test category not found');
+      const level1Category = await categoryRepo.findOne({
+        where: { slug: 'test-beauty-hair' },
+      });
+      if (!level1Category) {
+        throw new Error('Test category (level 1) not found');
       }
+      testCategory = level1Category;
 
       masterProfile.category_ids = [testCategory.id];
       console.log('Added category to profile:', testCategory.id);

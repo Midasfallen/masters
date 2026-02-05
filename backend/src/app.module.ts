@@ -16,6 +16,7 @@ import { MastersModule } from './modules/masters/masters.module';
 import { ServicesModule } from './modules/services/services.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { ServiceTemplatesModule } from './modules/service-templates/service-templates.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SearchModule } from './modules/search/search.module';
@@ -61,6 +62,7 @@ import { UploadModule } from './modules/upload/upload.module';
     ServicesModule,
     BookingsModule,
     CategoriesModule,
+    ServiceTemplatesModule,
     ReviewsModule,
     NotificationsModule,
     SearchModule,
