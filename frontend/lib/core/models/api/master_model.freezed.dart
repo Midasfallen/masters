@@ -1068,6 +1068,427 @@ abstract class _MasterProfileModel implements MasterProfileModel {
       throw _privateConstructorUsedError;
 }
 
+MasterSearchResultModel _$MasterSearchResultModelFromJson(
+    Map<String, dynamic> json) {
+  return _MasterSearchResultModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$MasterSearchResultModel {
+  String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'first_name')
+  String get firstName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'last_name')
+  String get lastName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'average_rating')
+  double get averageRating => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reviews_count')
+  int get reviewsCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'category_names')
+  List<String> get categoryNames => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
+  List<String> get tags => throw _privateConstructorUsedError;
+  @JsonKey(name: 'location_address')
+  String? get locationAddress => throw _privateConstructorUsedError;
+  @JsonKey(name: 'distance_km')
+  double? get distanceKm => throw _privateConstructorUsedError;
+
+  /// Serializes this MasterSearchResultModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of MasterSearchResultModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MasterSearchResultModelCopyWith<MasterSearchResultModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MasterSearchResultModelCopyWith<$Res> {
+  factory $MasterSearchResultModelCopyWith(MasterSearchResultModel value,
+          $Res Function(MasterSearchResultModel) then) =
+      _$MasterSearchResultModelCopyWithImpl<$Res, MasterSearchResultModel>;
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'first_name') String firstName,
+      @JsonKey(name: 'last_name') String lastName,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'average_rating') double averageRating,
+      @JsonKey(name: 'reviews_count') int reviewsCount,
+      @JsonKey(name: 'category_names') List<String> categoryNames,
+      String? description,
+      List<String> tags,
+      @JsonKey(name: 'location_address') String? locationAddress,
+      @JsonKey(name: 'distance_km') double? distanceKm});
+}
+
+/// @nodoc
+class _$MasterSearchResultModelCopyWithImpl<$Res,
+        $Val extends MasterSearchResultModel>
+    implements $MasterSearchResultModelCopyWith<$Res> {
+  _$MasterSearchResultModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of MasterSearchResultModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? firstName = null,
+    Object? lastName = null,
+    Object? avatarUrl = freezed,
+    Object? averageRating = null,
+    Object? reviewsCount = null,
+    Object? categoryNames = null,
+    Object? description = freezed,
+    Object? tags = null,
+    Object? locationAddress = freezed,
+    Object? distanceKm = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      firstName: null == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String,
+      lastName: null == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      averageRating: null == averageRating
+          ? _value.averageRating
+          : averageRating // ignore: cast_nullable_to_non_nullable
+              as double,
+      reviewsCount: null == reviewsCount
+          ? _value.reviewsCount
+          : reviewsCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      categoryNames: null == categoryNames
+          ? _value.categoryNames
+          : categoryNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      tags: null == tags
+          ? _value.tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      locationAddress: freezed == locationAddress
+          ? _value.locationAddress
+          : locationAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      distanceKm: freezed == distanceKm
+          ? _value.distanceKm
+          : distanceKm // ignore: cast_nullable_to_non_nullable
+              as double?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$MasterSearchResultModelImplCopyWith<$Res>
+    implements $MasterSearchResultModelCopyWith<$Res> {
+  factory _$$MasterSearchResultModelImplCopyWith(
+          _$MasterSearchResultModelImpl value,
+          $Res Function(_$MasterSearchResultModelImpl) then) =
+      __$$MasterSearchResultModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      @JsonKey(name: 'first_name') String firstName,
+      @JsonKey(name: 'last_name') String lastName,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
+      @JsonKey(name: 'average_rating') double averageRating,
+      @JsonKey(name: 'reviews_count') int reviewsCount,
+      @JsonKey(name: 'category_names') List<String> categoryNames,
+      String? description,
+      List<String> tags,
+      @JsonKey(name: 'location_address') String? locationAddress,
+      @JsonKey(name: 'distance_km') double? distanceKm});
+}
+
+/// @nodoc
+class __$$MasterSearchResultModelImplCopyWithImpl<$Res>
+    extends _$MasterSearchResultModelCopyWithImpl<$Res,
+        _$MasterSearchResultModelImpl>
+    implements _$$MasterSearchResultModelImplCopyWith<$Res> {
+  __$$MasterSearchResultModelImplCopyWithImpl(
+      _$MasterSearchResultModelImpl _value,
+      $Res Function(_$MasterSearchResultModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of MasterSearchResultModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? firstName = null,
+    Object? lastName = null,
+    Object? avatarUrl = freezed,
+    Object? averageRating = null,
+    Object? reviewsCount = null,
+    Object? categoryNames = null,
+    Object? description = freezed,
+    Object? tags = null,
+    Object? locationAddress = freezed,
+    Object? distanceKm = freezed,
+  }) {
+    return _then(_$MasterSearchResultModelImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      firstName: null == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String,
+      lastName: null == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      averageRating: null == averageRating
+          ? _value.averageRating
+          : averageRating // ignore: cast_nullable_to_non_nullable
+              as double,
+      reviewsCount: null == reviewsCount
+          ? _value.reviewsCount
+          : reviewsCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      categoryNames: null == categoryNames
+          ? _value._categoryNames
+          : categoryNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      tags: null == tags
+          ? _value._tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      locationAddress: freezed == locationAddress
+          ? _value.locationAddress
+          : locationAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      distanceKm: freezed == distanceKm
+          ? _value.distanceKm
+          : distanceKm // ignore: cast_nullable_to_non_nullable
+              as double?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MasterSearchResultModelImpl implements _MasterSearchResultModel {
+  const _$MasterSearchResultModelImpl(
+      {required this.id,
+      @JsonKey(name: 'first_name') required this.firstName,
+      @JsonKey(name: 'last_name') required this.lastName,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
+      @JsonKey(name: 'average_rating') required this.averageRating,
+      @JsonKey(name: 'reviews_count') required this.reviewsCount,
+      @JsonKey(name: 'category_names')
+      final List<String> categoryNames = const [],
+      this.description,
+      final List<String> tags = const [],
+      @JsonKey(name: 'location_address') this.locationAddress,
+      @JsonKey(name: 'distance_km') this.distanceKm})
+      : _categoryNames = categoryNames,
+        _tags = tags;
+
+  factory _$MasterSearchResultModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MasterSearchResultModelImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  @JsonKey(name: 'first_name')
+  final String firstName;
+  @override
+  @JsonKey(name: 'last_name')
+  final String lastName;
+  @override
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+  @override
+  @JsonKey(name: 'average_rating')
+  final double averageRating;
+  @override
+  @JsonKey(name: 'reviews_count')
+  final int reviewsCount;
+  final List<String> _categoryNames;
+  @override
+  @JsonKey(name: 'category_names')
+  List<String> get categoryNames {
+    if (_categoryNames is EqualUnmodifiableListView) return _categoryNames;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_categoryNames);
+  }
+
+  @override
+  final String? description;
+  final List<String> _tags;
+  @override
+  @JsonKey()
+  List<String> get tags {
+    if (_tags is EqualUnmodifiableListView) return _tags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tags);
+  }
+
+  @override
+  @JsonKey(name: 'location_address')
+  final String? locationAddress;
+  @override
+  @JsonKey(name: 'distance_km')
+  final double? distanceKm;
+
+  @override
+  String toString() {
+    return 'MasterSearchResultModel(id: $id, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl, averageRating: $averageRating, reviewsCount: $reviewsCount, categoryNames: $categoryNames, description: $description, tags: $tags, locationAddress: $locationAddress, distanceKm: $distanceKm)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MasterSearchResultModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
+            (identical(other.averageRating, averageRating) ||
+                other.averageRating == averageRating) &&
+            (identical(other.reviewsCount, reviewsCount) ||
+                other.reviewsCount == reviewsCount) &&
+            const DeepCollectionEquality()
+                .equals(other._categoryNames, _categoryNames) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            const DeepCollectionEquality().equals(other._tags, _tags) &&
+            (identical(other.locationAddress, locationAddress) ||
+                other.locationAddress == locationAddress) &&
+            (identical(other.distanceKm, distanceKm) ||
+                other.distanceKm == distanceKm));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      firstName,
+      lastName,
+      avatarUrl,
+      averageRating,
+      reviewsCount,
+      const DeepCollectionEquality().hash(_categoryNames),
+      description,
+      const DeepCollectionEquality().hash(_tags),
+      locationAddress,
+      distanceKm);
+
+  /// Create a copy of MasterSearchResultModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MasterSearchResultModelImplCopyWith<_$MasterSearchResultModelImpl>
+      get copyWith => __$$MasterSearchResultModelImplCopyWithImpl<
+          _$MasterSearchResultModelImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MasterSearchResultModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _MasterSearchResultModel implements MasterSearchResultModel {
+  const factory _MasterSearchResultModel(
+          {required final String id,
+          @JsonKey(name: 'first_name') required final String firstName,
+          @JsonKey(name: 'last_name') required final String lastName,
+          @JsonKey(name: 'avatar_url') final String? avatarUrl,
+          @JsonKey(name: 'average_rating') required final double averageRating,
+          @JsonKey(name: 'reviews_count') required final int reviewsCount,
+          @JsonKey(name: 'category_names') final List<String> categoryNames,
+          final String? description,
+          final List<String> tags,
+          @JsonKey(name: 'location_address') final String? locationAddress,
+          @JsonKey(name: 'distance_km') final double? distanceKm}) =
+      _$MasterSearchResultModelImpl;
+
+  factory _MasterSearchResultModel.fromJson(Map<String, dynamic> json) =
+      _$MasterSearchResultModelImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  @JsonKey(name: 'first_name')
+  String get firstName;
+  @override
+  @JsonKey(name: 'last_name')
+  String get lastName;
+  @override
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
+  @override
+  @JsonKey(name: 'average_rating')
+  double get averageRating;
+  @override
+  @JsonKey(name: 'reviews_count')
+  int get reviewsCount;
+  @override
+  @JsonKey(name: 'category_names')
+  List<String> get categoryNames;
+  @override
+  String? get description;
+  @override
+  List<String> get tags;
+  @override
+  @JsonKey(name: 'location_address')
+  String? get locationAddress;
+  @override
+  @JsonKey(name: 'distance_km')
+  double? get distanceKm;
+
+  /// Create a copy of MasterSearchResultModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MasterSearchResultModelImplCopyWith<_$MasterSearchResultModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
 CreateMasterProfileRequest _$CreateMasterProfileRequestFromJson(
     Map<String, dynamic> json) {
   return _CreateMasterProfileRequest.fromJson(json);

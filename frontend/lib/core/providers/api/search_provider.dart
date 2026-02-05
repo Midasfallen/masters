@@ -1,13 +1,36 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/models/api/master_model.dart';
 import 'package:service_platform/core/models/api/service_model.dart';
+import 'package:service_platform/core/models/api/search_aggregation_model.dart';
 import 'package:service_platform/core/repositories/search_repository.dart';
 
 part 'search_provider.g.dart';
 
+/// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+@riverpod
+Future<SearchAggregationModel> searchAll(
+  SearchAllRef ref, {
+  required String query,
+  int limit = 10,
+  String language = 'ru',
+}) async {
+  final q = query.trim();
+  if (q.isEmpty) {
+    return SearchAggregationModel(
+      masters: [],
+      services: [],
+      categories: [],
+      query: '',
+      processingTimeMs: 0,
+    );
+  }
+  final repository = ref.watch(searchRepositoryProvider);
+  return await repository.searchAll(query: q, limit: limit, language: language);
+}
+
 /// Search Masters Provider
 @riverpod
-Future<List<MasterProfileModel>> searchMasters(
+Future<List<MasterSearchResultModel>> searchMasters(
   SearchMastersRef ref, {
   String query = '',
   int page = 1,

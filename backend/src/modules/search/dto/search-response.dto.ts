@@ -97,6 +97,48 @@ export class ServiceTemplateSearchResultDto {
   default_price_range_max?: number;
 }
 
+/** Результат поиска по категориям (L0/L1) */
+export class CategorySearchResultDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  slug: string;
+
+  @ApiProperty({ description: 'Уровень: 0 = L0 (группа), 1 = L1 (подкатегория)' })
+  level: number;
+
+  @ApiProperty({ required: false })
+  parent_id?: string;
+
+  @ApiProperty()
+  language: string;
+
+  @ApiProperty({ required: false, description: 'Название с тегами <em> для подсветки совпадений' })
+  name_highlighted?: string;
+}
+
+/** Агрегированный ответ поиска: мастера, услуги, категории в одном запросе */
+export class SearchAggregationDto {
+  @ApiProperty({ type: [MasterSearchResultDto] })
+  masters: MasterSearchResultDto[];
+
+  @ApiProperty({ type: [ServiceSearchResultDto] })
+  services: ServiceSearchResultDto[];
+
+  @ApiProperty({ type: [CategorySearchResultDto] })
+  categories: CategorySearchResultDto[];
+
+  @ApiProperty({ description: 'Поисковый запрос' })
+  query: string;
+
+  @ApiProperty({ description: 'Время выполнения в мс' })
+  processing_time_ms: number;
+}
+
 export class SearchResponseDto<T> {
   @ApiProperty()
   data: T[];

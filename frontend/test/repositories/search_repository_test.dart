@@ -22,30 +22,16 @@ void main() {
   group('SearchRepository', () {
     final mockMasterData = {
       'id': 'master1',
-      'userId': 'user1',
-      'categoryIds': ['cat1'],
-      'subcategoryIds': [],
-      'rating': 4.5,
-      'reviewsCount': 20,
-      'completedBookings': 50,
-      'cancellationsCount': 2,
-      'viewsCount': 100,
-      'favoritesCount': 10,
-      'subscribersCount': 5,
-      'isMobile': true,
-      'hasLocation': true,
-      'isOnlineOnly': false,
-      'portfolioUrls': [],
-      'videoUrls': [],
-      'minBookingHours': 1,
-      'autoConfirm': false,
-      'certificates': [],
-      'languages': ['ru'],
-      'isActive': true,
-      'isApproved': true,
-      'setupStep': 3,
-      'createdAt': '2024-01-01T00:00:00Z',
-      'updatedAt': '2024-01-01T00:00:00Z',
+      'first_name': 'Иван',
+      'last_name': 'Петров',
+      'avatar_url': null,
+      'average_rating': 4.5,
+      'reviews_count': 20,
+      'category_names': <String>[],
+      'description': 'Мастер массажа',
+      'tags': <String>[],
+      'location_address': null,
+      'distance_km': null,
     };
 
     final mockServiceData = {
@@ -82,9 +68,9 @@ void main() {
 
         final result = await repository.searchMasters(query: 'массаж');
 
-        expect(result, isA<List<MasterProfileModel>>());
+        expect(result, isA<List<MasterSearchResultModel>>());
         expect(result.length, 1);
-        expect(result.first.rating, 4.5);
+        expect(result.first.averageRating, 4.5);
       });
 
       test('should pass all filters', () async {

@@ -8,6 +8,7 @@ import { Service } from '../services/entities/service.entity';
 import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
 import { ServiceTemplateTranslation } from '../service-templates/entities/service-template-translation.entity';
 import { Category } from '../categories/entities/category.entity';
+import { CategoryTranslation } from '../categories/entities/category-translation.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Category } from '../categories/entities/category.entity';
       ServiceTemplate,
       ServiceTemplateTranslation,
       Category,
+      CategoryTranslation,
     ]),
   ],
   controllers: [SearchController],

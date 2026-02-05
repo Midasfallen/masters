@@ -15,6 +15,7 @@ import {
   CategoryResponseDto,
   CategoryTreeResponseDto,
 } from './dto/category-response.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class CategoriesService {
@@ -23,6 +24,7 @@ export class CategoriesService {
     private readonly categoryRepository: TreeRepository<Category>,
     @InjectRepository(CategoryTranslation)
     private readonly translationRepository: Repository<CategoryTranslation>,
+    private readonly searchService: SearchService,
   ) {}
 
   /**
@@ -89,6 +91,7 @@ export class CategoriesService {
 
     await this.translationRepository.save(translations);
 
+    await this.searchService.reindexCategory(savedCategory.id);
     return this.mapToResponseDto(savedCategory, translations);
   }
 
@@ -283,6 +286,7 @@ export class CategoriesService {
       where: { category_id: id },
     });
 
+    await this.searchService.reindexCategory(id);
     return this.mapToResponseDto(updatedCategory, translations);
   }
 
@@ -343,6 +347,7 @@ export class CategoriesService {
       where: { category_id: id },
     });
 
+    await this.searchService.reindexCategory(id);
     return this.mapToResponseDto(updatedCategory, translations);
   }
 
@@ -378,6 +383,8 @@ export class CategoriesService {
 
     // Удаляем переводы
     await this.translationRepository.delete({ category_id: id });
+
+    await this.searchService.deleteCategoryFromIndex(id);
 
     // Удаляем категорию
     await this.categoryRepository.remove(category);

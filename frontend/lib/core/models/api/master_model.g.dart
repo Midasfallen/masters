@@ -108,6 +108,43 @@ Map<String, dynamic> _$$MasterProfileModelImplToJson(
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
+_$MasterSearchResultModelImpl _$$MasterSearchResultModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$MasterSearchResultModelImpl(
+      id: json['id'] as String,
+      firstName: json['first_name'] as String,
+      lastName: json['last_name'] as String,
+      avatarUrl: json['avatar_url'] as String?,
+      averageRating: (json['average_rating'] as num).toDouble(),
+      reviewsCount: (json['reviews_count'] as num).toInt(),
+      categoryNames: (json['category_names'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      description: json['description'] as String?,
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
+      locationAddress: json['location_address'] as String?,
+      distanceKm: (json['distance_km'] as num?)?.toDouble(),
+    );
+
+Map<String, dynamic> _$$MasterSearchResultModelImplToJson(
+        _$MasterSearchResultModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
+      'avatar_url': instance.avatarUrl,
+      'average_rating': instance.averageRating,
+      'reviews_count': instance.reviewsCount,
+      'category_names': instance.categoryNames,
+      'description': instance.description,
+      'tags': instance.tags,
+      'location_address': instance.locationAddress,
+      'distance_km': instance.distanceKm,
+    };
+
 _$CreateMasterProfileRequestImpl _$$CreateMasterProfileRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateMasterProfileRequestImpl(

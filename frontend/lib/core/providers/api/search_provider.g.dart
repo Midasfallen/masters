@@ -6,7 +6,7 @@ part of 'search_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$searchMastersHash() => r'8705268f03af98d2c6f3429ae17f63d85584cbeb';
+String _$searchAllHash() => r'6c0d515db6764643d53558e0b3018d38e0558784';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,6 +29,182 @@ class _SystemHash {
   }
 }
 
+/// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+///
+/// Copied from [searchAll].
+@ProviderFor(searchAll)
+const searchAllProvider = SearchAllFamily();
+
+/// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+///
+/// Copied from [searchAll].
+class SearchAllFamily extends Family<AsyncValue<SearchAggregationModel>> {
+  /// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+  ///
+  /// Copied from [searchAll].
+  const SearchAllFamily();
+
+  /// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+  ///
+  /// Copied from [searchAll].
+  SearchAllProvider call({
+    required String query,
+    int limit = 10,
+    String language = 'ru',
+  }) {
+    return SearchAllProvider(
+      query: query,
+      limit: limit,
+      language: language,
+    );
+  }
+
+  @override
+  SearchAllProvider getProviderOverride(
+    covariant SearchAllProvider provider,
+  ) {
+    return call(
+      query: provider.query,
+      limit: provider.limit,
+      language: provider.language,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'searchAllProvider';
+}
+
+/// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+///
+/// Copied from [searchAll].
+class SearchAllProvider
+    extends AutoDisposeFutureProvider<SearchAggregationModel> {
+  /// Агрегированный поиск: мастера + услуги + категории одним запросом (для экрана с табами)
+  ///
+  /// Copied from [searchAll].
+  SearchAllProvider({
+    required String query,
+    int limit = 10,
+    String language = 'ru',
+  }) : this._internal(
+          (ref) => searchAll(
+            ref as SearchAllRef,
+            query: query,
+            limit: limit,
+            language: language,
+          ),
+          from: searchAllProvider,
+          name: r'searchAllProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$searchAllHash,
+          dependencies: SearchAllFamily._dependencies,
+          allTransitiveDependencies: SearchAllFamily._allTransitiveDependencies,
+          query: query,
+          limit: limit,
+          language: language,
+        );
+
+  SearchAllProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.query,
+    required this.limit,
+    required this.language,
+  }) : super.internal();
+
+  final String query;
+  final int limit;
+  final String language;
+
+  @override
+  Override overrideWith(
+    FutureOr<SearchAggregationModel> Function(SearchAllRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: SearchAllProvider._internal(
+        (ref) => create(ref as SearchAllRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        query: query,
+        limit: limit,
+        language: language,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<SearchAggregationModel> createElement() {
+    return _SearchAllProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SearchAllProvider &&
+        other.query == query &&
+        other.limit == limit &&
+        other.language == language;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+    hash = _SystemHash.combine(hash, language.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin SearchAllRef on AutoDisposeFutureProviderRef<SearchAggregationModel> {
+  /// The parameter `query` of this provider.
+  String get query;
+
+  /// The parameter `limit` of this provider.
+  int get limit;
+
+  /// The parameter `language` of this provider.
+  String get language;
+}
+
+class _SearchAllProviderElement
+    extends AutoDisposeFutureProviderElement<SearchAggregationModel>
+    with SearchAllRef {
+  _SearchAllProviderElement(super.provider);
+
+  @override
+  String get query => (origin as SearchAllProvider).query;
+  @override
+  int get limit => (origin as SearchAllProvider).limit;
+  @override
+  String get language => (origin as SearchAllProvider).language;
+}
+
+String _$searchMastersHash() => r'706d6a097300422aa7d690d4dc6b3c6c828f10ee';
+
 /// Search Masters Provider
 ///
 /// Copied from [searchMasters].
@@ -38,7 +214,8 @@ const searchMastersProvider = SearchMastersFamily();
 /// Search Masters Provider
 ///
 /// Copied from [searchMasters].
-class SearchMastersFamily extends Family<AsyncValue<List<MasterProfileModel>>> {
+class SearchMastersFamily
+    extends Family<AsyncValue<List<MasterSearchResultModel>>> {
   /// Search Masters Provider
   ///
   /// Copied from [searchMasters].
@@ -110,7 +287,7 @@ class SearchMastersFamily extends Family<AsyncValue<List<MasterProfileModel>>> {
 ///
 /// Copied from [searchMasters].
 class SearchMastersProvider
-    extends AutoDisposeFutureProvider<List<MasterProfileModel>> {
+    extends AutoDisposeFutureProvider<List<MasterSearchResultModel>> {
   /// Search Masters Provider
   ///
   /// Copied from [searchMasters].
@@ -192,7 +369,7 @@ class SearchMastersProvider
 
   @override
   Override overrideWith(
-    FutureOr<List<MasterProfileModel>> Function(SearchMastersRef provider)
+    FutureOr<List<MasterSearchResultModel>> Function(SearchMastersRef provider)
         create,
   ) {
     return ProviderOverride(
@@ -219,7 +396,8 @@ class SearchMastersProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<MasterProfileModel>> createElement() {
+  AutoDisposeFutureProviderElement<List<MasterSearchResultModel>>
+      createElement() {
     return _SearchMastersProviderElement(this);
   }
 
@@ -259,7 +437,7 @@ class SearchMastersProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin SearchMastersRef
-    on AutoDisposeFutureProviderRef<List<MasterProfileModel>> {
+    on AutoDisposeFutureProviderRef<List<MasterSearchResultModel>> {
   /// The parameter `query` of this provider.
   String get query;
 
@@ -292,7 +470,7 @@ mixin SearchMastersRef
 }
 
 class _SearchMastersProviderElement
-    extends AutoDisposeFutureProviderElement<List<MasterProfileModel>>
+    extends AutoDisposeFutureProviderElement<List<MasterSearchResultModel>>
     with SearchMastersRef {
   _SearchMastersProviderElement(super.provider);
 

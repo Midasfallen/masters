@@ -1,12 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../core/models/api/master_model.dart';
-import '../../../core/models/api/service_model.dart';
 import '../../../core/providers/api/search_provider.dart';
 import '../widgets/category_grid_widget.dart';
+import '../widgets/search_results_tabs.dart';
 
 /// State provider for search query
 final searchQueryProvider = StateProvider<String>((ref) => '');
@@ -48,7 +45,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Поиск мастеров и услуг...',
+                hintText: 'Поиск мастеров, услуг и категорий...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -81,59 +78,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       return const CategoryGridWidget();
     }
 
-    // При наличии запроса показываем результаты поиска (мастера и услуги вместе)
-    final mastersAsync = ref.watch(searchMastersProvider(query: query));
-    final servicesAsync = ref.watch(searchServicesProvider(query: query));
+    // Один запрос к GET /search/all — мастера, услуги, категории с табами
+    final aggregationAsync = ref.watch(searchAllProvider(query: query));
 
-    return mastersAsync.when(
-      data: (masters) {
-        return servicesAsync.when(
-          data: (services) {
-            if (masters.isEmpty && services.isEmpty) {
-              return _buildEmptyState(
-                icon: Icons.search_off,
-                title: 'Ничего не найдено',
-                subtitle: 'Попробуйте изменить запрос',
-              );
-            }
-
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Мастера
-                if (masters.isNotEmpty) ...[
-                  const Text(
-                    'Мастера',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...masters.map((master) => _buildMasterCard(master)),
-                  const SizedBox(height: 24),
-                ],
-                // Услуги
-                if (services.isNotEmpty) ...[
-                  const Text(
-                    'Услуги',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...services.map((service) => _buildServiceCard(service)),
-                ],
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => _buildErrorWidget(error, () => ref.invalidate(searchServicesProvider)),
-        );
+    return aggregationAsync.when(
+      data: (result) {
+        final hasAny = result.masters.isNotEmpty ||
+            result.services.isNotEmpty ||
+            result.categories.isNotEmpty;
+        if (!hasAny) {
+          return _buildEmptyState(
+            icon: Icons.search_off,
+            title: 'Ничего не найдено',
+            subtitle: 'Попробуйте изменить запрос',
+          );
+        }
+        return SearchResultsTabs(result: result);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => _buildErrorWidget(error, () => ref.invalidate(searchMastersProvider)),
+      error: (error, stack) => _buildErrorWidget(
+        error,
+        () => ref.invalidate(searchAllProvider),
+      ),
     );
   }
 
@@ -151,154 +117,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: const Text('Повторить'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMasterCard(MasterProfileModel master) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        onTap: () {
-          context.push('/master/${master.id}');
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Avatar
-              CircleAvatar(
-                radius: 32,
-                backgroundImage: master.user?.avatarUrl != null
-                    ? CachedNetworkImageProvider(master.user!.avatarUrl!)
-                    : null,
-                child: master.user?.avatarUrl == null
-                    ? Text(
-                        (master.user?.fullName ?? 'M')[0].toUpperCase(),
-                        style: const TextStyle(fontSize: 24),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 16),
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      master.businessName ?? 'Мастер',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (master.bio != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        master.bio!,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.star, size: 16, color: Colors.amber[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          master.rating.toStringAsFixed(1),
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${master.reviewsCount})',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                        ),
-                        const SizedBox(width: 16),
-                        Icon(Icons.work_outline, size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${master.completedBookings} заказов',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildServiceCard(ServiceModel service) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Услуга: ${service.name}')),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      service.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '${service.price.toStringAsFixed(0)} ₽',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-              if (service.description != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  service.description!,
-                  style: TextStyle(color: Colors.grey[600]),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${service.durationMinutes} мин',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { MeiliSearch } from 'meilisearch';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
@@ -8,13 +8,17 @@ import { Service } from '../services/entities/service.entity';
 import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
 import { ServiceTemplateTranslation } from '../service-templates/entities/service-template-translation.entity';
 import { Category } from '../categories/entities/category.entity';
+import { CategoryTranslation } from '../categories/entities/category-translation.entity';
 import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
 import { SearchTemplatesDto } from './dto/search-templates.dto';
+import { SearchAllDto } from './dto/search-all.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
   ServiceTemplateSearchResultDto,
+  CategorySearchResultDto,
+  SearchAggregationDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
 
@@ -24,6 +28,7 @@ export class SearchService implements OnModuleInit {
   private mastersIndex;
   private servicesIndex;
   private serviceTemplatesIndex;
+  private categoriesIndex;
 
   constructor(
     @InjectRepository(User)
@@ -38,6 +43,8 @@ export class SearchService implements OnModuleInit {
     private readonly serviceTemplateTranslationRepository: Repository<ServiceTemplateTranslation>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(CategoryTranslation)
+    private readonly categoryTranslationRepository: Repository<CategoryTranslation>,
   ) {
     // Инициализация Meilisearch клиента
     this.meiliClient = new MeiliSearch({
@@ -114,6 +121,14 @@ export class SearchService implements OnModuleInit {
           'default_price_range_max',
         ],
         sortableAttributes: ['display_order', 'name'],
+      });
+
+      // Индекс категорий (L0/L1): name, keywords, slug; filterable level
+      this.categoriesIndex = this.meiliClient.index('categories');
+      await this.categoriesIndex.updateSettings({
+        searchableAttributes: ['name', 'keywords_text', 'slug'],
+        filterableAttributes: ['level', 'language'],
+        sortableAttributes: ['level', 'display_order', 'name'],
       });
 
       // Переиндексируем данные (если они есть)
@@ -498,7 +513,7 @@ export class SearchService implements OnModuleInit {
   /**
    * Переиндексация всех данных
    */
-  private async reindexAll(): Promise<void> {
+  async reindexAll(): Promise<void> {
     try {
       console.log('🔄 Reindexing all data...');
 
@@ -526,10 +541,194 @@ export class SearchService implements OnModuleInit {
         await this.indexServiceTemplate(template.id);
       }
 
+      // Переиндексируем категории (L0/L1)
+      await this.reindexCategories();
+
       console.log('✅ Reindexing completed');
     } catch (error) {
       console.error('Error during reindexing:', error);
     }
+  }
+
+  /**
+   * Переиндексация всех категорий (L0/L1) с переводами
+   */
+  async reindexCategories(): Promise<void> {
+    try {
+      console.log('🔄 Начало переиндексации категорий...');
+      const categories = await this.categoryRepository.find({
+        where: { is_active: true },
+        order: { level: 'ASC', display_order: 'ASC' },
+      });
+      console.log(`📊 Найдено категорий: ${categories.length}`);
+      if (categories.length === 0) return;
+
+      const categoryIds = categories.map((c) => c.id);
+      const translations = await this.categoryTranslationRepository.find({
+        where: { category_id: In(categoryIds) },
+      });
+      console.log(`🌐 Найдено переводов: ${translations.length}`);
+
+      const documents = [];
+      for (const cat of categories) {
+        const catTranslations = translations.filter((t) => t.category_id === cat.id);
+        for (const tr of catTranslations) {
+          documents.push({
+            id: `${cat.id}_${tr.language}`,
+            category_id: cat.id,
+            name: tr.name,
+            slug: cat.slug,
+            level: cat.level,
+            parent_id: cat.parent_id || null,
+            language: tr.language,
+            keywords_text: Array.isArray(tr.keywords) ? tr.keywords.join(' ') : '',
+            display_order: cat.display_order,
+          });
+        }
+      }
+      console.log(`📝 Подготовлено документов для индексации: ${documents.length}`);
+      if (documents.length > 0) {
+        await this.categoriesIndex.addDocuments(documents, { primaryKey: 'id' });
+        console.log(`✅ Категории проиндексированы: ${documents.length} документов`);
+      }
+    } catch (error) {
+      console.error('❌ Error reindexing categories:', error);
+    }
+  }
+
+  /**
+   * Обновить документ категории в Meilisearch (после изменения категории или перевода)
+   */
+  async reindexCategory(categoryId: string): Promise<void> {
+    if (!this.categoriesIndex) return;
+    try {
+      const category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
+      if (!category) return;
+
+      const translations = await this.categoryTranslationRepository.find({
+        where: { category_id: categoryId },
+      });
+      const documents = translations.map((tr) => ({
+        id: `${category.id}_${tr.language}`,
+        category_id: category.id,
+        name: tr.name,
+        slug: category.slug,
+        level: category.level,
+        parent_id: category.parent_id || null,
+        language: tr.language,
+        keywords_text: Array.isArray(tr.keywords) ? tr.keywords.join(' ') : '',
+        display_order: category.display_order,
+      }));
+      if (documents.length > 0) {
+        await this.categoriesIndex.addDocuments(documents, { primaryKey: 'id' });
+      }
+    } catch (error) {
+      console.error('Error reindexing category:', error);
+    }
+  }
+
+  /**
+   * Удалить категорию из индекса (после удаления в БД)
+   */
+  async deleteCategoryFromIndex(categoryId: string): Promise<void> {
+    if (!this.categoriesIndex) return;
+    try {
+      await this.categoriesIndex.deleteDocuments({
+        filter: `category_id = "${categoryId}"`,
+      });
+    } catch (error) {
+      console.error('Error deleting category from index:', error);
+    }
+  }
+
+  /**
+   * Поиск по категориям (L0/L1)
+   */
+  async searchCategories(
+    query: string,
+    language: string = 'ru',
+    limit: number = 10,
+    offset: number = 0,
+    attributesToHighlight?: string[],
+  ): Promise<{ data: CategorySearchResultDto[]; total: number }> {
+    if (!this.categoriesIndex) {
+      return { data: [], total: 0 };
+    }
+    try {
+      const searchResults = await this.categoriesIndex.search(query, {
+        filter: `language = "${language}"`,
+        limit,
+        offset,
+        attributesToHighlight: attributesToHighlight ?? ['name', 'slug'],
+        highlightPreTag: '<em>',
+        highlightPostTag: '</em>',
+      });
+
+      const data: CategorySearchResultDto[] = (searchResults.hits as any[]).map(
+        (hit: any) => ({
+          id: hit.category_id,
+          name: hit.name,
+          slug: hit.slug,
+          level: hit.level,
+          parent_id: hit.parent_id ?? undefined,
+          language: hit.language,
+          name_highlighted: hit._formatted?.name ?? hit.name,
+        }),
+      );
+      return {
+        data,
+        total: searchResults.estimatedTotalHits || 0,
+      };
+    } catch (error) {
+      console.error('Meilisearch categories search error:', error);
+      return { data: [], total: 0 };
+    }
+  }
+
+  /**
+   * Агрегированный поиск: мастера + услуги + категории одним запросом (Promise.all)
+   */
+  async searchAll(dto: SearchAllDto): Promise<SearchAggregationDto> {
+    const startTime = Date.now();
+    const query = (dto.q ?? '').trim();
+    const limitPerType = dto.limit ?? 10;
+    const language = dto.language ?? 'ru';
+
+    if (!query) {
+      return {
+        masters: [],
+        services: [],
+        categories: [],
+        query: '',
+        processing_time_ms: 0,
+      };
+    }
+
+    const [mastersRes, servicesRes, categoriesRes] = await Promise.all([
+      this.searchMasters({
+        query,
+        page: 1,
+        limit: limitPerType,
+      }),
+      this.searchServices({
+        query,
+        page: 1,
+        limit: limitPerType,
+      }),
+      this.searchCategories(query, language, limitPerType, 0),
+    ]);
+
+    const processingTimeMs = Date.now() - startTime;
+
+    return {
+      masters: mastersRes.data,
+      services: servicesRes.data,
+      categories: categoriesRes.data,
+      query,
+      processing_time_ms: processingTimeMs,
+    };
   }
 
   /**
@@ -982,5 +1181,35 @@ export class SearchService implements OnModuleInit {
 
   private deg2rad(deg: number): number {
     return deg * (Math.PI / 180);
+  }
+
+  /**
+   * Получить статистику индексов Meilisearch
+   */
+  async getIndexStats() {
+    try {
+      const [mastersStats, servicesStats, templatesStats, categoriesStats] =
+        await Promise.all([
+          this.mastersIndex.getStats(),
+          this.servicesIndex.getStats(),
+          this.serviceTemplatesIndex.getStats(),
+          this.categoriesIndex.getStats(),
+        ]);
+
+      return {
+        masters: mastersStats,
+        services: servicesStats,
+        service_templates: templatesStats,
+        categories: categoriesStats,
+      };
+    } catch (error) {
+      console.error('❌ Error getting index stats:', error);
+      return {
+        masters: { numberOfDocuments: 0, isIndexing: false },
+        services: { numberOfDocuments: 0, isIndexing: false },
+        service_templates: { numberOfDocuments: 0, isIndexing: false },
+        categories: { numberOfDocuments: 0, isIndexing: false },
+      };
+    }
   }
 }

@@ -11,10 +11,12 @@ import { SearchService } from './search.service';
 import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
 import { SearchTemplatesDto } from './dto/search-templates.dto';
+import { SearchAllDto } from './dto/search-all.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
   ServiceTemplateSearchResultDto,
+  SearchAggregationDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
 import { Public } from '../auth/decorators/public.decorator';
@@ -23,6 +25,33 @@ import { Public } from '../auth/decorators/public.decorator';
 @Controller('search')
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
+
+  @Public()
+  @Get('all')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Агрегированный поиск',
+    description:
+      'Один запрос: мастера, услуги и категории. Возвращает три массива с лимитом на каждый тип. Для экрана с табами.',
+  })
+  @ApiQuery({ name: 'q', required: true, type: String, description: 'Поисковый запрос', example: 'Кра' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Лимит на каждый тип', example: 10 })
+  @ApiQuery({ name: 'language', required: false, type: String, description: 'Язык для категорий', example: 'ru' })
+  @ApiOkResponse({
+    description: 'Агрегированные результаты',
+    schema: {
+      example: {
+        masters: [],
+        services: [],
+        categories: [{ id: '...', name: 'Красота', slug: 'beauty', level: 0, language: 'ru' }],
+        query: 'Кра',
+        processing_time_ms: 15,
+      },
+    },
+  })
+  async searchAll(@Query() dto: SearchAllDto): Promise<SearchAggregationDto> {
+    return this.searchService.searchAll(dto);
+  }
 
   @Public()
   @Get('masters')

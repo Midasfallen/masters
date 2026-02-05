@@ -3,23 +3,23 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'service_template_model.freezed.dart';
 part 'service_template_model.g.dart';
 
-/// Модель шаблона услуги
+/// Модель шаблона услуги (API возвращает camelCase)
 @freezed
 class ServiceTemplateModel with _$ServiceTemplateModel {
   const factory ServiceTemplateModel({
     required String id,
-    @JsonKey(name: 'category_id') required String categoryId,
+    @JsonKey(name: 'categoryId') required String categoryId,
     required String slug,
     required String name,
     String? description,
-    @JsonKey(name: 'icon_url') String? iconUrl,
-    @JsonKey(name: 'default_duration_minutes') int? defaultDurationMinutes,
-    @JsonKey(name: 'default_price_range_min') double? defaultPriceRangeMin,
-    @JsonKey(name: 'default_price_range_max') double? defaultPriceRangeMax,
-    @JsonKey(name: 'is_active') @Default(true) bool isActive,
-    @JsonKey(name: 'display_order') @Default(0) int displayOrder,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    @JsonKey(name: 'iconUrl') String? iconUrl,
+    @JsonKey(name: 'defaultDurationMinutes') int? defaultDurationMinutes,
+    @JsonKey(name: 'defaultPriceRangeMin') double? defaultPriceRangeMin,
+    @JsonKey(name: 'defaultPriceRangeMax') double? defaultPriceRangeMax,
+    @JsonKey(name: 'isActive') @Default(true) bool isActive,
+    @JsonKey(name: 'displayOrder') @Default(0) int displayOrder,
+    @JsonKey(name: 'createdAt') required DateTime createdAt,
+    @JsonKey(name: 'updatedAt') required DateTime updatedAt,
   }) = _ServiceTemplateModel;
 
   factory ServiceTemplateModel.fromJson(Map<String, dynamic> json) =>

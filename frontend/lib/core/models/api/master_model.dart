@@ -52,6 +52,27 @@ class MasterProfileModel with _$MasterProfileModel {
       _$MasterProfileModelFromJson(json);
 }
 
+/// Результат поиска мастера (упрощенная модель для поиска)
+@freezed
+class MasterSearchResultModel with _$MasterSearchResultModel {
+  const factory MasterSearchResultModel({
+    required String id,
+    @JsonKey(name: 'first_name') required String firstName,
+    @JsonKey(name: 'last_name') required String lastName,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'average_rating') required double averageRating,
+    @JsonKey(name: 'reviews_count') required int reviewsCount,
+    @JsonKey(name: 'category_names') @Default([]) List<String> categoryNames,
+    String? description,
+    @Default([]) List<String> tags,
+    @JsonKey(name: 'location_address') String? locationAddress,
+    @JsonKey(name: 'distance_km') double? distanceKm,
+  }) = _MasterSearchResultModel;
+
+  factory MasterSearchResultModel.fromJson(Map<String, dynamic> json) =>
+      _$MasterSearchResultModelFromJson(json);
+}
+
 /// Create Master Profile Request
 @freezed
 class CreateMasterProfileRequest with _$CreateMasterProfileRequest {

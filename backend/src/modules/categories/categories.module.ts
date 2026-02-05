@@ -4,9 +4,13 @@ import { CategoriesService } from './categories.service';
 import { CategoriesController } from './categories.controller';
 import { Category } from './entities/category.entity';
 import { CategoryTranslation } from './entities/category-translation.entity';
+import { SearchModule } from '../search/search.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category, CategoryTranslation])],
+  imports: [
+    TypeOrmModule.forFeature([Category, CategoryTranslation]),
+    SearchModule,
+  ],
   controllers: [CategoriesController],
   providers: [CategoriesService],
   exports: [CategoriesService],

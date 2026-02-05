@@ -21,26 +21,26 @@ ServiceTemplateModel _$ServiceTemplateModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ServiceTemplateModel {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'categoryId')
   String get categoryId => throw _privateConstructorUsedError;
   String get slug => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  @JsonKey(name: 'icon_url')
+  @JsonKey(name: 'iconUrl')
   String? get iconUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'default_duration_minutes')
+  @JsonKey(name: 'defaultDurationMinutes')
   int? get defaultDurationMinutes => throw _privateConstructorUsedError;
-  @JsonKey(name: 'default_price_range_min')
+  @JsonKey(name: 'defaultPriceRangeMin')
   double? get defaultPriceRangeMin => throw _privateConstructorUsedError;
-  @JsonKey(name: 'default_price_range_max')
+  @JsonKey(name: 'defaultPriceRangeMax')
   double? get defaultPriceRangeMax => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'isActive')
   bool get isActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'display_order')
+  @JsonKey(name: 'displayOrder')
   int get displayOrder => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'createdAt')
   DateTime get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
+  @JsonKey(name: 'updatedAt')
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ServiceTemplateModel to a JSON map.
@@ -61,18 +61,18 @@ abstract class $ServiceTemplateModelCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'category_id') String categoryId,
+      @JsonKey(name: 'categoryId') String categoryId,
       String slug,
       String name,
       String? description,
-      @JsonKey(name: 'icon_url') String? iconUrl,
-      @JsonKey(name: 'default_duration_minutes') int? defaultDurationMinutes,
-      @JsonKey(name: 'default_price_range_min') double? defaultPriceRangeMin,
-      @JsonKey(name: 'default_price_range_max') double? defaultPriceRangeMax,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'display_order') int displayOrder,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      @JsonKey(name: 'iconUrl') String? iconUrl,
+      @JsonKey(name: 'defaultDurationMinutes') int? defaultDurationMinutes,
+      @JsonKey(name: 'defaultPriceRangeMin') double? defaultPriceRangeMin,
+      @JsonKey(name: 'defaultPriceRangeMax') double? defaultPriceRangeMax,
+      @JsonKey(name: 'isActive') bool isActive,
+      @JsonKey(name: 'displayOrder') int displayOrder,
+      @JsonKey(name: 'createdAt') DateTime createdAt,
+      @JsonKey(name: 'updatedAt') DateTime updatedAt});
 }
 
 /// @nodoc
@@ -172,18 +172,18 @@ abstract class _$$ServiceTemplateModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'category_id') String categoryId,
+      @JsonKey(name: 'categoryId') String categoryId,
       String slug,
       String name,
       String? description,
-      @JsonKey(name: 'icon_url') String? iconUrl,
-      @JsonKey(name: 'default_duration_minutes') int? defaultDurationMinutes,
-      @JsonKey(name: 'default_price_range_min') double? defaultPriceRangeMin,
-      @JsonKey(name: 'default_price_range_max') double? defaultPriceRangeMax,
-      @JsonKey(name: 'is_active') bool isActive,
-      @JsonKey(name: 'display_order') int displayOrder,
-      @JsonKey(name: 'created_at') DateTime createdAt,
-      @JsonKey(name: 'updated_at') DateTime updatedAt});
+      @JsonKey(name: 'iconUrl') String? iconUrl,
+      @JsonKey(name: 'defaultDurationMinutes') int? defaultDurationMinutes,
+      @JsonKey(name: 'defaultPriceRangeMin') double? defaultPriceRangeMin,
+      @JsonKey(name: 'defaultPriceRangeMax') double? defaultPriceRangeMax,
+      @JsonKey(name: 'isActive') bool isActive,
+      @JsonKey(name: 'displayOrder') int displayOrder,
+      @JsonKey(name: 'createdAt') DateTime createdAt,
+      @JsonKey(name: 'updatedAt') DateTime updatedAt});
 }
 
 /// @nodoc
@@ -275,18 +275,18 @@ class __$$ServiceTemplateModelImplCopyWithImpl<$Res>
 class _$ServiceTemplateModelImpl implements _ServiceTemplateModel {
   const _$ServiceTemplateModelImpl(
       {required this.id,
-      @JsonKey(name: 'category_id') required this.categoryId,
+      @JsonKey(name: 'categoryId') required this.categoryId,
       required this.slug,
       required this.name,
       this.description,
-      @JsonKey(name: 'icon_url') this.iconUrl,
-      @JsonKey(name: 'default_duration_minutes') this.defaultDurationMinutes,
-      @JsonKey(name: 'default_price_range_min') this.defaultPriceRangeMin,
-      @JsonKey(name: 'default_price_range_max') this.defaultPriceRangeMax,
-      @JsonKey(name: 'is_active') this.isActive = true,
-      @JsonKey(name: 'display_order') this.displayOrder = 0,
-      @JsonKey(name: 'created_at') required this.createdAt,
-      @JsonKey(name: 'updated_at') required this.updatedAt});
+      @JsonKey(name: 'iconUrl') this.iconUrl,
+      @JsonKey(name: 'defaultDurationMinutes') this.defaultDurationMinutes,
+      @JsonKey(name: 'defaultPriceRangeMin') this.defaultPriceRangeMin,
+      @JsonKey(name: 'defaultPriceRangeMax') this.defaultPriceRangeMax,
+      @JsonKey(name: 'isActive') this.isActive = true,
+      @JsonKey(name: 'displayOrder') this.displayOrder = 0,
+      @JsonKey(name: 'createdAt') required this.createdAt,
+      @JsonKey(name: 'updatedAt') required this.updatedAt});
 
   factory _$ServiceTemplateModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ServiceTemplateModelImplFromJson(json);
@@ -294,7 +294,7 @@ class _$ServiceTemplateModelImpl implements _ServiceTemplateModel {
   @override
   final String id;
   @override
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'categoryId')
   final String categoryId;
   @override
   final String slug;
@@ -303,28 +303,28 @@ class _$ServiceTemplateModelImpl implements _ServiceTemplateModel {
   @override
   final String? description;
   @override
-  @JsonKey(name: 'icon_url')
+  @JsonKey(name: 'iconUrl')
   final String? iconUrl;
   @override
-  @JsonKey(name: 'default_duration_minutes')
+  @JsonKey(name: 'defaultDurationMinutes')
   final int? defaultDurationMinutes;
   @override
-  @JsonKey(name: 'default_price_range_min')
+  @JsonKey(name: 'defaultPriceRangeMin')
   final double? defaultPriceRangeMin;
   @override
-  @JsonKey(name: 'default_price_range_max')
+  @JsonKey(name: 'defaultPriceRangeMax')
   final double? defaultPriceRangeMax;
   @override
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'isActive')
   final bool isActive;
   @override
-  @JsonKey(name: 'display_order')
+  @JsonKey(name: 'displayOrder')
   final int displayOrder;
   @override
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'createdAt')
   final DateTime createdAt;
   @override
-  @JsonKey(name: 'updated_at')
+  @JsonKey(name: 'updatedAt')
   final DateTime updatedAt;
 
   @override
@@ -399,23 +399,21 @@ class _$ServiceTemplateModelImpl implements _ServiceTemplateModel {
 
 abstract class _ServiceTemplateModel implements ServiceTemplateModel {
   const factory _ServiceTemplateModel(
-          {required final String id,
-          @JsonKey(name: 'category_id') required final String categoryId,
-          required final String slug,
-          required final String name,
-          final String? description,
-          @JsonKey(name: 'icon_url') final String? iconUrl,
-          @JsonKey(name: 'default_duration_minutes')
-          final int? defaultDurationMinutes,
-          @JsonKey(name: 'default_price_range_min')
-          final double? defaultPriceRangeMin,
-          @JsonKey(name: 'default_price_range_max')
-          final double? defaultPriceRangeMax,
-          @JsonKey(name: 'is_active') final bool isActive,
-          @JsonKey(name: 'display_order') final int displayOrder,
-          @JsonKey(name: 'created_at') required final DateTime createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
-      _$ServiceTemplateModelImpl;
+      {required final String id,
+      @JsonKey(name: 'categoryId') required final String categoryId,
+      required final String slug,
+      required final String name,
+      final String? description,
+      @JsonKey(name: 'iconUrl') final String? iconUrl,
+      @JsonKey(name: 'defaultDurationMinutes')
+      final int? defaultDurationMinutes,
+      @JsonKey(name: 'defaultPriceRangeMin') final double? defaultPriceRangeMin,
+      @JsonKey(name: 'defaultPriceRangeMax') final double? defaultPriceRangeMax,
+      @JsonKey(name: 'isActive') final bool isActive,
+      @JsonKey(name: 'displayOrder') final int displayOrder,
+      @JsonKey(name: 'createdAt') required final DateTime createdAt,
+      @JsonKey(name: 'updatedAt')
+      required final DateTime updatedAt}) = _$ServiceTemplateModelImpl;
 
   factory _ServiceTemplateModel.fromJson(Map<String, dynamic> json) =
       _$ServiceTemplateModelImpl.fromJson;
@@ -423,7 +421,7 @@ abstract class _ServiceTemplateModel implements ServiceTemplateModel {
   @override
   String get id;
   @override
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'categoryId')
   String get categoryId;
   @override
   String get slug;
@@ -432,28 +430,28 @@ abstract class _ServiceTemplateModel implements ServiceTemplateModel {
   @override
   String? get description;
   @override
-  @JsonKey(name: 'icon_url')
+  @JsonKey(name: 'iconUrl')
   String? get iconUrl;
   @override
-  @JsonKey(name: 'default_duration_minutes')
+  @JsonKey(name: 'defaultDurationMinutes')
   int? get defaultDurationMinutes;
   @override
-  @JsonKey(name: 'default_price_range_min')
+  @JsonKey(name: 'defaultPriceRangeMin')
   double? get defaultPriceRangeMin;
   @override
-  @JsonKey(name: 'default_price_range_max')
+  @JsonKey(name: 'defaultPriceRangeMax')
   double? get defaultPriceRangeMax;
   @override
-  @JsonKey(name: 'is_active')
+  @JsonKey(name: 'isActive')
   bool get isActive;
   @override
-  @JsonKey(name: 'display_order')
+  @JsonKey(name: 'displayOrder')
   int get displayOrder;
   @override
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'createdAt')
   DateTime get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
+  @JsonKey(name: 'updatedAt')
   DateTime get updatedAt;
 
   /// Create a copy of ServiceTemplateModel

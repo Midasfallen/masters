@@ -73,6 +73,7 @@ class ApiEndpoints {
 
   // ==================== SEARCH ====================
   static const String search = '/search';
+  static const String searchAll = '/search/all';
   static const String searchMasters = '/search/masters';
   static const String searchServices = '/search/services';
 

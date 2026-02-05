@@ -44,7 +44,8 @@
       "Bash(node scripts/mcp-docker-server.js:*)",
       "Bash(node scripts/mcp-redis-server.js:*)",
       "Bash(npx -y @executeautomation/playwright-mcp-server:*)",
-      "Bash(exit 0)"
+      "Bash(exit 0)",
+      "Bash(python:*)"
     ]
   }
 }

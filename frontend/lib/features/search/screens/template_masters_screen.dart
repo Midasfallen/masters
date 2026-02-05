@@ -56,18 +56,6 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
     }
   }
 
-  double _calculateDistance(
-    double? lat1,
-    double? lon1,
-    double? lat2,
-    double? lon2,
-  ) {
-    if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
-      return double.infinity;
-    }
-    return Geolocator.distanceBetween(lat1, lon1, lat2, lon2) / 1000; // км
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,24 +138,9 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
           );
         }
 
-        // Фильтруем мастеров по расстоянию, если есть геолокация
-        List<MasterProfileModel> filteredMasters = masters;
-        if (_userPosition != null) {
-          filteredMasters = masters.where((master) {
-            if (master.locationLat == null || master.locationLng == null) {
-              return false; // Пропускаем мастеров без геолокации
-            }
-            final distance = _calculateDistance(
-              _userPosition!.latitude,
-              _userPosition!.longitude,
-              master.locationLat,
-              master.locationLng,
-            );
-            return distance <= _defaultRadius;
-          }).toList();
-        }
-
-        if (filteredMasters.isEmpty) {
+        // Бэкенд уже фильтрует по радиусу, если переданы координаты
+        // Используем результаты как есть
+        if (masters.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -208,9 +181,9 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: filteredMasters.length,
+          itemCount: masters.length,
           itemBuilder: (context, index) {
-            final master = filteredMasters[index];
+            final master = masters[index];
             return _buildMasterCard(master);
           },
         );
@@ -240,30 +213,18 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
     );
   }
 
-  Widget _buildMasterCard(MasterProfileModel master) {
-    double? distance;
-    if (_userPosition != null &&
-        master.locationLat != null &&
-        master.locationLng != null) {
-      distance = _calculateDistance(
-        _userPosition!.latitude,
-        _userPosition!.longitude,
-        master.locationLat,
-        master.locationLng,
-      );
-    }
-
-    final user = master.user;
-    final firstName = user?.firstName ?? '';
-    final lastName = user?.lastName ?? '';
-    final avatarUrl = user?.avatarUrl ?? (master.portfolioUrls.isNotEmpty ? master.portfolioUrls.first : null);
+  Widget _buildMasterCard(MasterSearchResultModel master) {
+    final distance = master.distanceKm;
+    final firstName = master.firstName;
+    final lastName = master.lastName;
+    final avatarUrl = master.avatarUrl;
     final bool hasAvatar = avatarUrl != null && avatarUrl.isNotEmpty;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          context.push('/master/${master.userId}');
+          context.push('/master/${master.id}');
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -315,10 +276,10 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (master.bio != null && master.bio!.isNotEmpty) ...[
+                    if (master.description != null && master.description!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        master.bio!,
+                        master.description!,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -330,11 +291,11 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        if (master.rating > 0) ...[
+                        if (master.averageRating > 0) ...[
                           Icon(Icons.star, size: 16, color: Colors.amber[700]),
                           const SizedBox(width: 4),
                           Text(
-                            master.rating.toStringAsFixed(1),
+                            master.averageRating.toStringAsFixed(1),
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
@@ -346,7 +307,7 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
                           ),
                         ],
                         if (distance != null) ...[
-                          if (master.rating > 0) const SizedBox(width: 16),
+                          if (master.averageRating > 0) const SizedBox(width: 16),
                           Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
                           const SizedBox(width: 4),
                           Text(

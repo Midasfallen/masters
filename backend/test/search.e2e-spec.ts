@@ -50,10 +50,10 @@ describe('SearchController (e2e)', () => {
         });
     });
 
-    it('should accept query q and return results', () => {
+    it('should accept query and return results', () => {
       const query = encodeURIComponent('стрижка');
       return request(app.getHttpServer())
-        .get(`/search/templates?q=${query}&limit=3`)
+        .get(`/search/templates?query=${query}&limit=3`)
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('data');
@@ -105,6 +105,39 @@ describe('SearchController (e2e)', () => {
           expect(res.body).toHaveProperty('total');
           expect(res.body).toHaveProperty('page', 1);
           expect(res.body).toHaveProperty('limit', 5);
+        });
+    });
+  });
+
+  describe('GET /search/all', () => {
+    it('should return aggregated masters, services, categories', () => {
+      return request(app.getHttpServer())
+        .get('/search/all?q=test&limit=3')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('masters');
+          expect(res.body).toHaveProperty('services');
+          expect(res.body).toHaveProperty('categories');
+          expect(res.body).toHaveProperty('query');
+          expect(res.body).toHaveProperty('processing_time_ms');
+          expect(Array.isArray(res.body.masters)).toBe(true);
+          expect(Array.isArray(res.body.services)).toBe(true);
+          expect(Array.isArray(res.body.categories)).toBe(true);
+          expect(res.body.masters.length).toBeLessThanOrEqual(3);
+          expect(res.body.services.length).toBeLessThanOrEqual(3);
+          expect(res.body.categories.length).toBeLessThanOrEqual(3);
+        });
+    });
+
+    it('should return empty arrays for empty query', () => {
+      return request(app.getHttpServer())
+        .get('/search/all?q=&limit=5')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.masters).toEqual([]);
+          expect(res.body.services).toEqual([]);
+          expect(res.body.categories).toEqual([]);
+          expect(res.body.query).toBe('');
         });
     });
   });
