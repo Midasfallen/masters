@@ -129,7 +129,11 @@ export class SubscriptionsService {
     return { is_following: subscription !== null };
   }
 
-  async update(userId: string, targetId: string, updateSubscriptionDto: UpdateSubscriptionDto) {
+  async update(
+    userId: string,
+    targetId: string,
+    updateSubscriptionDto: UpdateSubscriptionDto,
+  ): Promise<SubscriptionResponseDto> {
     const subscription = await this.subscriptionRepository.findOne({
       where: {
         subscriber_id: userId,
@@ -143,7 +147,11 @@ export class SubscriptionsService {
 
     await this.subscriptionRepository.update(subscription.id, updateSubscriptionDto);
 
-    return this.subscriptionRepository.findOne({ where: { id: subscription.id } });
+    const updatedSubscription = await this.subscriptionRepository.findOne({
+      where: { id: subscription.id },
+    });
+
+    return this.toResponseDto(updatedSubscription);
   }
 
   async remove(userId: string, targetId: string) {

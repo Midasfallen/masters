@@ -246,7 +246,7 @@ describe('SubscriptionsService', () => {
 
       const result = await service.update('user-1', 'user-2', updateDto);
 
-      expect(result.notifications_enabled).toBe(false);
+      expect(result.notificationsEnabled).toBe(false);
       expect(mockSubscriptionRepository.update).toHaveBeenCalledWith(
         mockSubscription.id,
         updateDto,

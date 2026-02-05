@@ -18,6 +18,13 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiConflictResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { FavoritesService } from './favorites.service';
 import { AddFavoriteDto } from './dto/add-favorite.dto';
@@ -33,17 +40,68 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Добавить в избранное',
     description: 'Добавление мастера или поста в избранное',
   })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Успешно добавлено в избранное',
     type: FavoriteResponseDto,
+    schema: {
+      example: {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        user_id: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
+        entity_type: 'master',
+        entity_id: 'bebd027c-e57a-4adc-bdd5-9cd4b1e544fe',
+        created_at: '2025-01-13T10:30:00Z',
+        entity: null,
+      },
+    },
   })
-  @ApiResponse({ status: 404, description: 'Сущность не найдена' })
-  @ApiResponse({ status: 409, description: 'Уже добавлено в избранное' })
+  @ApiBadRequestResponse({
+    description: 'Некорректные данные',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: [
+          'entity_type must be one of the following values: master, post',
+          'entity_id must be a UUID',
+        ],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Сущность не найдена',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Entity not found',
+        error: 'Not Found',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Уже добавлено в избранное',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'Already in favorites',
+        error: 'Conflict',
+      },
+    },
+  })
   async addFavorite(
     @Request() req,
     @Body() addFavoriteDto: AddFavoriteDto,
@@ -54,6 +112,7 @@ export class FavoritesController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Получить избранное',
     description: 'Получение списка избранных мастеров и/или постов',
@@ -62,12 +121,42 @@ export class FavoritesController {
     name: 'entity_type',
     enum: FavoriteEntityType,
     required: false,
-    description: 'Фильтр по типу сущности',
+    description: 'Фильтр по типу сущности (master, post)',
+    example: FavoriteEntityType.MASTER,
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Список избранного',
     type: [FavoriteResponseDto],
+    schema: {
+      example: [
+        {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          user_id: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
+          entity_type: 'master',
+          entity_id: 'bebd027c-e57a-4adc-bdd5-9cd4b1e544fe',
+          created_at: '2025-01-13T10:30:00Z',
+          entity: null,
+        },
+        {
+          id: '660e8400-e29b-41d4-a716-446655440001',
+          user_id: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
+          entity_type: 'post',
+          entity_id: '7f189272-60d7-4622-aa10-f6e11dfbf41b',
+          created_at: '2025-01-13T09:00:00Z',
+          entity: null,
+        },
+      ],
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
   })
   async getFavorites(
     @Request() req,
@@ -77,6 +166,7 @@ export class FavoritesController {
   }
 
   @Get('count')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Получить количество избранного',
     description: 'Получение количества избранных элементов',
@@ -85,14 +175,24 @@ export class FavoritesController {
     name: 'entity_type',
     enum: FavoriteEntityType,
     required: false,
+    description: 'Фильтр по типу сущности (master, post)',
+    example: FavoriteEntityType.MASTER,
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Количество избранного',
     schema: {
-      type: 'object',
-      properties: {
-        count: { type: 'number' },
+      example: {
+        count: 15,
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
       },
     },
   })
@@ -108,19 +208,51 @@ export class FavoritesController {
   }
 
   @Get('check/:entityType/:entityId')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Проверить избранное',
     description: 'Проверка, добавлена ли сущность в избранное',
   })
-  @ApiParam({ name: 'entityType', enum: FavoriteEntityType })
-  @ApiParam({ name: 'entityId', type: 'string' })
-  @ApiResponse({
-    status: 200,
+  @ApiParam({
+    name: 'entityType',
+    enum: FavoriteEntityType,
+    description: 'Тип сущности (master, post)',
+    example: FavoriteEntityType.MASTER,
+  })
+  @ApiParam({
+    name: 'entityId',
+    type: 'string',
+    description: 'UUID сущности',
+    example: 'bebd027c-e57a-4adc-bdd5-9cd4b1e544fe',
+  })
+  @ApiOkResponse({
     description: 'Статус избранного',
     schema: {
-      type: 'object',
-      properties: {
-        is_favorite: { type: 'boolean' },
+      example: {
+        is_favorite: true,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Некорректный тип сущности или UUID',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: [
+          'entityType must be one of the following values: master, post',
+          'entityId must be a UUID',
+        ],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
       },
     },
   })
@@ -143,9 +275,45 @@ export class FavoritesController {
     summary: 'Удалить из избранного по ID',
     description: 'Удаление элемента из избранного',
   })
-  @ApiParam({ name: 'id', type: 'string', description: 'ID избранного' })
-  @ApiResponse({ status: 204, description: 'Успешно удалено' })
-  @ApiResponse({ status: 404, description: 'Избранное не найдено' })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'UUID избранного',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiNoContentResponse({
+    description: 'Успешно удалено',
+  })
+  @ApiBadRequestResponse({
+    description: 'Некорректный UUID',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Validation failed (uuid is expected)',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Избранное не найдено',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Favorite not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async removeFavorite(
     @Request() req,
     @Param('id') favoriteId: string,
@@ -159,10 +327,54 @@ export class FavoritesController {
     summary: 'Удалить из избранного по сущности',
     description: 'Удаление элемента из избранного по типу и ID сущности',
   })
-  @ApiParam({ name: 'entityType', enum: FavoriteEntityType })
-  @ApiParam({ name: 'entityId', type: 'string' })
-  @ApiResponse({ status: 204, description: 'Успешно удалено' })
-  @ApiResponse({ status: 404, description: 'Избранное не найдено' })
+  @ApiParam({
+    name: 'entityType',
+    enum: FavoriteEntityType,
+    description: 'Тип сущности (master, post)',
+    example: FavoriteEntityType.MASTER,
+  })
+  @ApiParam({
+    name: 'entityId',
+    type: 'string',
+    description: 'UUID сущности',
+    example: 'bebd027c-e57a-4adc-bdd5-9cd4b1e544fe',
+  })
+  @ApiNoContentResponse({
+    description: 'Успешно удалено',
+  })
+  @ApiBadRequestResponse({
+    description: 'Некорректный тип сущности или UUID',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: [
+          'entityType must be one of the following values: master, post',
+          'entityId must be a UUID',
+        ],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Избранное не найдено',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Favorite not found',
+        error: 'Not Found',
+      },
+    },
+  })
   async removeFavoriteByEntity(
     @Request() req,
     @Param('entityType') entityType: FavoriteEntityType,

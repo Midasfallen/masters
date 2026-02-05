@@ -10,7 +10,17 @@ import {
   Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -24,30 +34,70 @@ export class UploadController {
   @Post('avatar')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload user avatar' })
+  @ApiOperation({
+    summary: 'Загрузить аватар пользователя',
+    description: 'Загружает изображение аватара пользователя. Поддерживает JPEG, PNG, WEBP. Максимальный размер: 5MB.',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['file'],
       properties: {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'Изображение аватара (JPEG, PNG, WEBP)',
         },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Avatar uploaded successfully',
+  @ApiOkResponse({
+    description: 'Аватар успешно загружен',
     schema: {
-      type: 'object',
-      properties: {
-        url: { type: 'string', example: 'http://localhost:9000/avatars/avatar-uuid.jpg' },
+      example: {
+        url: 'http://localhost:9000/avatars/avatar-uuid.jpg',
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Bad request - invalid file' })
+  @ApiBadRequestResponse({
+    description: 'Некорректный файл',
+    schema: {
+      examples: {
+        noFile: {
+          value: {
+            statusCode: 400,
+            message: 'No file uploaded',
+            error: 'Bad Request',
+          },
+        },
+        invalidType: {
+          value: {
+            statusCode: 400,
+            message: 'Invalid file type. Only JPEG, PNG, WEBP allowed',
+            error: 'Bad Request',
+          },
+        },
+        tooLarge: {
+          value: {
+            statusCode: 400,
+            message: 'File too large. Max size is 5MB',
+            error: 'Bad Request',
+          },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Req() req,
@@ -77,30 +127,75 @@ export class UploadController {
   @Post('post')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload post media (photo/video)' })
+  @ApiOperation({
+    summary: 'Загрузить медиа для поста',
+    description: 'Загружает фото или видео для поста. Поддерживает JPEG, PNG, WEBP (до 10MB) и MP4 (до 100MB).',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['file'],
       properties: {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'Медиа файл (JPEG, PNG, WEBP до 10MB или MP4 до 100MB)',
+        },
+        postId: {
+          type: 'string',
+          description: 'UUID поста (опционально, если не указан - используется temp)',
+          example: '550e8400-e29b-41d4-a716-446655440000',
         },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Post media uploaded successfully',
+  @ApiOkResponse({
+    description: 'Медиа успешно загружено',
     schema: {
-      type: 'object',
-      properties: {
-        url: { type: 'string', example: 'http://localhost:9000/posts/post-uuid.jpg' },
+      example: {
+        url: 'http://localhost:9000/posts/post-uuid.jpg',
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Bad request - invalid file' })
+  @ApiBadRequestResponse({
+    description: 'Некорректный файл',
+    schema: {
+      examples: {
+        noFile: {
+          value: {
+            statusCode: 400,
+            message: 'No file uploaded',
+            error: 'Bad Request',
+          },
+        },
+        invalidType: {
+          value: {
+            statusCode: 400,
+            message: 'Invalid file type. Only JPEG, PNG, WEBP, MP4 allowed',
+            error: 'Bad Request',
+          },
+        },
+        tooLarge: {
+          value: {
+            statusCode: 400,
+            message: 'File too large. Max size is 10MB',
+            error: 'Bad Request',
+          },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
+    },
+  })
   async uploadPostMedia(
     @UploadedFile() file: Express.Multer.File,
     @Req() req,
@@ -133,26 +228,67 @@ export class UploadController {
   @Post('portfolio')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload portfolio image' })
+  @ApiOperation({
+    summary: 'Загрузить изображение портфолио',
+    description: 'Загружает изображение для портфолио мастера. Поддерживает JPEG, PNG, WEBP. Максимальный размер: 10MB.',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['file'],
       properties: {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'Изображение портфолио (JPEG, PNG, WEBP)',
         },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Portfolio image uploaded successfully',
+  @ApiOkResponse({
+    description: 'Изображение портфолио успешно загружено',
     schema: {
-      type: 'object',
-      properties: {
-        url: { type: 'string', example: 'http://localhost:9000/portfolios/portfolio-uuid.jpg' },
+      example: {
+        url: 'http://localhost:9000/portfolios/portfolio-uuid.jpg',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Некорректный файл',
+    schema: {
+      examples: {
+        noFile: {
+          value: {
+            statusCode: 400,
+            message: 'No file uploaded',
+            error: 'Bad Request',
+          },
+        },
+        invalidType: {
+          value: {
+            statusCode: 400,
+            message: 'Invalid file type. Only JPEG, PNG, WEBP allowed',
+            error: 'Bad Request',
+          },
+        },
+        tooLarge: {
+          value: {
+            statusCode: 400,
+            message: 'File too large. Max size is 10MB',
+            error: 'Bad Request',
+          },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
       },
     },
   })
