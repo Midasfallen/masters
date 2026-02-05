@@ -1,0 +1,27 @@
+{
+  "name": "masters",
+  "version": "1.0.0",
+  "description": "> *\"Instagram для мастеров\"* — гибрид социальной сети и маркетплейса услуг",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Midasfallen/masters.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Midasfallen/masters/issues"
+  },
+  "homepage": "https://github.com/Midasfallen/masters#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "ioredis": "^5.9.2"
+  }
+}
