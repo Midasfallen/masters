@@ -76,6 +76,7 @@ class ApiEndpoints {
   static const String searchAll = '/search/all';
   static const String searchMasters = '/search/masters';
   static const String searchServices = '/search/services';
+  static const String searchUsers = '/search/users';
 
   // ==================== POSTS (v2.0) ====================
   static const String posts = '/posts';
@@ -93,9 +94,10 @@ class ApiEndpoints {
   static const String chats = '/chats';
   static String chatById(String id) => '/chats/$id';
   static const String chatCreate = '/chats';
-  static String chatMessages(String chatId) => '/chats/$chatId/messages';
-  static String chatSendMessage(String chatId) => '/chats/$chatId/messages';
+  static const String messages = '/messages';
   static String chatMarkRead(String chatId) => '/chats/$chatId/read';
+  static String chatPin(String chatId) => '/chats/$chatId/pin';
+  static String chatUnpin(String chatId) => '/chats/$chatId/unpin';
 
   // ==================== NOTIFICATIONS ====================
   static const String notifications = '/notifications';

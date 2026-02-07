@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/models/api/chat_model.dart';
+import 'package:service_platform/core/models/api/user_model.dart';
 import 'package:service_platform/core/repositories/chat_repository.dart';
 
 part 'chats_provider.g.dart';
@@ -38,6 +39,29 @@ Future<List<MessageModel>> chatMessages(
   );
 }
 
+/// Unread chats count — сумма unreadCount по всем чатам
+@riverpod
+int unreadChatsCount(UnreadChatsCountRef ref) {
+  final chatsAsync = ref.watch(chatsListProvider());
+  return chatsAsync.whenOrNull(
+    data: (chats) => chats.fold<int>(
+      0,
+      (sum, chat) => sum + (chat.myParticipant?.unreadCount ?? 0),
+    ),
+  ) ?? 0;
+}
+
+/// Search users for chat creation
+@riverpod
+Future<List<UserModel>> searchUsersForChat(
+  SearchUsersForChatRef ref,
+  String query,
+) async {
+  if (query.trim().isEmpty) return [];
+  final repository = ref.watch(chatRepositoryProvider);
+  return await repository.searchUsers(query);
+}
+
 /// Chat Notifier for mutations
 @riverpod
 class ChatNotifier extends _$ChatNotifier {
@@ -69,22 +93,22 @@ class ChatNotifier extends _$ChatNotifier {
     });
   }
 
-  /// Send message
+  /// Send message (POST /messages, chatId inside request body)
   Future<MessageModel> sendMessage(
     String chatId,
     String content, {
     MessageType type = MessageType.text,
     String? mediaUrl,
-    Map<String, dynamic>? metadata,
+    String? replyToId,
   }) async {
     final repository = ref.read(chatRepositoryProvider);
     final message = await repository.sendMessage(
-      chatId,
       SendMessageRequest(
+        chatId: chatId,
         content: content,
         type: type,
         mediaUrl: mediaUrl,
-        metadata: metadata,
+        replyToId: replyToId,
       ),
     );
 
@@ -97,12 +121,21 @@ class ChatNotifier extends _$ChatNotifier {
   }
 
   /// Mark chat as read
-  Future<void> markAsRead(String chatId) async {
+  Future<void> markAsRead(String chatId, {required String messageId}) async {
     final repository = ref.read(chatRepositoryProvider);
-    await repository.markAsRead(chatId);
+    await repository.markAsRead(chatId, messageId: messageId);
 
-    // Invalidate chat
-    ref.invalidate(chatByIdProvider(chatId));
+    // Обновляем только список чатов (для badge счётчика).
+    // chatByIdProvider НЕ инвалидируем — это вызывает defunct element error
+    // при быстрой навигации, а данные чата не меняются от markAsRead.
+    ref.invalidate(chatsListProvider);
+  }
+
+  /// Delete / leave chat
+  Future<void> deleteChat(String chatId) async {
+    final repository = ref.read(chatRepositoryProvider);
+    await repository.deleteChat(chatId);
+
     ref.invalidate(chatsListProvider);
   }
 

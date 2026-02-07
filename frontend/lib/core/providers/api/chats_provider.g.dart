@@ -504,7 +504,171 @@ class _ChatMessagesProviderElement
   int get limit => (origin as ChatMessagesProvider).limit;
 }
 
-String _$chatNotifierHash() => r'1eee175c8126c19ec7b3028a0519bf5ab383c424';
+String _$unreadChatsCountHash() => r'a05830c8a14a6f30ead2cd7f6d3c16e6356384a8';
+
+/// Unread chats count — сумма unreadCount по всем чатам
+///
+/// Copied from [unreadChatsCount].
+@ProviderFor(unreadChatsCount)
+final unreadChatsCountProvider = AutoDisposeProvider<int>.internal(
+  unreadChatsCount,
+  name: r'unreadChatsCountProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$unreadChatsCountHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UnreadChatsCountRef = AutoDisposeProviderRef<int>;
+String _$searchUsersForChatHash() =>
+    r'e77445ce5b7b5262ec179c712c9129affeeb1367';
+
+/// Search users for chat creation
+///
+/// Copied from [searchUsersForChat].
+@ProviderFor(searchUsersForChat)
+const searchUsersForChatProvider = SearchUsersForChatFamily();
+
+/// Search users for chat creation
+///
+/// Copied from [searchUsersForChat].
+class SearchUsersForChatFamily extends Family<AsyncValue<List<UserModel>>> {
+  /// Search users for chat creation
+  ///
+  /// Copied from [searchUsersForChat].
+  const SearchUsersForChatFamily();
+
+  /// Search users for chat creation
+  ///
+  /// Copied from [searchUsersForChat].
+  SearchUsersForChatProvider call(
+    String query,
+  ) {
+    return SearchUsersForChatProvider(
+      query,
+    );
+  }
+
+  @override
+  SearchUsersForChatProvider getProviderOverride(
+    covariant SearchUsersForChatProvider provider,
+  ) {
+    return call(
+      provider.query,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'searchUsersForChatProvider';
+}
+
+/// Search users for chat creation
+///
+/// Copied from [searchUsersForChat].
+class SearchUsersForChatProvider
+    extends AutoDisposeFutureProvider<List<UserModel>> {
+  /// Search users for chat creation
+  ///
+  /// Copied from [searchUsersForChat].
+  SearchUsersForChatProvider(
+    String query,
+  ) : this._internal(
+          (ref) => searchUsersForChat(
+            ref as SearchUsersForChatRef,
+            query,
+          ),
+          from: searchUsersForChatProvider,
+          name: r'searchUsersForChatProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$searchUsersForChatHash,
+          dependencies: SearchUsersForChatFamily._dependencies,
+          allTransitiveDependencies:
+              SearchUsersForChatFamily._allTransitiveDependencies,
+          query: query,
+        );
+
+  SearchUsersForChatProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.query,
+  }) : super.internal();
+
+  final String query;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<UserModel>> Function(SearchUsersForChatRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: SearchUsersForChatProvider._internal(
+        (ref) => create(ref as SearchUsersForChatRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        query: query,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<UserModel>> createElement() {
+    return _SearchUsersForChatProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SearchUsersForChatProvider && other.query == query;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin SearchUsersForChatRef on AutoDisposeFutureProviderRef<List<UserModel>> {
+  /// The parameter `query` of this provider.
+  String get query;
+}
+
+class _SearchUsersForChatProviderElement
+    extends AutoDisposeFutureProviderElement<List<UserModel>>
+    with SearchUsersForChatRef {
+  _SearchUsersForChatProviderElement(super.provider);
+
+  @override
+  String get query => (origin as SearchUsersForChatProvider).query;
+}
+
+String _$chatNotifierHash() => r'96ed06f936defc267f6b1d289e1bd8c9cd76bd34';
 
 /// Chat Notifier for mutations
 ///

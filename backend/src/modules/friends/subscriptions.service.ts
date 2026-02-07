@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { User } from '../users/entities/user.entity';
+import { UsersMapper } from '../users/users.mapper';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { SubscriptionResponseDto } from './dto/subscription-response.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
@@ -83,7 +84,7 @@ export class SubscriptionsService {
       .getManyAndCount();
 
     return {
-      data: subscriptions,
+      data: subscriptions.map(s => UsersMapper.toDto(s.target)),
       meta: {
         page,
         limit,
@@ -108,7 +109,7 @@ export class SubscriptionsService {
       .getManyAndCount();
 
     return {
-      data: subscriptions,
+      data: subscriptions.map(s => UsersMapper.toDto(s.subscriber)),
       meta: {
         page,
         limit,

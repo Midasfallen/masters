@@ -97,6 +97,33 @@ export class ServiceTemplateSearchResultDto {
   default_price_range_max?: number;
 }
 
+/** Результат поиска пользователей (для создания чата) */
+export class UserSearchResultDto {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  id: string;
+
+  @ApiProperty({ example: 'Анна' })
+  firstName: string;
+
+  @ApiProperty({ example: 'Иванова' })
+  lastName: string;
+
+  @ApiProperty({ example: 'Анна Иванова' })
+  fullName: string;
+
+  @ApiProperty({ example: 'https://storage.example.com/avatars/user.jpg', nullable: true })
+  avatarUrl: string | null;
+
+  @ApiProperty({ example: 'anna@test.com' })
+  email: string;
+
+  @ApiProperty({ description: 'Является ли пользователь мастером' })
+  isMaster: boolean;
+
+  @ApiProperty({ description: 'KYC верификация пройдена' })
+  isVerified: boolean;
+}
+
 /** Результат поиска по категориям (L0/L1) */
 export class CategorySearchResultDto {
   @ApiProperty()

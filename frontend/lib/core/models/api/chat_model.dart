@@ -88,7 +88,43 @@ class ChatParticipantModel with _$ChatParticipantModel {
       _$ChatParticipantModelFromJson(json);
 }
 
-/// Message Model
+/// Message Type enum — соответствует backend MessageType
+enum MessageType {
+  @JsonValue('text')
+  text,
+  @JsonValue('photo')
+  photo,
+  @JsonValue('video')
+  video,
+  @JsonValue('voice')
+  voice,
+  @JsonValue('location')
+  location,
+  @JsonValue('profile_share')
+  profileShare,
+  @JsonValue('post_share')
+  postShare,
+  @JsonValue('booking_proposal')
+  bookingProposal,
+}
+
+/// Media Metadata Model — соответствует backend MediaMetadataDto
+@freezed
+class MediaMetadataModel with _$MediaMetadataModel {
+  const factory MediaMetadataModel({
+    int? width,
+    int? height,
+    double? duration,
+    int? size,
+    String? filename,
+    String? mimeType,
+  }) = _MediaMetadataModel;
+
+  factory MediaMetadataModel.fromJson(Map<String, dynamic> json) =>
+      _$MediaMetadataModelFromJson(json);
+}
+
+/// Message Model — соответствует backend MessageResponseDto
 @freezed
 class MessageModel with _$MessageModel {
   const factory MessageModel({
@@ -96,31 +132,27 @@ class MessageModel with _$MessageModel {
     required String chatId,
     required String senderId,
     ChatUserModel? sender,
-    required String content,
     @Default(MessageType.text) MessageType type,
+    String? content,
     String? mediaUrl,
-    Map<String, dynamic>? metadata,
-    @Default(false) bool isRead,
-    DateTime? readAt,
+    String? thumbnailUrl,
+    MediaMetadataModel? mediaMetadata,
+    double? locationLat,
+    double? locationLng,
+    String? locationName,
+    String? sharedProfileId,
+    String? sharedPostId,
+    String? bookingProposalId,
+    String? replyToId,
+    @Default(0) int readCount,
+    @Default(false) bool isEdited,
+    @Default(false) bool isDeleted,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _MessageModel;
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
-}
-
-enum MessageType {
-  @JsonValue('text')
-  text,
-  @JsonValue('image')
-  image,
-  @JsonValue('file')
-  file,
-  @JsonValue('booking')
-  booking,
-  @JsonValue('system')
-  system,
 }
 
 /// Create Chat Request - соответствует backend CreateChatDto
@@ -137,14 +169,23 @@ class CreateChatRequest with _$CreateChatRequest {
       _$CreateChatRequestFromJson(json);
 }
 
-/// Send Message Request
+/// Send Message Request — соответствует backend CreateMessageDto (snake_case body)
 @freezed
 class SendMessageRequest with _$SendMessageRequest {
   const factory SendMessageRequest({
-    required String content,
+    @JsonKey(name: 'chat_id') required String chatId,
     @Default(MessageType.text) MessageType type,
+    String? content,
     @JsonKey(name: 'media_url') String? mediaUrl,
-    Map<String, dynamic>? metadata,
+    @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+    @JsonKey(name: 'media_metadata') Map<String, dynamic>? mediaMetadata,
+    @JsonKey(name: 'location_lat') double? locationLat,
+    @JsonKey(name: 'location_lng') double? locationLng,
+    @JsonKey(name: 'location_name') String? locationName,
+    @JsonKey(name: 'shared_profile_id') String? sharedProfileId,
+    @JsonKey(name: 'shared_post_id') String? sharedPostId,
+    @JsonKey(name: 'booking_proposal_id') String? bookingProposalId,
+    @JsonKey(name: 'reply_to_id') String? replyToId,
   }) = _SendMessageRequest;
 
   factory SendMessageRequest.fromJson(Map<String, dynamic> json) =>

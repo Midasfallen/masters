@@ -32,6 +32,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final List<MessageModel> _messages = [];
   bool _isLoadingMessages = false;
   final Set<String> _typingUsers = {};
+  StreamSubscription<WebSocketMessage>? _messageSubscription;
+  StreamSubscription<WebSocketMessage>? _typingSubscription;
 
   @override
   void initState() {
@@ -51,6 +53,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _scrollController.dispose();
     _messageFocusNode.dispose();
     _typingTimer?.cancel();
+    _messageSubscription?.cancel();
+    _typingSubscription?.cancel();
 
     // Выходим из комнаты чата при уходе с экрана
     final wsService = ref.read(webSocketServiceProvider);
@@ -64,8 +68,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       final wsService = ref.read(webSocketServiceProvider);
 
-      // Присоединяемся к комнате чата
-      await wsService.joinChat(widget.chatId);
+      // Присоединяемся к комнате чата (если WS подключен)
+      if (wsService.isConnected) {
+        await wsService.joinChat(widget.chatId);
+      }
 
       // Загружаем сообщения из API
       await _loadMessages();
@@ -98,7 +104,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           _scrollToBottom();
         });
 
-        // Отмечаем сообщения как прочитанные
+        // Отмечаем сообщения как прочитанные через REST
         _markMessagesAsRead();
       }
     } catch (e) {
@@ -114,32 +120,44 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Настройка слушателя WebSocket сообщений
+  /// Настройка слушателя WebSocket сообщений (для real-time уведомлений)
   void _setupMessageListener() {
     final wsService = ref.read(webSocketServiceProvider);
 
-    wsService.messages.listen((wsMessage) {
+    _messageSubscription = wsService.messages.listen((wsMessage) {
       if (wsMessage.event == 'chat:message:new') {
         final data = wsMessage.data as Map<String, dynamic>;
 
-        // Проверяем, что сообщение для этого чата
-        if (data['chat_id'] == widget.chatId) {
-          final newMessage = MessageModel.fromJson(data);
+        // Backend mapper возвращает camelCase: chatId (не chat_id)
+        final msgChatId = data['chatId'] ?? data['chat_id'];
+        if (msgChatId != widget.chatId) return;
 
-          if (mounted) {
-            setState(() {
+        final newMessage = MessageModel.fromJson(data);
+        final currentUserId = ref.read(currentUserIdProvider);
+
+        // Дедупликация: если это наше сообщение и оно уже в списке — пропускаем
+        if (newMessage.senderId == currentUserId &&
+            _messages.any((m) => m.id == newMessage.id)) {
+          return;
+        }
+
+        if (mounted) {
+          setState(() {
+            // Если наше сообщение пришло через WS, но ещё нет в списке — добавляем
+            // (fallback на случай если REST ответ не пришёл первым)
+            if (!_messages.any((m) => m.id == newMessage.id)) {
               _messages.add(newMessage);
-            });
-
-            _scrollToBottom();
-
-            // Отмечаем как прочитанное если не мы отправили
-            if (newMessage.senderId != ref.read(currentUserIdProvider)) {
-              wsService.markAsRead(
-                messageId: newMessage.id,
-                chatId: widget.chatId,
-              );
             }
+          });
+
+          _scrollToBottom();
+
+          // Отмечаем как прочитанное через REST
+          if (newMessage.senderId != currentUserId) {
+            ref.read(chatNotifierProvider.notifier).markAsRead(
+              widget.chatId,
+              messageId: newMessage.id,
+            );
           }
         }
       }
@@ -150,23 +168,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _setupTypingListener() {
     final wsService = ref.read(webSocketServiceProvider);
 
-    wsService.messages.listen((wsMessage) {
+    _typingSubscription = wsService.messages.listen((wsMessage) {
       if (wsMessage.event == 'chat:typing') {
         final data = wsMessage.data as Map<String, dynamic>;
 
-        if (data['chat_id'] == widget.chatId) {
-          final userId = data['user_id'] as String;
-          final isTyping = data['is_typing'] as bool;
+        final typingChatId = data['chatId'] ?? data['chat_id'];
+        if (typingChatId != widget.chatId) return;
 
-          if (mounted) {
-            setState(() {
-              if (isTyping) {
-                _typingUsers.add(userId);
-              } else {
-                _typingUsers.remove(userId);
-              }
-            });
-          }
+        final userId = data['userId'] ?? data['user_id'] as String;
+        final isTyping = data['isTyping'] ?? data['is_typing'] as bool;
+
+        if (mounted) {
+          setState(() {
+            if (isTyping == true) {
+              _typingUsers.add(userId as String);
+            } else {
+              _typingUsers.remove(userId as String);
+            }
+          });
         }
       }
     });
@@ -203,7 +222,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     wsService.sendTypingIndicator(chatId: widget.chatId, isTyping: isTyping);
   }
 
-  /// Отправка сообщения
+  /// Отправка сообщения через REST (надёжно, с валидацией и сохранением в БД)
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
@@ -217,16 +236,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     try {
-      final wsService = ref.read(webSocketServiceProvider);
+      // REST отправка через provider → repository → POST /messages
+      final message = await ref
+          .read(chatNotifierProvider.notifier)
+          .sendMessage(widget.chatId, content);
 
-      // Отправляем через WebSocket
-      await wsService.sendMessage(
-        chatId: widget.chatId,
-        type: 'text',
-        content: content,
-      );
-
-      // Сообщение будет добавлено в список когда придет событие chat:message:new
+      // Добавляем сообщение в локальный список сразу после REST ответа
+      if (mounted) {
+        setState(() {
+          // Проверяем что ещё нет (WS мог прийти быстрее)
+          if (!_messages.any((m) => m.id == message.id)) {
+            _messages.add(message);
+          }
+        });
+        _scrollToBottom();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -247,18 +271,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Отметить сообщения как прочитанные
+  /// Отметить сообщения как прочитанные через REST (одним вызовом — последнее сообщение)
   void _markMessagesAsRead() {
-    final wsService = ref.read(webSocketServiceProvider);
-    final currentUserId = ref.read(currentUserIdProvider);
+    if (!mounted || _messages.isEmpty) return;
 
-    for (final message in _messages) {
-      if (message.senderId != currentUserId) {
-        wsService.markAsRead(
-          messageId: message.id,
-          chatId: widget.chatId,
-        );
-      }
+    final currentUserId = ref.read(currentUserIdProvider);
+    final lastMessage = _messages.last;
+
+    // Отмечаем только если последнее сообщение не наше
+    if (lastMessage.senderId != currentUserId) {
+      ref.read(chatNotifierProvider.notifier).markAsRead(
+        widget.chatId,
+        messageId: lastMessage.id,
+      );
     }
   }
 
@@ -293,11 +318,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Меню (в разработке)')),
-              );
-            },
+            onPressed: () => _showChatMenu(context),
           ),
         ],
       ),
@@ -411,6 +432,91 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showChatMenu(BuildContext context) {
+    final chatAsync = ref.read(chatByIdProvider(widget.chatId));
+    final chat = chatAsync.valueOrNull;
+    if (chat == null) return;
+
+    final isPinned = chat.myParticipant?.isPinned ?? false;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin),
+              title: Text(isPinned ? 'Открепить' : 'Закрепить'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                try {
+                  if (isPinned) {
+                    await ref.read(chatNotifierProvider.notifier).unpinChat(chat.id);
+                  } else {
+                    await ref.read(chatNotifierProvider.notifier).pinChat(chat.id);
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isPinned ? 'Чат откреплён' : 'Чат закреплён'),
+                        duration: const Duration(milliseconds: 800),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка: ${e.toString()}')),
+                    );
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Удалить чат', style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dlgCtx) => AlertDialog(
+                    title: const Text('Удалить чат?'),
+                    content: const Text('Это действие нельзя отменить.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dlgCtx, false),
+                        child: const Text('Отмена'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(dlgCtx, true),
+                        child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  try {
+                    await ref.read(chatNotifierProvider.notifier).deleteChat(chat.id);
+                    if (context.mounted) {
+                      Navigator.of(context).pop(); // Выход из экрана чата
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Ошибка: ${e.toString()}')),
+                      );
+                    }
+                  }
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

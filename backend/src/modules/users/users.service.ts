@@ -9,12 +9,14 @@ import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersMapper } from './users.mapper';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly searchService: SearchService,
   ) {}
 
   /**
@@ -68,6 +70,9 @@ export class UsersService {
     Object.assign(user, updateUserDto);
     const updated = await this.userRepository.save(user);
 
+    // Обновление в Meilisearch
+    await this.searchService.indexUser(updated.id);
+
     return UsersMapper.toDto(updated);
   }
 
@@ -83,6 +88,10 @@ export class UsersService {
 
     user.avatar_url = avatarUrl;
     const updated = await this.userRepository.save(user);
+
+    // Обновление в Meilisearch
+    await this.searchService.indexUser(updated.id);
+
     return UsersMapper.toDto(updated);
   }
 

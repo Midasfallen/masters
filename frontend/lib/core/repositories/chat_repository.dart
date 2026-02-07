@@ -5,6 +5,7 @@ import 'package:service_platform/core/api/api_exceptions.dart';
 import 'package:service_platform/core/api/dio_client.dart';
 import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/models/api/chat_model.dart';
+import 'package:service_platform/core/models/api/user_model.dart';
 
 part 'chat_repository.g.dart';
 
@@ -59,7 +60,7 @@ class ChatRepository {
     }
   }
 
-  /// Get chat messages
+  /// Get chat messages (GET /messages?chat_id=xxx)
   Future<List<MessageModel>> getMessages(
     String chatId, {
     int page = 1,
@@ -67,8 +68,9 @@ class ChatRepository {
   }) async {
     try {
       final response = await _client.get(
-        ApiEndpoints.chatMessages(chatId),
+        ApiEndpoints.messages,
         queryParameters: {
+          'chat_id': chatId,
           'page': page,
           'limit': limit,
         },
@@ -81,14 +83,11 @@ class ChatRepository {
     }
   }
 
-  /// Send message
-  Future<MessageModel> sendMessage(
-    String chatId,
-    SendMessageRequest request,
-  ) async {
+  /// Send message (POST /messages, chat_id in body)
+  Future<MessageModel> sendMessage(SendMessageRequest request) async {
     try {
       final response = await _client.post(
-        ApiEndpoints.chatSendMessage(chatId),
+        ApiEndpoints.messages,
         data: request.toJson(),
       );
       return MessageModel.fromJson(response.data);
@@ -97,10 +96,40 @@ class ChatRepository {
     }
   }
 
-  /// Mark chat as read
-  Future<void> markAsRead(String chatId) async {
+  /// Mark chat as read (POST /chats/:id/read with { message_id })
+  Future<void> markAsRead(String chatId, {required String messageId}) async {
     try {
-      await _client.post(ApiEndpoints.chatMarkRead(chatId));
+      await _client.post(
+        ApiEndpoints.chatMarkRead(chatId),
+        data: {'message_id': messageId},
+      );
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Search users for chat creation
+  Future<List<UserModel>> searchUsers(String query, {int page = 1, int limit = 20}) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.searchUsers,
+        queryParameters: {
+          'query': query,
+          'page': page,
+          'limit': limit,
+        },
+      );
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data.map((json) => UserModel.fromJson(json as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Delete / leave chat
+  Future<void> deleteChat(String chatId) async {
+    try {
+      await _client.delete(ApiEndpoints.chatById(chatId));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -109,7 +138,7 @@ class ChatRepository {
   /// Pin chat
   Future<void> pinChat(String chatId) async {
     try {
-      await _client.post('/chats/$chatId/pin');
+      await _client.post(ApiEndpoints.chatPin(chatId));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }
@@ -118,7 +147,7 @@ class ChatRepository {
   /// Unpin chat
   Future<void> unpinChat(String chatId) async {
     try {
-      await _client.post('/chats/$chatId/unpin');
+      await _client.post(ApiEndpoints.chatUnpin(chatId));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

@@ -1,25 +1,31 @@
-import { Controller, Get, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiOkResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
   ApiQuery,
 } from '@nestjs/swagger';
 import { SearchService } from './search.service';
 import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
 import { SearchTemplatesDto } from './dto/search-templates.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
 import { SearchAllDto } from './dto/search-all.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
   ServiceTemplateSearchResultDto,
+  UserSearchResultDto,
   SearchAggregationDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('Search')
 @Controller('search')
@@ -315,5 +321,70 @@ export class SearchController {
     @Query() searchDto: SearchTemplatesDto,
   ): Promise<SearchResponseDto<ServiceTemplateSearchResultDto>> {
     return this.searchService.searchServiceTemplates(searchDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('users')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Поиск пользователей',
+    description:
+      'Полнотекстовый поиск по всем пользователям (для создания чата). Требует авторизации. Текущий пользователь исключается из результатов.',
+  })
+  @ApiQuery({
+    name: 'query',
+    required: false,
+    type: String,
+    description: 'Поисковый запрос (имя, фамилия)',
+    example: 'Анна',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Номер страницы',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Количество результатов на странице',
+    example: 20,
+  })
+  @ApiOkResponse({
+    description: 'Результаты поиска пользователей',
+    schema: {
+      example: {
+        data: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            firstName: 'Анна',
+            lastName: 'Иванова',
+            fullName: 'Анна Иванова',
+            avatarUrl: null,
+            email: 'anna@test.com',
+            isMaster: true,
+            isVerified: true,
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 20,
+        processing_time_ms: 5,
+        query: 'Анна',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Не авторизован',
+    schema: { example: { statusCode: 401, message: 'Unauthorized' } },
+  })
+  async searchUsers(
+    @Query() searchDto: SearchUsersDto,
+    @CurrentUser('id') userId: string,
+  ): Promise<SearchResponseDto<UserSearchResultDto>> {
+    return this.searchService.searchUsers(searchDto, userId);
   }
 }

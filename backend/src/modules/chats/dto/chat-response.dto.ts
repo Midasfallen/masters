@@ -3,6 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { ChatType } from '../entities/chat.entity';
 import { ChatParticipantResponseDto } from './chat-participant-response.dto';
 import { ChatUserResponseDto } from './chat-user-response.dto';
+import { MessageResponseDto } from './message-response.dto';
 
 /**
  * Response DTO для чата с camelCase полями
@@ -58,4 +59,9 @@ export class ChatResponseDto {
   @ApiProperty({ description: 'Список участников (для групповых чатов)', type: [ChatParticipantResponseDto], nullable: true })
   @Type(() => ChatParticipantResponseDto)
   participants?: ChatParticipantResponseDto[];
+
+  @Expose()
+  @ApiProperty({ description: 'Последнее сообщение в чате', type: MessageResponseDto, nullable: true })
+  @Type(() => MessageResponseDto)
+  lastMessage?: MessageResponseDto;
 }

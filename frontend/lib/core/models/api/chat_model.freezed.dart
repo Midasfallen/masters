@@ -1245,6 +1245,264 @@ abstract class _ChatParticipantModel implements ChatParticipantModel {
       get copyWith => throw _privateConstructorUsedError;
 }
 
+MediaMetadataModel _$MediaMetadataModelFromJson(Map<String, dynamic> json) {
+  return _MediaMetadataModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$MediaMetadataModel {
+  int? get width => throw _privateConstructorUsedError;
+  int? get height => throw _privateConstructorUsedError;
+  double? get duration => throw _privateConstructorUsedError;
+  int? get size => throw _privateConstructorUsedError;
+  String? get filename => throw _privateConstructorUsedError;
+  String? get mimeType => throw _privateConstructorUsedError;
+
+  /// Serializes this MediaMetadataModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of MediaMetadataModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MediaMetadataModelCopyWith<MediaMetadataModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MediaMetadataModelCopyWith<$Res> {
+  factory $MediaMetadataModelCopyWith(
+          MediaMetadataModel value, $Res Function(MediaMetadataModel) then) =
+      _$MediaMetadataModelCopyWithImpl<$Res, MediaMetadataModel>;
+  @useResult
+  $Res call(
+      {int? width,
+      int? height,
+      double? duration,
+      int? size,
+      String? filename,
+      String? mimeType});
+}
+
+/// @nodoc
+class _$MediaMetadataModelCopyWithImpl<$Res, $Val extends MediaMetadataModel>
+    implements $MediaMetadataModelCopyWith<$Res> {
+  _$MediaMetadataModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of MediaMetadataModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+    Object? size = freezed,
+    Object? filename = freezed,
+    Object? mimeType = freezed,
+  }) {
+    return _then(_value.copyWith(
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as double?,
+      size: freezed == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as int?,
+      filename: freezed == filename
+          ? _value.filename
+          : filename // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mimeType: freezed == mimeType
+          ? _value.mimeType
+          : mimeType // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$MediaMetadataModelImplCopyWith<$Res>
+    implements $MediaMetadataModelCopyWith<$Res> {
+  factory _$$MediaMetadataModelImplCopyWith(_$MediaMetadataModelImpl value,
+          $Res Function(_$MediaMetadataModelImpl) then) =
+      __$$MediaMetadataModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int? width,
+      int? height,
+      double? duration,
+      int? size,
+      String? filename,
+      String? mimeType});
+}
+
+/// @nodoc
+class __$$MediaMetadataModelImplCopyWithImpl<$Res>
+    extends _$MediaMetadataModelCopyWithImpl<$Res, _$MediaMetadataModelImpl>
+    implements _$$MediaMetadataModelImplCopyWith<$Res> {
+  __$$MediaMetadataModelImplCopyWithImpl(_$MediaMetadataModelImpl _value,
+      $Res Function(_$MediaMetadataModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of MediaMetadataModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? width = freezed,
+    Object? height = freezed,
+    Object? duration = freezed,
+    Object? size = freezed,
+    Object? filename = freezed,
+    Object? mimeType = freezed,
+  }) {
+    return _then(_$MediaMetadataModelImpl(
+      width: freezed == width
+          ? _value.width
+          : width // ignore: cast_nullable_to_non_nullable
+              as int?,
+      height: freezed == height
+          ? _value.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as int?,
+      duration: freezed == duration
+          ? _value.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as double?,
+      size: freezed == size
+          ? _value.size
+          : size // ignore: cast_nullable_to_non_nullable
+              as int?,
+      filename: freezed == filename
+          ? _value.filename
+          : filename // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mimeType: freezed == mimeType
+          ? _value.mimeType
+          : mimeType // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MediaMetadataModelImpl implements _MediaMetadataModel {
+  const _$MediaMetadataModelImpl(
+      {this.width,
+      this.height,
+      this.duration,
+      this.size,
+      this.filename,
+      this.mimeType});
+
+  factory _$MediaMetadataModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MediaMetadataModelImplFromJson(json);
+
+  @override
+  final int? width;
+  @override
+  final int? height;
+  @override
+  final double? duration;
+  @override
+  final int? size;
+  @override
+  final String? filename;
+  @override
+  final String? mimeType;
+
+  @override
+  String toString() {
+    return 'MediaMetadataModel(width: $width, height: $height, duration: $duration, size: $size, filename: $filename, mimeType: $mimeType)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MediaMetadataModelImpl &&
+            (identical(other.width, width) || other.width == width) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
+            (identical(other.size, size) || other.size == size) &&
+            (identical(other.filename, filename) ||
+                other.filename == filename) &&
+            (identical(other.mimeType, mimeType) ||
+                other.mimeType == mimeType));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, width, height, duration, size, filename, mimeType);
+
+  /// Create a copy of MediaMetadataModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MediaMetadataModelImplCopyWith<_$MediaMetadataModelImpl> get copyWith =>
+      __$$MediaMetadataModelImplCopyWithImpl<_$MediaMetadataModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MediaMetadataModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _MediaMetadataModel implements MediaMetadataModel {
+  const factory _MediaMetadataModel(
+      {final int? width,
+      final int? height,
+      final double? duration,
+      final int? size,
+      final String? filename,
+      final String? mimeType}) = _$MediaMetadataModelImpl;
+
+  factory _MediaMetadataModel.fromJson(Map<String, dynamic> json) =
+      _$MediaMetadataModelImpl.fromJson;
+
+  @override
+  int? get width;
+  @override
+  int? get height;
+  @override
+  double? get duration;
+  @override
+  int? get size;
+  @override
+  String? get filename;
+  @override
+  String? get mimeType;
+
+  /// Create a copy of MediaMetadataModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MediaMetadataModelImplCopyWith<_$MediaMetadataModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 MessageModel _$MessageModelFromJson(Map<String, dynamic> json) {
   return _MessageModel.fromJson(json);
 }
@@ -1255,12 +1513,21 @@ mixin _$MessageModel {
   String get chatId => throw _privateConstructorUsedError;
   String get senderId => throw _privateConstructorUsedError;
   ChatUserModel? get sender => throw _privateConstructorUsedError;
-  String get content => throw _privateConstructorUsedError;
   MessageType get type => throw _privateConstructorUsedError;
+  String? get content => throw _privateConstructorUsedError;
   String? get mediaUrl => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  bool get isRead => throw _privateConstructorUsedError;
-  DateTime? get readAt => throw _privateConstructorUsedError;
+  String? get thumbnailUrl => throw _privateConstructorUsedError;
+  MediaMetadataModel? get mediaMetadata => throw _privateConstructorUsedError;
+  double? get locationLat => throw _privateConstructorUsedError;
+  double? get locationLng => throw _privateConstructorUsedError;
+  String? get locationName => throw _privateConstructorUsedError;
+  String? get sharedProfileId => throw _privateConstructorUsedError;
+  String? get sharedPostId => throw _privateConstructorUsedError;
+  String? get bookingProposalId => throw _privateConstructorUsedError;
+  String? get replyToId => throw _privateConstructorUsedError;
+  int get readCount => throw _privateConstructorUsedError;
+  bool get isEdited => throw _privateConstructorUsedError;
+  bool get isDeleted => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -1285,16 +1552,26 @@ abstract class $MessageModelCopyWith<$Res> {
       String chatId,
       String senderId,
       ChatUserModel? sender,
-      String content,
       MessageType type,
+      String? content,
       String? mediaUrl,
-      Map<String, dynamic>? metadata,
-      bool isRead,
-      DateTime? readAt,
+      String? thumbnailUrl,
+      MediaMetadataModel? mediaMetadata,
+      double? locationLat,
+      double? locationLng,
+      String? locationName,
+      String? sharedProfileId,
+      String? sharedPostId,
+      String? bookingProposalId,
+      String? replyToId,
+      int readCount,
+      bool isEdited,
+      bool isDeleted,
       DateTime createdAt,
       DateTime updatedAt});
 
   $ChatUserModelCopyWith<$Res>? get sender;
+  $MediaMetadataModelCopyWith<$Res>? get mediaMetadata;
 }
 
 /// @nodoc
@@ -1316,12 +1593,21 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
     Object? chatId = null,
     Object? senderId = null,
     Object? sender = freezed,
-    Object? content = null,
     Object? type = null,
+    Object? content = freezed,
     Object? mediaUrl = freezed,
-    Object? metadata = freezed,
-    Object? isRead = null,
-    Object? readAt = freezed,
+    Object? thumbnailUrl = freezed,
+    Object? mediaMetadata = freezed,
+    Object? locationLat = freezed,
+    Object? locationLng = freezed,
+    Object? locationName = freezed,
+    Object? sharedProfileId = freezed,
+    Object? sharedPostId = freezed,
+    Object? bookingProposalId = freezed,
+    Object? replyToId = freezed,
+    Object? readCount = null,
+    Object? isEdited = null,
+    Object? isDeleted = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -1342,30 +1628,66 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
               as ChatUserModel?,
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
-              as String,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      metadata: freezed == metadata
-          ? _value.metadata
-          : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
-      isRead: null == isRead
-          ? _value.isRead
-          : isRead // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mediaMetadata: freezed == mediaMetadata
+          ? _value.mediaMetadata
+          : mediaMetadata // ignore: cast_nullable_to_non_nullable
+              as MediaMetadataModel?,
+      locationLat: freezed == locationLat
+          ? _value.locationLat
+          : locationLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationLng: freezed == locationLng
+          ? _value.locationLng
+          : locationLng // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationName: freezed == locationName
+          ? _value.locationName
+          : locationName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedProfileId: freezed == sharedProfileId
+          ? _value.sharedProfileId
+          : sharedProfileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedPostId: freezed == sharedPostId
+          ? _value.sharedPostId
+          : sharedPostId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bookingProposalId: freezed == bookingProposalId
+          ? _value.bookingProposalId
+          : bookingProposalId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      replyToId: freezed == replyToId
+          ? _value.replyToId
+          : replyToId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      readCount: null == readCount
+          ? _value.readCount
+          : readCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isEdited: null == isEdited
+          ? _value.isEdited
+          : isEdited // ignore: cast_nullable_to_non_nullable
               as bool,
-      readAt: freezed == readAt
-          ? _value.readAt
-          : readAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+      isDeleted: null == isDeleted
+          ? _value.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -1390,6 +1712,20 @@ class _$MessageModelCopyWithImpl<$Res, $Val extends MessageModel>
       return _then(_value.copyWith(sender: value) as $Val);
     });
   }
+
+  /// Create a copy of MessageModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $MediaMetadataModelCopyWith<$Res>? get mediaMetadata {
+    if (_value.mediaMetadata == null) {
+      return null;
+    }
+
+    return $MediaMetadataModelCopyWith<$Res>(_value.mediaMetadata!, (value) {
+      return _then(_value.copyWith(mediaMetadata: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -1405,17 +1741,28 @@ abstract class _$$MessageModelImplCopyWith<$Res>
       String chatId,
       String senderId,
       ChatUserModel? sender,
-      String content,
       MessageType type,
+      String? content,
       String? mediaUrl,
-      Map<String, dynamic>? metadata,
-      bool isRead,
-      DateTime? readAt,
+      String? thumbnailUrl,
+      MediaMetadataModel? mediaMetadata,
+      double? locationLat,
+      double? locationLng,
+      String? locationName,
+      String? sharedProfileId,
+      String? sharedPostId,
+      String? bookingProposalId,
+      String? replyToId,
+      int readCount,
+      bool isEdited,
+      bool isDeleted,
       DateTime createdAt,
       DateTime updatedAt});
 
   @override
   $ChatUserModelCopyWith<$Res>? get sender;
+  @override
+  $MediaMetadataModelCopyWith<$Res>? get mediaMetadata;
 }
 
 /// @nodoc
@@ -1435,12 +1782,21 @@ class __$$MessageModelImplCopyWithImpl<$Res>
     Object? chatId = null,
     Object? senderId = null,
     Object? sender = freezed,
-    Object? content = null,
     Object? type = null,
+    Object? content = freezed,
     Object? mediaUrl = freezed,
-    Object? metadata = freezed,
-    Object? isRead = null,
-    Object? readAt = freezed,
+    Object? thumbnailUrl = freezed,
+    Object? mediaMetadata = freezed,
+    Object? locationLat = freezed,
+    Object? locationLng = freezed,
+    Object? locationName = freezed,
+    Object? sharedProfileId = freezed,
+    Object? sharedPostId = freezed,
+    Object? bookingProposalId = freezed,
+    Object? replyToId = freezed,
+    Object? readCount = null,
+    Object? isEdited = null,
+    Object? isDeleted = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -1461,30 +1817,66 @@ class __$$MessageModelImplCopyWithImpl<$Res>
           ? _value.sender
           : sender // ignore: cast_nullable_to_non_nullable
               as ChatUserModel?,
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
-              as String,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      metadata: freezed == metadata
-          ? _value._metadata
-          : metadata // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
-      isRead: null == isRead
-          ? _value.isRead
-          : isRead // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mediaMetadata: freezed == mediaMetadata
+          ? _value.mediaMetadata
+          : mediaMetadata // ignore: cast_nullable_to_non_nullable
+              as MediaMetadataModel?,
+      locationLat: freezed == locationLat
+          ? _value.locationLat
+          : locationLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationLng: freezed == locationLng
+          ? _value.locationLng
+          : locationLng // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationName: freezed == locationName
+          ? _value.locationName
+          : locationName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedProfileId: freezed == sharedProfileId
+          ? _value.sharedProfileId
+          : sharedProfileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedPostId: freezed == sharedPostId
+          ? _value.sharedPostId
+          : sharedPostId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bookingProposalId: freezed == bookingProposalId
+          ? _value.bookingProposalId
+          : bookingProposalId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      replyToId: freezed == replyToId
+          ? _value.replyToId
+          : replyToId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      readCount: null == readCount
+          ? _value.readCount
+          : readCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      isEdited: null == isEdited
+          ? _value.isEdited
+          : isEdited // ignore: cast_nullable_to_non_nullable
               as bool,
-      readAt: freezed == readAt
-          ? _value.readAt
-          : readAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+      isDeleted: null == isDeleted
+          ? _value.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -1505,15 +1897,23 @@ class _$MessageModelImpl implements _MessageModel {
       required this.chatId,
       required this.senderId,
       this.sender,
-      required this.content,
       this.type = MessageType.text,
+      this.content,
       this.mediaUrl,
-      final Map<String, dynamic>? metadata,
-      this.isRead = false,
-      this.readAt,
+      this.thumbnailUrl,
+      this.mediaMetadata,
+      this.locationLat,
+      this.locationLng,
+      this.locationName,
+      this.sharedProfileId,
+      this.sharedPostId,
+      this.bookingProposalId,
+      this.replyToId,
+      this.readCount = 0,
+      this.isEdited = false,
+      this.isDeleted = false,
       required this.createdAt,
-      required this.updatedAt})
-      : _metadata = metadata;
+      required this.updatedAt});
 
   factory _$MessageModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$MessageModelImplFromJson(json);
@@ -1527,27 +1927,39 @@ class _$MessageModelImpl implements _MessageModel {
   @override
   final ChatUserModel? sender;
   @override
-  final String content;
-  @override
   @JsonKey()
   final MessageType type;
   @override
-  final String? mediaUrl;
-  final Map<String, dynamic>? _metadata;
+  final String? content;
   @override
-  Map<String, dynamic>? get metadata {
-    final value = _metadata;
-    if (value == null) return null;
-    if (_metadata is EqualUnmodifiableMapView) return _metadata;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
-
+  final String? mediaUrl;
+  @override
+  final String? thumbnailUrl;
+  @override
+  final MediaMetadataModel? mediaMetadata;
+  @override
+  final double? locationLat;
+  @override
+  final double? locationLng;
+  @override
+  final String? locationName;
+  @override
+  final String? sharedProfileId;
+  @override
+  final String? sharedPostId;
+  @override
+  final String? bookingProposalId;
+  @override
+  final String? replyToId;
   @override
   @JsonKey()
-  final bool isRead;
+  final int readCount;
   @override
-  final DateTime? readAt;
+  @JsonKey()
+  final bool isEdited;
+  @override
+  @JsonKey()
+  final bool isDeleted;
   @override
   final DateTime createdAt;
   @override
@@ -1555,7 +1967,7 @@ class _$MessageModelImpl implements _MessageModel {
 
   @override
   String toString() {
-    return 'MessageModel(id: $id, chatId: $chatId, senderId: $senderId, sender: $sender, content: $content, type: $type, mediaUrl: $mediaUrl, metadata: $metadata, isRead: $isRead, readAt: $readAt, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'MessageModel(id: $id, chatId: $chatId, senderId: $senderId, sender: $sender, type: $type, content: $content, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, mediaMetadata: $mediaMetadata, locationLat: $locationLat, locationLng: $locationLng, locationName: $locationName, sharedProfileId: $sharedProfileId, sharedPostId: $sharedPostId, bookingProposalId: $bookingProposalId, replyToId: $replyToId, readCount: $readCount, isEdited: $isEdited, isDeleted: $isDeleted, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -1568,13 +1980,34 @@ class _$MessageModelImpl implements _MessageModel {
             (identical(other.senderId, senderId) ||
                 other.senderId == senderId) &&
             (identical(other.sender, sender) || other.sender == sender) &&
-            (identical(other.content, content) || other.content == content) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.mediaUrl, mediaUrl) ||
                 other.mediaUrl == mediaUrl) &&
-            const DeepCollectionEquality().equals(other._metadata, _metadata) &&
-            (identical(other.isRead, isRead) || other.isRead == isRead) &&
-            (identical(other.readAt, readAt) || other.readAt == readAt) &&
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.mediaMetadata, mediaMetadata) ||
+                other.mediaMetadata == mediaMetadata) &&
+            (identical(other.locationLat, locationLat) ||
+                other.locationLat == locationLat) &&
+            (identical(other.locationLng, locationLng) ||
+                other.locationLng == locationLng) &&
+            (identical(other.locationName, locationName) ||
+                other.locationName == locationName) &&
+            (identical(other.sharedProfileId, sharedProfileId) ||
+                other.sharedProfileId == sharedProfileId) &&
+            (identical(other.sharedPostId, sharedPostId) ||
+                other.sharedPostId == sharedPostId) &&
+            (identical(other.bookingProposalId, bookingProposalId) ||
+                other.bookingProposalId == bookingProposalId) &&
+            (identical(other.replyToId, replyToId) ||
+                other.replyToId == replyToId) &&
+            (identical(other.readCount, readCount) ||
+                other.readCount == readCount) &&
+            (identical(other.isEdited, isEdited) ||
+                other.isEdited == isEdited) &&
+            (identical(other.isDeleted, isDeleted) ||
+                other.isDeleted == isDeleted) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -1583,20 +2016,30 @@ class _$MessageModelImpl implements _MessageModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      chatId,
-      senderId,
-      sender,
-      content,
-      type,
-      mediaUrl,
-      const DeepCollectionEquality().hash(_metadata),
-      isRead,
-      readAt,
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        chatId,
+        senderId,
+        sender,
+        type,
+        content,
+        mediaUrl,
+        thumbnailUrl,
+        mediaMetadata,
+        locationLat,
+        locationLng,
+        locationName,
+        sharedProfileId,
+        sharedPostId,
+        bookingProposalId,
+        replyToId,
+        readCount,
+        isEdited,
+        isDeleted,
+        createdAt,
+        updatedAt
+      ]);
 
   /// Create a copy of MessageModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1620,12 +2063,21 @@ abstract class _MessageModel implements MessageModel {
       required final String chatId,
       required final String senderId,
       final ChatUserModel? sender,
-      required final String content,
       final MessageType type,
+      final String? content,
       final String? mediaUrl,
-      final Map<String, dynamic>? metadata,
-      final bool isRead,
-      final DateTime? readAt,
+      final String? thumbnailUrl,
+      final MediaMetadataModel? mediaMetadata,
+      final double? locationLat,
+      final double? locationLng,
+      final String? locationName,
+      final String? sharedProfileId,
+      final String? sharedPostId,
+      final String? bookingProposalId,
+      final String? replyToId,
+      final int readCount,
+      final bool isEdited,
+      final bool isDeleted,
       required final DateTime createdAt,
       required final DateTime updatedAt}) = _$MessageModelImpl;
 
@@ -1641,17 +2093,35 @@ abstract class _MessageModel implements MessageModel {
   @override
   ChatUserModel? get sender;
   @override
-  String get content;
-  @override
   MessageType get type;
+  @override
+  String? get content;
   @override
   String? get mediaUrl;
   @override
-  Map<String, dynamic>? get metadata;
+  String? get thumbnailUrl;
   @override
-  bool get isRead;
+  MediaMetadataModel? get mediaMetadata;
   @override
-  DateTime? get readAt;
+  double? get locationLat;
+  @override
+  double? get locationLng;
+  @override
+  String? get locationName;
+  @override
+  String? get sharedProfileId;
+  @override
+  String? get sharedPostId;
+  @override
+  String? get bookingProposalId;
+  @override
+  String? get replyToId;
+  @override
+  int get readCount;
+  @override
+  bool get isEdited;
+  @override
+  bool get isDeleted;
   @override
   DateTime get createdAt;
   @override
@@ -1903,11 +2373,30 @@ SendMessageRequest _$SendMessageRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$SendMessageRequest {
-  String get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'chat_id')
+  String get chatId => throw _privateConstructorUsedError;
   MessageType get type => throw _privateConstructorUsedError;
+  String? get content => throw _privateConstructorUsedError;
   @JsonKey(name: 'media_url')
   String? get mediaUrl => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'media_metadata')
+  Map<String, dynamic>? get mediaMetadata => throw _privateConstructorUsedError;
+  @JsonKey(name: 'location_lat')
+  double? get locationLat => throw _privateConstructorUsedError;
+  @JsonKey(name: 'location_lng')
+  double? get locationLng => throw _privateConstructorUsedError;
+  @JsonKey(name: 'location_name')
+  String? get locationName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shared_profile_id')
+  String? get sharedProfileId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shared_post_id')
+  String? get sharedPostId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'booking_proposal_id')
+  String? get bookingProposalId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reply_to_id')
+  String? get replyToId => throw _privateConstructorUsedError;
 
   /// Serializes this SendMessageRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1926,10 +2415,19 @@ abstract class $SendMessageRequestCopyWith<$Res> {
       _$SendMessageRequestCopyWithImpl<$Res, SendMessageRequest>;
   @useResult
   $Res call(
-      {String content,
+      {@JsonKey(name: 'chat_id') String chatId,
       MessageType type,
+      String? content,
       @JsonKey(name: 'media_url') String? mediaUrl,
-      Map<String, dynamic>? metadata});
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      @JsonKey(name: 'media_metadata') Map<String, dynamic>? mediaMetadata,
+      @JsonKey(name: 'location_lat') double? locationLat,
+      @JsonKey(name: 'location_lng') double? locationLng,
+      @JsonKey(name: 'location_name') String? locationName,
+      @JsonKey(name: 'shared_profile_id') String? sharedProfileId,
+      @JsonKey(name: 'shared_post_id') String? sharedPostId,
+      @JsonKey(name: 'booking_proposal_id') String? bookingProposalId,
+      @JsonKey(name: 'reply_to_id') String? replyToId});
 }
 
 /// @nodoc
@@ -1947,28 +2445,73 @@ class _$SendMessageRequestCopyWithImpl<$Res, $Val extends SendMessageRequest>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? content = null,
+    Object? chatId = null,
     Object? type = null,
+    Object? content = freezed,
     Object? mediaUrl = freezed,
-    Object? metadata = freezed,
+    Object? thumbnailUrl = freezed,
+    Object? mediaMetadata = freezed,
+    Object? locationLat = freezed,
+    Object? locationLng = freezed,
+    Object? locationName = freezed,
+    Object? sharedProfileId = freezed,
+    Object? sharedPostId = freezed,
+    Object? bookingProposalId = freezed,
+    Object? replyToId = freezed,
   }) {
     return _then(_value.copyWith(
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
+      chatId: null == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
               as String,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      metadata: freezed == metadata
-          ? _value.metadata
-          : metadata // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mediaMetadata: freezed == mediaMetadata
+          ? _value.mediaMetadata
+          : mediaMetadata // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
+      locationLat: freezed == locationLat
+          ? _value.locationLat
+          : locationLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationLng: freezed == locationLng
+          ? _value.locationLng
+          : locationLng // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationName: freezed == locationName
+          ? _value.locationName
+          : locationName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedProfileId: freezed == sharedProfileId
+          ? _value.sharedProfileId
+          : sharedProfileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedPostId: freezed == sharedPostId
+          ? _value.sharedPostId
+          : sharedPostId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bookingProposalId: freezed == bookingProposalId
+          ? _value.bookingProposalId
+          : bookingProposalId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      replyToId: freezed == replyToId
+          ? _value.replyToId
+          : replyToId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -1982,10 +2525,19 @@ abstract class _$$SendMessageRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String content,
+      {@JsonKey(name: 'chat_id') String chatId,
       MessageType type,
+      String? content,
       @JsonKey(name: 'media_url') String? mediaUrl,
-      Map<String, dynamic>? metadata});
+      @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,
+      @JsonKey(name: 'media_metadata') Map<String, dynamic>? mediaMetadata,
+      @JsonKey(name: 'location_lat') double? locationLat,
+      @JsonKey(name: 'location_lng') double? locationLng,
+      @JsonKey(name: 'location_name') String? locationName,
+      @JsonKey(name: 'shared_profile_id') String? sharedProfileId,
+      @JsonKey(name: 'shared_post_id') String? sharedPostId,
+      @JsonKey(name: 'booking_proposal_id') String? bookingProposalId,
+      @JsonKey(name: 'reply_to_id') String? replyToId});
 }
 
 /// @nodoc
@@ -2001,28 +2553,73 @@ class __$$SendMessageRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? content = null,
+    Object? chatId = null,
     Object? type = null,
+    Object? content = freezed,
     Object? mediaUrl = freezed,
-    Object? metadata = freezed,
+    Object? thumbnailUrl = freezed,
+    Object? mediaMetadata = freezed,
+    Object? locationLat = freezed,
+    Object? locationLng = freezed,
+    Object? locationName = freezed,
+    Object? sharedProfileId = freezed,
+    Object? sharedPostId = freezed,
+    Object? bookingProposalId = freezed,
+    Object? replyToId = freezed,
   }) {
     return _then(_$SendMessageRequestImpl(
-      content: null == content
-          ? _value.content
-          : content // ignore: cast_nullable_to_non_nullable
+      chatId: null == chatId
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
               as String,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as MessageType,
+      content: freezed == content
+          ? _value.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String?,
       mediaUrl: freezed == mediaUrl
           ? _value.mediaUrl
           : mediaUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      metadata: freezed == metadata
-          ? _value._metadata
-          : metadata // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: freezed == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      mediaMetadata: freezed == mediaMetadata
+          ? _value._mediaMetadata
+          : mediaMetadata // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
+      locationLat: freezed == locationLat
+          ? _value.locationLat
+          : locationLat // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationLng: freezed == locationLng
+          ? _value.locationLng
+          : locationLng // ignore: cast_nullable_to_non_nullable
+              as double?,
+      locationName: freezed == locationName
+          ? _value.locationName
+          : locationName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedProfileId: freezed == sharedProfileId
+          ? _value.sharedProfileId
+          : sharedProfileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sharedPostId: freezed == sharedPostId
+          ? _value.sharedPostId
+          : sharedPostId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      bookingProposalId: freezed == bookingProposalId
+          ? _value.bookingProposalId
+          : bookingProposalId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      replyToId: freezed == replyToId
+          ? _value.replyToId
+          : replyToId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -2031,36 +2628,75 @@ class __$$SendMessageRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SendMessageRequestImpl implements _SendMessageRequest {
   const _$SendMessageRequestImpl(
-      {required this.content,
+      {@JsonKey(name: 'chat_id') required this.chatId,
       this.type = MessageType.text,
+      this.content,
       @JsonKey(name: 'media_url') this.mediaUrl,
-      final Map<String, dynamic>? metadata})
-      : _metadata = metadata;
+      @JsonKey(name: 'thumbnail_url') this.thumbnailUrl,
+      @JsonKey(name: 'media_metadata')
+      final Map<String, dynamic>? mediaMetadata,
+      @JsonKey(name: 'location_lat') this.locationLat,
+      @JsonKey(name: 'location_lng') this.locationLng,
+      @JsonKey(name: 'location_name') this.locationName,
+      @JsonKey(name: 'shared_profile_id') this.sharedProfileId,
+      @JsonKey(name: 'shared_post_id') this.sharedPostId,
+      @JsonKey(name: 'booking_proposal_id') this.bookingProposalId,
+      @JsonKey(name: 'reply_to_id') this.replyToId})
+      : _mediaMetadata = mediaMetadata;
 
   factory _$SendMessageRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$SendMessageRequestImplFromJson(json);
 
   @override
-  final String content;
+  @JsonKey(name: 'chat_id')
+  final String chatId;
   @override
   @JsonKey()
   final MessageType type;
   @override
+  final String? content;
+  @override
   @JsonKey(name: 'media_url')
   final String? mediaUrl;
-  final Map<String, dynamic>? _metadata;
   @override
-  Map<String, dynamic>? get metadata {
-    final value = _metadata;
+  @JsonKey(name: 'thumbnail_url')
+  final String? thumbnailUrl;
+  final Map<String, dynamic>? _mediaMetadata;
+  @override
+  @JsonKey(name: 'media_metadata')
+  Map<String, dynamic>? get mediaMetadata {
+    final value = _mediaMetadata;
     if (value == null) return null;
-    if (_metadata is EqualUnmodifiableMapView) return _metadata;
+    if (_mediaMetadata is EqualUnmodifiableMapView) return _mediaMetadata;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
 
   @override
+  @JsonKey(name: 'location_lat')
+  final double? locationLat;
+  @override
+  @JsonKey(name: 'location_lng')
+  final double? locationLng;
+  @override
+  @JsonKey(name: 'location_name')
+  final String? locationName;
+  @override
+  @JsonKey(name: 'shared_profile_id')
+  final String? sharedProfileId;
+  @override
+  @JsonKey(name: 'shared_post_id')
+  final String? sharedPostId;
+  @override
+  @JsonKey(name: 'booking_proposal_id')
+  final String? bookingProposalId;
+  @override
+  @JsonKey(name: 'reply_to_id')
+  final String? replyToId;
+
+  @override
   String toString() {
-    return 'SendMessageRequest(content: $content, type: $type, mediaUrl: $mediaUrl, metadata: $metadata)';
+    return 'SendMessageRequest(chatId: $chatId, type: $type, content: $content, mediaUrl: $mediaUrl, thumbnailUrl: $thumbnailUrl, mediaMetadata: $mediaMetadata, locationLat: $locationLat, locationLng: $locationLng, locationName: $locationName, sharedProfileId: $sharedProfileId, sharedPostId: $sharedPostId, bookingProposalId: $bookingProposalId, replyToId: $replyToId)';
   }
 
   @override
@@ -2068,17 +2704,48 @@ class _$SendMessageRequestImpl implements _SendMessageRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SendMessageRequestImpl &&
-            (identical(other.content, content) || other.content == content) &&
+            (identical(other.chatId, chatId) || other.chatId == chatId) &&
             (identical(other.type, type) || other.type == type) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.mediaUrl, mediaUrl) ||
                 other.mediaUrl == mediaUrl) &&
-            const DeepCollectionEquality().equals(other._metadata, _metadata));
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl) &&
+            const DeepCollectionEquality()
+                .equals(other._mediaMetadata, _mediaMetadata) &&
+            (identical(other.locationLat, locationLat) ||
+                other.locationLat == locationLat) &&
+            (identical(other.locationLng, locationLng) ||
+                other.locationLng == locationLng) &&
+            (identical(other.locationName, locationName) ||
+                other.locationName == locationName) &&
+            (identical(other.sharedProfileId, sharedProfileId) ||
+                other.sharedProfileId == sharedProfileId) &&
+            (identical(other.sharedPostId, sharedPostId) ||
+                other.sharedPostId == sharedPostId) &&
+            (identical(other.bookingProposalId, bookingProposalId) ||
+                other.bookingProposalId == bookingProposalId) &&
+            (identical(other.replyToId, replyToId) ||
+                other.replyToId == replyToId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, content, type, mediaUrl,
-      const DeepCollectionEquality().hash(_metadata));
+  int get hashCode => Object.hash(
+      runtimeType,
+      chatId,
+      type,
+      content,
+      mediaUrl,
+      thumbnailUrl,
+      const DeepCollectionEquality().hash(_mediaMetadata),
+      locationLat,
+      locationLng,
+      locationName,
+      sharedProfileId,
+      sharedPostId,
+      bookingProposalId,
+      replyToId);
 
   /// Create a copy of SendMessageRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -2099,23 +2766,62 @@ class _$SendMessageRequestImpl implements _SendMessageRequest {
 
 abstract class _SendMessageRequest implements SendMessageRequest {
   const factory _SendMessageRequest(
-      {required final String content,
-      final MessageType type,
-      @JsonKey(name: 'media_url') final String? mediaUrl,
-      final Map<String, dynamic>? metadata}) = _$SendMessageRequestImpl;
+          {@JsonKey(name: 'chat_id') required final String chatId,
+          final MessageType type,
+          final String? content,
+          @JsonKey(name: 'media_url') final String? mediaUrl,
+          @JsonKey(name: 'thumbnail_url') final String? thumbnailUrl,
+          @JsonKey(name: 'media_metadata')
+          final Map<String, dynamic>? mediaMetadata,
+          @JsonKey(name: 'location_lat') final double? locationLat,
+          @JsonKey(name: 'location_lng') final double? locationLng,
+          @JsonKey(name: 'location_name') final String? locationName,
+          @JsonKey(name: 'shared_profile_id') final String? sharedProfileId,
+          @JsonKey(name: 'shared_post_id') final String? sharedPostId,
+          @JsonKey(name: 'booking_proposal_id') final String? bookingProposalId,
+          @JsonKey(name: 'reply_to_id') final String? replyToId}) =
+      _$SendMessageRequestImpl;
 
   factory _SendMessageRequest.fromJson(Map<String, dynamic> json) =
       _$SendMessageRequestImpl.fromJson;
 
   @override
-  String get content;
+  @JsonKey(name: 'chat_id')
+  String get chatId;
   @override
   MessageType get type;
+  @override
+  String? get content;
   @override
   @JsonKey(name: 'media_url')
   String? get mediaUrl;
   @override
-  Map<String, dynamic>? get metadata;
+  @JsonKey(name: 'thumbnail_url')
+  String? get thumbnailUrl;
+  @override
+  @JsonKey(name: 'media_metadata')
+  Map<String, dynamic>? get mediaMetadata;
+  @override
+  @JsonKey(name: 'location_lat')
+  double? get locationLat;
+  @override
+  @JsonKey(name: 'location_lng')
+  double? get locationLng;
+  @override
+  @JsonKey(name: 'location_name')
+  String? get locationName;
+  @override
+  @JsonKey(name: 'shared_profile_id')
+  String? get sharedProfileId;
+  @override
+  @JsonKey(name: 'shared_post_id')
+  String? get sharedPostId;
+  @override
+  @JsonKey(name: 'booking_proposal_id')
+  String? get bookingProposalId;
+  @override
+  @JsonKey(name: 'reply_to_id')
+  String? get replyToId;
 
   /// Create a copy of SendMessageRequest
   /// with the given fields replaced by the non-null parameter values.

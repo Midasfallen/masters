@@ -83,30 +83,12 @@ export class MessagesService {
       relations: ['sender'],
     });
 
-    // Отправляем WebSocket событие всем участникам чата
-    this.websocketGateway.sendMessageToChat(chat_id, 'chat:message:new', {
-      id: messageWithSender.id,
-      chatId: messageWithSender.chat_id,
-      senderId: messageWithSender.sender_id,
-      sender_name: messageWithSender.sender
-        ? `${messageWithSender.sender.first_name} ${messageWithSender.sender.last_name}`
-        : 'Unknown',
-      sender_avatar: messageWithSender.sender?.avatar_url || null,
-      type: messageWithSender.type,
-      content: messageWithSender.content,
-      mediaUrl: messageWithSender.media_url,
-      thumbnailUrl: messageWithSender.thumbnail_url,
-      locationLat: messageWithSender.location_lat ? Number(messageWithSender.location_lat) : null,
-      locationLng: messageWithSender.location_lng ? Number(messageWithSender.location_lng) : null,
-      locationName: messageWithSender.location_name,
-      sharedProfileId: messageWithSender.shared_profile_id,
-      sharedPostId: messageWithSender.shared_post_id,
-      bookingProposalId: messageWithSender.booking_proposal_id,
-      replyToId: messageWithSender.reply_to_id,
-      createdAt: messageWithSender.created_at.toISOString(),
-      isEdited: messageWithSender.is_edited,
-      isDeleted: messageWithSender.is_deleted,
-    });
+    // Отправляем WebSocket событие всем участникам чата (единый формат с REST)
+    this.websocketGateway.sendMessageToChat(
+      chat_id,
+      'chat:message:new',
+      ChatsMapper.toMessageDto(messageWithSender),
+    );
 
     return ChatsMapper.toMessageDto(messageWithSender);
   }

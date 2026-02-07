@@ -13,11 +13,13 @@ import { SearchMastersDto } from './dto/search-masters.dto';
 import { SearchServicesDto } from './dto/search-services.dto';
 import { SearchTemplatesDto } from './dto/search-templates.dto';
 import { SearchAllDto } from './dto/search-all.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
 import {
   MasterSearchResultDto,
   ServiceSearchResultDto,
   ServiceTemplateSearchResultDto,
   CategorySearchResultDto,
+  UserSearchResultDto,
   SearchAggregationDto,
   SearchResponseDto,
 } from './dto/search-response.dto';
@@ -29,6 +31,7 @@ export class SearchService implements OnModuleInit {
   private servicesIndex;
   private serviceTemplatesIndex;
   private categoriesIndex;
+  private usersIndex;
 
   constructor(
     @InjectRepository(User)
@@ -57,10 +60,13 @@ export class SearchService implements OnModuleInit {
     // ⚠️ ВАЖНО: Очистка индексов при первом деплое нового кода
     // Это исключит появление старых данных категорий level 2 в результатах поиска
     try {
-      // Удаляем старые индексы (включая данные с level 2 категориями)
+      // Удаляем ВСЕ старые индексы, чтобы при re-seed не оставалось устаревших данных
       try {
         await this.meiliClient.deleteIndex('masters');
         await this.meiliClient.deleteIndex('services');
+        await this.meiliClient.deleteIndex('service_templates');
+        await this.meiliClient.deleteIndex('categories');
+        await this.meiliClient.deleteIndex('users');
         console.log('✅ Old Meilisearch indices deleted');
       } catch (deleteError) {
         // Индексы могут не существовать при первом запуске - это нормально
@@ -129,6 +135,14 @@ export class SearchService implements OnModuleInit {
         searchableAttributes: ['name', 'keywords_text', 'slug'],
         filterableAttributes: ['level', 'language'],
         sortableAttributes: ['level', 'display_order', 'name'],
+      });
+
+      // Индекс пользователей (для поиска при создании чата)
+      this.usersIndex = this.meiliClient.index('users');
+      await this.usersIndex.updateSettings({
+        searchableAttributes: ['first_name', 'last_name', 'email'],
+        filterableAttributes: ['is_master', 'is_verified', 'is_active'],
+        sortableAttributes: ['first_name', 'last_name'],
       });
 
       // Переиндексируем данные (если они есть)
@@ -381,6 +395,84 @@ export class SearchService implements OnModuleInit {
   }
 
   /**
+   * Поиск пользователей (для создания чата)
+   */
+  async searchUsers(
+    searchDto: SearchUsersDto,
+    currentUserId?: string,
+  ): Promise<SearchResponseDto<UserSearchResultDto>> {
+    const { query = '', page = 1, limit = 20 } = searchDto;
+    const startTime = Date.now();
+
+    if (!query.trim()) {
+      return { data: [], total: 0, page, limit, processing_time_ms: 0, query };
+    }
+
+    try {
+      const filters: string[] = ['is_active = true'];
+
+      const searchResults = await this.usersIndex.search(query, {
+        filter: filters.join(' AND '),
+        limit: limit + 1, // +1 чтобы исключить текущего пользователя
+        offset: (page - 1) * limit,
+      });
+
+      const processingTimeMs = Date.now() - startTime;
+
+      const data: UserSearchResultDto[] = searchResults.hits
+        .filter((hit: any) => hit.id !== currentUserId)
+        .slice(0, limit)
+        .map((hit: any) => ({
+          id: hit.id,
+          firstName: hit.first_name,
+          lastName: hit.last_name,
+          fullName: `${hit.first_name} ${hit.last_name}`.trim(),
+          avatarUrl: hit.avatar_url || null,
+          email: hit.email,
+          isMaster: hit.is_master || false,
+          isVerified: hit.is_verified || false,
+        }));
+
+      return {
+        data,
+        total: searchResults.estimatedTotalHits || 0,
+        page,
+        limit,
+        processing_time_ms: processingTimeMs,
+        query,
+      };
+    } catch (error) {
+      console.error('Meilisearch users search error:', error);
+      return this.fallbackSearchUsers(searchDto, currentUserId);
+    }
+  }
+
+  /**
+   * Индексация пользователя (вызывается при регистрации/обновлении)
+   */
+  async indexUser(userId: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) return;
+
+    const document = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      avatar_url: user.avatar_url,
+      is_master: user.is_master,
+      is_verified: user.is_verified,
+      is_active: user.is_active,
+    };
+
+    try {
+      await this.usersIndex.addDocuments([document], { primaryKey: 'id' });
+    } catch (error) {
+      console.error('Error indexing user:', error);
+    }
+  }
+
+  /**
    * Индексация мастера (вызывается при создании/обновлении)
    */
   async indexMaster(userId: string): Promise<void> {
@@ -543,6 +635,14 @@ export class SearchService implements OnModuleInit {
 
       // Переиндексируем категории (L0/L1)
       await this.reindexCategories();
+
+      // Переиндексируем пользователей
+      const users = await this.userRepository.find({
+        where: { is_active: true },
+      });
+      for (const user of users) {
+        await this.indexUser(user.id);
+      }
 
       console.log('✅ Reindexing completed');
     } catch (error) {
@@ -1155,6 +1255,61 @@ export class SearchService implements OnModuleInit {
   }
 
   /**
+   * Fallback поиск пользователей по БД (если Meilisearch недоступен)
+   */
+  private async fallbackSearchUsers(
+    searchDto: SearchUsersDto,
+    currentUserId?: string,
+  ): Promise<SearchResponseDto<UserSearchResultDto>> {
+    const { query = '', page = 1, limit = 20 } = searchDto;
+    const startTime = Date.now();
+
+    console.warn('⚠️  Using fallback PostgreSQL search for users (Meilisearch unavailable)');
+
+    try {
+      const qb = this.userRepository
+        .createQueryBuilder('user')
+        .where('user.is_active = :isActive', { isActive: true });
+
+      if (currentUserId) {
+        qb.andWhere('user.id != :currentUserId', { currentUserId });
+      }
+
+      if (query.trim()) {
+        qb.andWhere(
+          `(user.first_name ILIKE :query OR user.last_name ILIKE :query OR CONCAT(user.first_name, ' ', user.last_name) ILIKE :query)`,
+          { query: `%${query.trim()}%` },
+        );
+      }
+
+      qb.orderBy('user.first_name', 'ASC').addOrderBy('user.last_name', 'ASC');
+
+      const offset = (page - 1) * limit;
+      qb.skip(offset).take(limit);
+
+      const [users, total] = await qb.getManyAndCount();
+
+      const data: UserSearchResultDto[] = users.map((user) => ({
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        fullName: `${user.first_name} ${user.last_name}`.trim(),
+        avatarUrl: user.avatar_url || null,
+        email: user.email,
+        isMaster: user.is_master,
+        isVerified: user.is_verified,
+      }));
+
+      const processingTimeMs = Date.now() - startTime;
+
+      return { data, total, page, limit, processing_time_ms: processingTimeMs, query };
+    } catch (error) {
+      console.error('❌ Fallback users search error:', error);
+      return { data: [], total: 0, page, limit, processing_time_ms: Date.now() - startTime, query };
+    }
+  }
+
+  /**
    * Расчет расстояния между двумя точками (Haversine formula)
    */
   private calculateDistance(
@@ -1188,12 +1343,13 @@ export class SearchService implements OnModuleInit {
    */
   async getIndexStats() {
     try {
-      const [mastersStats, servicesStats, templatesStats, categoriesStats] =
+      const [mastersStats, servicesStats, templatesStats, categoriesStats, usersStats] =
         await Promise.all([
           this.mastersIndex.getStats(),
           this.servicesIndex.getStats(),
           this.serviceTemplatesIndex.getStats(),
           this.categoriesIndex.getStats(),
+          this.usersIndex.getStats(),
         ]);
 
       return {
@@ -1201,6 +1357,7 @@ export class SearchService implements OnModuleInit {
         services: servicesStats,
         service_templates: templatesStats,
         categories: categoriesStats,
+        users: usersStats,
       };
     } catch (error) {
       console.error('❌ Error getting index stats:', error);
@@ -1209,6 +1366,7 @@ export class SearchService implements OnModuleInit {
         services: { numberOfDocuments: 0, isIndexing: false },
         service_templates: { numberOfDocuments: 0, isIndexing: false },
         categories: { numberOfDocuments: 0, isIndexing: false },
+        users: { numberOfDocuments: 0, isIndexing: false },
       };
     }
   }

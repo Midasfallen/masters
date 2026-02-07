@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { MessageType } from '../entities/message.entity';
+import { ChatUserResponseDto } from './chat-user-response.dto';
 
 /**
  * Response DTO для медиа метаданных
@@ -46,6 +47,10 @@ export class MessageResponseDto {
   @Expose()
   @ApiProperty({ description: 'ID отправителя' })
   senderId: string;
+
+  @Expose()
+  @ApiProperty({ description: 'Информация об отправителе', type: ChatUserResponseDto, nullable: true })
+  sender?: ChatUserResponseDto;
 
   @Expose()
   @ApiProperty({ enum: MessageType, example: MessageType.TEXT })

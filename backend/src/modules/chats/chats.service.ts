@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Chat, ChatType } from './entities/chat.entity';
+import { Message } from './entities/message.entity';
 import { ChatParticipant, ParticipantRole } from './entities/chat-participant.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
@@ -22,6 +23,8 @@ export class ChatsService {
   constructor(
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
     @InjectRepository(ChatParticipant)
     private readonly participantRepository: Repository<ChatParticipant>,
     @InjectRepository(User)
@@ -105,8 +108,29 @@ export class ChatsService {
       .take(limit)
       .getManyAndCount();
 
+    // Загружаем последние сообщения для всех чатов одним запросом
+    const lastMessageIds = participants
+      .map((p) => p.chat?.last_message_id)
+      .filter(Boolean);
+
+    let lastMessagesMap = new Map<string, Message>();
+    if (lastMessageIds.length > 0) {
+      const lastMessages = await this.messageRepository.find({
+        where: { id: In(lastMessageIds) },
+        relations: ['sender'],
+      });
+      lastMessagesMap = new Map(lastMessages.map((m) => [m.id, m]));
+    }
+
     const chats = participants.map((p) => {
-      return ChatsMapper.toFullChatDto(p.chat, p, userId);
+      const chatDto = ChatsMapper.toFullChatDto(p.chat, p, userId);
+      const lastMsg = p.chat?.last_message_id
+        ? lastMessagesMap.get(p.chat.last_message_id)
+        : undefined;
+      if (lastMsg) {
+        chatDto.lastMessage = ChatsMapper.toMessageDto(lastMsg);
+      }
+      return chatDto;
     });
 
     return {

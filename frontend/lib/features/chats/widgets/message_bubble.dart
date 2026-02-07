@@ -65,6 +65,17 @@ class MessageBubble extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (message.isEdited)
+                        Text(
+                          'изм. ',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                            color: isMe
+                                ? Colors.white.withValues(alpha: 0.7)
+                                : Colors.grey[600],
+                          ),
+                        ),
                       Text(
                         time,
                         style: TextStyle(
@@ -94,27 +105,36 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildMessageContent(BuildContext context) {
-    // Разные типы сообщений
+    if (message.isDeleted) {
+      return Text(
+        'Сообщение удалено',
+        style: TextStyle(
+          fontSize: 14,
+          fontStyle: FontStyle.italic,
+          color: isMe ? Colors.white70 : Colors.grey,
+        ),
+      );
+    }
+
     switch (message.type) {
       case MessageType.text:
         return Text(
-          message.content,
+          message.content ?? '',
           style: TextStyle(
             fontSize: 15,
             color: isMe ? Colors.white : Colors.black87,
           ),
         );
 
-      case MessageType.image:
+      case MessageType.photo:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (message.metadata != null &&
-                message.metadata!['url'] != null)
+            if (message.mediaUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  message.metadata!['url'] as String,
+                  message.mediaUrl!,
                   width: 200,
                   height: 200,
                   fit: BoxFit.cover,
@@ -131,10 +151,10 @@ class MessageBubble extends StatelessWidget {
                   },
                 ),
               ),
-            if (message.content.isNotEmpty) ...[
+            if (message.content != null && message.content!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                message.content,
+                message.content!,
                 style: TextStyle(
                   fontSize: 15,
                   color: isMe ? Colors.white : Colors.black87,
@@ -144,65 +164,82 @@ class MessageBubble extends StatelessWidget {
           ],
         );
 
-      case MessageType.system:
-        return Row(
-          children: [
-            Icon(
-              Icons.work_outline,
-              size: 20,
-              color: isMe ? Colors.white : Theme.of(context).primaryColor,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Услуга: ${message.content}',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: isMe ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-          ],
+      case MessageType.video:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.videocam,
+          label: 'Видео',
         );
 
-      case MessageType.booking:
-        return Row(
-          children: [
-            Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: isMe ? Colors.white : Theme.of(context).primaryColor,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Запись: ${message.content}',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: isMe ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-          ],
+      case MessageType.voice:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.mic,
+          label: 'Голосовое сообщение',
         );
 
-      default:
-        return Text(
-          message.content,
-          style: TextStyle(
-            fontSize: 15,
-            color: isMe ? Colors.white : Colors.black87,
-          ),
+      case MessageType.location:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.location_on,
+          label: message.locationName ?? 'Геолокация',
+        );
+
+      case MessageType.profileShare:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.person,
+          label: 'Профиль',
+        );
+
+      case MessageType.postShare:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.article,
+          label: 'Публикация',
+        );
+
+      case MessageType.bookingProposal:
+        return _buildMediaPlaceholder(
+          context,
+          icon: Icons.calendar_today,
+          label: 'Предложение записи',
         );
     }
+  }
+
+  Widget _buildMediaPlaceholder(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: isMe ? Colors.white : Theme.of(context).primaryColor,
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              color: isMe ? Colors.white : Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildStatusIcon() {
     IconData icon;
     Color? color;
 
-    // MessageModel uses isRead field instead of status
-    if (message.isRead) {
+    if (message.readCount > 0) {
       icon = Icons.done_all;
       color = Colors.blue[300];
     } else {

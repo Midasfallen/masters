@@ -107,6 +107,7 @@ export class ChatsMapper {
       id: message.id,
       chatId: message.chat_id,
       senderId: message.sender_id,
+      sender: message.sender ? this.toUserDto(message.sender) : undefined,
       type: message.type,
       content: message.content,
       mediaUrl: message.media_url,

@@ -6,6 +6,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../../../core/providers/api/chats_provider.dart';
 import '../../../core/models/api/chat_model.dart';
+import '../widgets/new_chat_dialog.dart';
 
 class ChatsListScreen extends ConsumerWidget {
   const ChatsListScreen({super.key});
@@ -24,8 +25,13 @@ class ChatsListScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_square),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Новый чат (в разработке)')),
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (_) => const NewChatDialog(),
               );
             },
           ),
@@ -182,13 +188,45 @@ class ChatsListScreen extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: const Text('Удалить'),
-              onTap: () {
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Удалить', style: TextStyle(color: Colors.red)),
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Удаление чата (в разработке)')),
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Удалить чат?'),
+                    content: const Text('Это действие нельзя отменить.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Отмена'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
                 );
+                if (confirmed == true) {
+                  try {
+                    await ref
+                        .read(chatNotifierProvider.notifier)
+                        .deleteChat(chat.id);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Чат удалён')),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Ошибка: ${e.toString()}')),
+                      );
+                    }
+                  }
+                }
               },
             ),
           ],
@@ -208,6 +246,30 @@ class _ChatTile extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
   });
+
+  String _lastMessagePreview(MessageModel? message) {
+    if (message == null) return 'Нет сообщений';
+    if (message.isDeleted) return 'Сообщение удалено';
+
+    switch (message.type) {
+      case MessageType.text:
+        return message.content ?? '';
+      case MessageType.photo:
+        return 'Фото';
+      case MessageType.video:
+        return 'Видео';
+      case MessageType.voice:
+        return 'Голосовое сообщение';
+      case MessageType.location:
+        return 'Геолокация';
+      case MessageType.profileShare:
+        return 'Профиль';
+      case MessageType.postShare:
+        return 'Публикация';
+      case MessageType.bookingProposal:
+        return 'Предложение записи';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +364,7 @@ class _ChatTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          lastMessage?.content ?? 'Нет сообщений',
+                          _lastMessagePreview(lastMessage),
                           style: TextStyle(
                             fontSize: 14,
                             color: unreadCount > 0

@@ -127,6 +127,28 @@ const _$ParticipantRoleEnumMap = {
   ParticipantRole.owner: 'owner',
 };
 
+_$MediaMetadataModelImpl _$$MediaMetadataModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$MediaMetadataModelImpl(
+      width: (json['width'] as num?)?.toInt(),
+      height: (json['height'] as num?)?.toInt(),
+      duration: (json['duration'] as num?)?.toDouble(),
+      size: (json['size'] as num?)?.toInt(),
+      filename: json['filename'] as String?,
+      mimeType: json['mimeType'] as String?,
+    );
+
+Map<String, dynamic> _$$MediaMetadataModelImplToJson(
+        _$MediaMetadataModelImpl instance) =>
+    <String, dynamic>{
+      'width': instance.width,
+      'height': instance.height,
+      'duration': instance.duration,
+      'size': instance.size,
+      'filename': instance.filename,
+      'mimeType': instance.mimeType,
+    };
+
 _$MessageModelImpl _$$MessageModelImplFromJson(Map<String, dynamic> json) =>
     _$MessageModelImpl(
       id: json['id'] as String,
@@ -135,15 +157,25 @@ _$MessageModelImpl _$$MessageModelImplFromJson(Map<String, dynamic> json) =>
       sender: json['sender'] == null
           ? null
           : ChatUserModel.fromJson(json['sender'] as Map<String, dynamic>),
-      content: json['content'] as String,
       type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.text,
+      content: json['content'] as String?,
       mediaUrl: json['mediaUrl'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      isRead: json['isRead'] as bool? ?? false,
-      readAt: json['readAt'] == null
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+      mediaMetadata: json['mediaMetadata'] == null
           ? null
-          : DateTime.parse(json['readAt'] as String),
+          : MediaMetadataModel.fromJson(
+              json['mediaMetadata'] as Map<String, dynamic>),
+      locationLat: (json['locationLat'] as num?)?.toDouble(),
+      locationLng: (json['locationLng'] as num?)?.toDouble(),
+      locationName: json['locationName'] as String?,
+      sharedProfileId: json['sharedProfileId'] as String?,
+      sharedPostId: json['sharedPostId'] as String?,
+      bookingProposalId: json['bookingProposalId'] as String?,
+      replyToId: json['replyToId'] as String?,
+      readCount: (json['readCount'] as num?)?.toInt() ?? 0,
+      isEdited: json['isEdited'] as bool? ?? false,
+      isDeleted: json['isDeleted'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -154,22 +186,34 @@ Map<String, dynamic> _$$MessageModelImplToJson(_$MessageModelImpl instance) =>
       'chatId': instance.chatId,
       'senderId': instance.senderId,
       'sender': instance.sender,
-      'content': instance.content,
       'type': _$MessageTypeEnumMap[instance.type]!,
+      'content': instance.content,
       'mediaUrl': instance.mediaUrl,
-      'metadata': instance.metadata,
-      'isRead': instance.isRead,
-      'readAt': instance.readAt?.toIso8601String(),
+      'thumbnailUrl': instance.thumbnailUrl,
+      'mediaMetadata': instance.mediaMetadata,
+      'locationLat': instance.locationLat,
+      'locationLng': instance.locationLng,
+      'locationName': instance.locationName,
+      'sharedProfileId': instance.sharedProfileId,
+      'sharedPostId': instance.sharedPostId,
+      'bookingProposalId': instance.bookingProposalId,
+      'replyToId': instance.replyToId,
+      'readCount': instance.readCount,
+      'isEdited': instance.isEdited,
+      'isDeleted': instance.isDeleted,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 const _$MessageTypeEnumMap = {
   MessageType.text: 'text',
-  MessageType.image: 'image',
-  MessageType.file: 'file',
-  MessageType.booking: 'booking',
-  MessageType.system: 'system',
+  MessageType.photo: 'photo',
+  MessageType.video: 'video',
+  MessageType.voice: 'voice',
+  MessageType.location: 'location',
+  MessageType.profileShare: 'profile_share',
+  MessageType.postShare: 'post_share',
+  MessageType.bookingProposal: 'booking_proposal',
 };
 
 _$CreateChatRequestImpl _$$CreateChatRequestImplFromJson(
@@ -196,18 +240,36 @@ Map<String, dynamic> _$$CreateChatRequestImplToJson(
 _$SendMessageRequestImpl _$$SendMessageRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$SendMessageRequestImpl(
-      content: json['content'] as String,
+      chatId: json['chat_id'] as String,
       type: $enumDecodeNullable(_$MessageTypeEnumMap, json['type']) ??
           MessageType.text,
+      content: json['content'] as String?,
       mediaUrl: json['media_url'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
+      thumbnailUrl: json['thumbnail_url'] as String?,
+      mediaMetadata: json['media_metadata'] as Map<String, dynamic>?,
+      locationLat: (json['location_lat'] as num?)?.toDouble(),
+      locationLng: (json['location_lng'] as num?)?.toDouble(),
+      locationName: json['location_name'] as String?,
+      sharedProfileId: json['shared_profile_id'] as String?,
+      sharedPostId: json['shared_post_id'] as String?,
+      bookingProposalId: json['booking_proposal_id'] as String?,
+      replyToId: json['reply_to_id'] as String?,
     );
 
 Map<String, dynamic> _$$SendMessageRequestImplToJson(
         _$SendMessageRequestImpl instance) =>
     <String, dynamic>{
-      'content': instance.content,
+      'chat_id': instance.chatId,
       'type': _$MessageTypeEnumMap[instance.type]!,
+      'content': instance.content,
       'media_url': instance.mediaUrl,
-      'metadata': instance.metadata,
+      'thumbnail_url': instance.thumbnailUrl,
+      'media_metadata': instance.mediaMetadata,
+      'location_lat': instance.locationLat,
+      'location_lng': instance.locationLng,
+      'location_name': instance.locationName,
+      'shared_profile_id': instance.sharedProfileId,
+      'shared_post_id': instance.sharedPostId,
+      'booking_proposal_id': instance.bookingProposalId,
+      'reply_to_id': instance.replyToId,
     };

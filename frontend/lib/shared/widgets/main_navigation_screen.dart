@@ -6,6 +6,7 @@ import '../../features/search/screens/search_screen.dart';
 import '../../features/chats/screens/chats_list_screen.dart';
 import '../../features/bookings/screens/bookings_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../core/providers/api/chats_provider.dart';
 import '../../core/providers/mock_data_provider.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
@@ -29,7 +30,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadMessages = ref.watch(unreadMessagesCountProvider);
+    final unreadMessages = ref.watch(unreadChatsCountProvider);
     final unreadNotifications = ref.watch(unreadNotificationsCountProvider);
 
     return Scaffold(

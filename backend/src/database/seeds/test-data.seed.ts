@@ -5,6 +5,9 @@ import { MasterProfile } from '../../modules/masters/entities/master-profile.ent
 import { Post, PostType, PostPrivacy } from '../../modules/posts/entities/post.entity';
 import { PostMedia, MediaType } from '../../modules/posts/entities/post-media.entity';
 import { Subscription } from '../../modules/friends/entities/subscription.entity';
+import { Chat, ChatType } from '../../modules/chats/entities/chat.entity';
+import { ChatParticipant, ParticipantRole } from '../../modules/chats/entities/chat-participant.entity';
+import { Message, MessageType } from '../../modules/chats/entities/message.entity';
 
 export async function seedTestData(dataSource: DataSource) {
   console.log('[SEED] Starting test data seeding...');
@@ -14,6 +17,9 @@ export async function seedTestData(dataSource: DataSource) {
   const postRepository = dataSource.getRepository(Post);
   const postMediaRepository = dataSource.getRepository(PostMedia);
   const subscriptionRepository = dataSource.getRepository(Subscription);
+  const chatRepository = dataSource.getRepository(Chat);
+  const participantRepository = dataSource.getRepository(ChatParticipant);
+  const messageRepository = dataSource.getRepository(Message);
 
   // Заглушка ImageUploader, чтобы не искать потерянный файл и не качать из интернета
   const imageUploader: any = {
@@ -280,6 +286,137 @@ export async function seedTestData(dataSource: DataSource) {
       await subscriptionRepository.save(subscription);
     }
   }
+
+  // ==================== CHATS ====================
+  console.log('\nCreating test chats and messages...');
+
+  // Чат 1: Мария (клиент) → Анна (мастер) — обсуждение стрижки
+  const chat1 = chatRepository.create({
+    type: ChatType.DIRECT,
+    creator_id: savedStudents[0].id,
+  });
+  const savedChat1 = await chatRepository.save(chat1);
+
+  await participantRepository.save([
+    participantRepository.create({ chat_id: savedChat1.id, user_id: savedStudents[0].id, role: ParticipantRole.MEMBER }),
+    participantRepository.create({ chat_id: savedChat1.id, user_id: savedMasters[0].id, role: ParticipantRole.MEMBER }),
+  ]);
+
+  const chat1Messages = [
+    { sender_id: savedStudents[0].id, content: 'Здравствуйте, Анна! Хочу записаться на стрижку каскад.', mins: 60 },
+    { sender_id: savedMasters[0].id, content: 'Добрый день, Мария! Конечно, когда вам удобно?', mins: 55 },
+    { sender_id: savedStudents[0].id, content: 'Можно в эту субботу, после обеда?', mins: 50 },
+    { sender_id: savedMasters[0].id, content: 'Суббота, 14:00 — подойдёт?', mins: 45 },
+    { sender_id: savedStudents[0].id, content: 'Идеально! Записываюсь.', mins: 40 },
+    { sender_id: savedMasters[0].id, content: 'Отлично, жду вас! Адрес: Тверская, 10.', mins: 35 },
+  ];
+
+  let lastMsg1Id: string | null = null;
+  for (const msgData of chat1Messages) {
+    const msg = messageRepository.create({
+      chat_id: savedChat1.id,
+      sender_id: msgData.sender_id,
+      type: MessageType.TEXT,
+      content: msgData.content,
+      created_at: new Date(Date.now() - msgData.mins * 60 * 1000),
+    });
+    const saved = await messageRepository.save(msg);
+    lastMsg1Id = saved.id;
+  }
+
+  await chatRepository.update(savedChat1.id, {
+    last_message_id: lastMsg1Id,
+    last_message_at: new Date(Date.now() - 35 * 60 * 1000),
+  });
+  console.log('[OK] Created chat: Мария ↔ Анна (6 messages)');
+
+  // Чат 2: Иван (клиент) → Дмитрий (мастер) — стрижка бороды
+  const chat2 = chatRepository.create({
+    type: ChatType.DIRECT,
+    creator_id: savedStudents[1].id,
+  });
+  const savedChat2 = await chatRepository.save(chat2);
+
+  await participantRepository.save([
+    participantRepository.create({ chat_id: savedChat2.id, user_id: savedStudents[1].id, role: ParticipantRole.MEMBER }),
+    participantRepository.create({ chat_id: savedChat2.id, user_id: savedMasters[1].id, role: ParticipantRole.MEMBER }),
+  ]);
+
+  const chat2Messages = [
+    { sender_id: savedStudents[1].id, content: 'Привет! Делаешь моделирование бороды?', mins: 120 },
+    { sender_id: savedMasters[1].id, content: 'Привет, Иван! Да, конечно. Классика или современный стиль?', mins: 115 },
+    { sender_id: savedStudents[1].id, content: 'Хочу попробовать fade на бороде, видел у тебя в портфолио.', mins: 110 },
+    { sender_id: savedMasters[1].id, content: 'Отличный выбор! Это займёт около 40 минут. Стоимость 1500₽.', mins: 105 },
+    { sender_id: savedStudents[1].id, content: 'Подходит. Когда есть свободное время?', mins: 100 },
+    { sender_id: savedMasters[1].id, content: 'Завтра в 11:00 или послезавтра в 15:00.', mins: 95 },
+    { sender_id: savedStudents[1].id, content: 'Давай завтра в 11!', mins: 90 },
+    { sender_id: savedMasters[1].id, content: 'Записал! До встречи 👍', mins: 85 },
+  ];
+
+  let lastMsg2Id: string | null = null;
+  for (const msgData of chat2Messages) {
+    const msg = messageRepository.create({
+      chat_id: savedChat2.id,
+      sender_id: msgData.sender_id,
+      type: MessageType.TEXT,
+      content: msgData.content,
+      created_at: new Date(Date.now() - msgData.mins * 60 * 1000),
+    });
+    const saved = await messageRepository.save(msg);
+    lastMsg2Id = saved.id;
+  }
+
+  await chatRepository.update(savedChat2.id, {
+    last_message_id: lastMsg2Id,
+    last_message_at: new Date(Date.now() - 85 * 60 * 1000),
+  });
+
+  // У Ивана 2 непрочитанных (последние 2 сообщения от Дмитрия)
+  await participantRepository.update(
+    { chat_id: savedChat2.id, user_id: savedStudents[1].id },
+    { unread_count: 2 },
+  );
+  console.log('[OK] Created chat: Иван ↔ Дмитрий (8 messages, 2 unread)');
+
+  // Чат 3: Ольга (клиент) → Елена (мастер) — маникюр
+  const chat3 = chatRepository.create({
+    type: ChatType.DIRECT,
+    creator_id: savedStudents[2].id,
+  });
+  const savedChat3 = await chatRepository.save(chat3);
+
+  await participantRepository.save([
+    participantRepository.create({ chat_id: savedChat3.id, user_id: savedStudents[2].id, role: ParticipantRole.MEMBER }),
+    participantRepository.create({ chat_id: savedChat3.id, user_id: savedMasters[2].id, role: ParticipantRole.MEMBER }),
+  ]);
+
+  const chat3Messages = [
+    { sender_id: savedStudents[2].id, content: 'Елена, здравствуйте! Мне очень понравился геометрический дизайн из вашего поста.', mins: 30 },
+    { sender_id: savedMasters[2].id, content: 'Спасибо, Ольга! Могу сделать похожий для вас. Есть предпочтения по цветам?', mins: 25 },
+    { sender_id: savedStudents[2].id, content: 'Хочу в пастельных тонах — розовый и мятный.', mins: 20 },
+    { sender_id: savedMasters[2].id, content: 'Красивое сочетание! Приходите в среду, сделаем.', mins: 15 },
+    { sender_id: savedStudents[2].id, content: 'А сколько стоит такой дизайн?', mins: 10 },
+    { sender_id: savedMasters[2].id, content: 'Гель-лак + дизайн — 2500₽. По времени около 1.5 часа.', mins: 5 },
+  ];
+
+  let lastMsg3Id: string | null = null;
+  for (const msgData of chat3Messages) {
+    const msg = messageRepository.create({
+      chat_id: savedChat3.id,
+      sender_id: msgData.sender_id,
+      type: MessageType.TEXT,
+      content: msgData.content,
+      created_at: new Date(Date.now() - msgData.mins * 60 * 1000),
+    });
+    const saved = await messageRepository.save(msg);
+    lastMsg3Id = saved.id;
+  }
+
+  await chatRepository.update(savedChat3.id, {
+    last_message_id: lastMsg3Id,
+    last_message_at: new Date(Date.now() - 5 * 60 * 1000),
+  });
+  console.log('[OK] Created chat: Ольга ↔ Елена (6 messages)');
 
   console.log('\n[DONE] Test data seeding completed!');
 }

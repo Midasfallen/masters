@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:service_platform/core/config/app_config.dart';
 import 'package:service_platform/core/models/api/user_model.dart';
 import 'package:service_platform/core/repositories/auth_repository.dart';
+import 'package:service_platform/core/services/websocket_service.dart';
 
 part 'auth_provider.g.dart';
 
@@ -56,6 +58,7 @@ class AuthNotifier extends _$AuthNotifier {
     if (isLoggedIn) {
       try {
         final user = await repository.getMe();
+        _connectWebSocket();
         return AuthState(user: user, isAuthenticated: true);
       } catch (e) {
         // If getMe fails (e.g., 401), clear tokens and return unauthenticated
@@ -65,6 +68,14 @@ class AuthNotifier extends _$AuthNotifier {
     }
 
     return const AuthState(isAuthenticated: false);
+  }
+
+  /// Connect WebSocket (fire-and-forget, не блокирует auth)
+  void _connectWebSocket() {
+    final wsService = ref.read(webSocketServiceProvider);
+    wsService.connect(AppConfig.apiBaseUrl).catchError((_) {
+      // WS connection failure не должен блокировать работу приложения
+    });
   }
 
   /// Login
@@ -80,6 +91,7 @@ class AuthNotifier extends _$AuthNotifier {
       // Convert AuthUserModel to UserModel
       final user = await repository.getMe();
 
+      _connectWebSocket();
       state = AsyncValue.data(AuthState(user: user, isAuthenticated: true));
     } catch (e) {
       // Бросаем исключение дальше, чтобы экран мог его обработать
@@ -112,6 +124,7 @@ class AuthNotifier extends _$AuthNotifier {
 
       final user = await repository.getMe();
 
+      _connectWebSocket();
       state = AsyncValue.data(AuthState(user: user, isAuthenticated: true));
     } catch (e) {
       // Бросаем исключение дальше, чтобы экран мог его обработать
@@ -122,6 +135,9 @@ class AuthNotifier extends _$AuthNotifier {
 
   /// Logout
   Future<void> logout() async {
+    final wsService = ref.read(webSocketServiceProvider);
+    wsService.disconnect();
+
     final repository = ref.read(authRepositoryProvider);
     await repository.logout();
     state = const AsyncValue.data(AuthState(isAuthenticated: false));

@@ -16,6 +16,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto, AuthUserDto } from './dto/auth-response.dto';
 import { DtoMapper } from '../../common/utils/dto-mapper.util';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly searchService: SearchService,
   ) {
     // Clean expired tokens every hour
     setInterval(() => this.cleanExpiredTokens(), 60 * 60 * 1000);
@@ -72,6 +74,9 @@ export class AuthService {
     });
 
     await this.userRepository.save(user);
+
+    // Индексация в Meilisearch для поиска
+    await this.searchService.indexUser(user.id);
 
     // Генерация токенов
     return this.generateAuthResponse(user);

@@ -4,8 +4,6 @@ import 'package:faker/faker.dart';
 
 import '../models/post.dart';
 import '../models/user.dart';
-import '../models/message.dart';
-import '../models/chat.dart';
 import '../models/notification.dart';
 import '../../shared/models/service.dart';
 import '../../data/mock/mock_services.dart';
@@ -57,54 +55,6 @@ final mockUsersProvider = Provider<List<User>>((ref) {
       isFollowing: random.nextBool(),
       isFriend: random.nextBool(),
       rating: isMaster ? 4.0 + random.nextDouble() : null,
-    );
-  });
-});
-
-// Mock Chats Provider
-final mockChatsProvider = Provider<List<Chat>>((ref) {
-  return List.generate(10, (index) {
-    final lastMessageTime = DateTime.now().subtract(Duration(minutes: index * 15));
-    return Chat(
-      id: 'chat_$index',
-      participantId: faker.guid.guid(),
-      participantName: faker.person.name(),
-      participantAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
-      lastMessage: Message(
-        id: faker.guid.guid(),
-        chatId: 'chat_$index',
-        senderId: random.nextBool() ? 'me' : 'other',
-        senderName: faker.person.name(),
-        senderAvatar: 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
-        type: 'text',
-        content: faker.lorem.sentence(),
-        createdAt: lastMessageTime,
-        status: ['sent', 'delivered', 'read'][random.nextInt(3)],
-      ),
-      unreadCount: random.nextInt(5),
-      updatedAt: lastMessageTime,
-      isOnline: random.nextBool(),
-      isPinned: index < 2, // First 2 chats are pinned
-    );
-  });
-});
-
-// Mock Messages Provider (for specific chat)
-final mockMessagesProvider = Provider.family<List<Message>, String>((ref, chatId) {
-  return List.generate(20, (index) {
-    final isMine = index % 2 == 0;
-    return Message(
-      id: faker.guid.guid(),
-      chatId: chatId,
-      senderId: isMine ? 'me' : 'other',
-      senderName: isMine ? 'Вы' : faker.person.name(),
-      senderAvatar: isMine
-          ? 'https://ui-avatars.com/api/?name=You&size=150&background=4F46E5'
-          : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(faker.person.name())}&size=150&background=random',
-      type: 'text',
-      content: faker.lorem.sentence(),
-      createdAt: DateTime.now().subtract(Duration(minutes: (20 - index) * 5)),
-      status: isMine ? ['sent', 'delivered', 'read'][random.nextInt(3)] : 'read',
     );
   });
 });
@@ -219,12 +169,6 @@ final currentUserProvider = Provider<User>((ref) {
     isFollowing: false,
     isFriend: false,
   );
-});
-
-// Unread Messages Count Provider
-final unreadMessagesCountProvider = Provider<int>((ref) {
-  final chats = ref.watch(mockChatsProvider);
-  return chats.fold<int>(0, (sum, chat) => sum + chat.unreadCount);
 });
 
 // Unread Notifications Count Provider

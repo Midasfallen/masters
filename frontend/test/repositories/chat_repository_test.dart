@@ -155,8 +155,8 @@ void main() {
         when(mockClient.post(any, data: anyNamed('data')))
             .thenAnswer((_) async => mockResponse);
 
-        final request = SendMessageRequest(content: 'Привет!', type: MessageType.text);
-        final result = await repository.sendMessage('1', request);
+        final request = SendMessageRequest(chatId: '1', content: 'Привет!', type: MessageType.text);
+        final result = await repository.sendMessage(request);
 
         expect(result, isA<MessageModel>());
         expect(result.content, 'Привет!');
@@ -171,9 +171,9 @@ void main() {
           statusCode: 200,
         );
 
-        when(mockClient.post(any)).thenAnswer((_) async => mockResponse);
+        when(mockClient.post(any, data: anyNamed('data'))).thenAnswer((_) async => mockResponse);
 
-        await repository.markAsRead('1');
+        await repository.markAsRead('1', messageId: 'msg-1');
 
         verify(mockClient.post(any)).called(1);
       });
