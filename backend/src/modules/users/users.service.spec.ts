@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -46,6 +47,10 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockRepository,
+        },
+        {
+          provide: SearchService,
+          useValue: { indexUser: jest.fn(), removeUser: jest.fn() },
         },
       ],
     }).compile();

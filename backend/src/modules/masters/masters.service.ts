@@ -132,9 +132,6 @@ export class MastersService {
     }
 
     // Обновление данных
-    if (step2Dto.business_name) {
-      profile.business_name = step2Dto.business_name;
-    }
     profile.bio = step2Dto.bio;
     if (step2Dto.years_of_experience) {
       profile.years_of_experience = step2Dto.years_of_experience;

@@ -327,7 +327,6 @@ async function seed() {
 
     const profile = masterProfileRepository.create({
       user_id: user.id,
-      business_name: faker.company.name(),
       bio: faker.lorem.paragraph(),
       category_ids: allCategoryIds,
       subcategory_ids: selectedSubCategories.map(c => c.id),

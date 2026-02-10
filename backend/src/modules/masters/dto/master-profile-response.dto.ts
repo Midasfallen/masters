@@ -14,10 +14,6 @@ export class MasterProfileResponseDto {
   userId: string;
 
   @Expose()
-  @ApiProperty({ description: 'Название бизнеса/салона', nullable: true })
-  businessName: string | null;
-
-  @Expose()
   @ApiProperty({ description: 'Биография мастера', nullable: true })
   bio: string | null;
 

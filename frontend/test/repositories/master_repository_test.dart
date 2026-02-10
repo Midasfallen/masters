@@ -24,7 +24,6 @@ void main() {
     final mockMasterData = {
       'id': 'master-uuid-1',
       'userId': 'user-uuid-1',
-      'businessName': 'Test Salon',
       'bio': 'Professional hairdresser',
       'categoryIds': ['cat-1', 'cat-2'],
       'subcategoryIds': ['sub-1'],
@@ -123,7 +122,7 @@ void main() {
 
         expect(result, isA<List<MasterProfileModel>>());
         expect(result.length, 1);
-        expect(result.first.businessName, 'Test Salon');
+        expect(result.first.bio, 'Professional hairdresser');
       });
 
       test('should pass filter parameters', () async {
@@ -181,7 +180,7 @@ void main() {
 
         expect(result, isA<MasterProfileModel>());
         expect(result.id, 'master-uuid-1');
-        expect(result.businessName, 'Test Salon');
+        expect(result.bio, 'Professional hairdresser');
         expect(result.rating, 4.8);
       });
 
@@ -216,14 +215,13 @@ void main() {
 
         final request = CreateMasterProfileRequest(
           categoryIds: ['cat-1', 'cat-2'],
-          businessName: 'Test Salon',
           bio: 'Professional hairdresser',
         );
 
         final result = await repository.createMasterProfile(request);
 
         expect(result, isA<MasterProfileModel>());
-        expect(result.businessName, 'Test Salon');
+        expect(result.bio, 'Professional hairdresser');
         verify(mockClient.post(any, data: anyNamed('data'))).called(1);
       });
 
@@ -251,7 +249,6 @@ void main() {
       test('should update master profile', () async {
         final updatedData = {
           ...mockMasterData,
-          'businessName': 'Updated Salon',
           'bio': 'Updated bio',
         };
 
@@ -265,13 +262,12 @@ void main() {
             .thenAnswer((_) async => mockResponse);
 
         final request = UpdateMasterProfileRequest(
-          businessName: 'Updated Salon',
           bio: 'Updated bio',
         );
 
         final result = await repository.updateMasterProfile(request);
 
-        expect(result.businessName, 'Updated Salon');
+        expect(result.bio, 'Updated bio');
         verify(mockClient.patch(any, data: anyNamed('data'))).called(1);
       });
 
@@ -286,7 +282,7 @@ void main() {
           ),
         ));
 
-        final request = UpdateMasterProfileRequest(businessName: 'Test');
+        final request = UpdateMasterProfileRequest(bio: 'Test');
 
         expect(
           () => repository.updateMasterProfile(request),
@@ -389,7 +385,7 @@ void main() {
         final result = await repository.getMyMasterProfile();
 
         expect(result, isA<MasterProfileModel>());
-        expect(result.businessName, 'Test Salon');
+        expect(result.bio, 'Professional hairdresser');
         expect(result.isApproved, true);
       });
 

@@ -11,7 +11,6 @@ class MasterProfileModel with _$MasterProfileModel {
     required String id,
     required String userId,
     UserModel? user,
-    String? businessName,
     String? bio,
     required List<String> categoryIds,
     required List<String> subcategoryIds,
@@ -77,7 +76,6 @@ class MasterSearchResultModel with _$MasterSearchResultModel {
 @freezed
 class CreateMasterProfileRequest with _$CreateMasterProfileRequest {
   const factory CreateMasterProfileRequest({
-    @JsonKey(name: 'business_name') String? businessName,
     String? bio,
     @JsonKey(name: 'category_ids') required List<String> categoryIds,
     @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,
@@ -102,7 +100,6 @@ class CreateMasterProfileRequest with _$CreateMasterProfileRequest {
 @freezed
 class UpdateMasterProfileRequest with _$UpdateMasterProfileRequest {
   const factory UpdateMasterProfileRequest({
-    @JsonKey(name: 'business_name') String? businessName,
     String? bio,
     @JsonKey(name: 'category_ids') List<String>? categoryIds,
     @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,

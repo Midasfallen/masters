@@ -9,6 +9,7 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
+import { SearchService } from '../search/search.service';
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -72,6 +73,10 @@ describe('CategoriesService', () => {
         {
           provide: getRepositoryToken(CategoryTranslation),
           useValue: mockTranslationRepository,
+        },
+        {
+          provide: SearchService,
+          useValue: { indexCategory: jest.fn(), removeCategory: jest.fn(), reindexCategory: jest.fn(), deleteCategoryFromIndex: jest.fn() },
         },
       ],
     }).compile();

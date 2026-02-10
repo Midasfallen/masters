@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { SearchService } from '../search/search.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -48,6 +49,10 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: mockJwtService,
+        },
+        {
+          provide: SearchService,
+          useValue: { indexUser: jest.fn(), removeUser: jest.fn() },
         },
       ],
     }).compile();

@@ -16,19 +16,16 @@ class Step1BasicInfo extends StatefulWidget {
 
 class _Step1BasicInfoState extends State<Step1BasicInfo> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _bioController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.initialData['masterName'] ?? '';
     _bioController.text = widget.initialData['bio'] ?? '';
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
     _bioController.dispose();
     super.dispose();
   }
@@ -36,7 +33,6 @@ class _Step1BasicInfoState extends State<Step1BasicInfo> {
   void _continue() {
     if (_formKey.currentState!.validate()) {
       widget.onNext({
-        'masterName': _nameController.text,
         'bio': _bioController.text,
       });
     }
@@ -52,7 +48,7 @@ class _Step1BasicInfoState extends State<Step1BasicInfo> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Основная информация',
+              'О вас',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -66,25 +62,6 @@ class _Step1BasicInfoState extends State<Step1BasicInfo> {
               ),
             ),
             const SizedBox(height: 32),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Имя мастера *',
-                hintText: 'Как вас будут видеть клиенты',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Введите имя';
-                }
-                if (value.length < 2) {
-                  return 'Имя должно быть не менее 2 символов';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
             TextFormField(
               controller: _bioController,
               decoration: InputDecoration(

@@ -668,7 +668,7 @@ class _SearchUsersForChatProviderElement
   String get query => (origin as SearchUsersForChatProvider).query;
 }
 
-String _$chatNotifierHash() => r'96ed06f936defc267f6b1d289e1bd8c9cd76bd34';
+String _$chatNotifierHash() => r'8c5a4a0c90a8d90210341c6576339705cda0ac54';
 
 /// Chat Notifier for mutations
 ///

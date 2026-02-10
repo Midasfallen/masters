@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { Service } from '../services/entities/service.entity';
+import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
+import { ServiceTemplateTranslation } from '../service-templates/entities/service-template-translation.entity';
+import { Category } from '../categories/entities/category.entity';
+import { CategoryTranslation } from '../categories/entities/category-translation.entity';
 
 // Mock MeiliSearch before importing SearchService
 const mockMeiliIndex = {
@@ -44,7 +48,6 @@ describe('SearchService', () => {
   const mockMasterProfile = {
     id: 'profile-uuid',
     user_id: '550e8400-e29b-41d4-a716-446655440000',
-    business_name: 'Салон красоты',
     bio: 'Опытный парикмахер',
     category_ids: ['cat-uuid-1'],
     tags: ['стрижка', 'окрашивание'],
@@ -115,6 +118,22 @@ describe('SearchService', () => {
         {
           provide: getRepositoryToken(Service),
           useValue: mockServiceRepository,
+        },
+        {
+          provide: getRepositoryToken(ServiceTemplate),
+          useValue: { findOne: jest.fn(), createQueryBuilder: jest.fn() },
+        },
+        {
+          provide: getRepositoryToken(ServiceTemplateTranslation),
+          useValue: { findOne: jest.fn() },
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: { findOne: jest.fn(), createQueryBuilder: jest.fn() },
+        },
+        {
+          provide: getRepositoryToken(CategoryTranslation),
+          useValue: { findOne: jest.fn() },
         },
       ],
     }).compile();

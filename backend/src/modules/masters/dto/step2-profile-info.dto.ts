@@ -9,18 +9,9 @@ import {
 
 /**
  * ШАГ 2: Базовая информация профиля
- * Название бизнеса, описание, опыт
+ * Описание, опыт
  */
 export class Step2ProfileInfoDto {
-  @ApiPropertyOptional({
-    description: 'Название бизнеса/салона (опционально)',
-    example: 'Салон красоты "Элита"',
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  business_name?: string;
-
   @ApiProperty({
     description: 'Описание профиля мастера',
     example: 'Опытный парикмахер с 10-летним стажем работы',

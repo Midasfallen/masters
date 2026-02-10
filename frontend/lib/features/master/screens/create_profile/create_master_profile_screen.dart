@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import 'steps/step1_basic_info.dart';
 import 'steps/step2_categories.dart';
-import 'steps/step3_services.dart';
 import 'steps/step4_schedule.dart';
 import 'steps/step5_location.dart';
 
@@ -30,7 +29,7 @@ class _CreateMasterProfileScreenState extends State<CreateMasterProfileScreen> {
   void _nextStep(Map<String, dynamic> stepData) {
     _profileData.addAll(stepData);
 
-    if (_currentStep < 4) {
+    if (_currentStep < 3) {
       setState(() {
         _currentStep++;
       });
@@ -112,7 +111,7 @@ class _CreateMasterProfileScreenState extends State<CreateMasterProfileScreen> {
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(4),
             child: LinearProgressIndicator(
-              value: (_currentStep + 1) / 5,
+              value: (_currentStep + 1) / 4,
               backgroundColor: Colors.grey[200],
             ),
           ),
@@ -125,7 +124,7 @@ class _CreateMasterProfileScreenState extends State<CreateMasterProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Шаг ${_currentStep + 1} из 5',
+                    'Шаг ${_currentStep + 1} из 4',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -145,11 +144,6 @@ class _CreateMasterProfileScreenState extends State<CreateMasterProfileScreen> {
                     onNext: _nextStep,
                   ),
                   Step2Categories(
-                    initialData: _profileData,
-                    onNext: _nextStep,
-                    onBack: _previousStep,
-                  ),
-                  Step3Services(
                     initialData: _profileData,
                     onNext: _nextStep,
                     onBack: _previousStep,

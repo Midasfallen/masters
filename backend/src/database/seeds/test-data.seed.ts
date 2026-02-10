@@ -49,7 +49,6 @@ export async function seedTestData(dataSource: DataSource) {
       reviews_count: 45,
       password_hash: passwordHash,
       profile: {
-        business_name: 'Салон красоты "Анна"',
         bio: 'Профессиональный парикмахер и стилист с 10-летним опытом работы. Специализируюсь на окрашивании и сложных стрижках.',
         rating: 4.8,
         reviews_count: 45,
@@ -80,7 +79,6 @@ export async function seedTestData(dataSource: DataSource) {
       reviews_count: 78,
       password_hash: passwordHash,
       profile: {
-        business_name: 'Барбершоп "Петров"',
         bio: 'Барбер с опытом работы более 8 лет. Классические и современные стрижки, уход за бородой.',
         rating: 4.9,
         reviews_count: 78,
@@ -112,7 +110,6 @@ export async function seedTestData(dataSource: DataSource) {
       reviews_count: 32,
       password_hash: passwordHash,
       profile: {
-        business_name: 'Студия маникюра "ElenaNails"',
         bio: 'Nail-мастер, специализируюсь на сложном дизайне и наращивании ногтей.',
         rating: 4.7,
         reviews_count: 32,

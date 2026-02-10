@@ -131,7 +131,6 @@ export class SearchController {
           {
             id: 'bebd027c-e57a-4adc-bdd5-9cd4b1e544fe',
             userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-            businessName: 'Салон красоты "Элита"',
             bio: 'Опытный парикмахер с 10-летним стажем',
             rating: 4.85,
             reviewsCount: 127,

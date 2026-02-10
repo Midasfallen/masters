@@ -51,7 +51,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: null,
+
         bio: null,
         categoryIds: [],
         subcategoryIds: [],
@@ -117,7 +117,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: null,
+
         bio: null,
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000', '660e8400-e29b-41d4-a716-446655440001'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -205,7 +205,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы. Специализируюсь на стрижках и окрашивании волос.',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -286,7 +286,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -376,7 +376,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -458,7 +458,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -538,7 +538,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],
@@ -611,7 +611,7 @@ export class MastersController {
       example: {
         id: '550e8400-e29b-41d4-a716-446655440000',
         userId: '0517ac4e-e4a6-465b-a41f-c86e95d13476',
-        businessName: 'Салон красоты "Элита"',
+
         bio: 'Опытный парикмахер с 10-летним стажем работы',
         categoryIds: ['550e8400-e29b-41d4-a716-446655440000'],
         subcategoryIds: ['770e8400-e29b-41d4-a716-446655440002'],

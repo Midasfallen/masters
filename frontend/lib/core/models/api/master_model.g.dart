@@ -14,7 +14,6 @@ _$MasterProfileModelImpl _$$MasterProfileModelImplFromJson(
       user: json['user'] == null
           ? null
           : UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      businessName: json['businessName'] as String?,
       bio: json['bio'] as String?,
       categoryIds: (json['categoryIds'] as List<dynamic>)
           .map((e) => e as String)
@@ -71,7 +70,6 @@ Map<String, dynamic> _$$MasterProfileModelImplToJson(
       'id': instance.id,
       'userId': instance.userId,
       'user': instance.user,
-      'businessName': instance.businessName,
       'bio': instance.bio,
       'categoryIds': instance.categoryIds,
       'subcategoryIds': instance.subcategoryIds,
@@ -148,7 +146,6 @@ Map<String, dynamic> _$$MasterSearchResultModelImplToJson(
 _$CreateMasterProfileRequestImpl _$$CreateMasterProfileRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateMasterProfileRequestImpl(
-      businessName: json['business_name'] as String?,
       bio: json['bio'] as String?,
       categoryIds: (json['category_ids'] as List<dynamic>)
           .map((e) => e as String)
@@ -176,7 +173,6 @@ _$CreateMasterProfileRequestImpl _$$CreateMasterProfileRequestImplFromJson(
 Map<String, dynamic> _$$CreateMasterProfileRequestImplToJson(
         _$CreateMasterProfileRequestImpl instance) =>
     <String, dynamic>{
-      'business_name': instance.businessName,
       'bio': instance.bio,
       'category_ids': instance.categoryIds,
       'subcategory_ids': instance.subcategoryIds,
@@ -196,7 +192,6 @@ Map<String, dynamic> _$$CreateMasterProfileRequestImplToJson(
 _$UpdateMasterProfileRequestImpl _$$UpdateMasterProfileRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$UpdateMasterProfileRequestImpl(
-      businessName: json['business_name'] as String?,
       bio: json['bio'] as String?,
       categoryIds: (json['category_ids'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -229,7 +224,6 @@ _$UpdateMasterProfileRequestImpl _$$UpdateMasterProfileRequestImplFromJson(
 Map<String, dynamic> _$$UpdateMasterProfileRequestImplToJson(
         _$UpdateMasterProfileRequestImpl instance) =>
     <String, dynamic>{
-      'business_name': instance.businessName,
       'bio': instance.bio,
       'category_ids': instance.categoryIds,
       'subcategory_ids': instance.subcategoryIds,

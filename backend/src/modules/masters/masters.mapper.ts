@@ -12,7 +12,6 @@ export class MastersMapper {
     return {
       id: masterProfile.id,
       userId: masterProfile.user_id,
-      businessName: masterProfile.business_name,
       bio: masterProfile.bio,
       categoryIds: masterProfile.category_ids || [],
       subcategoryIds: masterProfile.subcategory_ids || [],

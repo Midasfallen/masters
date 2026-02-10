@@ -23,7 +23,6 @@ mixin _$MasterProfileModel {
   String get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   UserModel? get user => throw _privateConstructorUsedError;
-  String? get businessName => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
   List<String> get categoryIds => throw _privateConstructorUsedError;
   List<String> get subcategoryIds => throw _privateConstructorUsedError;
@@ -79,7 +78,6 @@ abstract class $MasterProfileModelCopyWith<$Res> {
       {String id,
       String userId,
       UserModel? user,
-      String? businessName,
       String? bio,
       List<String> categoryIds,
       List<String> subcategoryIds,
@@ -136,7 +134,6 @@ class _$MasterProfileModelCopyWithImpl<$Res, $Val extends MasterProfileModel>
     Object? id = null,
     Object? userId = null,
     Object? user = freezed,
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = null,
     Object? subcategoryIds = null,
@@ -185,10 +182,6 @@ class _$MasterProfileModelCopyWithImpl<$Res, $Val extends MasterProfileModel>
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
               as UserModel?,
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -355,7 +348,6 @@ abstract class _$$MasterProfileModelImplCopyWith<$Res>
       {String id,
       String userId,
       UserModel? user,
-      String? businessName,
       String? bio,
       List<String> categoryIds,
       List<String> subcategoryIds,
@@ -411,7 +403,6 @@ class __$$MasterProfileModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? userId = null,
     Object? user = freezed,
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = null,
     Object? subcategoryIds = null,
@@ -460,10 +451,6 @@ class __$$MasterProfileModelImplCopyWithImpl<$Res>
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
               as UserModel?,
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -611,7 +598,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
       {required this.id,
       required this.userId,
       this.user,
-      this.businessName,
       this.bio,
       required final List<String> categoryIds,
       required final List<String> subcategoryIds,
@@ -665,8 +651,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
   final String userId;
   @override
   final UserModel? user;
-  @override
-  final String? businessName;
   @override
   final String? bio;
   final List<String> _categoryIds;
@@ -798,7 +782,7 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
 
   @override
   String toString() {
-    return 'MasterProfileModel(id: $id, userId: $userId, user: $user, businessName: $businessName, bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, rating: $rating, reviewsCount: $reviewsCount, completedBookings: $completedBookings, cancellationsCount: $cancellationsCount, viewsCount: $viewsCount, favoritesCount: $favoritesCount, subscribersCount: $subscribersCount, locationLat: $locationLat, locationLng: $locationLng, locationAddress: $locationAddress, locationName: $locationName, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, portfolioUrls: $portfolioUrls, videoUrls: $videoUrls, socialLinks: $socialLinks, workingHours: $workingHours, minBookingHours: $minBookingHours, maxBookingsPerDay: $maxBookingsPerDay, autoConfirm: $autoConfirm, yearsOfExperience: $yearsOfExperience, certificates: $certificates, languages: $languages, isActive: $isActive, isApproved: $isApproved, setupStep: $setupStep, services: $services, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'MasterProfileModel(id: $id, userId: $userId, user: $user, bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, rating: $rating, reviewsCount: $reviewsCount, completedBookings: $completedBookings, cancellationsCount: $cancellationsCount, viewsCount: $viewsCount, favoritesCount: $favoritesCount, subscribersCount: $subscribersCount, locationLat: $locationLat, locationLng: $locationLng, locationAddress: $locationAddress, locationName: $locationName, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, portfolioUrls: $portfolioUrls, videoUrls: $videoUrls, socialLinks: $socialLinks, workingHours: $workingHours, minBookingHours: $minBookingHours, maxBookingsPerDay: $maxBookingsPerDay, autoConfirm: $autoConfirm, yearsOfExperience: $yearsOfExperience, certificates: $certificates, languages: $languages, isActive: $isActive, isApproved: $isApproved, setupStep: $setupStep, services: $services, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -809,8 +793,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.user, user) || other.user == user) &&
-            (identical(other.businessName, businessName) ||
-                other.businessName == businessName) &&
             (identical(other.bio, bio) || other.bio == bio) &&
             const DeepCollectionEquality()
                 .equals(other._categoryIds, _categoryIds) &&
@@ -885,7 +867,6 @@ class _$MasterProfileModelImpl implements _MasterProfileModel {
         id,
         userId,
         user,
-        businessName,
         bio,
         const DeepCollectionEquality().hash(_categoryIds),
         const DeepCollectionEquality().hash(_subcategoryIds),
@@ -944,7 +925,6 @@ abstract class _MasterProfileModel implements MasterProfileModel {
       {required final String id,
       required final String userId,
       final UserModel? user,
-      final String? businessName,
       final String? bio,
       required final List<String> categoryIds,
       required final List<String> subcategoryIds,
@@ -989,8 +969,6 @@ abstract class _MasterProfileModel implements MasterProfileModel {
   String get userId;
   @override
   UserModel? get user;
-  @override
-  String? get businessName;
   @override
   String? get bio;
   @override
@@ -1496,8 +1474,6 @@ CreateMasterProfileRequest _$CreateMasterProfileRequestFromJson(
 
 /// @nodoc
 mixin _$CreateMasterProfileRequest {
-  @JsonKey(name: 'business_name')
-  String? get businessName => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
   @JsonKey(name: 'category_ids')
   List<String> get categoryIds => throw _privateConstructorUsedError;
@@ -1543,8 +1519,7 @@ abstract class $CreateMasterProfileRequestCopyWith<$Res> {
           CreateMasterProfileRequest>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'business_name') String? businessName,
-      String? bio,
+      {String? bio,
       @JsonKey(name: 'category_ids') List<String> categoryIds,
       @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -1576,7 +1551,6 @@ class _$CreateMasterProfileRequestCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = null,
     Object? subcategoryIds = freezed,
@@ -1593,10 +1567,6 @@ class _$CreateMasterProfileRequestCopyWithImpl<$Res,
     Object? languages = freezed,
   }) {
     return _then(_value.copyWith(
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -1667,8 +1637,7 @@ abstract class _$$CreateMasterProfileRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'business_name') String? businessName,
-      String? bio,
+      {String? bio,
       @JsonKey(name: 'category_ids') List<String> categoryIds,
       @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -1699,7 +1668,6 @@ class __$$CreateMasterProfileRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = null,
     Object? subcategoryIds = freezed,
@@ -1716,10 +1684,6 @@ class __$$CreateMasterProfileRequestImplCopyWithImpl<$Res>
     Object? languages = freezed,
   }) {
     return _then(_$CreateMasterProfileRequestImpl(
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -1784,8 +1748,7 @@ class __$$CreateMasterProfileRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
   const _$CreateMasterProfileRequestImpl(
-      {@JsonKey(name: 'business_name') this.businessName,
-      this.bio,
+      {this.bio,
       @JsonKey(name: 'category_ids') required final List<String> categoryIds,
       @JsonKey(name: 'subcategory_ids') final List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') this.locationAddress,
@@ -1809,9 +1772,6 @@ class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
           Map<String, dynamic> json) =>
       _$$CreateMasterProfileRequestImplFromJson(json);
 
-  @override
-  @JsonKey(name: 'business_name')
-  final String? businessName;
   @override
   final String? bio;
   final List<String> _categoryIds;
@@ -1892,7 +1852,7 @@ class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
 
   @override
   String toString() {
-    return 'CreateMasterProfileRequest(businessName: $businessName, bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, socialLinks: $socialLinks, workingHours: $workingHours, yearsOfExperience: $yearsOfExperience, languages: $languages)';
+    return 'CreateMasterProfileRequest(bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, socialLinks: $socialLinks, workingHours: $workingHours, yearsOfExperience: $yearsOfExperience, languages: $languages)';
   }
 
   @override
@@ -1900,8 +1860,6 @@ class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateMasterProfileRequestImpl &&
-            (identical(other.businessName, businessName) ||
-                other.businessName == businessName) &&
             (identical(other.bio, bio) || other.bio == bio) &&
             const DeepCollectionEquality()
                 .equals(other._categoryIds, _categoryIds) &&
@@ -1935,7 +1893,6 @@ class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      businessName,
       bio,
       const DeepCollectionEquality().hash(_categoryIds),
       const DeepCollectionEquality().hash(_subcategoryIds),
@@ -1971,8 +1928,7 @@ class _$CreateMasterProfileRequestImpl implements _CreateMasterProfileRequest {
 abstract class _CreateMasterProfileRequest
     implements CreateMasterProfileRequest {
   const factory _CreateMasterProfileRequest(
-      {@JsonKey(name: 'business_name') final String? businessName,
-      final String? bio,
+      {final String? bio,
       @JsonKey(name: 'category_ids') required final List<String> categoryIds,
       @JsonKey(name: 'subcategory_ids') final List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') final String? locationAddress,
@@ -1990,9 +1946,6 @@ abstract class _CreateMasterProfileRequest
   factory _CreateMasterProfileRequest.fromJson(Map<String, dynamic> json) =
       _$CreateMasterProfileRequestImpl.fromJson;
 
-  @override
-  @JsonKey(name: 'business_name')
-  String? get businessName;
   @override
   String? get bio;
   @override
@@ -2049,8 +2002,6 @@ UpdateMasterProfileRequest _$UpdateMasterProfileRequestFromJson(
 
 /// @nodoc
 mixin _$UpdateMasterProfileRequest {
-  @JsonKey(name: 'business_name')
-  String? get businessName => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
   @JsonKey(name: 'category_ids')
   List<String>? get categoryIds => throw _privateConstructorUsedError;
@@ -2106,8 +2057,7 @@ abstract class $UpdateMasterProfileRequestCopyWith<$Res> {
           UpdateMasterProfileRequest>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'business_name') String? businessName,
-      String? bio,
+      {String? bio,
       @JsonKey(name: 'category_ids') List<String>? categoryIds,
       @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -2144,7 +2094,6 @@ class _$UpdateMasterProfileRequestCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = freezed,
     Object? subcategoryIds = freezed,
@@ -2166,10 +2115,6 @@ class _$UpdateMasterProfileRequestCopyWithImpl<$Res,
     Object? setupStep = freezed,
   }) {
     return _then(_value.copyWith(
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -2260,8 +2205,7 @@ abstract class _$$UpdateMasterProfileRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'business_name') String? businessName,
-      String? bio,
+      {String? bio,
       @JsonKey(name: 'category_ids') List<String>? categoryIds,
       @JsonKey(name: 'subcategory_ids') List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -2297,7 +2241,6 @@ class __$$UpdateMasterProfileRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? businessName = freezed,
     Object? bio = freezed,
     Object? categoryIds = freezed,
     Object? subcategoryIds = freezed,
@@ -2319,10 +2262,6 @@ class __$$UpdateMasterProfileRequestImplCopyWithImpl<$Res>
     Object? setupStep = freezed,
   }) {
     return _then(_$UpdateMasterProfileRequestImpl(
-      businessName: freezed == businessName
-          ? _value.businessName
-          : businessName // ignore: cast_nullable_to_non_nullable
-              as String?,
       bio: freezed == bio
           ? _value.bio
           : bio // ignore: cast_nullable_to_non_nullable
@@ -2407,8 +2346,7 @@ class __$$UpdateMasterProfileRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
   const _$UpdateMasterProfileRequestImpl(
-      {@JsonKey(name: 'business_name') this.businessName,
-      this.bio,
+      {this.bio,
       @JsonKey(name: 'category_ids') final List<String>? categoryIds,
       @JsonKey(name: 'subcategory_ids') final List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') this.locationAddress,
@@ -2437,9 +2375,6 @@ class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
           Map<String, dynamic> json) =>
       _$$UpdateMasterProfileRequestImplFromJson(json);
 
-  @override
-  @JsonKey(name: 'business_name')
-  final String? businessName;
   @override
   final String? bio;
   final List<String>? _categoryIds;
@@ -2538,7 +2473,7 @@ class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
 
   @override
   String toString() {
-    return 'UpdateMasterProfileRequest(businessName: $businessName, bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, socialLinks: $socialLinks, workingHours: $workingHours, minBookingHours: $minBookingHours, maxBookingsPerDay: $maxBookingsPerDay, autoConfirm: $autoConfirm, yearsOfExperience: $yearsOfExperience, languages: $languages, isActive: $isActive, setupStep: $setupStep)';
+    return 'UpdateMasterProfileRequest(bio: $bio, categoryIds: $categoryIds, subcategoryIds: $subcategoryIds, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, serviceRadiusKm: $serviceRadiusKm, isMobile: $isMobile, hasLocation: $hasLocation, isOnlineOnly: $isOnlineOnly, socialLinks: $socialLinks, workingHours: $workingHours, minBookingHours: $minBookingHours, maxBookingsPerDay: $maxBookingsPerDay, autoConfirm: $autoConfirm, yearsOfExperience: $yearsOfExperience, languages: $languages, isActive: $isActive, setupStep: $setupStep)';
   }
 
   @override
@@ -2546,8 +2481,6 @@ class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UpdateMasterProfileRequestImpl &&
-            (identical(other.businessName, businessName) ||
-                other.businessName == businessName) &&
             (identical(other.bio, bio) || other.bio == bio) &&
             const DeepCollectionEquality()
                 .equals(other._categoryIds, _categoryIds) &&
@@ -2591,7 +2524,6 @@ class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
   @override
   int get hashCode => Object.hashAll([
         runtimeType,
-        businessName,
         bio,
         const DeepCollectionEquality().hash(_categoryIds),
         const DeepCollectionEquality().hash(_subcategoryIds),
@@ -2633,8 +2565,7 @@ class _$UpdateMasterProfileRequestImpl implements _UpdateMasterProfileRequest {
 abstract class _UpdateMasterProfileRequest
     implements UpdateMasterProfileRequest {
   const factory _UpdateMasterProfileRequest(
-      {@JsonKey(name: 'business_name') final String? businessName,
-      final String? bio,
+      {final String? bio,
       @JsonKey(name: 'category_ids') final List<String>? categoryIds,
       @JsonKey(name: 'subcategory_ids') final List<String>? subcategoryIds,
       @JsonKey(name: 'location_address') final String? locationAddress,
@@ -2658,9 +2589,6 @@ abstract class _UpdateMasterProfileRequest
   factory _UpdateMasterProfileRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateMasterProfileRequestImpl.fromJson;
 
-  @override
-  @JsonKey(name: 'business_name')
-  String? get businessName;
   @override
   String? get bio;
   @override

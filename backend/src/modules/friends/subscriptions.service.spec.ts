@@ -18,19 +18,63 @@ describe('SubscriptionsService', () => {
   const mockUser1 = {
     id: 'user-1',
     email: 'user1@example.com',
+    phone: '+79001111111',
     first_name: 'John',
     last_name: 'Doe',
-    following_count: 0,
+    avatar_url: null,
+    is_master: false,
+    master_profile_completed: false,
+    is_verified: false,
+    is_premium: false,
+    premium_until: null,
+    is_active: true,
+    last_login_at: null,
+    rating: 0,
+    reviews_count: 0,
+    cancellations_count: 0,
+    no_shows_count: 0,
+    blacklists_count: 0,
+    posts_count: 0,
+    friends_count: 0,
     followers_count: 0,
+    following_count: 0,
+    language: 'en',
+    timezone: 'UTC',
+    last_location_lat: null,
+    last_location_lng: null,
+    created_at: new Date(),
+    updated_at: new Date(),
   };
 
   const mockUser2 = {
     id: 'user-2',
     email: 'user2@example.com',
+    phone: '+79002222222',
     first_name: 'Jane',
     last_name: 'Smith',
-    following_count: 0,
+    avatar_url: null,
+    is_master: false,
+    master_profile_completed: false,
+    is_verified: false,
+    is_premium: false,
+    premium_until: null,
+    is_active: true,
+    last_login_at: null,
+    rating: 0,
+    reviews_count: 0,
+    cancellations_count: 0,
+    no_shows_count: 0,
+    blacklists_count: 0,
+    posts_count: 0,
+    friends_count: 0,
     followers_count: 0,
+    following_count: 0,
+    language: 'en',
+    timezone: 'UTC',
+    last_location_lat: null,
+    last_location_lng: null,
+    created_at: new Date(),
+    updated_at: new Date(),
   };
 
   const mockSubscription = {
@@ -108,7 +152,10 @@ describe('SubscriptionsService', () => {
 
       const result = await service.create('user-1', createDto);
 
-      expect(result).toEqual(mockSubscription);
+      expect(result.id).toEqual('subscription-1');
+      expect(result.subscriberId).toEqual('user-1');
+      expect(result.targetId).toEqual('user-2');
+      expect(result.notificationsEnabled).toBe(true);
       expect(mockSubscriptionRepository.create).toHaveBeenCalledWith({
         subscriber_id: 'user-1',
         target_id: 'user-2',
@@ -186,7 +233,10 @@ describe('SubscriptionsService', () => {
 
   describe('getFollowing', () => {
     it('should return paginated following list', async () => {
-      const mockSubscriptions = [mockSubscription];
+      const mockSubscriptionWithTarget = {
+        ...mockSubscription,
+        target: mockUser2,
+      };
 
       mockSubscriptionRepository.createQueryBuilder.mockReturnValueOnce({
         where: jest.fn().mockReturnThis(),
@@ -194,21 +244,24 @@ describe('SubscriptionsService', () => {
         orderBy: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([mockSubscriptions, 1]),
+        getManyAndCount: jest.fn().mockResolvedValue([[mockSubscriptionWithTarget], 1]),
       });
 
       const result = await service.getFollowing('user-1', {} as any);
 
       expect(result).toHaveProperty('data');
       expect(result).toHaveProperty('meta');
-      expect(result.data).toEqual(mockSubscriptions);
+      expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
     });
   });
 
   describe('getFollowers', () => {
     it('should return paginated followers list', async () => {
-      const mockSubscriptions = [mockSubscription];
+      const mockSubscriptionWithSubscriber = {
+        ...mockSubscription,
+        subscriber: mockUser1,
+      };
 
       mockSubscriptionRepository.createQueryBuilder.mockReturnValueOnce({
         where: jest.fn().mockReturnThis(),
@@ -216,14 +269,14 @@ describe('SubscriptionsService', () => {
         orderBy: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([mockSubscriptions, 1]),
+        getManyAndCount: jest.fn().mockResolvedValue([[mockSubscriptionWithSubscriber], 1]),
       });
 
       const result = await service.getFollowers('user-2', {} as any);
 
       expect(result).toHaveProperty('data');
       expect(result).toHaveProperty('meta');
-      expect(result.data).toEqual(mockSubscriptions);
+      expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
     });
   });

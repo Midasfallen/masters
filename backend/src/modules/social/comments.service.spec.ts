@@ -10,6 +10,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AppWebSocketGateway } from '../websocket/websocket.gateway';
+import { CacheService } from '../../common/services/cache.service';
 
 describe('CommentsService', () => {
   let service: CommentsService;
@@ -100,6 +101,10 @@ describe('CommentsService', () => {
         {
           provide: AppWebSocketGateway,
           useValue: mockWebSocketGateway,
+        },
+        {
+          provide: CacheService,
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn(), invalidatePattern: jest.fn(), delByPattern: jest.fn() },
         },
       ],
     }).compile();

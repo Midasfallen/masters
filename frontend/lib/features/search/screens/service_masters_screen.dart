@@ -274,7 +274,7 @@ class _ServiceMastersScreenState extends ConsumerState<ServiceMastersScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      master.businessName ?? master.user?.fullName ?? 'Мастер',
+                      master.user?.fullName ?? 'Мастер',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

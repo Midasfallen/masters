@@ -231,8 +231,7 @@ class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          master.businessName ??
-                                              master.user?.fullName ??
+                                          master.user?.fullName ??
                                               (master.user != null
                                                   ? '${master.user!.firstName} ${master.user!.lastName}'
                                                   : 'Мастер'),
@@ -294,8 +293,8 @@ class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(_isSubscribed
-                                    ? 'Вы подписались на ${master.businessName ?? master.user?.fullName ?? 'мастера'}'
-                                    : 'Вы отписались от ${master.businessName ?? master.user?.fullName ?? 'мастера'}'),
+                                    ? 'Вы подписались на ${master.user?.fullName ?? 'мастера'}'
+                                    : 'Вы отписались от ${master.user?.fullName ?? 'мастера'}'),
                               ),
                             );
                           },

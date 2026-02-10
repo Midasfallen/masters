@@ -861,7 +861,6 @@ export class SearchService implements OnModuleInit {
             `(
               to_tsvector('russian', COALESCE(user.first_name, '') || ' ' || COALESCE(user.last_name, '')) @@ plainto_tsquery('russian', :query)
               OR to_tsvector('russian', COALESCE(profile.bio, '')) @@ plainto_tsquery('russian', :query)
-              OR to_tsvector('russian', COALESCE(profile.business_name, '')) @@ plainto_tsquery('russian', :query)
             )`,
             { query: cleanQuery },
           );
@@ -908,7 +907,7 @@ export class SearchService implements OnModuleInit {
         if (cleanQuery) {
           qb.orderBy(
             `ts_rank(
-              to_tsvector('russian', COALESCE(user.first_name, '') || ' ' || COALESCE(user.last_name, '') || ' ' || COALESCE(profile.bio, '') || ' ' || COALESCE(profile.business_name, '')),
+              to_tsvector('russian', COALESCE(user.first_name, '') || ' ' || COALESCE(user.last_name, '') || ' ' || COALESCE(profile.bio, '')),
               plainto_tsquery('russian', :query)
             )`,
             'DESC',

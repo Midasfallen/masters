@@ -3,6 +3,7 @@ import { MastersService } from './masters.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MasterProfile } from './entities/master-profile.entity';
 import { User } from '../users/entities/user.entity';
+import { Category } from '../categories/entities/category.entity';
 import { Repository } from 'typeorm';
 import {
   NotFoundException,
@@ -14,6 +15,7 @@ describe('MastersService', () => {
   let service: MastersService;
   let masterProfileRepository: Repository<MasterProfile>;
   let userRepository: Repository<User>;
+  let categoryRepository: Repository<Category>;
 
   const mockUser = {
     id: 'user-1',
@@ -28,7 +30,6 @@ describe('MastersService', () => {
   const mockMasterProfile = {
     id: 'profile-1',
     user_id: 'user-1',
-    business_name: null,
     bio: null,
     category_ids: [],
     subcategory_ids: [],
@@ -60,15 +61,14 @@ describe('MastersService', () => {
     is_active: false,
     is_approved: false,
     setup_step: 0,
-    created_at: new Date(),
-    updated_at: new Date(),
+    created_at: new Date('2025-01-01T00:00:00.000Z'),
+    updated_at: new Date('2025-01-01T00:00:00.000Z'),
   };
 
   // Expected Response DTO uses camelCase (результат mapper)
   const expectedProfileResponse = {
     id: 'profile-1',
     userId: 'user-1',
-    businessName: null,
     bio: null,
     categoryIds: [],
     subcategoryIds: [],
@@ -100,6 +100,8 @@ describe('MastersService', () => {
     isActive: false,
     isApproved: false,
     setupStep: 0,
+    createdAt: expect.any(Date),
+    updatedAt: expect.any(Date),
   };
 
   const mockMasterProfileRepository = {
@@ -114,6 +116,11 @@ describe('MastersService', () => {
     save: jest.fn(),
   };
 
+  const mockCategoryRepository = {
+    find: jest.fn(),
+    findOne: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -126,6 +133,10 @@ describe('MastersService', () => {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
         },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepository,
+        },
       ],
     }).compile();
 
@@ -134,6 +145,9 @@ describe('MastersService', () => {
       getRepositoryToken(MasterProfile),
     );
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    categoryRepository = module.get<Repository<Category>>(
+      getRepositoryToken(Category),
+    );
   });
 
   afterEach(() => {
@@ -183,6 +197,12 @@ describe('MastersService', () => {
 
       const profile = { ...mockMasterProfile, setup_step: 0 };
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
+      // Mock category validation
+      mockCategoryRepository.find.mockResolvedValue([
+        { id: 'cat-1', level: 0 },
+        { id: 'cat-2', level: 0 },
+        { id: 'subcat-1', level: 1 },
+      ]);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
         category_ids: step1Dto.category_ids,
@@ -218,7 +238,6 @@ describe('MastersService', () => {
   describe('updateStep2', () => {
     it('should update step 2 with profile info', async () => {
       const step2Dto = {
-        business_name: 'Beauty Studio',
         bio: 'Professional makeup artist',
         years_of_experience: 5,
         languages: ['en', 'ru'],
@@ -231,7 +250,6 @@ describe('MastersService', () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(profile);
       mockMasterProfileRepository.save.mockResolvedValue({
         ...profile,
-        business_name: step2Dto.business_name,
         bio: step2Dto.bio,
         setup_step: 2,
       });
@@ -239,7 +257,7 @@ describe('MastersService', () => {
       const result = await service.updateStep2('user-1', step2Dto);
 
       expect(result.setupStep).toBe(2);
-      expect(result.businessName).toBe(step2Dto.business_name);
+      expect(result.bio).toBe(step2Dto.bio);
       expect(mockMasterProfileRepository.save).toHaveBeenCalled();
     });
 
@@ -404,11 +422,28 @@ describe('MastersService', () => {
       expect(result.userId).toEqual('user-1');
       expect(mockMasterProfileRepository.findOne).toHaveBeenCalledWith({
         where: { id: 'profile-1' },
+        relations: ['user'],
+      });
+    });
+
+    it('should search by user_id if not found by profile id', async () => {
+      mockMasterProfileRepository.findOne
+        .mockResolvedValueOnce(null) // First call: not found by id
+        .mockResolvedValueOnce(mockMasterProfile); // Second call: found by user_id
+
+      const result = await service.getProfileById('user-1');
+
+      expect(result.id).toEqual('profile-1');
+      expect(mockMasterProfileRepository.findOne).toHaveBeenCalledTimes(2);
+      expect(mockMasterProfileRepository.findOne).toHaveBeenNthCalledWith(2, {
+        where: { user_id: 'user-1' },
+        relations: ['user'],
       });
     });
 
     it('should throw NotFoundException if profile not found', async () => {
       mockMasterProfileRepository.findOne.mockResolvedValue(null);
+      mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.getProfileById('non-existent')).rejects.toThrow(
         NotFoundException,

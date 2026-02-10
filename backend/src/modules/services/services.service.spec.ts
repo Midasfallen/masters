@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { Service } from './entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { Category } from '../categories/entities/category.entity';
+import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
 import {
   NotFoundException,
   ForbiddenException,
@@ -98,6 +100,23 @@ describe('ServicesService', () => {
     findOne: jest.fn(),
   };
 
+  const mockCategoryRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+  };
+
+  const mockServiceTemplateRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+  };
+
+  const mockCategory = {
+    id: mockCategoryId,
+    level: 1,
+    slug: 'haircuts',
+    is_active: true,
+  };
+
   const mockQueryBuilder = {
     where: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
@@ -124,6 +143,14 @@ describe('ServicesService', () => {
         {
           provide: getRepositoryToken(MasterProfile),
           useValue: mockMasterProfileRepository,
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepository,
+        },
+        {
+          provide: getRepositoryToken(ServiceTemplate),
+          useValue: mockServiceTemplateRepository,
         },
       ],
     }).compile();
@@ -158,6 +185,7 @@ describe('ServicesService', () => {
     it('should create a service successfully', async () => {
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockMasterProfileRepository.findOne.mockResolvedValue(mockMasterProfile);
+      mockCategoryRepository.findOne.mockResolvedValue(mockCategory);
       mockServiceRepository.create.mockReturnValue(mockService);
       mockServiceRepository.save.mockResolvedValue(mockService);
 
@@ -211,6 +239,7 @@ describe('ServicesService', () => {
         ...mockMasterProfile,
         category_ids: ['other-category-uuid'],
       });
+      mockCategoryRepository.findOne.mockResolvedValue(mockCategory);
 
       await expect(
         service.create(mockUserId, createServiceDto as any),
@@ -220,6 +249,7 @@ describe('ServicesService', () => {
     it('should throw BadRequestException if price_from > price_to', async () => {
       mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockMasterProfileRepository.findOne.mockResolvedValue(mockMasterProfile);
+      mockCategoryRepository.findOne.mockResolvedValue(mockCategory);
 
       const invalidDto = {
         ...createServiceDto,

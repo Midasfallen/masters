@@ -28,10 +28,6 @@ export class MasterProfile {
   @Column({ type: 'uuid' })
   user_id: string;
 
-  @ApiProperty({ example: 'Салон красоты "Элита"', required: false })
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  business_name: string;
-
   @ApiProperty({ example: 'Опытный парикмахер с 10-летним стажем' })
   @Column({ type: 'text', nullable: true })
   bio: string;
