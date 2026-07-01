@@ -7,6 +7,7 @@ import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { SearchService } from '../search/search.service';
+import { CacheService } from '../../common/services/cache.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -53,6 +54,10 @@ describe('AuthService', () => {
         {
           provide: SearchService,
           useValue: { indexUser: jest.fn(), removeUser: jest.fn() },
+        },
+        {
+          provide: CacheService,
+          useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() },
         },
       ],
     }).compile();

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class PaginationDto {
@@ -37,7 +37,12 @@ export class PaginationDto {
 }
 
 export class PaginatedResponseDto<T> {
+  // @Expose() обязателен: глобальный SerializeInterceptor применяет
+  // classToPlain с excludeExtraneousValues:true и без него поля вырезаются → {}
+  @Expose()
   data: T[];
+
+  @Expose()
   meta: {
     page: number;
     limit: number;

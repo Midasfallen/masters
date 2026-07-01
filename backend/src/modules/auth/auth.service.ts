@@ -17,22 +17,21 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto, AuthUserDto } from './dto/auth-response.dto';
 import { DtoMapper } from '../../common/utils/dto-mapper.util';
 import { SearchService } from '../search/search.service';
+import { CacheService } from '../../common/services/cache.service';
 
 @Injectable()
 export class AuthService {
-  // Temporary in-memory storage for reset tokens
-  // TODO: Replace with Redis in production
-  private resetTokens = new Map<string, { userId: string; expires: Date }>();
+  // Reset-токены хранятся в Redis с TTL — переживают рестарт и шарятся между инстансами
+  private static readonly RESET_TOKEN_PREFIX = 'auth:reset:';
+  private static readonly RESET_TOKEN_TTL = 60 * 60; // 1 час в секундах
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly searchService: SearchService,
-  ) {
-    // Clean expired tokens every hour
-    setInterval(() => this.cleanExpiredTokens(), 60 * 60 * 1000);
-  }
+    private readonly cacheService: CacheService,
+  ) {}
 
   /**
    * Регистрация нового пользователя
@@ -163,14 +162,13 @@ export class AuthService {
 
     // Генерация токена сброса
     const resetToken = uuidv4();
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1); // Токен действителен 1 час
 
-    // Сохранение токена
-    this.resetTokens.set(resetToken, {
-      userId: user.id,
-      expires,
-    });
+    // Сохранение токена в Redis с TTL (1 час) — переживает рестарт бэкенда
+    await this.cacheService.set(
+      AuthService.RESET_TOKEN_PREFIX + resetToken,
+      { userId: user.id },
+      AuthService.RESET_TOKEN_TTL,
+    );
 
     // TODO: Отправка email с токеном через MailHog/SMTP
     // В реальной системе здесь будет:
@@ -190,17 +188,12 @@ export class AuthService {
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
     const { reset_token, new_password } = resetPasswordDto;
 
-    // Проверка токена
-    const tokenData = this.resetTokens.get(reset_token);
+    // Проверка токена в Redis (истекшие токены автоматически удаляются по TTL)
+    const tokenKey = AuthService.RESET_TOKEN_PREFIX + reset_token;
+    const tokenData = await this.cacheService.get<{ userId: string }>(tokenKey);
 
     if (!tokenData) {
       throw new BadRequestException('Неверный или истекший токен сброса пароля');
-    }
-
-    // Проверка времени истечения
-    if (new Date() > tokenData.expires) {
-      this.resetTokens.delete(reset_token);
-      throw new BadRequestException('Токен истек. Пожалуйста, запросите новый');
     }
 
     // Поиск пользователя
@@ -216,8 +209,8 @@ export class AuthService {
     user.password_hash = await this.hashPassword(new_password);
     await this.userRepository.save(user);
 
-    // Удаление использованного токена
-    this.resetTokens.delete(reset_token);
+    // Удаление использованного токена (one-time use)
+    await this.cacheService.del(tokenKey);
 
     console.log(`[AUTH] Password reset successful for user ${user.email}`);
 
@@ -240,18 +233,6 @@ export class AuthService {
     }
 
     return user;
-  }
-
-  /**
-   * Очистка истекших токенов сброса
-   */
-  private cleanExpiredTokens(): void {
-    const now = new Date();
-    for (const [token, data] of this.resetTokens.entries()) {
-      if (now > data.expires) {
-        this.resetTokens.delete(token);
-      }
-    }
   }
 
   /**

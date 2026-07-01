@@ -77,21 +77,18 @@ export function configureSecurity(app: INestApplication): void {
         return callback(null, true);
       }
 
-      // Whitelist of allowed origins
-      const allowedOrigins = [
-        'http://localhost:3000', // Development frontend
-        'http://localhost:8080', // Development frontend alt
-        'https://yourdomain.com', // Production
-        'https://www.yourdomain.com', // Production www
-        'https://app.yourdomain.com', // Production app
-      ];
-
-      if (process.env.NODE_ENV === 'development') {
-        // Allow all origins in development
+      if (process.env.NODE_ENV !== 'production') {
+        // В dev/test разрешаем все источники
         return callback(null, true);
       }
 
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      // В production — whitelist из CORS_ORIGIN (через запятую)
+      const allowedOrigins = (process.env.CORS_ORIGIN || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));

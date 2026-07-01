@@ -125,7 +125,7 @@ export class NotificationsController {
     page: number;
     limit: number;
   }> {
-    return this.notificationsService.findAll(req.user.sub, filterDto);
+    return this.notificationsService.findAll(req.user.id, filterDto);
   }
 
   @Get('unread-count')
@@ -153,7 +153,7 @@ export class NotificationsController {
     },
   })
   async getUnreadCount(@Request() req): Promise<{ count: number }> {
-    const count = await this.notificationsService.getUnreadCount(req.user.sub);
+    const count = await this.notificationsService.getUnreadCount(req.user.id);
     return { count };
   }
 
@@ -234,7 +234,7 @@ export class NotificationsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<NotificationResponseDto> {
-    return this.notificationsService.findOne(req.user.sub, id);
+    return this.notificationsService.findOne(req.user.id, id);
   }
 
   @Patch(':id/read')
@@ -314,7 +314,7 @@ export class NotificationsController {
     @Request() req,
     @Param('id') id: string,
   ): Promise<NotificationResponseDto> {
-    return this.notificationsService.markAsRead(req.user.sub, id);
+    return this.notificationsService.markAsRead(req.user.id, id);
   }
 
   @Patch('read-multiple')
@@ -370,7 +370,7 @@ export class NotificationsController {
     @Body() markAsReadDto: MarkAsReadDto,
   ): Promise<void> {
     return this.notificationsService.markMultipleAsRead(
-      req.user.sub,
+      req.user.id,
       markAsReadDto,
     );
   }
@@ -401,7 +401,7 @@ export class NotificationsController {
     },
   })
   async markAllAsRead(@Request() req): Promise<void> {
-    return this.notificationsService.markAllAsRead(req.user.sub);
+    return this.notificationsService.markAllAsRead(req.user.id);
   }
 
   @Delete(':id')
@@ -459,7 +459,7 @@ export class NotificationsController {
     },
   })
   async remove(@Request() req, @Param('id') id: string): Promise<void> {
-    return this.notificationsService.remove(req.user.sub, id);
+    return this.notificationsService.remove(req.user.id, id);
   }
 
   @Delete('clear-read')
@@ -488,7 +488,7 @@ export class NotificationsController {
     },
   })
   async removeAllRead(@Request() req): Promise<void> {
-    return this.notificationsService.removeAllRead(req.user.sub);
+    return this.notificationsService.removeAllRead(req.user.id);
   }
 
   // ============ DEVICE TOKEN ENDPOINTS ============
@@ -544,7 +544,7 @@ export class NotificationsController {
     @Request() req,
     @Body() registerDto: RegisterDeviceDto,
   ): Promise<{ message: string }> {
-    await this.notificationsService.registerDeviceToken(req.user.sub, registerDto);
+    await this.notificationsService.registerDeviceToken(req.user.id, registerDto);
     return { message: 'Device token registered successfully' };
   }
 
@@ -591,7 +591,7 @@ export class NotificationsController {
     @Request() req,
     @Param('token') token: string,
   ): Promise<{ message: string }> {
-    await this.notificationsService.unregisterDeviceToken(req.user.sub, token);
+    await this.notificationsService.unregisterDeviceToken(req.user.id, token);
     return { message: 'Device token unregistered successfully' };
   }
 }

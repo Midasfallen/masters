@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 import { SerializeInterceptor } from './common/interceptors/serialize.interceptor';
+import { configureSecurity } from './config/security.config';
 import * as crypto from 'crypto';
 
 // Global crypto polyfill for @nestjs/schedule compatibility with Node.js 18+
@@ -21,13 +22,9 @@ async function bootstrap() {
   const apiPrefix = process.env.API_PREFIX || 'api/v2';
   app.setGlobalPrefix(apiPrefix);
 
-  // CORS - разрешаем все источники для разработки
-  app.enableCors({
-    origin: true, // Разрешаем все источники (включая localhost с любым портом)
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  });
+  // Security: Helmet (OWASP headers) + CORS.
+  // В dev разрешает все источники, в production — whitelist из CORS_ORIGIN.
+  configureSecurity(app);
 
   // Global validation pipe
   app.useGlobalPipes(

@@ -152,7 +152,7 @@ export class ReviewsController {
     @Request() req,
     @Body() createReviewDto: CreateReviewDto,
   ): Promise<ReviewResponseDto> {
-    return this.reviewsService.create(req.user.sub, createReviewDto);
+    return this.reviewsService.create(req.user.id, createReviewDto);
   }
 
   @Patch(':id/respond')
@@ -264,7 +264,7 @@ export class ReviewsController {
     @Param('id') id: string,
     @Body() responseDto: ResponseReviewDto,
   ): Promise<ReviewResponseDto> {
-    return this.reviewsService.respondToReview(req.user.sub, id, responseDto);
+    return this.reviewsService.respondToReview(req.user.id, id, responseDto);
   }
 
   @Post(':id/report')
@@ -620,7 +620,7 @@ export class ReviewsController {
     },
   })
   async remove(@Request() req, @Param('id') id: string): Promise<void> {
-    return this.reviewsService.remove(req.user.sub, id);
+    return this.reviewsService.remove(req.user.id, id);
   }
 
   @Get('unreviewed/bookings')
@@ -657,7 +657,7 @@ export class ReviewsController {
     },
   })
   async getUnreviewedBookings(@Request() req) {
-    return this.reviewsService.getUnreviewedBookings(req.user.sub);
+    return this.reviewsService.getUnreviewedBookings(req.user.id);
   }
 
   @Post('skip/:bookingId')
@@ -730,7 +730,7 @@ export class ReviewsController {
     @Body() body: { isGracePeriod: boolean },
   ) {
     return this.reviewsService.handleSkipReview(
-      req.user.sub,
+      req.user.id,
       bookingId,
       body.isGracePeriod || false,
     );
