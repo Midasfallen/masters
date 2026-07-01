@@ -293,17 +293,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
-                            OutlinedButton(
-                              onPressed: () {
-                                context.push('/edit-profile');
-                              },
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 36),
-                              ),
-                              child: const Text('Редактировать профиль'),
-                            ),
                             if (!user.isMaster) ...[
-                              const SizedBox(height: 12),
                               FilledButton.icon(
                                 onPressed: () {
                                   context.push('/create-master-profile');
