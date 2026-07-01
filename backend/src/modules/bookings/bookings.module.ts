@@ -8,6 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { ReviewReminder } from '../reviews/entities/review-reminder.entity';
+import { ChatParticipant } from '../chats/entities/chat-participant.entity';
 import { PendingReviewsGuard } from '../../common/guards/pending-reviews.guard';
 import { NotificationsModule } from '../notifications/notifications.module';
 
@@ -20,6 +21,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       MasterProfile,
       Review,
       ReviewReminder,
+      ChatParticipant,
     ]),
     forwardRef(() => NotificationsModule),
   ],

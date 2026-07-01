@@ -91,7 +91,7 @@ export class SearchMastersDto {
   @IsNumber()
   @Min(1)
   @Max(100)
-  radius?: number;
+  radius_km?: number;
 
   @ApiProperty({
     description: 'Теги для фильтрации',

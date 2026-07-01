@@ -318,6 +318,7 @@ mixin _$MasterPreviewInSearch {
   String get lastName => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   double get averageRating => throw _privateConstructorUsedError;
 
@@ -342,7 +343,9 @@ abstract class $MasterPreviewInSearchCopyWith<$Res> {
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'average_rating') double averageRating});
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      double averageRating});
 }
 
 /// @nodoc
@@ -406,7 +409,9 @@ abstract class _$$MasterPreviewInSearchImplCopyWith<$Res>
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'average_rating') double averageRating});
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      double averageRating});
 }
 
 /// @nodoc
@@ -462,7 +467,9 @@ class _$MasterPreviewInSearchImpl implements _MasterPreviewInSearch {
       @JsonKey(name: 'first_name') required this.firstName,
       @JsonKey(name: 'last_name') required this.lastName,
       @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'average_rating') required this.averageRating});
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      this.averageRating = 0.0});
 
   factory _$MasterPreviewInSearchImpl.fromJson(Map<String, dynamic> json) =>
       _$$MasterPreviewInSearchImplFromJson(json);
@@ -479,6 +486,7 @@ class _$MasterPreviewInSearchImpl implements _MasterPreviewInSearch {
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   final double averageRating;
 
@@ -531,8 +539,9 @@ abstract class _MasterPreviewInSearch implements MasterPreviewInSearch {
       @JsonKey(name: 'first_name') required final String firstName,
       @JsonKey(name: 'last_name') required final String lastName,
       @JsonKey(name: 'avatar_url') final String? avatarUrl,
+      @StringToDoubleConverter()
       @JsonKey(name: 'average_rating')
-      required final double averageRating}) = _$MasterPreviewInSearchImpl;
+      final double averageRating}) = _$MasterPreviewInSearchImpl;
 
   factory _MasterPreviewInSearch.fromJson(Map<String, dynamic> json) =
       _$MasterPreviewInSearchImpl.fromJson;
@@ -549,6 +558,7 @@ abstract class _MasterPreviewInSearch implements MasterPreviewInSearch {
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   double get averageRating;
 
@@ -570,6 +580,7 @@ mixin _$ServiceSearchResultModel {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  @StringToDoubleConverter()
   double get price => throw _privateConstructorUsedError;
   @JsonKey(name: 'duration_minutes')
   int get durationMinutes => throw _privateConstructorUsedError;
@@ -600,7 +611,7 @@ abstract class $ServiceSearchResultModelCopyWith<$Res> {
       {String id,
       String name,
       String? description,
-      double price,
+      @StringToDoubleConverter() double price,
       @JsonKey(name: 'duration_minutes') int durationMinutes,
       @JsonKey(name: 'category_name') String? categoryName,
       List<String> tags,
@@ -700,7 +711,7 @@ abstract class _$$ServiceSearchResultModelImplCopyWith<$Res>
       {String id,
       String name,
       String? description,
-      double price,
+      @StringToDoubleConverter() double price,
       @JsonKey(name: 'duration_minutes') int durationMinutes,
       @JsonKey(name: 'category_name') String? categoryName,
       List<String> tags,
@@ -784,7 +795,7 @@ class _$ServiceSearchResultModelImpl implements _ServiceSearchResultModel {
       {required this.id,
       required this.name,
       this.description,
-      required this.price,
+      @StringToDoubleConverter() this.price = 0.0,
       @JsonKey(name: 'duration_minutes') required this.durationMinutes,
       @JsonKey(name: 'category_name') this.categoryName,
       final List<String> tags = const [],
@@ -803,6 +814,8 @@ class _$ServiceSearchResultModelImpl implements _ServiceSearchResultModel {
   @override
   final String? description;
   @override
+  @JsonKey()
+  @StringToDoubleConverter()
   final double price;
   @override
   @JsonKey(name: 'duration_minutes')
@@ -892,7 +905,7 @@ abstract class _ServiceSearchResultModel implements ServiceSearchResultModel {
           {required final String id,
           required final String name,
           final String? description,
-          required final double price,
+          @StringToDoubleConverter() final double price,
           @JsonKey(name: 'duration_minutes') required final int durationMinutes,
           @JsonKey(name: 'category_name') final String? categoryName,
           final List<String> tags,
@@ -910,6 +923,7 @@ abstract class _ServiceSearchResultModel implements ServiceSearchResultModel {
   @override
   String? get description;
   @override
+  @StringToDoubleConverter()
   double get price;
   @override
   @JsonKey(name: 'duration_minutes')

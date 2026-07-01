@@ -1,4 +1,4 @@
-import { Controller, Get, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -320,6 +320,32 @@ export class SearchController {
     @Query() searchDto: SearchTemplatesDto,
   ): Promise<SearchResponseDto<ServiceTemplateSearchResultDto>> {
     return this.searchService.searchServiceTemplates(searchDto);
+  }
+
+  @Public()
+  @Get('templates/:templateId/masters')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Мастера по шаблону услуги',
+    description:
+      'Точный список мастеров, у которых есть услуга с данным service_template_id. ' +
+      'Без полнотекстового поиска по названию шаблона (исключает пропуски и ложные ' +
+      'совпадения). lat/lng — опционально, только для расчёта distance_km (радиусом ' +
+      'не фильтруется).',
+  })
+  @ApiQuery({ name: 'lat', required: false, type: Number, description: 'Широта для расчёта distance_km' })
+  @ApiQuery({ name: 'lng', required: false, type: Number, description: 'Долгота для расчёта distance_km' })
+  @ApiOkResponse({ description: 'Список мастеров, оказывающих услугу этого шаблона' })
+  async searchMastersByTemplate(
+    @Param('templateId') templateId: string,
+    @Query('lat') lat?: string,
+    @Query('lng') lng?: string,
+  ): Promise<SearchResponseDto<MasterSearchResultDto>> {
+    return this.searchService.searchMastersByTemplate(
+      templateId,
+      lat !== undefined ? Number(lat) : undefined,
+      lng !== undefined ? Number(lng) : undefined,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

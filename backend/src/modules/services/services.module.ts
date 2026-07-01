@@ -7,6 +7,7 @@ import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
 import { Category } from '../categories/entities/category.entity';
 import { ServiceTemplate } from '../service-templates/entities/service-template.entity';
+import { SearchModule } from '../search/search.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ServiceTemplate } from '../service-templates/entities/service-template.
       Category,
       ServiceTemplate,
     ]),
+    SearchModule,
   ],
   controllers: [ServicesController],
   providers: [ServicesService],

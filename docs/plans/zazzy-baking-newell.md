@@ -372,3 +372,329 @@ B4 (Helmet + CORS whitelist из `CORS_ORIGIN` подключены в `main.ts`
 **В бэклоге (chips заведены):** B2 (SMTP в forgot-password — EmailService уже готов),
 B5 (TypeScript strict: ~86 strictNullChecks / ~105 noImplicitAny), F2 (Google OAuth),
 I2 (CI → реальный домен/secrets), рассинхрон admin-модуля, mock-данные в home/category-browser.
+
+---
+
+# План: Поиск мастеров по услугам (вкладка «Поиск»)
+
+## Context
+
+Вкладка «Поиск» должна находить мастеров по их услугам/категориям, но не находит.
+Проверка (БД + Meilisearch + код) показала: **данные и бизнес-логика корректны**,
+проблема **только в индексации мастера в Meilisearch**.
+
+Бизнес-логика (подтверждена, менять НЕ нужно): categories L0/L1 → `service_templates`
+(каталог готовых услуг) → `services` (услуги мастера с опц. `service_template_id`).
+Мастер при регистрации выбирает категории (Step1 валидирует L0/L1); услуги создаются из
+шаблонов или кастомные. Данные согласованы: 27 услуг, `services.category_id` ⊆
+`master_profile.category_ids` (0 расхождений), услуги привязаны к шаблонам.
+
+**Дубль `parent_id`/`parentId` в categories** — известное исключение (CLAUDE.md «сохранять
+как есть»); на поиск не влияет (проблему primaryKey Meilisearch уже решил коммит `ad5735f`).
+Трогать не будем.
+
+## Корень проблемы (факты)
+
+Прямая проверка Meilisearch индекса `masters`:
+- фильтр по `category_id` (UUID) → **находит** мастера ✅ (данные ок);
+- текст «Гипнотерапия» (услуга мастера) / «Психология» (категория) → **0** ❌.
+
+Причина в `search.service.ts::indexMaster()` (строка ~495):
+```
+category_names: [], // TODO: Загрузить из Category   ← НИКОГДА не заполняется
+tags: [],           // TODO
+```
+`searchableAttributes` индекса включает `category_names`, но оно пустое; названий услуг
+мастера в индексе нет вообще. Поэтому текстовый поиск искать не по чему.
+
+## Проблемы и решения
+
+### P1. `category_names` + названия услуг мастера в индекс (главное)
+
+`indexMaster()` (`backend/src/modules/search/search.service.ts`):
+- по `masterProfile.category_ids` подтянуть названия категорий — **переиспользовать
+  паттерн из `reindexCategories()`** (там уже `categoryTranslationRepository.find` +
+  `tr.name`, язык `ru`);
+- добавить названия услуг мастера: `services` по `master_id` → их `name` (+ можно
+  `service_template` названия через `serviceTemplateTranslationRepository`, как на
+  строке ~569);
+- расширить документ: `category_names: string[]`, добавить `service_names: string[]`
+  в документ и в `searchableAttributes` индекса `masters` (в `onModuleInit`).
+
+Репозитории `categoryTranslationRepository` (стр. 49) и `serviceTemplateTranslationRepository`
+уже внедрены в `SearchService` — новых зависимостей не нужно.
+
+### P2. Автоиндексация при создании/обновлении
+
+`indexMaster`/`indexService` существуют, но **не вызываются**:
+- `masters.service.ts` — вызвать `searchService.indexMaster(userId)` после завершения
+  профиля/обновления категорий (Step1/Step5);
+- `services.service.ts` — вызвать `searchService.indexService(id)` в `create()`/`update()`,
+  а также `indexMaster` автора (услуги мастера изменились → переиндексировать мастера).
+- Обернуть в try/catch (индексация не должна ронять основную операцию), по образцу
+  существующих вызовов `indexUser`.
+
+### P3. Параметр `radius_km`
+
+`SearchMastersDto` (`search-masters.dto.ts:94`) принимает `radius`, фронт шлёт `radius_km`
+→ 400 `forbidNonWhitelisted`. Переименовать поле DTO в `radius_km` (и использование в
+`searchMasters()`), либо добавить алиас через `@Expose({name})`/`@Transform`. Простой путь —
+переименовать в `radius_km` (фронт уже так шлёт).
+
+### Геолокация — В БЭКЛОГ (по решению пользователя)
+
+Гео сейчас только считает `distance_km`, не фильтрует по радиусу (Meilisearch geo не умеет,
+нужен PostgreSQL `ST_DWithin`). Не трогаем в этой работе — отдельная задача.
+
+## Порядок реализации
+
+1. **P1**: заполнить `category_names` + `service_names` в `indexMaster` (переиспользовать
+   `reindexCategories`/`serviceTemplateTranslationRepository`), обновить `searchableAttributes`.
+2. **P3**: `radius_km` в DTO.
+3. **P2**: автоиндексация в `masters.service`/`services.service`.
+4. Переиндексировать: `POST /admin/search/reindex-all` (или пересоздать индекс `masters`,
+   т.к. менялись settings — settings применяются к существующему индексу, но документы
+   надо перезалить).
+
+Ключевые файлы: `backend/src/modules/search/search.service.ts` (indexMaster, onModuleInit),
+`backend/src/modules/search/dto/search-masters.dto.ts`, `backend/src/modules/masters/masters.service.ts`,
+`backend/src/modules/services/services.service.ts`.
+
+## Verification
+
+- После reindex — прямой запрос Meilisearch (через Python UTF-8, curl на Windows ломает
+  кириллицу): поиск по названию услуги/категории мастера возвращает мастеров.
+- API: `GET /search/masters?query=<название услуги>` и `GET /search/all?q=...` возвращают
+  мастеров; `category_names` в ответе непустые.
+- Frontend в Chrome: вкладка «Поиск» → ввод названия услуги → таб «Мастера» непустой;
+  цепочка категория → шаблон → мастера (`/search/template/:slug`) находит мастеров без 400.
+- Создать новую услугу мастеру → она сразу находится поиском (проверка P2, без ручного reindex).
+
+## Итог (ВЫПОЛНЕНО ✅)
+
+Все P1/P2/P3 закрыты и проверены end-to-end.
+
+**Backend:**
+- **P1** — `indexMaster()`: `category_names` заполняется из `CategoryTranslation` (ru) по
+  `master_profile.category_ids`, добавлено `service_names` из услуг мастера
+  (`services WHERE master_id=user.id AND is_active`). `service_names` добавлено в
+  `searchableAttributes` индекса `masters`.
+- **Критичный побочный баг** — `addDocuments` в индексы `masters`/`services`/
+  `service_templates` не указывал `{primaryKey:'id'}` → Meilisearch не мог вывести
+  primaryKey (4 поля на `_id`), индекс `services` был ПУСТ (0 документов). Добавлен
+  `{primaryKey:'id'}` во все три вызова → после reindex 27 услуг, 6 мастеров.
+- `indexService()`: мастер резолвился через `userRepository` (было ошибочно через
+  `masterProfileRepository.findOne({id: master_id})` → всегда null), добавлен
+  `category_name`. Добавлен `removeService(id)`.
+- **P2** — автоиндексация: `services.service.ts` (create/update → `reindexServiceAndMaster`,
+  remove → `removeService` + `indexMaster`, попутно исправлен owner-check
+  `master_id !== userId`); `masters.service.ts` (Step1/Step5 → `reindexMaster`).
+  Модули получили `SearchModule` в imports. Обёрнуто в try/catch.
+- **P3** — `SearchMastersDto.radius` → `radius_km` (фронт уже слал `radius_km`).
+
+**Frontend:** DECIMAL-цена и рейтинг приходят из PG как строки ("4091.00") →
+`StringToDoubleConverter` применён к `ServiceSearchResultModel.price`,
+`MasterPreviewInSearch.averageRating`, `MasterSearchResultModel.averageRating`
+(+ `NullableStringToDoubleConverter` на `distance_km`). Кодоген + `flutter build web`.
+
+**Проверено вживую в Chrome (no-cache сервер):**
+- «Гипнотерапия» → таб «Мастера»: Тарас Фомина (★3.7, 129); таб «Услуги»:
+  Гипнотерапия, **4091 ₽**, 45 мин — без TypeError, консоль чиста.
+- «Массаж» → 2 мастера (★5.0, ★4.5) + таб «Категории».
+- API `/search/all` отдаёт непустые `category_names`, `price` строкой — фронт парсит.
+
+**В бэклоге (не трогали):** геолокация (фильтр по радиусу через PostGIS `ST_DWithin`).
+
+---
+
+# Фикс: список мастеров по шаблону услуги (экран template_masters) + «радиус 10 км»
+
+## Симптом (со слов пользователя)
+Строка поиска работает, но «если искать в списках, стоит радиус 10 км» → списки мастеров
+по шаблону услуги ведут себя некорректно.
+
+## Диагноз (проверено на данных)
+Проблема НЕ в радиусе. `searchMasters` на бэке вообще **не фильтрует по радиусу** (гео в
+бэклоге): мастер из Краснодара с `distance_km=45.5` возвращался даже при `lat/lng` Москвы
+и `radius_km=10`. Радиус лишь считает `distance_km` для показа.
+
+Настоящая причина — `template_masters_screen.dart` искал мастеров по шаблону через
+**текстовый** `query: templateName` + `categoryIds`. Это давало:
+- **пропуски** (услуга мастера названа не как шаблон → не найдёт);
+- **ложные срабатывания** из-за typo-tolerance Meilisearch. На реальных данных категории
+  «Психология и коучинг» (мастер Тарас оказывает только «Гипнотерапия» и «Детский психолог»):
+  «Коучинг» и раньше ложно возвращал 1 мастера, «Арт-терапия»/«Семейная терапия» → 0.
+Плюс UI писал «Радиус поиска: 10 км» и «В радиусе 10 км нет мастеров» — дезориентировало.
+
+## Решение (ВЫПОЛНЕНО ✅)
+
+**Backend:** точная выборка по `service_template_id` вместо текста.
+- Новый метод `SearchService.searchMastersByTemplate(templateId, lat?, lng?)`: услуги
+  индекса `services` с фильтром `service_template_id = <id> AND is_active` → уникальные
+  `master_id` → обогащение из индекса `masters` (category_names, рейтинг, координаты для
+  distance_km). Есть PG-fallback `fallbackSearchMastersByTemplate`.
+- Эндпоинт `GET /search/templates/:templateId/masters?lat&lng` (`@Public`).
+- В `filterableAttributes` индекса `masters` добавлен `id` (нужен для фильтра `id = ...`);
+  применено через `/admin/search/reindex-all`.
+- `npx tsc --noEmit` → 0 ошибок.
+
+**Frontend:**
+- `api_endpoints.dart`: `searchMastersByTemplate(templateId)`.
+- `search_repository.dart`: метод `searchMastersByTemplate`.
+- `search_provider.dart`: провайдер `templateMastersProvider(templateId, lat?, lng?)`.
+- `template_masters_screen.dart`: переключён на `templateMastersProvider` (по `templateId`,
+  без текстового query). Убраны надпись «Радиус поиска: N км», текст «В радиусе N км нет
+  мастеров» (→ «Пока нет мастеров, которые предоставляют услугу …»), поле `_defaultRadius`,
+  `_locationError` и мёртвый дублирующий пустой-блок. lat/lng шлются только для distance_km.
+- Кодоген + `flutter build web` — analyze чист.
+
+**Проверено вживую в Chrome (Поиск → Здоровье и массаж → Психология и коучинг):**
+- «Коучинг» → «Мастера не найдены» (раньше ложно показывал мастера). Заголовок «Коучинг»,
+  без упоминаний радиуса.
+- «Гипнотерапия» → Тарас Фомина (★3.7, 129) — мастер реально оказывает эту услугу.
+- Консоль без ошибок. API-проверка: эндпоинт возвращает точные множества
+  (Гипнотерапия/Детский психолог → мастер есть; Коучинг/Арт-терапия → 0).
+
+---
+
+# Фикс: ложный мастер в главной строке поиска («массаж» → Харлампий без услуги массаж)
+
+## Симптом
+По запросу «массаж» в главной строке показывался Харлампий Казакова, у которого нет
+услуги массаж (его услуги: Хип-хоп, Уборка, HR/Бизнес-консалтинг).
+
+## Диагноз
+`category_names` входил в `searchableAttributes` индекса `masters`. У Харлампия в профиле
+выбрана категория L0 **«Здоровье и массаж»** — её название содержит «массаж», поэтому
+текстовый поиск ложно матчил мастера по названию категории, а не по услуге. Аналогично
+ложно попадал «Тест Мастер» (та же категория).
+
+## Решение (ВЫПОЛНЕНО ✅)
+Убран `category_names` из `searchableAttributes` индекса `masters` (в `onModuleInit`).
+Мастер ищется по `service_names` (названия его услуг), имени/фамилии, описанию, тегам.
+`category_names` остаётся в **документе** мастера (для отображения в карточке) и в
+`filterableAttributes` (фильтр по категории в списках работает). Категории как отдельная
+сущность по-прежнему ищутся в индексе `categories` → вкладка «Категории».
+
+Настройки применяются при старте (`onModuleInit` → `updateSettings` + `reindexAll`);
+для текущей сессии применены через рестарт (hot-reload) + `/admin/search/reindex-all`.
+
+**Проверено (API + Chrome):**
+- «массаж» → мастеров/услуг нет (в БД нет услуги с названием «массаж»); показаны только
+  категории (Массаж, Здоровье и массаж, …) на вкладке «Категории». Харлампий и Тест Мастер
+  больше НЕ показываются ложно.
+- «Гипнотерапия» → Тарас Фомина + услуга «Гипнотерапия».
+- «Хип-хоп» → Харлампий Казакова + услуга «Хип-хоп» (находится по реальной услуге).
+- Консоль без ошибок.
+
+---
+
+# Фича: кнопка «Новая запись» → выбор мастера из истории
+
+## Запрошено
+Кнопка «Новая запись» (таб «Записи») должна показывать список мастеров, к которым
+пользователь уже записывался или с которыми переписывался; тап открывает профиль мастера.
+(Ранее кнопка вела «в никуда» — пушила несуществующий роут `/search`, затем была временно
+переключена на таб «Поиск».)
+
+## Реализация (ВЫПОЛНЕНО ✅)
+
+**Backend:** `GET /bookings/my-masters` (JWT).
+- `BookingsService.getMyMasters(userId)`: объединяет master_id из bookings (где юзер —
+  клиент) + собеседников из личных чатов (`chat_participants`), фильтрует по `is_master=true`
+  (собеседник-клиент отсекается), дедуплицирует, возвращает `BookingUserDto[]`
+  (id, firstName, lastName, avatarUrl, phone).
+- В `BookingsModule` добавлен `ChatParticipant` в `forFeature`; в сервис — репозиторий
+  `ChatParticipant`. Эндпоинт объявлен ДО `@Get(':id')` (иначе `:id` перехватил бы путь).
+- `npx tsc --noEmit` → 0 ошибок.
+
+**Frontend:**
+- `api_endpoints.dart`: `bookingsMyMasters = '/bookings/my-masters'`.
+- `booking_repository.dart`: `getMyMasters()` → `List<ChatUserModel>` (переиспользована
+  модель, поля совпадают).
+- `bookings_provider.dart`: провайдер `myMastersProvider`.
+- Новый экран `select_master_screen.dart`: список мастеров (аватар/имя), тап →
+  `/master/:id`; пустое состояние с кнопкой «Найти мастера» → таб «Поиск» (`mainNavIndexProvider`).
+- Роут `select-master` в `app_router.dart`; FAB «Новая запись» → `context.push('/select-master')`.
+- Кодоген + `flutter build web` — analyze чист.
+
+**Проверено (API + Chrome, юзер ravinski123):**
+- `GET /bookings/my-masters` → 200; список из 3 мастеров (Валерьян Русакова, Тест Мастер,
+  Павел Макаров) с аватарами. Дедупликация проверена на `client@test.com`: Тарас есть и в
+  bookings, и в чате → в ответе 1 раз.
+- Кнопка «Новая запись» → экран «Выберите мастера» → тап по «Тест Мастер» → его профиль
+  (★4.5, кнопки «Написать»/«Записаться»). Консоль без ошибок.
+
+---
+
+# Фикс: ошибка при загрузке аватара на экране профиля
+
+## Диагноз (три причины)
+1. **Web-несовместимость:** `dio_client.uploadFile` использует `MultipartFile.fromFile(path)`,
+   что не работает во Flutter web — image_picker отдаёт blob-URL, а не файловый путь.
+2. **Неверный эндпоинт:** фронт слал на `/users/me/avatar` (`ApiEndpoints.userAvatar`),
+   но такого роута нет. Реальный эндпоинт — `POST /upload/avatar` (upload-модуль).
+3. **Неверный разбор ответа:** фронт ждал `UserModel`, а `/upload/avatar` возвращает
+   `{ url }` и НЕ сохраняет ссылку в профиль (это отдельный шаг).
+
+## Решение (ВЫПОЛНЕНО ✅)
+`user_repository.uploadAvatar(bytes, filename)` теперь делает два шага (как на бэке):
+1. `POST /upload/avatar` через `uploadBytes` (`MultipartFile.fromBytes` — web-совместимо,
+   поле `file`) → получает `{ url }`;
+2. `PATCH /users/me` с `avatar_url` → сохраняет ссылку, возвращает `UserModel`.
+
+- Сигнатуры `uploadAvatar` в repository и `user_provider` переведены на `(bytes, filename)`.
+- Оба экрана (`profile_screen`, `edit_profile_screen`) читают `image.readAsBytes()` +
+  `image.name` вместо `image.path`.
+- В `UpdateUserRequest` добавлено поле `avatarUrl` (JSON `avatar_url`); бэковый
+  `UpdateUserDto` его уже принимал, `users.service.update` сохраняет через `Object.assign`.
+- Кодоген + `flutter build web` — analyze чист.
+
+**Проверено:**
+- API end-to-end (мастер valerukyan_rusakova): `POST /upload/avatar` → 200 `{url:
+  http://localhost:9000/avatars/...}`; `PATCH /users/me` {avatar_url} → 200, `avatarUrl`
+  сохранён. MinIO отдаёт публичный `localhost:9000` URL (по CLAUDE.md).
+- Chrome: экран профиля открывается, клик по иконке камеры вызывает file picker без
+  ошибок в консоли (сам выбор файла в headless-браузере не автоматизируется — ограничение
+  image_picker, как и при тестах отметок в постах).
+
+Примечание: `ApiEndpoints.userAvatar = '/users/me/avatar'` больше не используется (был
+ошибочным) — оставлен, чистка вне скоупа.
+
+## Доп. ошибка: «Unsupported operation: MultipartFile is only supported where dart:io is available»
+После фикса пользователь всё ещё видел эту ошибку. Разбор:
+- Ошибку бросают ТОЛЬКО `MultipartFile.fromFile`/`fromFileSync` (см.
+  `dio_web_adapter/multipart_file_impl.dart` → `multipartFileFromPath*` → throw). `fromBytes`
+  её НЕ бросает. Значит выполнялся СТАРЫЙ код (`uploadFile`→`fromFile`).
+- Причина — **service worker кэш** старой сборки (известная проблема проекта,
+  [[flutter-web-sw-cache]]). Свежая сборка использует `fromBytes`.
+- Проверено: HTTP-раздача 8088 отдаёт свежий `main.dart.js` (есть `upload/avatar`, нет
+  `users/me/avatar`). Полный флоу воспроизведён из браузерного JS-контекста:
+  `POST /upload/avatar` → 200, `PATCH /users/me` → 200, avatarUrl сохранён (CORS+multipart
+  из web работают). SW разрегистрирован + кэши (`flutter-app-manifest`, `flutter-app-cache`)
+  очищены, страница перезагружена на свежую сборку.
+- Действие для пользователя: hard-reload / очистка кэша (или перезапуск браузера).
+
+Отдельно (вне скоупа, в бэклог): `post_repository.uploadPostMedia(path)` через `uploadFile`
+(`fromFile`) сломается на web так же — но там уже есть web-путь
+`uploadPostMediaFromXFile` (fromBytes); legacy-метод оставлен для мобилок.
+
+## Финальная причина 500 (по логам пользователя)
+После фикса fromBytes загрузка в MinIO шла (`POST /upload/avatar` → 200), но следующий шаг
+`PATCH /users/me` падал с **500**. По логам видно, что фронт слал
+`{first_name: null, last_name: null, phone: null, ..., avatar_url: "..."}`.
+
+Корень: `users.service.update` делал `Object.assign(user, dto)` — null-поля затирали
+NOT NULL колонки (`first_name`/`last_name`) → `save()` падал 500. Изолировано тестом:
+только `avatar_url` → 200; `{first_name:null,last_name:null}` → 500.
+
+**Фикс (два уровня):**
+- **Backend** (`users.service.update`): перед `Object.assign` отбрасываем null/undefined —
+  корректная семантика PATCH (обновляем только переданные поля). Защищает всех клиентов.
+- **Frontend** (`UpdateUserRequest`): `@JsonSerializable(includeIfNull: false)` — null-поля
+  не сериализуются, для аватара уходит только `{avatar_url}`.
+
+**Проверено:** PATCH с полным null-набором + avatar_url → 200, `first_name`/`last_name` НЕ
+затёрты (остались «Валерьян»/«Русакова»), avatarUrl сохранён. Из браузера (свежая сборка,
+SW-кэш сброшен): PATCH только avatar_url → 200. MinIO во всех проверках исправен
+(upload 200, GET картинки 200 image/png, CORS ok, Image() loaded).

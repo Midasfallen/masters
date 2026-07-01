@@ -1060,6 +1060,7 @@ mixin _$MasterSearchResultModel {
   String get lastName => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   double get averageRating => throw _privateConstructorUsedError;
   @JsonKey(name: 'reviews_count')
@@ -1070,6 +1071,7 @@ mixin _$MasterSearchResultModel {
   List<String> get tags => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_address')
   String? get locationAddress => throw _privateConstructorUsedError;
+  @NullableStringToDoubleConverter()
   @JsonKey(name: 'distance_km')
   double? get distanceKm => throw _privateConstructorUsedError;
 
@@ -1094,13 +1096,17 @@ abstract class $MasterSearchResultModelCopyWith<$Res> {
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'average_rating') double averageRating,
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      double averageRating,
       @JsonKey(name: 'reviews_count') int reviewsCount,
       @JsonKey(name: 'category_names') List<String> categoryNames,
       String? description,
       List<String> tags,
       @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'distance_km') double? distanceKm});
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'distance_km')
+      double? distanceKm});
 }
 
 /// @nodoc
@@ -1194,13 +1200,17 @@ abstract class _$$MasterSearchResultModelImplCopyWith<$Res>
       @JsonKey(name: 'first_name') String firstName,
       @JsonKey(name: 'last_name') String lastName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      @JsonKey(name: 'average_rating') double averageRating,
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      double averageRating,
       @JsonKey(name: 'reviews_count') int reviewsCount,
       @JsonKey(name: 'category_names') List<String> categoryNames,
       String? description,
       List<String> tags,
       @JsonKey(name: 'location_address') String? locationAddress,
-      @JsonKey(name: 'distance_km') double? distanceKm});
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'distance_km')
+      double? distanceKm});
 }
 
 /// @nodoc
@@ -1287,14 +1297,18 @@ class _$MasterSearchResultModelImpl implements _MasterSearchResultModel {
       @JsonKey(name: 'first_name') required this.firstName,
       @JsonKey(name: 'last_name') required this.lastName,
       @JsonKey(name: 'avatar_url') this.avatarUrl,
-      @JsonKey(name: 'average_rating') required this.averageRating,
-      @JsonKey(name: 'reviews_count') required this.reviewsCount,
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      this.averageRating = 0.0,
+      @JsonKey(name: 'reviews_count') this.reviewsCount = 0,
       @JsonKey(name: 'category_names')
       final List<String> categoryNames = const [],
       this.description,
       final List<String> tags = const [],
       @JsonKey(name: 'location_address') this.locationAddress,
-      @JsonKey(name: 'distance_km') this.distanceKm})
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'distance_km')
+      this.distanceKm})
       : _categoryNames = categoryNames,
         _tags = tags;
 
@@ -1313,6 +1327,7 @@ class _$MasterSearchResultModelImpl implements _MasterSearchResultModel {
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   final double averageRating;
   @override
@@ -1342,6 +1357,7 @@ class _$MasterSearchResultModelImpl implements _MasterSearchResultModel {
   @JsonKey(name: 'location_address')
   final String? locationAddress;
   @override
+  @NullableStringToDoubleConverter()
   @JsonKey(name: 'distance_km')
   final double? distanceKm;
 
@@ -1412,18 +1428,21 @@ class _$MasterSearchResultModelImpl implements _MasterSearchResultModel {
 
 abstract class _MasterSearchResultModel implements MasterSearchResultModel {
   const factory _MasterSearchResultModel(
-          {required final String id,
-          @JsonKey(name: 'first_name') required final String firstName,
-          @JsonKey(name: 'last_name') required final String lastName,
-          @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          @JsonKey(name: 'average_rating') required final double averageRating,
-          @JsonKey(name: 'reviews_count') required final int reviewsCount,
-          @JsonKey(name: 'category_names') final List<String> categoryNames,
-          final String? description,
-          final List<String> tags,
-          @JsonKey(name: 'location_address') final String? locationAddress,
-          @JsonKey(name: 'distance_km') final double? distanceKm}) =
-      _$MasterSearchResultModelImpl;
+      {required final String id,
+      @JsonKey(name: 'first_name') required final String firstName,
+      @JsonKey(name: 'last_name') required final String lastName,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
+      @StringToDoubleConverter()
+      @JsonKey(name: 'average_rating')
+      final double averageRating,
+      @JsonKey(name: 'reviews_count') final int reviewsCount,
+      @JsonKey(name: 'category_names') final List<String> categoryNames,
+      final String? description,
+      final List<String> tags,
+      @JsonKey(name: 'location_address') final String? locationAddress,
+      @NullableStringToDoubleConverter()
+      @JsonKey(name: 'distance_km')
+      final double? distanceKm}) = _$MasterSearchResultModelImpl;
 
   factory _MasterSearchResultModel.fromJson(Map<String, dynamic> json) =
       _$MasterSearchResultModelImpl.fromJson;
@@ -1440,6 +1459,7 @@ abstract class _MasterSearchResultModel implements MasterSearchResultModel {
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
+  @StringToDoubleConverter()
   @JsonKey(name: 'average_rating')
   double get averageRating;
   @override
@@ -1456,6 +1476,7 @@ abstract class _MasterSearchResultModel implements MasterSearchResultModel {
   @JsonKey(name: 'location_address')
   String? get locationAddress;
   @override
+  @NullableStringToDoubleConverter()
   @JsonKey(name: 'distance_km')
   double? get distanceKm;
 

@@ -16,6 +16,7 @@ import { Step2ProfileInfoDto } from './dto/step2-profile-info.dto';
 import { Step3PortfolioDto } from './dto/step3-portfolio.dto';
 import { Step4LocationDto } from './dto/step4-location.dto';
 import { Step5ScheduleDto } from './dto/step5-schedule.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class MastersService {
@@ -26,7 +27,20 @@ export class MastersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly searchService: SearchService,
   ) {}
+
+  /**
+   * Переиндексировать мастера в Meilisearch (после изменения профиля/категорий).
+   * Не роняет основную операцию при ошибке индексации.
+   */
+  private async reindexMaster(userId: string): Promise<void> {
+    try {
+      await this.searchService.indexMaster(userId);
+    } catch (error) {
+      console.error('Search reindex (master) failed:', error);
+    }
+  }
 
   /**
    * Инициализация профиля мастера
@@ -109,6 +123,7 @@ export class MastersService {
     profile.setup_step = 1;
 
     const saved = await this.masterProfileRepository.save(profile);
+    await this.reindexMaster(userId);
     return MastersMapper.toDto(saved);
   }
 
@@ -296,6 +311,9 @@ export class MastersService {
       user.master_profile_completed = true;
       await this.userRepository.save(user);
     }
+
+    // Профиль финализирован и активен — переиндексировать для поиска
+    await this.reindexMaster(userId);
 
     return MastersMapper.toDto(saved);
   }

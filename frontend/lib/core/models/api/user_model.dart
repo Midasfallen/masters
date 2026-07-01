@@ -113,12 +113,16 @@ class RegisterRequest with _$RegisterRequest {
 /// Update User Request
 @freezed
 class UpdateUserRequest with _$UpdateUserRequest {
+  /// includeIfNull: false — не сериализуем null-поля, чтобы PATCH обновлял только
+  /// реально переданные значения (иначе {first_name: null, ...} затирает поля).
+  @JsonSerializable(includeIfNull: false)
   const factory UpdateUserRequest({
     @JsonKey(name: 'first_name') String? firstName,
     @JsonKey(name: 'last_name') String? lastName,
     String? phone,
     String? language,
     String? timezone,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
   }) = _UpdateUserRequest;
 
   factory UpdateUserRequest.fromJson(Map<String, dynamic> json) =>

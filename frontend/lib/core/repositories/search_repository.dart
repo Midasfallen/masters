@@ -77,6 +77,34 @@ class SearchRepository {
     }
   }
 
+  /// Мастера, оказывающие услугу конкретного шаблона (service_template_id).
+  /// Точная выборка на бэке (без текстового query по названию шаблона).
+  /// lat/lng — опционально, только для расчёта distance_km.
+  Future<List<MasterSearchResultModel>> searchMastersByTemplate({
+    required String templateId,
+    double? lat,
+    double? lng,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+      };
+
+      final response = await _client.get(
+        ApiEndpoints.searchMastersByTemplate(templateId),
+        queryParameters: queryParams,
+      );
+
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data
+          .map((json) => MasterSearchResultModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
   /// Search services
   Future<List<ServiceModel>> searchServices({
     String query = '',

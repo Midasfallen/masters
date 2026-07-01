@@ -27,6 +27,7 @@ import '../../shared/widgets/main_navigation_screen.dart';
 import '../../features/search/screens/category_services_screen.dart';
 import '../../features/search/screens/service_masters_screen.dart';
 import '../../features/search/screens/template_masters_screen.dart';
+import '../../features/bookings/screens/select_master_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -92,6 +93,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               final chatId = state.pathParameters['id']!;
               return ChatScreen(chatId: chatId);
             },
+          ),
+
+          // Select master for new booking
+          GoRoute(
+            path: 'select-master',
+            name: 'selectMaster',
+            builder: (context, state) => const SelectMasterScreen(),
           ),
 
           // Notifications

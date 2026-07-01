@@ -60,13 +60,13 @@ class UserNotifier extends _$UserNotifier {
     });
   }
 
-  /// Upload avatar
-  Future<UserModel> uploadAvatar(String filePath) async {
+  /// Upload avatar (передаём байты — кроссплатформенно, работает и на web)
+  Future<UserModel> uploadAvatar(List<int> bytes, String filename) async {
     state = const AsyncValue.loading();
 
     return await AsyncValue.guard(() async {
       final repository = ref.read(userRepositoryProvider);
-      final user = await repository.uploadAvatar(filePath);
+      final user = await repository.uploadAvatar(bytes, filename);
 
       // Refresh auth state
       ref.invalidate(currentUserProfileProvider);

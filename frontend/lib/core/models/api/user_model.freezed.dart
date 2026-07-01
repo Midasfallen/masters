@@ -1622,6 +1622,8 @@ mixin _$UpdateUserRequest {
   String? get phone => throw _privateConstructorUsedError;
   String? get language => throw _privateConstructorUsedError;
   String? get timezone => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
 
   /// Serializes this UpdateUserRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1644,7 +1646,8 @@ abstract class $UpdateUserRequestCopyWith<$Res> {
       @JsonKey(name: 'last_name') String? lastName,
       String? phone,
       String? language,
-      String? timezone});
+      String? timezone,
+      @JsonKey(name: 'avatar_url') String? avatarUrl});
 }
 
 /// @nodoc
@@ -1667,6 +1670,7 @@ class _$UpdateUserRequestCopyWithImpl<$Res, $Val extends UpdateUserRequest>
     Object? phone = freezed,
     Object? language = freezed,
     Object? timezone = freezed,
+    Object? avatarUrl = freezed,
   }) {
     return _then(_value.copyWith(
       firstName: freezed == firstName
@@ -1689,6 +1693,10 @@ class _$UpdateUserRequestCopyWithImpl<$Res, $Val extends UpdateUserRequest>
           ? _value.timezone
           : timezone // ignore: cast_nullable_to_non_nullable
               as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -1706,7 +1714,8 @@ abstract class _$$UpdateUserRequestImplCopyWith<$Res>
       @JsonKey(name: 'last_name') String? lastName,
       String? phone,
       String? language,
-      String? timezone});
+      String? timezone,
+      @JsonKey(name: 'avatar_url') String? avatarUrl});
 }
 
 /// @nodoc
@@ -1727,6 +1736,7 @@ class __$$UpdateUserRequestImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? language = freezed,
     Object? timezone = freezed,
+    Object? avatarUrl = freezed,
   }) {
     return _then(_$UpdateUserRequestImpl(
       firstName: freezed == firstName
@@ -1749,19 +1759,25 @@ class __$$UpdateUserRequestImplCopyWithImpl<$Res>
           ? _value.timezone
           : timezone // ignore: cast_nullable_to_non_nullable
               as String?,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(includeIfNull: false)
 class _$UpdateUserRequestImpl implements _UpdateUserRequest {
   const _$UpdateUserRequestImpl(
       {@JsonKey(name: 'first_name') this.firstName,
       @JsonKey(name: 'last_name') this.lastName,
       this.phone,
       this.language,
-      this.timezone});
+      this.timezone,
+      @JsonKey(name: 'avatar_url') this.avatarUrl});
 
   factory _$UpdateUserRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateUserRequestImplFromJson(json);
@@ -1778,10 +1794,13 @@ class _$UpdateUserRequestImpl implements _UpdateUserRequest {
   final String? language;
   @override
   final String? timezone;
+  @override
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
 
   @override
   String toString() {
-    return 'UpdateUserRequest(firstName: $firstName, lastName: $lastName, phone: $phone, language: $language, timezone: $timezone)';
+    return 'UpdateUserRequest(firstName: $firstName, lastName: $lastName, phone: $phone, language: $language, timezone: $timezone, avatarUrl: $avatarUrl)';
   }
 
   @override
@@ -1797,13 +1816,15 @@ class _$UpdateUserRequestImpl implements _UpdateUserRequest {
             (identical(other.language, language) ||
                 other.language == language) &&
             (identical(other.timezone, timezone) ||
-                other.timezone == timezone));
+                other.timezone == timezone) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, firstName, lastName, phone, language, timezone);
+  int get hashCode => Object.hash(
+      runtimeType, firstName, lastName, phone, language, timezone, avatarUrl);
 
   /// Create a copy of UpdateUserRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1824,11 +1845,13 @@ class _$UpdateUserRequestImpl implements _UpdateUserRequest {
 
 abstract class _UpdateUserRequest implements UpdateUserRequest {
   const factory _UpdateUserRequest(
-      {@JsonKey(name: 'first_name') final String? firstName,
-      @JsonKey(name: 'last_name') final String? lastName,
-      final String? phone,
-      final String? language,
-      final String? timezone}) = _$UpdateUserRequestImpl;
+          {@JsonKey(name: 'first_name') final String? firstName,
+          @JsonKey(name: 'last_name') final String? lastName,
+          final String? phone,
+          final String? language,
+          final String? timezone,
+          @JsonKey(name: 'avatar_url') final String? avatarUrl}) =
+      _$UpdateUserRequestImpl;
 
   factory _UpdateUserRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateUserRequestImpl.fromJson;
@@ -1845,6 +1868,9 @@ abstract class _UpdateUserRequest implements UpdateUserRequest {
   String? get language;
   @override
   String? get timezone;
+  @override
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
 
   /// Create a copy of UpdateUserRequest
   /// with the given fields replaced by the non-null parameter values.

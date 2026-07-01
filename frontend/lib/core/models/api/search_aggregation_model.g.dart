@@ -37,7 +37,9 @@ _$MasterPreviewInSearchImpl _$$MasterPreviewInSearchImplFromJson(
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,
       avatarUrl: json['avatar_url'] as String?,
-      averageRating: (json['average_rating'] as num).toDouble(),
+      averageRating: json['average_rating'] == null
+          ? 0.0
+          : const StringToDoubleConverter().fromJson(json['average_rating']),
     );
 
 Map<String, dynamic> _$$MasterPreviewInSearchImplToJson(
@@ -47,7 +49,8 @@ Map<String, dynamic> _$$MasterPreviewInSearchImplToJson(
       'first_name': instance.firstName,
       'last_name': instance.lastName,
       'avatar_url': instance.avatarUrl,
-      'average_rating': instance.averageRating,
+      'average_rating':
+          const StringToDoubleConverter().toJson(instance.averageRating),
     };
 
 _$ServiceSearchResultModelImpl _$$ServiceSearchResultModelImplFromJson(
@@ -56,7 +59,9 @@ _$ServiceSearchResultModelImpl _$$ServiceSearchResultModelImplFromJson(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      price: (json['price'] as num).toDouble(),
+      price: json['price'] == null
+          ? 0.0
+          : const StringToDoubleConverter().fromJson(json['price']),
       durationMinutes: (json['duration_minutes'] as num).toInt(),
       categoryName: json['category_name'] as String?,
       tags:
@@ -76,7 +81,7 @@ Map<String, dynamic> _$$ServiceSearchResultModelImplToJson(
       'id': instance.id,
       'name': instance.name,
       'description': instance.description,
-      'price': instance.price,
+      'price': const StringToDoubleConverter().toJson(instance.price),
       'duration_minutes': instance.durationMinutes,
       'category_name': instance.categoryName,
       'tags': instance.tags,

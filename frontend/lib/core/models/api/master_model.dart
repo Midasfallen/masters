@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:service_platform/core/models/api/user_model.dart';
 import 'package:service_platform/core/models/api/service_model.dart';
+import 'package:service_platform/core/models/api/post_model.dart'
+    show NullableStringToDoubleConverter;
 
 part 'master_model.freezed.dart';
 part 'master_model.g.dart';
@@ -59,13 +61,16 @@ class MasterSearchResultModel with _$MasterSearchResultModel {
     @JsonKey(name: 'first_name') required String firstName,
     @JsonKey(name: 'last_name') required String lastName,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
-    @JsonKey(name: 'average_rating') required double averageRating,
-    @JsonKey(name: 'reviews_count') required int reviewsCount,
+    @StringToDoubleConverter()
+    @JsonKey(name: 'average_rating')
+    @Default(0.0)
+    double averageRating,
+    @JsonKey(name: 'reviews_count') @Default(0) int reviewsCount,
     @JsonKey(name: 'category_names') @Default([]) List<String> categoryNames,
     String? description,
     @Default([]) List<String> tags,
     @JsonKey(name: 'location_address') String? locationAddress,
-    @JsonKey(name: 'distance_km') double? distanceKm,
+    @NullableStringToDoubleConverter() @JsonKey(name: 'distance_km') double? distanceKm,
   }) = _MasterSearchResultModel;
 
   factory MasterSearchResultModel.fromJson(Map<String, dynamic> json) =>

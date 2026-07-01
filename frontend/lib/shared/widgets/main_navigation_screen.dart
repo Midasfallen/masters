@@ -8,19 +8,13 @@ import '../../features/bookings/screens/bookings_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../core/providers/api/chats_provider.dart';
 import '../../core/providers/api/notifications_provider.dart';
+import '../../core/providers/main_nav_provider.dart';
 
-class MainNavigationScreen extends ConsumerStatefulWidget {
+class MainNavigationScreen extends ConsumerWidget {
   const MainNavigationScreen({super.key});
 
-  @override
-  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
-}
-
-class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
-  int _currentIndex = 0;
-
   // v2.0 Bottom Navigation: Feed, Search, Chats, Bookings, Profile
-  final List<Widget> _screens = const [
+  static const List<Widget> _screens = [
     FeedScreen(),
     SearchScreen(),
     ChatsListScreen(),
@@ -29,7 +23,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(mainNavIndexProvider);
     final unreadMessages = ref.watch(unreadChatsCountProvider);
     // Реальный счётчик непрочитанных уведомлений (async); до загрузки — 0
     final unreadNotifications =
@@ -37,15 +32,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
+        selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(mainNavIndexProvider.notifier).state = index;
         },
         destinations: [
           const NavigationDestination(

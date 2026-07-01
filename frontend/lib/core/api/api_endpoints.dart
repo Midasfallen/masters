@@ -63,6 +63,7 @@ class ApiEndpoints {
   static String bookingCancel(String id) => '/bookings/$id/cancel';
   static String bookingComplete(String id) => '/bookings/$id/complete';
   static const String bookingsMy = '/bookings/my';
+  static const String bookingsMyMasters = '/bookings/my-masters';
 
   // ==================== REVIEWS ====================
   static const String reviews = '/reviews';
@@ -77,6 +78,8 @@ class ApiEndpoints {
   static const String searchMasters = '/search/masters';
   static const String searchServices = '/search/services';
   static const String searchUsers = '/search/users';
+  static String searchMastersByTemplate(String templateId) =>
+      '/search/templates/$templateId/masters';
 
   // ==================== POSTS (v2.0) ====================
   static const String posts = '/posts';

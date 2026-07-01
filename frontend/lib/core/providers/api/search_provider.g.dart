@@ -497,6 +497,188 @@ class _SearchMastersProviderElement
   int? get maxPrice => (origin as SearchMastersProvider).maxPrice;
 }
 
+String _$templateMastersHash() => r'000968cff92830d018a7066dbef16d42260a846b';
+
+/// Мастера по шаблону услуги (service_template_id) — точная выборка.
+///
+/// Copied from [templateMasters].
+@ProviderFor(templateMasters)
+const templateMastersProvider = TemplateMastersFamily();
+
+/// Мастера по шаблону услуги (service_template_id) — точная выборка.
+///
+/// Copied from [templateMasters].
+class TemplateMastersFamily
+    extends Family<AsyncValue<List<MasterSearchResultModel>>> {
+  /// Мастера по шаблону услуги (service_template_id) — точная выборка.
+  ///
+  /// Copied from [templateMasters].
+  const TemplateMastersFamily();
+
+  /// Мастера по шаблону услуги (service_template_id) — точная выборка.
+  ///
+  /// Copied from [templateMasters].
+  TemplateMastersProvider call({
+    required String templateId,
+    double? lat,
+    double? lng,
+  }) {
+    return TemplateMastersProvider(
+      templateId: templateId,
+      lat: lat,
+      lng: lng,
+    );
+  }
+
+  @override
+  TemplateMastersProvider getProviderOverride(
+    covariant TemplateMastersProvider provider,
+  ) {
+    return call(
+      templateId: provider.templateId,
+      lat: provider.lat,
+      lng: provider.lng,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'templateMastersProvider';
+}
+
+/// Мастера по шаблону услуги (service_template_id) — точная выборка.
+///
+/// Copied from [templateMasters].
+class TemplateMastersProvider
+    extends AutoDisposeFutureProvider<List<MasterSearchResultModel>> {
+  /// Мастера по шаблону услуги (service_template_id) — точная выборка.
+  ///
+  /// Copied from [templateMasters].
+  TemplateMastersProvider({
+    required String templateId,
+    double? lat,
+    double? lng,
+  }) : this._internal(
+          (ref) => templateMasters(
+            ref as TemplateMastersRef,
+            templateId: templateId,
+            lat: lat,
+            lng: lng,
+          ),
+          from: templateMastersProvider,
+          name: r'templateMastersProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$templateMastersHash,
+          dependencies: TemplateMastersFamily._dependencies,
+          allTransitiveDependencies:
+              TemplateMastersFamily._allTransitiveDependencies,
+          templateId: templateId,
+          lat: lat,
+          lng: lng,
+        );
+
+  TemplateMastersProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.templateId,
+    required this.lat,
+    required this.lng,
+  }) : super.internal();
+
+  final String templateId;
+  final double? lat;
+  final double? lng;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<MasterSearchResultModel>> Function(
+            TemplateMastersRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: TemplateMastersProvider._internal(
+        (ref) => create(ref as TemplateMastersRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        templateId: templateId,
+        lat: lat,
+        lng: lng,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<MasterSearchResultModel>>
+      createElement() {
+    return _TemplateMastersProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TemplateMastersProvider &&
+        other.templateId == templateId &&
+        other.lat == lat &&
+        other.lng == lng;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, templateId.hashCode);
+    hash = _SystemHash.combine(hash, lat.hashCode);
+    hash = _SystemHash.combine(hash, lng.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TemplateMastersRef
+    on AutoDisposeFutureProviderRef<List<MasterSearchResultModel>> {
+  /// The parameter `templateId` of this provider.
+  String get templateId;
+
+  /// The parameter `lat` of this provider.
+  double? get lat;
+
+  /// The parameter `lng` of this provider.
+  double? get lng;
+}
+
+class _TemplateMastersProviderElement
+    extends AutoDisposeFutureProviderElement<List<MasterSearchResultModel>>
+    with TemplateMastersRef {
+  _TemplateMastersProviderElement(super.provider);
+
+  @override
+  String get templateId => (origin as TemplateMastersProvider).templateId;
+  @override
+  double? get lat => (origin as TemplateMastersProvider).lat;
+  @override
+  double? get lng => (origin as TemplateMastersProvider).lng;
+}
+
 String _$searchServicesHash() => r'a0b7a08aa7fda62edcd074b59a81ea28b37ee7b1';
 
 /// Search Services Provider

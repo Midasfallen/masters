@@ -5,6 +5,7 @@ import 'package:service_platform/core/api/api_exceptions.dart';
 import 'package:service_platform/core/api/dio_client.dart';
 import 'package:service_platform/core/api/api_helpers.dart';
 import 'package:service_platform/core/models/api/booking_model.dart';
+import 'package:service_platform/core/models/api/chat_model.dart';
 
 part 'booking_repository.g.dart';
 
@@ -46,6 +47,20 @@ class BookingRepository {
 
       final data = ApiHelpers.parseListResponse(response.data);
       return data.map((json) => BookingModel.fromJson(json as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Мастера, к которым пользователь уже записывался или с которыми переписывался.
+  /// Для экрана выбора мастера по кнопке «Новая запись».
+  Future<List<ChatUserModel>> getMyMasters() async {
+    try {
+      final response = await _client.get(ApiEndpoints.bookingsMyMasters);
+      final data = ApiHelpers.parseListResponse(response.data);
+      return data
+          .map((json) => ChatUserModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

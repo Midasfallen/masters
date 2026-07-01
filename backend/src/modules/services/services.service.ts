@@ -17,6 +17,7 @@ import { FilterServicesDto } from './dto/filter-services.dto';
 import { ServiceResponseDto } from './dto/service-response.dto';
 import { ServicesMapper } from './services.mapper';
 import { PaginatedResponseDto } from '../../common/dto/pagination.dto';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class ServicesService {
@@ -31,6 +32,7 @@ export class ServicesService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(ServiceTemplate)
     private readonly serviceTemplateRepository: Repository<ServiceTemplate>,
+    private readonly searchService: SearchService,
   ) {}
 
   /**
@@ -143,7 +145,24 @@ export class ServicesService {
     });
 
     const savedService = await this.serviceRepository.save(service);
+    await this.reindexServiceAndMaster(savedService.id, savedService.master_id);
     return ServicesMapper.toDto(savedService);
+  }
+
+  /**
+   * Переиндексировать услугу и её мастера в Meilisearch (service_names мастера
+   * меняются при изменении услуг). Не роняет основную операцию при ошибке.
+   */
+  private async reindexServiceAndMaster(
+    serviceId: string,
+    masterUserId: string,
+  ): Promise<void> {
+    try {
+      await this.searchService.indexService(serviceId);
+      await this.searchService.indexMaster(masterUserId);
+    } catch (error) {
+      console.error('Search reindex (service/master) failed:', error);
+    }
   }
 
   /**
@@ -302,6 +321,7 @@ export class ServicesService {
     Object.assign(service, updateServiceDto);
 
     const updatedService = await this.serviceRepository.save(service);
+    await this.reindexServiceAndMaster(updatedService.id, updatedService.master_id);
     return ServicesMapper.toDto(updatedService);
   }
 
@@ -318,16 +338,19 @@ export class ServicesService {
       throw new NotFoundException('Услуга не найдена');
     }
 
-    // Проверка владельца
-    const masterProfile = await this.masterProfileRepository.findOne({
-      where: { user_id: userId },
-    });
-
-    if (!masterProfile || service.master_id !== masterProfile.id) {
+    // Проверка владельца: service.master_id = users.id (см. CLAUDE.md)
+    if (service.master_id !== userId) {
       throw new ForbiddenException('Вы можете удалять только свои услуги');
     }
 
     await this.serviceRepository.remove(service);
+    // Удалить услугу из индекса и переиндексировать мастера
+    try {
+      await this.searchService.removeService(serviceId);
+      await this.searchService.indexMaster(userId);
+    } catch (error) {
+      console.error('Search reindex after remove failed:', error);
+    }
   }
 
   /**

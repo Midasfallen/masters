@@ -26,8 +26,6 @@ class TemplateMastersScreen extends ConsumerStatefulWidget {
 
 class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
   Position? _userPosition;
-  String? _locationError;
-  static const double _defaultRadius = 10.0;
 
   @override
   void initState() {
@@ -47,12 +45,10 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
 
       setState(() {
         _userPosition = position;
-        _locationError = null;
       });
-    } catch (e) {
-      setState(() {
-        _locationError = e.toString();
-      });
+    } catch (_) {
+      // Геолокация недоступна — не критично: distance_km просто не покажется,
+      // на состав списка мастеров это не влияет.
     }
   }
 
@@ -60,25 +56,9 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.templateName,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            if (_userPosition != null)
-              Text(
-                'Радиус поиска: ${_defaultRadius.toInt()} км',
-                style: const TextStyle(fontSize: 12),
-              )
-            else if (_locationError != null)
-              const Text(
-                'Геолокация недоступна',
-                style: TextStyle(fontSize: 12),
-              ),
-          ],
+        title: Text(
+          widget.templateName,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: _buildMastersList(),
@@ -86,14 +66,13 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
   }
 
   Widget _buildMastersList() {
-    // Поиск мастеров по категории шаблона
+    // Точный поиск мастеров по шаблону услуги (service_template_id).
+    // lat/lng — только для расчёта distance_km (радиусом не фильтруем).
     final mastersAsync = ref.watch(
-      searchMastersProvider(
-        query: widget.templateName, // Используем название шаблона для поиска
-        categoryIds: [widget.categoryId],
+      templateMastersProvider(
+        templateId: widget.templateId,
         lat: _userPosition?.latitude,
         lng: _userPosition?.longitude,
-        radius: _defaultRadius.toInt(),
       ),
     );
 
@@ -120,48 +99,7 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'В радиусе ${_defaultRadius.toInt()} км нет мастеров,\nкоторые предоставляют услугу "${widget.templateName}".',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.arrow_back),
-                  label: const Text('Вернуться назад'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Бэкенд уже фильтрует по радиусу, если переданы координаты
-        // Используем результаты как есть
-        if (masters.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.location_off_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Мастера не найдены в радиусе',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'В радиусе ${_defaultRadius.toInt()} км нет мастеров,\nкоторые предоставляют услугу "${widget.templateName}".',
+                  'Пока нет мастеров,\nкоторые предоставляют услугу "${widget.templateName}".',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -198,7 +136,7 @@ class _TemplateMastersScreenState extends ConsumerState<TemplateMastersScreen> {
             Text('Ошибка загрузки мастеров: ${error.toString()}'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => ref.invalidate(searchMastersProvider),
+              onPressed: () => ref.invalidate(templateMastersProvider),
               child: const Text('Повторить'),
             ),
             const SizedBox(height: 16),

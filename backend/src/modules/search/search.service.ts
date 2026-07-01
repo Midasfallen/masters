@@ -80,14 +80,21 @@ export class SearchService implements OnModuleInit {
 
       // Настройка searchable и filterable атрибутов для мастеров
       await this.mastersIndex.updateSettings({
+        // ВАЖНО: category_names НЕ входит в searchableAttributes намеренно.
+        // Категория профиля («Здоровье и массаж») — широкая область мастера, а не его
+        // услуга. Матч по названию категории давал ложные результаты (мастер без услуги
+        // «массаж» находился по слову «массаж» из категории). Мастера ищем по названиям
+        // его услуг (service_names), имени/фамилии и описанию. Категории как отдельная
+        // сущность ищутся в индексе `categories` (вкладка «Категории»).
         searchableAttributes: [
           'first_name',
           'last_name',
           'description',
           'tags',
-          'category_names',
+          'service_names',
         ],
         filterableAttributes: [
+          'id',
           'category_ids',
           'average_rating',
           'is_active',
@@ -343,6 +350,177 @@ export class SearchService implements OnModuleInit {
   }
 
   /**
+   * Поиск мастеров по шаблону услуги (service_template_id).
+   *
+   * Точная выборка (без полнотекстового query по названию шаблона, который давал
+   * и пропуски, и ложные срабатывания из-за typo-tolerance): находим услуги с
+   * данным service_template_id → собираем уникальных мастеров → обогащаем данными
+   * из индекса masters (category_names, рейтинг, координаты для distance_km).
+   */
+  async searchMastersByTemplate(
+    templateId: string,
+    lat?: number,
+    lng?: number,
+  ): Promise<SearchResponseDto<MasterSearchResultDto>> {
+    const startTime = Date.now();
+
+    try {
+      // 1. Все услуги этого шаблона
+      const serviceResults = await this.servicesIndex.search('', {
+        filter: `service_template_id = ${templateId} AND is_active = true`,
+        limit: 1000,
+      });
+
+      // 2. Уникальные master_id (порядок сохраняем)
+      const masterIds: string[] = [];
+      const seen = new Set<string>();
+      for (const hit of serviceResults.hits as any[]) {
+        if (hit.master_id && !seen.has(hit.master_id)) {
+          seen.add(hit.master_id);
+          masterIds.push(hit.master_id);
+        }
+      }
+
+      if (masterIds.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          page: 1,
+          limit: masterIds.length,
+          processing_time_ms: Date.now() - startTime,
+          query: '',
+        };
+      }
+
+      // 3. Документы мастеров из индекса masters (одним запросом по фильтру id)
+      const idFilter = masterIds.map((id) => `id = ${id}`).join(' OR ');
+      const masterResults = await this.mastersIndex.search('', {
+        filter: `(${idFilter}) AND is_active = true`,
+        limit: masterIds.length,
+      });
+
+      const masterById = new Map<string, any>();
+      for (const hit of masterResults.hits as any[]) {
+        masterById.set(hit.id, hit);
+      }
+
+      // 4. Собираем результат в порядке появления мастеров (по релевантности услуг)
+      const data: MasterSearchResultDto[] = masterIds
+        .map((id) => masterById.get(id))
+        .filter(Boolean)
+        .map((hit: any) => ({
+          id: hit.id,
+          first_name: hit.first_name,
+          last_name: hit.last_name,
+          avatar_url: hit.avatar_url,
+          average_rating: hit.average_rating,
+          reviews_count: hit.reviews_count,
+          category_names: hit.category_names || [],
+          description: hit.description,
+          tags: hit.tags || [],
+          location_address: hit.location_address,
+          distance_km: this.calculateDistance(
+            lat,
+            lng,
+            hit.location_lat,
+            hit.location_lng,
+          ),
+        }));
+
+      return {
+        data,
+        total: data.length,
+        page: 1,
+        limit: data.length,
+        processing_time_ms: Date.now() - startTime,
+        query: '',
+      };
+    } catch (error) {
+      console.error('Meilisearch error (masters by template):', error);
+      return this.fallbackSearchMastersByTemplate(templateId, lat, lng);
+    }
+  }
+
+  /**
+   * Fallback (PostgreSQL) для поиска мастеров по шаблону услуги.
+   */
+  private async fallbackSearchMastersByTemplate(
+    templateId: string,
+    lat?: number,
+    lng?: number,
+  ): Promise<SearchResponseDto<MasterSearchResultDto>> {
+    const startTime = Date.now();
+
+    // Услуги с этим шаблоном → master_id (users.id, см. CLAUDE.md)
+    const services = await this.serviceRepository.find({
+      where: { service_template_id: templateId, is_active: true },
+      select: ['master_id'],
+    });
+    const masterIds = Array.from(
+      new Set(services.map((s) => s.master_id).filter(Boolean)),
+    );
+
+    if (masterIds.length === 0) {
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 0,
+        processing_time_ms: Date.now() - startTime,
+        query: '',
+      };
+    }
+
+    const data: MasterSearchResultDto[] = [];
+    for (const masterUserId of masterIds) {
+      const user = await this.userRepository.findOne({
+        where: { id: masterUserId },
+      });
+      const profile = await this.masterProfileRepository.findOne({
+        where: { user_id: masterUserId },
+      });
+      if (!user || !profile || !profile.is_active) continue;
+
+      const categoryIds = profile.category_ids || [];
+      let categoryNames: string[] = [];
+      if (categoryIds.length > 0) {
+        const catTranslations = await this.categoryTranslationRepository.find({
+          where: { category_id: In(categoryIds), language: 'ru' },
+        });
+        categoryNames = catTranslations.map((t) => t.name).filter(Boolean);
+      }
+
+      data.push({
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        avatar_url: user.avatar_url,
+        average_rating: Number(user.rating),
+        reviews_count: user.reviews_count,
+        category_names: categoryNames,
+        description: profile.bio,
+        tags: [],
+        location_address: profile.location_address,
+        distance_km: this.calculateDistance(
+          lat,
+          lng,
+          profile.location_lat,
+          profile.location_lng,
+        ),
+      });
+    }
+
+    return {
+      data,
+      total: data.length,
+      page: 1,
+      limit: data.length,
+      processing_time_ms: Date.now() - startTime,
+      query: '',
+    };
+  }
+
+  /**
    * Поиск шаблонов услуг (для приоритета в глобальной строке поиска)
    */
   async searchServiceTemplates(
@@ -483,6 +661,26 @@ export class SearchService implements OnModuleInit {
 
     if (!user || !masterProfile) return;
 
+    // Названия категорий мастера (ru) — чтобы поиск находил по названию категории
+    const categoryIds = masterProfile.category_ids || [];
+    let categoryNames: string[] = [];
+    if (categoryIds.length > 0) {
+      const catTranslations = await this.categoryTranslationRepository.find({
+        where: { category_id: In(categoryIds), language: 'ru' },
+      });
+      categoryNames = catTranslations.map((t) => t.name).filter(Boolean);
+    }
+
+    // Названия услуг мастера — чтобы поиск находил мастера по его услугам.
+    // services.master_id ссылается на users.id (см. CLAUDE.md).
+    const services = await this.serviceRepository.find({
+      where: { master_id: user.id, is_active: true },
+      select: ['name'],
+    });
+    const serviceNames = Array.from(
+      new Set(services.map((s) => s.name).filter(Boolean)),
+    );
+
     const document = {
       id: user.id,
       first_name: user.first_name,
@@ -491,8 +689,9 @@ export class SearchService implements OnModuleInit {
       average_rating: Number(user.rating),
       reviews_count: user.reviews_count,
       description: masterProfile.bio,
-      category_ids: masterProfile.category_ids,
-      category_names: [], // TODO: Загрузить из Category
+      category_ids: categoryIds,
+      category_names: categoryNames,
+      service_names: serviceNames,
       tags: [], // TODO: Add tags field to MasterProfile entity
       location_address: masterProfile.location_address,
       location_lat: masterProfile.location_lat,
@@ -501,7 +700,7 @@ export class SearchService implements OnModuleInit {
     };
 
     try {
-      await this.mastersIndex.addDocuments([document]);
+      await this.mastersIndex.addDocuments([document], { primaryKey: 'id' });
     } catch (error) {
       console.error('Error indexing master:', error);
     }
@@ -517,15 +716,16 @@ export class SearchService implements OnModuleInit {
 
     if (!service) return;
 
-    const masterProfile = await this.masterProfileRepository.findOne({
-      where: { id: service.master_id },
-    });
-
-    const master = masterProfile
-      ? await this.userRepository.findOne({
-          where: { id: masterProfile.user_id },
+    // Название категории услуги (ru) — для поиска и отображения
+    const catTranslation = service.category_id
+      ? await this.categoryTranslationRepository.findOne({
+          where: { category_id: service.category_id, language: 'ru' },
         })
       : null;
+
+    const master = await this.userRepository.findOne({
+      where: { id: service.master_id },
+    });
 
     const document = {
       id: service.id,
@@ -535,7 +735,7 @@ export class SearchService implements OnModuleInit {
       duration_minutes: service.duration_minutes,
       category_id: service.category_id,
       service_template_id: service.service_template_id || null,
-      category_name: '', // Можно загрузить из Category при необходимости
+      category_name: catTranslation?.name || '',
       tags: service.tags,
       photo_urls: service.photo_urls,
       is_active: service.is_active,
@@ -549,9 +749,20 @@ export class SearchService implements OnModuleInit {
     };
 
     try {
-      await this.servicesIndex.addDocuments([document]);
+      await this.servicesIndex.addDocuments([document], { primaryKey: 'id' });
     } catch (error) {
       console.error('Error indexing service:', error);
+    }
+  }
+
+  /**
+   * Удаление услуги из индекса (при удалении услуги мастером)
+   */
+  async removeService(serviceId: string): Promise<void> {
+    try {
+      await this.servicesIndex.deleteDocument(serviceId);
+    } catch (error) {
+      console.error('Error removing service from index:', error);
     }
   }
 
@@ -596,7 +807,7 @@ export class SearchService implements OnModuleInit {
     };
 
     try {
-      await this.serviceTemplatesIndex.addDocuments([document]);
+      await this.serviceTemplatesIndex.addDocuments([document], { primaryKey: 'id' });
     } catch (error) {
       console.error('Error indexing service template:', error);
     }

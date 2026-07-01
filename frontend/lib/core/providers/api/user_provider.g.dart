@@ -363,7 +363,7 @@ class _UserListProviderElement
   String? get search => (origin as UserListProvider).search;
 }
 
-String _$userNotifierHash() => r'3fdaad89b3d685f3a1f1b0628985cc78ff93b87c';
+String _$userNotifierHash() => r'081423ecebcc4f91ed5118fb557624ca29bd1d55';
 
 /// User Notifier for mutations
 ///

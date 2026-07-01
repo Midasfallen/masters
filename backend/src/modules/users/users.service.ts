@@ -66,8 +66,13 @@ export class UsersService {
       }
     }
 
-    // Обновление полей
-    Object.assign(user, updateUserDto);
+    // Обновление полей. Семантика PATCH: обновляем только реально переданные поля.
+    // Отбрасываем null/undefined, иначе клиент, приславший {first_name: null, ...},
+    // затрёт NOT NULL колонки (first_name/last_name) и save() упадёт с 500.
+    const changes = Object.fromEntries(
+      Object.entries(updateUserDto).filter(([, v]) => v !== null && v !== undefined),
+    );
+    Object.assign(user, changes);
     const updated = await this.userRepository.save(user);
 
     // Обновление в Meilisearch

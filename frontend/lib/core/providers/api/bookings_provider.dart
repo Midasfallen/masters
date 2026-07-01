@@ -1,8 +1,16 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_platform/core/models/api/booking_model.dart';
+import 'package:service_platform/core/models/api/chat_model.dart';
 import 'package:service_platform/core/repositories/booking_repository.dart';
 
 part 'bookings_provider.g.dart';
+
+/// Мастера, к которым пользователь уже записывался или с которыми переписывался.
+@riverpod
+Future<List<ChatUserModel>> myMasters(MyMastersRef ref) async {
+  final repository = ref.watch(bookingRepositoryProvider);
+  return await repository.getMyMasters();
+}
 
 /// My Bookings Provider
 @riverpod

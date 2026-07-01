@@ -7,17 +7,18 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, IsNull } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, IsNull, In } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { Service } from '../services/entities/service.entity';
 import { User } from '../users/entities/user.entity';
 import { MasterProfile } from '../masters/entities/master-profile.entity';
+import { ChatParticipant } from '../chats/entities/chat-participant.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { ReviewReminder } from '../reviews/entities/review-reminder.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
-import { BookingResponseDto } from './dto/booking-response.dto';
+import { BookingResponseDto, BookingUserDto } from './dto/booking-response.dto';
 import { FilterBookingsDto } from './dto/filter-bookings.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { BookingsMapper } from './bookings.mapper';
@@ -33,6 +34,8 @@ export class BookingsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(MasterProfile)
     private readonly masterProfileRepository: Repository<MasterProfile>,
+    @InjectRepository(ChatParticipant)
+    private readonly chatParticipantRepository: Repository<ChatParticipant>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     @InjectRepository(ReviewReminder)
@@ -490,6 +493,59 @@ export class BookingsService {
       page,
       limit,
     };
+  }
+
+  /**
+   * Мастера, с которыми у пользователя уже была история:
+   *  - бронирования (пользователь = клиент), и/или
+   *  - личная переписка (собеседник в direct-чате — мастер).
+   * Возвращает уникальный список мастеров (для экрана «Новая запись»).
+   */
+  async getMyMasters(userId: string): Promise<BookingUserDto[]> {
+    const masterIds = new Set<string>();
+
+    // 1. Мастера из бронирований, где пользователь — клиент
+    const bookingRows = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .select('DISTINCT booking.master_id', 'master_id')
+      .where('booking.client_id = :userId', { userId })
+      .getRawMany<{ master_id: string }>();
+    for (const row of bookingRows) {
+      if (row.master_id) masterIds.add(row.master_id);
+    }
+
+    // 2. Собеседники из личных чатов пользователя (кандидаты в мастера)
+    //    Берём чаты, где пользователь — активный участник, затем других участников.
+    const myChatRows = await this.chatParticipantRepository
+      .createQueryBuilder('cp')
+      .select('cp.chat_id', 'chat_id')
+      .where('cp.user_id = :userId', { userId })
+      .andWhere('cp.is_removed = false')
+      .getRawMany<{ chat_id: string }>();
+    const chatIds = myChatRows.map((r) => r.chat_id);
+
+    if (chatIds.length > 0) {
+      const otherRows = await this.chatParticipantRepository
+        .createQueryBuilder('cp')
+        .select('DISTINCT cp.user_id', 'user_id')
+        .where('cp.chat_id IN (:...chatIds)', { chatIds })
+        .andWhere('cp.user_id != :userId', { userId })
+        .andWhere('cp.is_removed = false')
+        .getRawMany<{ user_id: string }>();
+      for (const row of otherRows) {
+        if (row.user_id) masterIds.add(row.user_id);
+      }
+    }
+
+    if (masterIds.size === 0) return [];
+
+    // 3. Загружаем пользователей и оставляем только мастеров (is_master).
+    //    Собеседник из чата может быть обычным клиентом — его исключаем.
+    const users = await this.userRepository.find({
+      where: { id: In([...masterIds]), is_master: true },
+    });
+
+    return users.map((user) => BookingsMapper.toUserDto(user));
   }
 
   /**

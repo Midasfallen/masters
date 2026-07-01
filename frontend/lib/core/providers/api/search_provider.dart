@@ -63,6 +63,23 @@ Future<List<MasterSearchResultModel>> searchMasters(
   );
 }
 
+/// Мастера по шаблону услуги (service_template_id) — точная выборка.
+@riverpod
+Future<List<MasterSearchResultModel>> templateMasters(
+  TemplateMastersRef ref, {
+  required String templateId,
+  double? lat,
+  double? lng,
+}) async {
+  if (templateId.isEmpty) return [];
+  final repository = ref.watch(searchRepositoryProvider);
+  return await repository.searchMastersByTemplate(
+    templateId: templateId,
+    lat: lat,
+    lng: lng,
+  );
+}
+
 /// Search Services Provider
 @riverpod
 Future<List<ServiceModel>> searchServices(

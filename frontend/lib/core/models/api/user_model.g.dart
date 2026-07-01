@@ -150,14 +150,16 @@ _$UpdateUserRequestImpl _$$UpdateUserRequestImplFromJson(
       phone: json['phone'] as String?,
       language: json['language'] as String?,
       timezone: json['timezone'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
     );
 
 Map<String, dynamic> _$$UpdateUserRequestImplToJson(
         _$UpdateUserRequestImpl instance) =>
     <String, dynamic>{
-      'first_name': instance.firstName,
-      'last_name': instance.lastName,
-      'phone': instance.phone,
-      'language': instance.language,
-      'timezone': instance.timezone,
+      if (instance.firstName case final value?) 'first_name': value,
+      if (instance.lastName case final value?) 'last_name': value,
+      if (instance.phone case final value?) 'phone': value,
+      if (instance.language case final value?) 'language': value,
+      if (instance.timezone case final value?) 'timezone': value,
+      if (instance.avatarUrl case final value?) 'avatar_url': value,
     };

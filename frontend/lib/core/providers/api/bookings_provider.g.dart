@@ -6,6 +6,25 @@ part of 'bookings_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$myMastersHash() => r'3f3d8c32912afe40590236b149823daeeca595d9';
+
+/// Мастера, к которым пользователь уже записывался или с которыми переписывался.
+///
+/// Copied from [myMasters].
+@ProviderFor(myMasters)
+final myMastersProvider =
+    AutoDisposeFutureProvider<List<ChatUserModel>>.internal(
+  myMasters,
+  name: r'myMastersProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$myMastersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MyMastersRef = AutoDisposeFutureProviderRef<List<ChatUserModel>>;
 String _$myBookingsHash() => r'0ceb6ca31f3f8e0479812d8cb2ade3eba28f32ac';
 
 /// Copied from Dart SDK

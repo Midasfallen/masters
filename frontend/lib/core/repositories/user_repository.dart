@@ -46,14 +46,30 @@ class UserRepository {
     }
   }
 
-  /// Upload user avatar
-  Future<UserModel> uploadAvatar(String filePath) async {
+  /// Upload user avatar.
+  ///
+  /// Два шага (как реализовано на бэке):
+  /// 1) POST /upload/avatar (multipart, поле `file`) → возвращает { url };
+  /// 2) PATCH /users/me с avatar_url → сохраняет ссылку в профиль, возвращает User.
+  ///
+  /// Байты (а не путь к файлу): `MultipartFile.fromFile` не работает во Flutter web,
+  /// где image_picker отдаёт blob-URL вместо файлового пути.
+  Future<UserModel> uploadAvatar(List<int> bytes, String filename) async {
     try {
-      final response = await _client.uploadFile(
-        ApiEndpoints.userAvatar,
-        filePath,
+      final uploadResponse = await _client.uploadBytes(
+        ApiEndpoints.uploadAvatar,
+        bytes,
+        filename: filename,
       );
-      return UserModel.fromJson(response.data);
+
+      final data = uploadResponse.data as Map<String, dynamic>;
+      final url = data['url'] as String?;
+      if (url == null || url.isEmpty) {
+        throw Exception('Сервер не вернул URL загруженного аватара');
+      }
+
+      // Сохраняем ссылку в профиль пользователя
+      return await updateUser(UpdateUserRequest(avatarUrl: url));
     } on DioException catch (e) {
       throw ApiExceptionHandler.handleDioError(e);
     }

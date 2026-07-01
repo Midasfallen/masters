@@ -28,7 +28,7 @@ import {
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
-import { BookingResponseDto } from './dto/booking-response.dto';
+import { BookingResponseDto, BookingUserDto } from './dto/booking-response.dto';
 import { FilterBookingsDto } from './dto/filter-bookings.dto';
 import { BookingStatus } from './entities/booking.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -463,6 +463,19 @@ export class BookingsController {
     }
     // Default to client role
     return this.bookingsService.findAll(req.user.id, { ...filterDto, client_id: req.user.id });
+  }
+
+  @Get('my-masters')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Мои мастера (для новой записи)',
+    description:
+      'Уникальный список мастеров, к которым пользователь уже записывался или с которыми ' +
+      'переписывался. Используется кнопкой «Новая запись».',
+  })
+  @ApiOkResponse({ description: 'Список мастеров', type: [BookingUserDto] })
+  async getMyMasters(@Request() req): Promise<BookingUserDto[]> {
+    return this.bookingsService.getMyMasters(req.user.id);
   }
 
   @Get(':id')

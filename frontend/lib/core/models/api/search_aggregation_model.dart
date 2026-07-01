@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:service_platform/core/models/api/master_model.dart';
+import 'package:service_platform/core/models/api/user_model.dart' show StringToDoubleConverter;
 
 part 'search_aggregation_model.freezed.dart';
 part 'search_aggregation_model.g.dart';
@@ -29,7 +30,10 @@ class MasterPreviewInSearch with _$MasterPreviewInSearch {
     @JsonKey(name: 'first_name') required String firstName,
     @JsonKey(name: 'last_name') required String lastName,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
-    @JsonKey(name: 'average_rating') required double averageRating,
+    @StringToDoubleConverter()
+    @JsonKey(name: 'average_rating')
+    @Default(0.0)
+    double averageRating,
   }) = _MasterPreviewInSearch;
 
   factory MasterPreviewInSearch.fromJson(Map<String, dynamic> json) =>
@@ -43,7 +47,7 @@ class ServiceSearchResultModel with _$ServiceSearchResultModel {
     required String id,
     required String name,
     String? description,
-    required double price,
+    @StringToDoubleConverter() @Default(0.0) double price,
     @JsonKey(name: 'duration_minutes') required int durationMinutes,
     @JsonKey(name: 'category_name') String? categoryName,
     @Default([]) List<String> tags,

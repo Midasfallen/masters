@@ -83,7 +83,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     try {
       setState(() => _isLoading = true);
-      await ref.read(userNotifierProvider.notifier).uploadAvatar(image.path);
+      // Байты вместо пути: MultipartFile.fromFile не работает во Flutter web.
+      final bytes = await image.readAsBytes();
+      await ref
+          .read(userNotifierProvider.notifier)
+          .uploadAvatar(bytes, image.name);
 
       ref.invalidate(currentUserProfileProvider);
       ref.invalidate(authNotifierProvider);

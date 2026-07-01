@@ -487,7 +487,9 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
       ),
       floatingActionButton: currentMode == BookingMode.client
           ? FloatingActionButton.extended(
-              onPressed: () => context.push('/search'),
+              // Открываем экран выбора мастера (те, к кому уже записывались /
+              // с кем переписывались). Экран внутри ведёт в поиск, если пусто.
+              onPressed: () => context.push('/select-master'),
               icon: const Icon(Icons.add),
               label: const Text('Новая запись'),
             )

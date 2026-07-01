@@ -7,6 +7,7 @@ import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:service_platform/core/models/api/booking_model.dart' as _i2;
+import 'package:service_platform/core/models/api/chat_model.dart' as _i5;
 import 'package:service_platform/core/repositories/booking_repository.dart'
     as _i3;
 
@@ -80,6 +81,16 @@ class MockBookingRepository extends _i1.Mock implements _i3.BookingRepository {
         returnValue:
             _i4.Future<List<_i2.BookingModel>>.value(<_i2.BookingModel>[]),
       ) as _i4.Future<List<_i2.BookingModel>>);
+
+  @override
+  _i4.Future<List<_i5.ChatUserModel>> getMyMasters() => (super.noSuchMethod(
+        Invocation.method(
+          #getMyMasters,
+          [],
+        ),
+        returnValue:
+            _i4.Future<List<_i5.ChatUserModel>>.value(<_i5.ChatUserModel>[]),
+      ) as _i4.Future<List<_i5.ChatUserModel>>);
 
   @override
   _i4.Future<_i2.BookingModel> getBookingById(String? id) =>

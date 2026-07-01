@@ -113,8 +113,10 @@ _$MasterSearchResultModelImpl _$$MasterSearchResultModelImplFromJson(
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,
       avatarUrl: json['avatar_url'] as String?,
-      averageRating: (json['average_rating'] as num).toDouble(),
-      reviewsCount: (json['reviews_count'] as num).toInt(),
+      averageRating: json['average_rating'] == null
+          ? 0.0
+          : const StringToDoubleConverter().fromJson(json['average_rating']),
+      reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
       categoryNames: (json['category_names'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -124,7 +126,8 @@ _$MasterSearchResultModelImpl _$$MasterSearchResultModelImplFromJson(
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
       locationAddress: json['location_address'] as String?,
-      distanceKm: (json['distance_km'] as num?)?.toDouble(),
+      distanceKm:
+          const NullableStringToDoubleConverter().fromJson(json['distance_km']),
     );
 
 Map<String, dynamic> _$$MasterSearchResultModelImplToJson(
@@ -134,13 +137,15 @@ Map<String, dynamic> _$$MasterSearchResultModelImplToJson(
       'first_name': instance.firstName,
       'last_name': instance.lastName,
       'avatar_url': instance.avatarUrl,
-      'average_rating': instance.averageRating,
+      'average_rating':
+          const StringToDoubleConverter().toJson(instance.averageRating),
       'reviews_count': instance.reviewsCount,
       'category_names': instance.categoryNames,
       'description': instance.description,
       'tags': instance.tags,
       'location_address': instance.locationAddress,
-      'distance_km': instance.distanceKm,
+      'distance_km':
+          const NullableStringToDoubleConverter().toJson(instance.distanceKm),
     };
 
 _$CreateMasterProfileRequestImpl _$$CreateMasterProfileRequestImplFromJson(

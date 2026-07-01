@@ -58,9 +58,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     if (image == null) return;
 
     try {
+      // Читаем байты (кроссплатформенно: на web image.path — blob-URL,
+      // а MultipartFile.fromFile там не работает).
+      final bytes = await image.readAsBytes();
       await ref
           .read(userNotifierProvider.notifier)
-          .uploadAvatar(image.path);
+          .uploadAvatar(bytes, image.name);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
