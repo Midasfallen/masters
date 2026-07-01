@@ -77,7 +77,6 @@ const _$BookingStatusEnumMap = {
 _$CreateBookingRequestImpl _$$CreateBookingRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateBookingRequestImpl(
-      masterId: json['master_id'] as String,
       serviceId: json['service_id'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       comment: json['comment'] as String?,
@@ -90,7 +89,6 @@ _$CreateBookingRequestImpl _$$CreateBookingRequestImplFromJson(
 Map<String, dynamic> _$$CreateBookingRequestImplToJson(
         _$CreateBookingRequestImpl instance) =>
     <String, dynamic>{
-      'master_id': instance.masterId,
       'service_id': instance.serviceId,
       'start_time': instance.startTime.toIso8601String(),
       'comment': instance.comment,

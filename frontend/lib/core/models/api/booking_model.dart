@@ -53,7 +53,8 @@ class BookingModel with _$BookingModel {
 @freezed
 class CreateBookingRequest with _$CreateBookingRequest {
   const factory CreateBookingRequest({
-    @JsonKey(name: 'master_id') required String masterId,
+    // master_id НЕ отправляется: backend определяет мастера по service_id.
+    // ValidationPipe с forbidNonWhitelisted отклонит лишнее поле (400).
     @JsonKey(name: 'service_id') required String serviceId,
     @JsonKey(name: 'start_time') required DateTime startTime,
     String? comment,

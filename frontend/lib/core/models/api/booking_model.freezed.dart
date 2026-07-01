@@ -686,8 +686,8 @@ CreateBookingRequest _$CreateBookingRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CreateBookingRequest {
-  @JsonKey(name: 'master_id')
-  String get masterId => throw _privateConstructorUsedError;
+// master_id НЕ отправляется: backend определяет мастера по service_id.
+// ValidationPipe с forbidNonWhitelisted отклонит лишнее поле (400).
   @JsonKey(name: 'service_id')
   String get serviceId => throw _privateConstructorUsedError;
   @JsonKey(name: 'start_time')
@@ -719,8 +719,7 @@ abstract class $CreateBookingRequestCopyWith<$Res> {
       _$CreateBookingRequestCopyWithImpl<$Res, CreateBookingRequest>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'service_id') String serviceId,
+      {@JsonKey(name: 'service_id') String serviceId,
       @JsonKey(name: 'start_time') DateTime startTime,
       String? comment,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -745,7 +744,6 @@ class _$CreateBookingRequestCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? masterId = null,
     Object? serviceId = null,
     Object? startTime = null,
     Object? comment = freezed,
@@ -755,10 +753,6 @@ class _$CreateBookingRequestCopyWithImpl<$Res,
     Object? locationType = freezed,
   }) {
     return _then(_value.copyWith(
-      masterId: null == masterId
-          ? _value.masterId
-          : masterId // ignore: cast_nullable_to_non_nullable
-              as String,
       serviceId: null == serviceId
           ? _value.serviceId
           : serviceId // ignore: cast_nullable_to_non_nullable
@@ -800,8 +794,7 @@ abstract class _$$CreateBookingRequestImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'master_id') String masterId,
-      @JsonKey(name: 'service_id') String serviceId,
+      {@JsonKey(name: 'service_id') String serviceId,
       @JsonKey(name: 'start_time') DateTime startTime,
       String? comment,
       @JsonKey(name: 'location_address') String? locationAddress,
@@ -823,7 +816,6 @@ class __$$CreateBookingRequestImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? masterId = null,
     Object? serviceId = null,
     Object? startTime = null,
     Object? comment = freezed,
@@ -833,10 +825,6 @@ class __$$CreateBookingRequestImplCopyWithImpl<$Res>
     Object? locationType = freezed,
   }) {
     return _then(_$CreateBookingRequestImpl(
-      masterId: null == masterId
-          ? _value.masterId
-          : masterId // ignore: cast_nullable_to_non_nullable
-              as String,
       serviceId: null == serviceId
           ? _value.serviceId
           : serviceId // ignore: cast_nullable_to_non_nullable
@@ -873,8 +861,7 @@ class __$$CreateBookingRequestImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreateBookingRequestImpl implements _CreateBookingRequest {
   const _$CreateBookingRequestImpl(
-      {@JsonKey(name: 'master_id') required this.masterId,
-      @JsonKey(name: 'service_id') required this.serviceId,
+      {@JsonKey(name: 'service_id') required this.serviceId,
       @JsonKey(name: 'start_time') required this.startTime,
       this.comment,
       @JsonKey(name: 'location_address') this.locationAddress,
@@ -885,9 +872,8 @@ class _$CreateBookingRequestImpl implements _CreateBookingRequest {
   factory _$CreateBookingRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateBookingRequestImplFromJson(json);
 
-  @override
-  @JsonKey(name: 'master_id')
-  final String masterId;
+// master_id НЕ отправляется: backend определяет мастера по service_id.
+// ValidationPipe с forbidNonWhitelisted отклонит лишнее поле (400).
   @override
   @JsonKey(name: 'service_id')
   final String serviceId;
@@ -911,7 +897,7 @@ class _$CreateBookingRequestImpl implements _CreateBookingRequest {
 
   @override
   String toString() {
-    return 'CreateBookingRequest(masterId: $masterId, serviceId: $serviceId, startTime: $startTime, comment: $comment, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, locationType: $locationType)';
+    return 'CreateBookingRequest(serviceId: $serviceId, startTime: $startTime, comment: $comment, locationAddress: $locationAddress, locationLat: $locationLat, locationLng: $locationLng, locationType: $locationType)';
   }
 
   @override
@@ -919,8 +905,6 @@ class _$CreateBookingRequestImpl implements _CreateBookingRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateBookingRequestImpl &&
-            (identical(other.masterId, masterId) ||
-                other.masterId == masterId) &&
             (identical(other.serviceId, serviceId) ||
                 other.serviceId == serviceId) &&
             (identical(other.startTime, startTime) ||
@@ -938,8 +922,8 @@ class _$CreateBookingRequestImpl implements _CreateBookingRequest {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, masterId, serviceId, startTime,
-      comment, locationAddress, locationLat, locationLng, locationType);
+  int get hashCode => Object.hash(runtimeType, serviceId, startTime, comment,
+      locationAddress, locationLat, locationLng, locationType);
 
   /// Create a copy of CreateBookingRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -961,8 +945,7 @@ class _$CreateBookingRequestImpl implements _CreateBookingRequest {
 
 abstract class _CreateBookingRequest implements CreateBookingRequest {
   const factory _CreateBookingRequest(
-          {@JsonKey(name: 'master_id') required final String masterId,
-          @JsonKey(name: 'service_id') required final String serviceId,
+          {@JsonKey(name: 'service_id') required final String serviceId,
           @JsonKey(name: 'start_time') required final DateTime startTime,
           final String? comment,
           @JsonKey(name: 'location_address') final String? locationAddress,
@@ -974,9 +957,8 @@ abstract class _CreateBookingRequest implements CreateBookingRequest {
   factory _CreateBookingRequest.fromJson(Map<String, dynamic> json) =
       _$CreateBookingRequestImpl.fromJson;
 
-  @override
-  @JsonKey(name: 'master_id')
-  String get masterId;
+// master_id НЕ отправляется: backend определяет мастера по service_id.
+// ValidationPipe с forbidNonWhitelisted отклонит лишнее поле (400).
   @override
   @JsonKey(name: 'service_id')
   String get serviceId;
