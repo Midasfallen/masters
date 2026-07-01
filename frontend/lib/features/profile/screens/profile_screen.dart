@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/models/api/post_model.dart';
-import '../../../core/models/favorite.dart';
+import '../../../core/models/api/service_model.dart';
 import '../../../core/providers/api/auth_provider.dart';
 import '../../../core/providers/api/feed_provider.dart';
+import '../../../core/providers/api/masters_provider.dart';
 import '../../../core/providers/api/user_provider.dart';
-import '../../../core/providers/favorites_provider.dart';
 import '../../feed/widgets/post_card.dart';
 
 /// Profile Posts Providers для infinite scroll с autoDispose
@@ -319,8 +319,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                             text: 'Посты',
                           ),
                           Tab(
-                            icon: Icon(Icons.bookmark_border),
-                            text: 'Сохраненное',
+                            icon: Icon(Icons.work_outline),
+                            text: 'Мои услуги',
                           ),
                         ],
                       ),
@@ -334,8 +334,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               children: [
                 // Posts tab
                 _buildPostsTab(user.id),
-                // Saved tab
-                _buildSavedTab(),
+                // My services tab
+                _buildServicesTab(user.id, user.isMaster),
               ],
             ),
           );
@@ -602,21 +602,42 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     }
   }
 
-  Widget _buildSavedTab() {
-    final favoritesAsync = ref.watch(
-      favoritesListProvider(entityType: FavoriteEntityType.post),
-    );
+  /// Таб «Мои услуги» — список услуг мастера.
+  Widget _buildServicesTab(String userId, bool isMaster) {
+    if (!isMaster) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.work_outline, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                'Вы ещё не мастер',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Станьте мастером, чтобы добавлять услуги',
+                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-    return favoritesAsync.when(
-      data: (favorites) {
-        // Фильтруем только посты с entity данными
-        final savedPosts = favorites
-            .where((f) => f.entity != null)
-            .toList();
+    final servicesAsync = ref.watch(masterServicesProvider(userId));
 
-        if (savedPosts.isEmpty) {
+    return servicesAsync.when(
+      data: (services) {
+        final active = services.where((s) => s.isActive).toList();
+        if (active.isEmpty) {
           return RefreshIndicator(
-            onRefresh: _handleSavedRefresh,
+            onRefresh: () async =>
+                ref.invalidate(masterServicesProvider(userId)),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: SizedBox(
@@ -625,26 +646,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.bookmark_border,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
+                      Icon(Icons.work_outline,
+                          size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
                       Text(
-                        'Нет сохраненных постов',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
+                        'Нет услуг',
+                        style:
+                            TextStyle(fontSize: 16, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Сохраняйте понравившиеся посты',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[500],
-                        ),
+                        'Добавьте услуги, которые вы предоставляете',
+                        style:
+                            TextStyle(fontSize: 14, color: Colors.grey[500]),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -655,44 +670,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         }
 
         return RefreshIndicator(
-          onRefresh: _handleSavedRefresh,
-          child: GridView.builder(
+          onRefresh: () async =>
+              ref.invalidate(masterServicesProvider(userId)),
+          child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(4),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
-              childAspectRatio: 1.0,
-            ),
-            itemCount: savedPosts.length,
-            itemBuilder: (context, index) {
-              final favorite = savedPosts[index];
-              final postData = favorite.entity as Map<String, dynamic>?;
-
-              if (postData == null) {
-                return const SizedBox.shrink();
-              }
-
-              // Преобразуем entity в PostModel
-              try {
-                final post = PostModel.fromJson(postData);
-                return PostCard(post: post);
-              } catch (e) {
-                // Если не удалось распарсить, показываем placeholder
-                return GestureDetector(
-                  onTap: () {
-                    context.push('/post/${favorite.entityId}');
-                  },
-                  child: Container(
-                    color: Colors.grey[300],
-                    child: const Center(
-                      child: Icon(Icons.image, color: Colors.grey),
-                    ),
-                  ),
-                );
-              }
-            },
+            padding: const EdgeInsets.all(12),
+            itemCount: active.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) => _buildServiceItem(active[index]),
           ),
         );
       },
@@ -701,31 +686,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.cloud_off,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Не удалось загрузить сохранённые',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-              ),
-              textAlign: TextAlign.center,
+              'Не удалось загрузить услуги',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: _handleSavedRefresh,
+              onPressed: () => ref.invalidate(masterServicesProvider(userId)),
               icon: const Icon(Icons.refresh),
               label: const Text('Повторить'),
             ),
@@ -735,9 +704,70 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  /// Pull-to-refresh handler for saved posts
-  Future<void> _handleSavedRefresh() async {
-    ref.invalidate(favoritesListProvider(entityType: FavoriteEntityType.post));
+  Widget _buildServiceItem(ServiceModel service) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    service.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${service.price.toStringAsFixed(0)} ₽',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            if (service.description != null &&
+                service.description!.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                service.description!,
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Text(
+                  '${service.durationMinutes} мин',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                ),
+                if (service.averageRating > 0) ...[
+                  const SizedBox(width: 16),
+                  Icon(Icons.star, size: 16, color: Colors.amber[700]),
+                  const SizedBox(width: 4),
+                  Text(
+                    service.averageRating.toStringAsFixed(1),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showSettingsSheet(BuildContext context) {
@@ -764,14 +794,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 onTap: () {
                   Navigator.pop(context);
                   context.push('/notifications');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.bookmark_outline),
-                title: const Text('Сохраненное'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _tabController.animateTo(1);
                 },
               ),
               ListTile(
