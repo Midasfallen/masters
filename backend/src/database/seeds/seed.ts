@@ -414,7 +414,8 @@ async function seed() {
 
       // Используем данные из шаблона с возможностью переопределения
       const service = serviceRepository.create({
-        master_id: profile.id,
+        // master_id ссылается на users.id (см. CLAUDE.md), а не на master_profiles.id
+        master_id: profile.user_id,
         category_id: template.category_id, // Level 1 категория из шаблона
         service_template_id: template.id, // Ссылка на шаблон
         subcategory_id: null, // Больше не используется
@@ -460,9 +461,8 @@ async function seed() {
   for (let i = 0; i < 15; i++) {
     const client = users[i % 5]; // Regular users
     const service = faker.helpers.arrayElement(services);
-    const master = masterUsers.find(
-      (u) => masterProfiles.find((p) => p.id === service.master_id)?.user_id === u.id,
-    );
+    // service.master_id теперь = users.id, поэтому ищем мастера напрямую
+    const master = masterUsers.find((u) => u.id === service.master_id);
 
     if (!master) continue;
 
@@ -578,7 +578,7 @@ async function seed() {
     const postCategoryIds = new Set<string>();
     
     if (authorProfile) {
-      const masterServices = services.filter(s => s.master_id === authorProfile.id);
+      const masterServices = services.filter(s => s.master_id === authorProfile.user_id);
       if (masterServices.length > 0) {
         // Связываем пост с 1-3 услугами мастера
         const selectedServices = faker.helpers.arrayElements(masterServices, { 

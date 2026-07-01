@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCategoryIdsToPosts20260202021329 implements MigrationInterface {
+export class AddCategoryIdsToPosts1770800000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Добавить поле category_ids (массив UUID) в posts
     await queryRunner.query(`

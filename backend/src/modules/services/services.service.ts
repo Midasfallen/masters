@@ -171,9 +171,19 @@ export class ServicesService {
     masterId: string,
     filterDto: FilterServicesDto,
   ): Promise<PaginatedResponseDto<ServiceResponseDto>> {
+    // services.master_id ссылается на users.id (см. CLAUDE.md). Но фронт может передать
+    // как user_id, так и master_profiles.id — резолвим profile.id → user_id.
+    let resolvedMasterId = masterId;
+    const profile = await this.masterProfileRepository.findOne({
+      where: { id: masterId },
+    });
+    if (profile) {
+      resolvedMasterId = profile.user_id;
+    }
+
     const query = this.serviceRepository.createQueryBuilder('service');
 
-    query.where('service.master_id = :masterId', { masterId });
+    query.where('service.master_id = :masterId', { masterId: resolvedMasterId });
 
     // Фильтры
     if (filterDto.category_id) {
