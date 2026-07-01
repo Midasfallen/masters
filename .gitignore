@@ -21,6 +21,12 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.production
+!.env.prod.example
+
+# TLS-сертификаты и приватные ключи nginx
+docker/nginx/ssl/
 
 # Logs
 logs/

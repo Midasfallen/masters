@@ -66,7 +66,7 @@ services:
 
   # MinIO (S3-compatible storage) for media files
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     container_name: service_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -88,7 +88,7 @@ services:
 
   # Create MinIO buckets on startup
   minio_createbuckets:
-    image: minio/mc:latest
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
     container_name: service_minio_setup
     depends_on:
       - minio
