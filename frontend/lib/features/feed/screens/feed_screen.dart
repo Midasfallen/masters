@@ -153,7 +153,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
     await _loadFeed(refresh: true);
   }
 
-  void _onSearchTap() => context.push('/search');
   void _onNotificationsTap() => context.push('/notifications');
   void _onCreatePostTap() => context.push('/create-post');
 
@@ -203,10 +202,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _onSearchTap,
-          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: _onNotificationsTap,

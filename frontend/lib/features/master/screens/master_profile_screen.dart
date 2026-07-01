@@ -10,6 +10,7 @@ import '../../../core/providers/api/bookings_provider.dart';
 import '../../../core/providers/api/masters_provider.dart';
 import '../../../core/providers/api/feed_provider.dart';
 import '../../../core/providers/api/user_provider.dart';
+import '../../../core/providers/api/chats_provider.dart';
 import '../../../core/models/api/booking_model.dart';
 import '../../../core/models/api/master_model.dart';
 import '../../../core/models/api/service_model.dart';
@@ -389,11 +390,7 @@ class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Открыть чат')),
-                    );
-                  },
+                  onPressed: () => _openChat(master.userId),
                   icon: const Icon(Icons.chat_outlined),
                   label: const Text('Написать'),
                   style: OutlinedButton.styleFrom(
@@ -675,6 +672,30 @@ class _MasterProfileScreenState extends ConsumerState<MasterProfileScreen>
     );
   }
 
+  /// Открыть (или создать) чат с мастером и перейти в него.
+  Future<void> _openChat(String userId) async {
+    // Индикатор загрузки на время создания чата
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final chat =
+          await ref.read(chatNotifierProvider.notifier).createChat(userId);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // закрыть индикатор
+      context.push('/chat/${chat.id}');
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // закрыть индикатор
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Не удалось открыть чат: ${e.toString()}')),
+      );
+    }
+  }
+
   void _showBookingDialog(
       BuildContext context, MasterProfileModel master, ServiceModel? service) {
     showModalBottomSheet(
@@ -743,7 +764,6 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
       // Создаем запрос на бронирование
       final request = CreateBookingRequest(
         serviceId: _selectedService!.id,
-        masterId: widget.master.id,
         startTime: startDateTime,
         comment: null,
       );
@@ -760,7 +780,8 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
             ),
           ),
         );
-        context.go('/bookings');
+        // Роута /bookings нет — «Записи» это таб в MainNavigationScreen.
+        // После создания остаёмся на профиле мастера с подтверждением (snackbar).
       }
     } on UnreviewedBookingsException {
       // Получаем неотзывленные бронирования
@@ -779,7 +800,9 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
               // Перенаправляем на экран оставления отзывов
               if (mounted) {
                 Navigator.pop(context);
-                context.go('/bookings?tab=history');
+                // Роута /bookings нет — возвращаемся на главный экран (таб «Записи»
+                // доступен в нижней навигации MainNavigationScreen).
+                context.go('/');
               }
               break;
             case ReviewReminderAction.skip:
