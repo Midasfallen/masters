@@ -755,11 +755,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 title: const Text('Редактировать профиль'),
                 onTap: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Редактирование профиля (в разработке)'),
-                    ),
-                  );
+                  context.push('/edit-profile');
                 },
               ),
               ListTile(
@@ -783,11 +779,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 title: const Text('Настройки'),
                 onTap: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Настройки (в разработке)'),
-                    ),
-                  );
+                  context.push('/settings');
                 },
               ),
               const Divider(),
