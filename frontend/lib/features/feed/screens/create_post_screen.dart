@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:service_platform/core/providers/api/feed_provider.dart';
+import 'package:service_platform/core/providers/api/chats_provider.dart';
+import 'package:service_platform/core/providers/api/subscriptions_provider.dart';
 import 'package:service_platform/core/models/api/post_model.dart';
+import 'package:service_platform/core/models/api/user_model.dart';
 import 'package:service_platform/core/widgets/app_image_preview.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
@@ -24,8 +30,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
   // Step 2: Content
   final TextEditingController _contentController = TextEditingController();
-  final List<String> _tags = [];
-  final TextEditingController _tagController = TextEditingController();
+
+  // Отмеченные (tagged) пользователи
+  final List<UserModel> _taggedUsers = [];
 
   bool _isLoading = false;
 
@@ -55,7 +62,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   void dispose() {
     _pageController.dispose();
     _contentController.dispose();
-    _tagController.dispose();
     super.dispose();
   }
 
@@ -111,22 +117,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   void _removeMedia(int index) {
     setState(() {
       _selectedMedia.removeAt(index);
-    });
-  }
-
-  void _addTag() {
-    final tag = _tagController.text.trim();
-    if (tag.isNotEmpty && !_tags.contains(tag)) {
-      setState(() {
-        _tags.add(tag);
-        _tagController.clear();
-      });
-    }
-  }
-
-  void _removeTag(String tag) {
-    setState(() {
-      _tags.remove(tag);
     });
   }
 
@@ -205,6 +195,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         type: postType,
         content: content.isEmpty ? null : content,
         media: mediaList.isNotEmpty ? mediaList : null,
+        taggedUserIds:
+            _taggedUsers.isNotEmpty ? _taggedUsers.map((u) => u.id).toList() : null,
         // tags убраны - бэкенд их не принимает
       );
 
@@ -463,58 +455,53 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             maxLines: 6,
             maxLength: 2000,
             decoration: InputDecoration(
-              hintText:
-                  'Напишите описание...\n\nИспользуйте #хештеги и @упоминания',
+              hintText: 'Напишите описание...',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
+
           const SizedBox(height: 24),
 
-          // Tags
+          // Отметить людей
           const Text(
-            'Хештеги',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            'Отметить людей',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _tagController,
-                  decoration: InputDecoration(
-                    hintText: 'Добавить хештег',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    prefixText: '#',
-                  ),
-                  onSubmitted: (_) => _addTag(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: _addTag,
-                icon: const Icon(Icons.add_circle),
-                color: Theme.of(context).primaryColor,
-              ),
-            ],
+          OutlinedButton.icon(
+            onPressed: _openTagUsersSheet,
+            icon: const Icon(Icons.person_add_alt),
+            label: Text(
+              _taggedUsers.isEmpty
+                  ? 'Добавить пользователей'
+                  : 'Отмечено: ${_taggedUsers.length}',
+            ),
           ),
           const SizedBox(height: 12),
-
-          // Tags list
-          if (_tags.isNotEmpty)
+          if (_taggedUsers.isNotEmpty)
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _tags.map((tag) {
+              children: _taggedUsers.map((user) {
                 return Chip(
-                  label: Text('#$tag'),
-                  onDeleted: () => _removeTag(tag),
+                  avatar: CircleAvatar(
+                    backgroundImage: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                        ? CachedNetworkImageProvider(user.avatarUrl!)
+                        : null,
+                    child: (user.avatarUrl == null || user.avatarUrl!.isEmpty)
+                        ? Text(
+                            user.firstName.isNotEmpty
+                                ? user.firstName[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(fontSize: 12),
+                          )
+                        : null,
+                  ),
+                  label: Text('${user.firstName} ${user.lastName}'),
+                  onDeleted: () =>
+                      setState(() => _taggedUsers.removeWhere((u) => u.id == user.id)),
                   deleteIcon: const Icon(Icons.close, size: 16),
                 );
               }).toList(),
@@ -522,6 +509,25 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openTagUsersSheet() async {
+    final result = await showModalBottomSheet<List<UserModel>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => _TagUsersSheet(initialSelected: _taggedUsers),
+    );
+    if (result != null) {
+      setState(() {
+        _taggedUsers
+          ..clear()
+          ..addAll(result);
+      });
+    }
   }
 
   Widget _buildReviewStep() {
@@ -572,27 +578,293 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Tags
-          if (_tags.isNotEmpty)
+          // Отмеченные пользователи
+          if (_taggedUsers.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.person_pin, size: 18, color: Colors.grey[700]),
+                const SizedBox(width: 4),
+                Text(
+                  'Отмечены:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _tags.map((tag) {
+              children: _taggedUsers.map((user) {
                 return Chip(
-                  label: Text(
-                    '#$tag',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  avatar: CircleAvatar(
+                    backgroundImage:
+                        (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                            ? CachedNetworkImageProvider(user.avatarUrl!)
+                            : null,
+                    child: (user.avatarUrl == null || user.avatarUrl!.isEmpty)
+                        ? Text(
+                            user.firstName.isNotEmpty
+                                ? user.firstName[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(fontSize: 12),
+                          )
+                        : null,
                   ),
-                  backgroundColor:
-                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  label: Text('${user.firstName} ${user.lastName}'),
                 );
               }).toList(),
             ),
+          ],
         ],
       ),
+    );
+  }
+}
+
+/// Bottom-sheet мультивыбора пользователей для отметки в посте.
+/// Переиспользует поиск пользователей (Meilisearch) из чатов.
+class _TagUsersSheet extends ConsumerStatefulWidget {
+  final List<UserModel> initialSelected;
+
+  const _TagUsersSheet({required this.initialSelected});
+
+  @override
+  ConsumerState<_TagUsersSheet> createState() => _TagUsersSheetState();
+}
+
+class _TagUsersSheetState extends ConsumerState<_TagUsersSheet> {
+  final Map<String, UserModel> _selected = {};
+  String _debouncedQuery = '';
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final u in widget.initialSelected) {
+      _selected[u.id] = u;
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) setState(() => _debouncedQuery = value.trim());
+    });
+  }
+
+  void _toggle(UserModel user) {
+    setState(() {
+      if (_selected.containsKey(user.id)) {
+        _selected.remove(user.id);
+      } else {
+        _selected[user.id] = user;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) => Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Отметить людей',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Введите имя пользователя...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                  ),
+                  onChanged: _onSearchChanged,
+                ),
+              ],
+            ),
+          ),
+          Expanded(child: _buildContent(scrollController)),
+          // Закреплённая кнопка «Добавить»
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () =>
+                      Navigator.pop(context, _selected.values.toList()),
+                  child: Text(
+                    _selected.isEmpty
+                        ? 'Готово'
+                        : 'Добавить (${_selected.length})',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(ScrollController scrollController) {
+    if (_debouncedQuery.isEmpty) {
+      // Без поискового запроса — показываем подписки пользователя.
+      // Уже выбранные (в т.ч. найденные ранее) выводим сверху.
+      final subsAsync = ref.watch(mySubscriptionsListProvider());
+      return subsAsync.when(
+        data: (subs) {
+          // Объединяем: сначала выбранные, затем подписки (без дублей)
+          final Map<String, UserModel> combined = {
+            for (final u in _selected.values) u.id: u,
+          };
+          for (final u in subs) {
+            combined.putIfAbsent(u.id, () => u);
+          }
+          final list = combined.values.toList();
+
+          if (list.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_search, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Введите имя пользователя',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView(
+            controller: scrollController,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                child: Text(
+                  'Мои подписки',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+              ...list.map(
+                (u) => _buildTile(u, selected: _selected.containsKey(u.id)),
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        // Если подписки не загрузились — не блокируем поиск, показываем выбранных
+        error: (_, __) => ListView(
+          controller: scrollController,
+          children: _selected.values
+              .map((u) => _buildTile(u, selected: true))
+              .toList(),
+        ),
+      );
+    }
+
+    final usersAsync = ref.watch(searchUsersForChatProvider(_debouncedQuery));
+    return usersAsync.when(
+      data: (users) {
+        if (users.isEmpty) {
+          return Center(
+            child: Text('Никого не найдено',
+                style: TextStyle(color: Colors.grey[600])),
+          );
+        }
+        return ListView.builder(
+          controller: scrollController,
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            final user = users[index];
+            return _buildTile(user, selected: _selected.containsKey(user.id));
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) =>
+          Center(child: Text('Ошибка: ${error.toString()}')),
+    );
+  }
+
+  Widget _buildTile(UserModel user, {required bool selected}) {
+    return ListTile(
+      leading: CircleAvatar(
+        radius: 24,
+        backgroundColor: Colors.grey[300],
+        backgroundImage: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+            ? CachedNetworkImageProvider(user.avatarUrl!)
+            : null,
+        child: (user.avatarUrl == null || user.avatarUrl!.isEmpty)
+            ? Text(
+                user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : '?',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              )
+            : null,
+      ),
+      title: Text('${user.firstName} ${user.lastName}',
+          style: const TextStyle(fontWeight: FontWeight.w500)),
+      subtitle: user.isMaster
+          ? Row(
+              children: [
+                Icon(Icons.verified, size: 14, color: Colors.blue[600]),
+                const SizedBox(width: 4),
+                Text('Мастер', style: TextStyle(color: Colors.blue[600])),
+              ],
+            )
+          : null,
+      trailing: Icon(
+        selected ? Icons.check_circle : Icons.radio_button_unchecked,
+        color: selected ? Theme.of(context).primaryColor : Colors.grey,
+      ),
+      onTap: () => _toggle(user),
     );
   }
 }

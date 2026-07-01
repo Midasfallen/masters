@@ -128,4 +128,14 @@ export class CreatePostDto {
   @IsString()
   @MaxLength(255)
   custom_service_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID отмеченных (tagged) пользователей на посте',
+    type: [String],
+    example: ['uuid-user-1', 'uuid-user-2']
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  tagged_user_ids?: string[];
 }

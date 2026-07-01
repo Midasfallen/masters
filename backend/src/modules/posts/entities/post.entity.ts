@@ -108,6 +108,15 @@ export class Post {
   @Index()
   category_ids: string[];
 
+  @ApiProperty({
+    description: 'ID отмеченных (tagged) пользователей на посте',
+    type: [String],
+    nullable: true,
+  })
+  @Column({ type: 'uuid', array: true, default: () => "'{}'" })
+  @Index()
+  tagged_user_ids: string[];
+
   // location_geography не добавляем в Entity, т.к. TypeORM не поддерживает geography напрямую
   // Работаем с ним через raw SQL в сервисе
 

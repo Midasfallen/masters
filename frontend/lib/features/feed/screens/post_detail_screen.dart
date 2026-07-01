@@ -611,6 +611,37 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
+                // Отмеченные пользователи
+                if (post.taggedUsers.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_pin, size: 16, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6,
+                          children: post.taggedUsers.map((u) {
+                            return GestureDetector(
+                              onTap: () => context.pushNamed(
+                                'masterProfile',
+                                pathParameters: {'id': u.id},
+                              ),
+                              child: Text(
+                                '${u.firstName} ${u.lastName}',
+                                style: const TextStyle(
+                                  color: Colors.lightBlueAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // CTA buttons

@@ -18,6 +18,7 @@ import { Subscription } from '../friends/entities/subscription.entity';
 import { PostsMapper } from './posts.mapper';
 import { Service } from '../services/entities/service.entity';
 import { Category } from '../categories/entities/category.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -32,6 +33,8 @@ export class PostsService {
     private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Friendship)
     private readonly friendshipRepository: Repository<Friendship>,
     @InjectRepository(Subscription)
@@ -128,6 +131,16 @@ export class PostsService {
         await manager.save(PostService, postServices);
       }
 
+      // Нормализация tagged_user_ids: оставляем только реально существующих пользователей
+      if (createPostDto.tagged_user_ids && createPostDto.tagged_user_ids.length > 0) {
+        const existing = await manager.find(User, {
+          where: { id: In(createPostDto.tagged_user_ids) },
+          select: ['id'],
+        });
+        const validIds = existing.map((u) => u.id);
+        await manager.update(Post, savedPost.id, { tagged_user_ids: validIds });
+      }
+
       // Обновление счетчика репостов для оригинального поста (выполняется вне транзакции,
       // т.к. это обновление другого поста и не критично для атомарности создания текущего поста)
       // Но для консистентности лучше выполнить в транзакции
@@ -152,6 +165,8 @@ export class PostsService {
 
       // Для только что созданного поста текущий пользователь всегда лайкнул = false
       (fullPost as any).isLiked = false;
+
+      await this.attachTaggedUsers([fullPost]);
 
       return PostsMapper.toDto(fullPost);
     });
@@ -306,6 +321,7 @@ export class PostsService {
 
     // Отмечаем посты, которые уже лайкнул текущий пользователь
     await this.markPostsLikedForUser(posts, userId);
+    await this.attachTaggedUsers(posts);
 
     // Вычисляем следующий курсор (created_at последнего поста)
     const nextCursor = posts.length > 0
@@ -348,6 +364,7 @@ export class PostsService {
 
     // Отмечаем посты, которые уже лайкнул текущий пользователь
     await this.markPostsLikedForUser(posts, userId);
+    await this.attachTaggedUsers(posts);
 
     return {
       data: PostsMapper.toDtoArray(posts),
@@ -400,6 +417,7 @@ export class PostsService {
 
     // Вычисляем, лайкнул ли текущий пользователь этот пост
     (post as any).isLiked = await this.isPostLikedByUser(post.id, userId);
+    await this.attachTaggedUsers([post]);
 
     return PostsMapper.toDto(post);
   }
@@ -556,5 +574,28 @@ export class PostsService {
   async incrementViews(id: string) {
     await this.postRepository.increment({ id }, 'views_count', 1);
     return { message: 'View registered' };
+  }
+
+  /**
+   * Подгружает отмеченных (tagged) пользователей в поле post.taggedUsers.
+   * Один запрос на весь набор постов, чтобы избежать N+1.
+   */
+  private async attachTaggedUsers(posts: Post[]): Promise<void> {
+    const allIds = Array.from(
+      new Set(posts.flatMap((p) => p.tagged_user_ids || [])),
+    );
+    if (allIds.length === 0) {
+      posts.forEach((p) => ((p as any).taggedUsers = []));
+      return;
+    }
+
+    const users = await this.userRepository.find({ where: { id: In(allIds) } });
+    const byId = new Map(users.map((u) => [u.id, u]));
+
+    posts.forEach((p) => {
+      (p as any).taggedUsers = (p.tagged_user_ids || [])
+        .map((uid) => byId.get(uid))
+        .filter(Boolean);
+    });
   }
 }

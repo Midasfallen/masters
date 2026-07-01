@@ -340,6 +340,7 @@ mixin _$PostModel {
   String? get customServiceName => throw _privateConstructorUsedError;
   bool get isPinned => throw _privateConstructorUsedError;
   bool get isArchived => throw _privateConstructorUsedError;
+  List<UserModel> get taggedUsers => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -380,6 +381,7 @@ abstract class $PostModelCopyWith<$Res> {
       @JsonKey(name: 'custom_service_name') String? customServiceName,
       bool isPinned,
       bool isArchived,
+      List<UserModel> taggedUsers,
       DateTime createdAt,
       DateTime updatedAt});
 
@@ -418,6 +420,7 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
     Object? customServiceName = freezed,
     Object? isPinned = null,
     Object? isArchived = null,
+    Object? taggedUsers = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -490,6 +493,10 @@ class _$PostModelCopyWithImpl<$Res, $Val extends PostModel>
           ? _value.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable
               as bool,
+      taggedUsers: null == taggedUsers
+          ? _value.taggedUsers
+          : taggedUsers // ignore: cast_nullable_to_non_nullable
+              as List<UserModel>,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -546,6 +553,7 @@ abstract class _$$PostModelImplCopyWith<$Res>
       @JsonKey(name: 'custom_service_name') String? customServiceName,
       bool isPinned,
       bool isArchived,
+      List<UserModel> taggedUsers,
       DateTime createdAt,
       DateTime updatedAt});
 
@@ -583,6 +591,7 @@ class __$$PostModelImplCopyWithImpl<$Res>
     Object? customServiceName = freezed,
     Object? isPinned = null,
     Object? isArchived = null,
+    Object? taggedUsers = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -655,6 +664,10 @@ class __$$PostModelImplCopyWithImpl<$Res>
           ? _value.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable
               as bool,
+      taggedUsers: null == taggedUsers
+          ? _value._taggedUsers
+          : taggedUsers // ignore: cast_nullable_to_non_nullable
+              as List<UserModel>,
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -692,10 +705,12 @@ class _$PostModelImpl implements _PostModel {
       @JsonKey(name: 'custom_service_name') this.customServiceName,
       this.isPinned = false,
       this.isArchived = false,
+      final List<UserModel> taggedUsers = const [],
       required this.createdAt,
       required this.updatedAt})
       : _media = media,
-        _tags = tags;
+        _tags = tags,
+        _taggedUsers = taggedUsers;
 
   factory _$PostModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostModelImplFromJson(json);
@@ -760,6 +775,15 @@ class _$PostModelImpl implements _PostModel {
   @override
   @JsonKey()
   final bool isArchived;
+  final List<UserModel> _taggedUsers;
+  @override
+  @JsonKey()
+  List<UserModel> get taggedUsers {
+    if (_taggedUsers is EqualUnmodifiableListView) return _taggedUsers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_taggedUsers);
+  }
+
   @override
   final DateTime createdAt;
   @override
@@ -767,7 +791,7 @@ class _$PostModelImpl implements _PostModel {
 
   @override
   String toString() {
-    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, media: $media, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, repostsCount: $repostsCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, customServiceName: $customServiceName, isPinned: $isPinned, isArchived: $isArchived, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostModel(id: $id, authorId: $authorId, author: $author, content: $content, media: $media, tags: $tags, likesCount: $likesCount, commentsCount: $commentsCount, sharesCount: $sharesCount, repostsCount: $repostsCount, isLiked: $isLiked, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, customServiceName: $customServiceName, isPinned: $isPinned, isArchived: $isArchived, taggedUsers: $taggedUsers, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -803,6 +827,8 @@ class _$PostModelImpl implements _PostModel {
                 other.isPinned == isPinned) &&
             (identical(other.isArchived, isArchived) ||
                 other.isArchived == isArchived) &&
+            const DeepCollectionEquality()
+                .equals(other._taggedUsers, _taggedUsers) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -830,6 +856,7 @@ class _$PostModelImpl implements _PostModel {
         customServiceName,
         isPinned,
         isArchived,
+        const DeepCollectionEquality().hash(_taggedUsers),
         createdAt,
         updatedAt
       ]);
@@ -873,6 +900,7 @@ abstract class _PostModel implements PostModel {
       @JsonKey(name: 'custom_service_name') final String? customServiceName,
       final bool isPinned,
       final bool isArchived,
+      final List<UserModel> taggedUsers,
       required final DateTime createdAt,
       required final DateTime updatedAt}) = _$PostModelImpl;
 
@@ -918,6 +946,8 @@ abstract class _PostModel implements PostModel {
   bool get isPinned;
   @override
   bool get isArchived;
+  @override
+  List<UserModel> get taggedUsers;
   @override
   DateTime get createdAt;
   @override
@@ -1230,6 +1260,8 @@ mixin _$CreatePostRequest {
   List<String>? get serviceIds => throw _privateConstructorUsedError;
   @JsonKey(name: 'custom_service_name')
   String? get customServiceName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tagged_user_ids')
+  List<String>? get taggedUserIds => throw _privateConstructorUsedError;
 
   /// Serializes this CreatePostRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1255,7 +1287,8 @@ abstract class $CreatePostRequestCopyWith<$Res> {
       @JsonKey(name: 'location_lat') double? locationLat,
       @JsonKey(name: 'location_lng') double? locationLng,
       @JsonKey(name: 'service_ids') List<String>? serviceIds,
-      @JsonKey(name: 'custom_service_name') String? customServiceName});
+      @JsonKey(name: 'custom_service_name') String? customServiceName,
+      @JsonKey(name: 'tagged_user_ids') List<String>? taggedUserIds});
 }
 
 /// @nodoc
@@ -1281,6 +1314,7 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
     Object? locationLng = freezed,
     Object? serviceIds = freezed,
     Object? customServiceName = freezed,
+    Object? taggedUserIds = freezed,
   }) {
     return _then(_value.copyWith(
       type: null == type
@@ -1315,6 +1349,10 @@ class _$CreatePostRequestCopyWithImpl<$Res, $Val extends CreatePostRequest>
           ? _value.customServiceName
           : customServiceName // ignore: cast_nullable_to_non_nullable
               as String?,
+      taggedUserIds: freezed == taggedUserIds
+          ? _value.taggedUserIds
+          : taggedUserIds // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ) as $Val);
   }
 }
@@ -1335,7 +1373,8 @@ abstract class _$$CreatePostRequestImplCopyWith<$Res>
       @JsonKey(name: 'location_lat') double? locationLat,
       @JsonKey(name: 'location_lng') double? locationLng,
       @JsonKey(name: 'service_ids') List<String>? serviceIds,
-      @JsonKey(name: 'custom_service_name') String? customServiceName});
+      @JsonKey(name: 'custom_service_name') String? customServiceName,
+      @JsonKey(name: 'tagged_user_ids') List<String>? taggedUserIds});
 }
 
 /// @nodoc
@@ -1359,6 +1398,7 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
     Object? locationLng = freezed,
     Object? serviceIds = freezed,
     Object? customServiceName = freezed,
+    Object? taggedUserIds = freezed,
   }) {
     return _then(_$CreatePostRequestImpl(
       type: null == type
@@ -1393,6 +1433,10 @@ class __$$CreatePostRequestImplCopyWithImpl<$Res>
           ? _value.customServiceName
           : customServiceName // ignore: cast_nullable_to_non_nullable
               as String?,
+      taggedUserIds: freezed == taggedUserIds
+          ? _value._taggedUserIds
+          : taggedUserIds // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -1408,9 +1452,11 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
       @JsonKey(name: 'location_lat') this.locationLat,
       @JsonKey(name: 'location_lng') this.locationLng,
       @JsonKey(name: 'service_ids') final List<String>? serviceIds,
-      @JsonKey(name: 'custom_service_name') this.customServiceName})
+      @JsonKey(name: 'custom_service_name') this.customServiceName,
+      @JsonKey(name: 'tagged_user_ids') final List<String>? taggedUserIds})
       : _media = media,
-        _serviceIds = serviceIds;
+        _serviceIds = serviceIds,
+        _taggedUserIds = taggedUserIds;
 
   factory _$CreatePostRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreatePostRequestImplFromJson(json);
@@ -1452,10 +1498,20 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
   @override
   @JsonKey(name: 'custom_service_name')
   final String? customServiceName;
+  final List<String>? _taggedUserIds;
+  @override
+  @JsonKey(name: 'tagged_user_ids')
+  List<String>? get taggedUserIds {
+    final value = _taggedUserIds;
+    if (value == null) return null;
+    if (_taggedUserIds is EqualUnmodifiableListView) return _taggedUserIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'CreatePostRequest(type: $type, content: $content, media: $media, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, serviceIds: $serviceIds, customServiceName: $customServiceName)';
+    return 'CreatePostRequest(type: $type, content: $content, media: $media, locationName: $locationName, locationLat: $locationLat, locationLng: $locationLng, serviceIds: $serviceIds, customServiceName: $customServiceName, taggedUserIds: $taggedUserIds)';
   }
 
   @override
@@ -1475,7 +1531,9 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
             const DeepCollectionEquality()
                 .equals(other._serviceIds, _serviceIds) &&
             (identical(other.customServiceName, customServiceName) ||
-                other.customServiceName == customServiceName));
+                other.customServiceName == customServiceName) &&
+            const DeepCollectionEquality()
+                .equals(other._taggedUserIds, _taggedUserIds));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1489,7 +1547,8 @@ class _$CreatePostRequestImpl implements _CreatePostRequest {
       locationLat,
       locationLng,
       const DeepCollectionEquality().hash(_serviceIds),
-      customServiceName);
+      customServiceName,
+      const DeepCollectionEquality().hash(_taggedUserIds));
 
   /// Create a copy of CreatePostRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -1517,8 +1576,9 @@ abstract class _CreatePostRequest implements CreatePostRequest {
       @JsonKey(name: 'location_lat') final double? locationLat,
       @JsonKey(name: 'location_lng') final double? locationLng,
       @JsonKey(name: 'service_ids') final List<String>? serviceIds,
-      @JsonKey(name: 'custom_service_name')
-      final String? customServiceName}) = _$CreatePostRequestImpl;
+      @JsonKey(name: 'custom_service_name') final String? customServiceName,
+      @JsonKey(name: 'tagged_user_ids')
+      final List<String>? taggedUserIds}) = _$CreatePostRequestImpl;
 
   factory _CreatePostRequest.fromJson(Map<String, dynamic> json) =
       _$CreatePostRequestImpl.fromJson;
@@ -1544,6 +1604,9 @@ abstract class _CreatePostRequest implements CreatePostRequest {
   @override
   @JsonKey(name: 'custom_service_name')
   String? get customServiceName;
+  @override
+  @JsonKey(name: 'tagged_user_ids')
+  List<String>? get taggedUserIds;
 
   /// Create a copy of CreatePostRequest
   /// with the given fields replaced by the non-null parameter values.

@@ -76,6 +76,7 @@ class PostModel with _$PostModel {
     @JsonKey(name: 'custom_service_name') String? customServiceName,
     @Default(false) bool isPinned,
     @Default(false) bool isArchived,
+    @Default([]) List<UserModel> taggedUsers,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _PostModel;
@@ -113,6 +114,7 @@ class CreatePostRequest with _$CreatePostRequest {
     @JsonKey(name: 'location_lng') double? locationLng,
     @JsonKey(name: 'service_ids') List<String>? serviceIds,
     @JsonKey(name: 'custom_service_name') String? customServiceName,
+    @JsonKey(name: 'tagged_user_ids') List<String>? taggedUserIds,
   }) = _CreatePostRequest;
 
   factory CreatePostRequest.fromJson(Map<String, dynamic> json) =>

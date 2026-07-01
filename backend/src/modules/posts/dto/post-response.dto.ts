@@ -105,4 +105,12 @@ export class PostResponseDto {
     nullable: true
   })
   repostOf: PostResponseDto | null;
+
+  @Expose()
+  @Type(() => AuthUserDto)
+  @ApiProperty({
+    description: 'Отмеченные (tagged) пользователи на посте',
+    type: [AuthUserDto],
+  })
+  taggedUsers: AuthUserDto[];
 }

@@ -78,6 +78,10 @@ export class PostsMapper {
       author: post.author ? this.toUserDto(post.author) : null,
       media: post.media ? post.media.map(m => this.toMediaDto(m)) : [],
       repostOf: post.repost_of ? this.toDto(post.repost_of) : null,
+      // taggedUsers проставляется в сервисе (загрузка User[] по tagged_user_ids)
+      taggedUsers: (post as any).taggedUsers
+        ? ((post as any).taggedUsers as User[]).map((u) => this.toUserDto(u))
+        : [],
     };
   }
 

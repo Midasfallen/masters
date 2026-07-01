@@ -64,6 +64,10 @@ _$PostModelImpl _$$PostModelImplFromJson(Map<String, dynamic> json) =>
       customServiceName: json['custom_service_name'] as String?,
       isPinned: json['isPinned'] as bool? ?? false,
       isArchived: json['isArchived'] as bool? ?? false,
+      taggedUsers: (json['taggedUsers'] as List<dynamic>?)
+              ?.map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -89,6 +93,7 @@ Map<String, dynamic> _$$PostModelImplToJson(_$PostModelImpl instance) =>
       'custom_service_name': instance.customServiceName,
       'isPinned': instance.isPinned,
       'isArchived': instance.isArchived,
+      'taggedUsers': instance.taggedUsers,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
@@ -132,6 +137,9 @@ _$CreatePostRequestImpl _$$CreatePostRequestImplFromJson(
           ?.map((e) => e as String)
           .toList(),
       customServiceName: json['custom_service_name'] as String?,
+      taggedUserIds: (json['tagged_user_ids'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$$CreatePostRequestImplToJson(
@@ -145,6 +153,7 @@ Map<String, dynamic> _$$CreatePostRequestImplToJson(
       'location_lng': instance.locationLng,
       'service_ids': instance.serviceIds,
       'custom_service_name': instance.customServiceName,
+      'tagged_user_ids': instance.taggedUserIds,
     };
 
 const _$PostTypeEnumMap = {
