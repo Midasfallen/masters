@@ -38,6 +38,9 @@ class ServiceModel with _$ServiceModel {
 /// Create Service Request
 @freezed
 class CreateServiceRequest with _$CreateServiceRequest {
+  /// includeIfNull: false — не слать null-поля (иначе subcategory_id/name=null и т.п.
+  /// нарушают @IsUUID/@IsString валидацию на бэке).
+  @JsonSerializable(includeIfNull: false)
   const factory CreateServiceRequest({
     @JsonKey(name: 'category_id') required String categoryId,
     @JsonKey(name: 'service_template_id') String? serviceTemplateId,

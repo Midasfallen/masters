@@ -5,7 +5,18 @@ import '../../../../../core/providers/api/categories_tree_provider.dart';
 import '../../../../../core/providers/api/service_templates_provider.dart';
 import '../../../../../core/models/api/service_template_model.dart';
 
-/// Шаг 2: Выбор категорий + Добавление услуг (объединённый шаг)
+/// Шаг 2: Иерархический выбор «категория (L0) → подкатегория (L1) → услуги».
+///
+/// Мастер добавляет один или несколько блоков. В каждом блоке выбирает главную
+/// категорию (level 0), затем её подкатегорию (level 1), затем услуги этой
+/// подкатегории (из шаблонов или кастомные).
+///
+/// На выходе onNext отдаёт:
+///   category_ids    — уникальные ID (L0 ∪ L1); L1 обязателен в этом списке,
+///                     т.к. услуга привязана к L1 и бэк требует category_id услуги
+///                     ∈ profile.category_ids.
+///   subcategory_ids — уникальные L1.
+///   services        — [{category_id: L1, service_template_id?, name, price, duration, description}]
 class Step2Categories extends ConsumerStatefulWidget {
   final Map<String, dynamic> initialData;
   final Function(Map<String, dynamic>) onNext;
@@ -22,124 +33,109 @@ class Step2Categories extends ConsumerStatefulWidget {
   ConsumerState<Step2Categories> createState() => _Step2CategoriesState();
 }
 
-class _Step2CategoriesState extends ConsumerState<Step2Categories> {
-  /// Выбранные ID категорий level 1 (для API и шаблонов)
-  Set<String> _selectedCategoryIds = {};
+/// Один блок: главная категория → подкатегория → её услуги.
+class _CategoryBlock {
+  String? rootId; // L0
+  String? subId; // L1
+  final List<Map<String, dynamic>> services = [];
 
-  /// Услуги мастера
-  List<Map<String, dynamic>> _services = [];
+  _CategoryBlock();
+}
+
+class _Step2CategoriesState extends ConsumerState<Step2Categories> {
+  final List<_CategoryBlock> _blocks = [];
+
+  /// Кэш шаблонов услуг по L1-категории.
   final Map<String, List<ServiceTemplateModel>> _templatesByCategory = {};
   final Map<String, bool> _loadingTemplates = {};
 
   @override
   void initState() {
     super.initState();
-    final saved = widget.initialData['category_ids'];
-    if (saved is List) {
-      _selectedCategoryIds = Set<String>.from(
-        saved.map((e) => e.toString()),
-      );
-    }
-    _services = List<Map<String, dynamic>>.from(
-      widget.initialData['services'] ?? [],
-    );
-    if (_selectedCategoryIds.isNotEmpty) {
-      _loadTemplates();
+    _restoreFromInitial();
+    if (_blocks.isEmpty) {
+      _blocks.add(_CategoryBlock());
     }
   }
 
-  Future<void> _loadTemplates() async {
-    for (final categoryId in _selectedCategoryIds) {
-      if (_templatesByCategory.containsKey(categoryId)) continue;
-      setState(() {
-        _loadingTemplates[categoryId] = true;
-      });
-      try {
-        final response = await ref.read(
-          serviceTemplatesByCategoryIdProvider(categoryId, language: 'ru')
-              .future,
+  /// Восстановление ранее собранных данных (при возврате «Назад» из след. шага).
+  void _restoreFromInitial() {
+    final savedBlocks = widget.initialData['category_blocks'];
+    if (savedBlocks is! List) return;
+    for (final b in savedBlocks) {
+      if (b is! Map) continue;
+      final block = _CategoryBlock()
+        ..rootId = b['root_id'] as String?
+        ..subId = b['sub_id'] as String?;
+      final svcs = b['services'];
+      if (svcs is List) {
+        block.services.addAll(
+          svcs.map((e) => Map<String, dynamic>.from(e as Map)),
         );
-        if (mounted) {
-          setState(() {
-            _templatesByCategory[categoryId] = response.data;
-            _loadingTemplates[categoryId] = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _templatesByCategory[categoryId] = [];
-            _loadingTemplates[categoryId] = false;
-          });
-        }
+      }
+      _blocks.add(block);
+      if (block.subId != null) _loadTemplates(block.subId!);
+    }
+  }
+
+  Future<void> _loadTemplates(String subCategoryId) async {
+    if (_templatesByCategory.containsKey(subCategoryId)) return;
+    setState(() => _loadingTemplates[subCategoryId] = true);
+    try {
+      final response = await ref.read(
+        serviceTemplatesByCategoryIdProvider(subCategoryId, language: 'ru')
+            .future,
+      );
+      if (mounted) {
+        setState(() {
+          _templatesByCategory[subCategoryId] = response.data;
+          _loadingTemplates[subCategoryId] = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _templatesByCategory[subCategoryId] = [];
+          _loadingTemplates[subCategoryId] = false;
+        });
       }
     }
   }
 
-  Map<String, dynamic> _createEmptyService() {
-    final firstCategoryId =
-        _selectedCategoryIds.isNotEmpty ? _selectedCategoryIds.first : '';
-    return {
-      'category_id': firstCategoryId,
-      'service_template_id': null,
-      'name': '',
-      'price': '',
-      'duration': '60',
-      'description': '',
-    };
-  }
+  // ==== Услуги внутри блока ====
 
-  Map<String, dynamic> _createServiceFromTemplate(
-      ServiceTemplateModel template) {
-    return {
-      'category_id': template.categoryId,
-      'service_template_id': template.id,
-      'name': template.name,
-      'price': template.defaultPriceRangeMin?.toStringAsFixed(0) ?? '',
-      'duration': template.defaultDurationMinutes?.toString() ?? '60',
-      'description': template.description ?? '',
-    };
-  }
+  Map<String, dynamic> _emptyService(String subId) => {
+        'category_id': subId,
+        'service_template_id': null,
+        'name': '',
+        'price': '',
+        'duration': '60',
+        'description': '',
+      };
 
-  void _addService() {
-    setState(() {
-      _services.add(_createEmptyService());
-    });
-  }
+  Map<String, dynamic> _serviceFromTemplate(
+    String subId,
+    ServiceTemplateModel t,
+  ) =>
+      {
+        'category_id': subId,
+        'service_template_id': t.id,
+        'name': t.name,
+        'price': t.defaultPriceRangeMin?.toStringAsFixed(0) ?? '',
+        'duration': t.defaultDurationMinutes?.toString() ?? '60',
+        'description': t.description ?? '',
+      };
 
-  void _addServiceFromTemplate(ServiceTemplateModel template) {
-    setState(() {
-      _services.add(_createServiceFromTemplate(template));
-    });
-    if (context.mounted) Navigator.of(context).pop();
-  }
-
-  void _removeService(int index) {
-    setState(() {
-      _services.removeAt(index);
-    });
-  }
-
-  void _showTemplateSelector() {
-    if (_selectedCategoryIds.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сначала выберите категории')),
-      );
-      return;
-    }
-
-    final allTemplates = <ServiceTemplateModel>[];
-    for (final categoryId in _selectedCategoryIds) {
-      allTemplates.addAll(_templatesByCategory[categoryId] ?? []);
-    }
-    if (allTemplates.isEmpty) {
-      final loading = _loadingTemplates.values.any((v) => v);
+  void _showTemplateSelector(_CategoryBlock block) {
+    final subId = block.subId;
+    if (subId == null) return;
+    final templates = _templatesByCategory[subId] ?? [];
+    if (templates.isEmpty) {
+      final loading = _loadingTemplates[subId] ?? false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            loading
-                ? 'Загрузка шаблонов…'
-                : 'Нет шаблонов для выбранных категорий',
+            loading ? 'Загрузка шаблонов…' : 'Нет шаблонов для этой подкатегории',
           ),
         ),
       );
@@ -160,17 +156,18 @@ class _Step2CategoriesState extends ConsumerState<Step2Categories> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'Выберите шаблон услуги',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(
               child: ListView.builder(
                 controller: scrollController,
-                itemCount: allTemplates.length,
+                itemCount: templates.length,
                 itemBuilder: (context, index) {
-                  final t = allTemplates[index];
+                  final t = templates[index];
                   return ListTile(
                     title: Text(t.name),
                     subtitle: t.defaultDurationMinutes != null
@@ -185,7 +182,12 @@ class _Step2CategoriesState extends ConsumerState<Step2Categories> {
                             ),
                           )
                         : null,
-                    onTap: () => _addServiceFromTemplate(t),
+                    onTap: () {
+                      setState(() {
+                        block.services.add(_serviceFromTemplate(subId, t));
+                      });
+                      Navigator.of(context).pop();
+                    },
                   );
                 },
               ),
@@ -196,117 +198,111 @@ class _Step2CategoriesState extends ConsumerState<Step2Categories> {
     );
   }
 
+  // ==== Сбор данных и переход дальше ====
+
   void _continue() {
-    if (_selectedCategoryIds.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выберите хотя бы одну категорию')),
-      );
-      return;
-    }
+    // Валидация: каждый блок — L0 + L1 + хотя бы 1 валидная услуга.
+    final categoryIds = <String>{};
+    final subcategoryIds = <String>{};
+    final services = <Map<String, dynamic>>[];
 
-    if (_selectedCategoryIds.length > 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Максимум 5 категорий')),
-      );
-      return;
-    }
-
-    final firstCategoryId = _selectedCategoryIds.first;
-    final validServices = <Map<String, dynamic>>[];
-    for (final service in _services) {
-      if (service['name'].toString().trim().isEmpty ||
-          service['price'].toString().trim().isEmpty) {
-        continue;
+    for (var i = 0; i < _blocks.length; i++) {
+      final b = _blocks[i];
+      if (b.rootId == null) {
+        _snack('Блок ${i + 1}: выберите главную категорию');
+        return;
       }
-      final map = Map<String, dynamic>.from(service);
-      if (map['category_id'] == null ||
-          map['category_id'].toString().isEmpty) {
-        map['category_id'] = firstCategoryId;
+      if (b.subId == null) {
+        _snack('Блок ${i + 1}: выберите подкатегорию');
+        return;
       }
-      validServices.add(map);
+      final valid = b.services.where((s) =>
+          s['name'].toString().trim().isNotEmpty &&
+          s['price'].toString().trim().isNotEmpty);
+      if (valid.isEmpty) {
+        _snack('Блок ${i + 1}: добавьте хотя бы одну услугу с названием и ценой');
+        return;
+      }
+      categoryIds.add(b.rootId!);
+      categoryIds.add(b.subId!); // L1 нужен в category_ids для валидации услуг
+      subcategoryIds.add(b.subId!);
+      for (final s in valid) {
+        final map = Map<String, dynamic>.from(s);
+        map['category_id'] = b.subId; // услуга привязана к L1
+        services.add(map);
+      }
     }
 
-    if (validServices.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Добавьте хотя бы одну услугу')),
-      );
+    if (services.isEmpty) {
+      _snack('Добавьте хотя бы одну услугу');
       return;
     }
 
     widget.onNext({
-      'category_ids': _selectedCategoryIds.toList(),
-      'services': validServices,
+      'category_ids': categoryIds.toList(),
+      'subcategory_ids': subcategoryIds.toList(),
+      'services': services,
+      // Сохраняем блочную структуру для восстановления при возврате «Назад».
+      'category_blocks': _blocks
+          .map((b) => {
+                'root_id': b.rootId,
+                'sub_id': b.subId,
+                'services': b.services,
+              })
+          .toList(),
     });
   }
 
-  /// Собираем все категории level 1 из дерева (дети корневых)
-  static List<CategoryTreeModel> _level1Categories(
-      List<CategoryTreeModel> roots) {
-    final list = <CategoryTreeModel>[];
-    for (final root in roots) {
-      for (final child in root.children) {
-        list.add(child);
-      }
-    }
-    return list;
+  void _snack(String msg) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync =
-        ref.watch(categoriesTreeProvider(language: 'ru'));
+    final categoriesAsync = ref.watch(categoriesTreeProvider(language: 'ru'));
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // === СЕКЦИЯ КАТЕГОРИЙ ===
           Text(
             'Категории и услуги',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Выберите от 1 до 5 категорий и добавьте услуги',
+            'Выберите категорию, подкатегорию и услуги. Можно добавить несколько категорий.',
             style: TextStyle(color: Colors.grey[600], fontSize: 14),
           ),
           const SizedBox(height: 24),
           categoriesAsync.when(
             data: (roots) {
-              final level1 = _level1Categories(roots);
-              if (level1.isEmpty) {
+              if (roots.isEmpty) {
                 return const Text(
                   'Категории не загружены. Проверьте подключение.',
                   style: TextStyle(color: Colors.red),
                 );
               }
-              return Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: level1.map((cat) {
-                  final id = cat.id;
-                  final name = cat.name;
-                  final isSelected = _selectedCategoryIds.contains(id);
-                  return FilterChip(
-                    label: Text(name),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          if (_selectedCategoryIds.length < 5) {
-                            _selectedCategoryIds.add(id);
-                            _loadTemplates();
-                          }
-                        } else {
-                          _selectedCategoryIds.remove(id);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              return Column(
+                children: [
+                  for (var i = 0; i < _blocks.length; i++)
+                    _buildBlock(i, roots),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          setState(() => _blocks.add(_CategoryBlock())),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Добавить ещё категорию'),
+                    ),
+                  ),
+                ],
               );
             },
             loading: () => const Center(
@@ -320,63 +316,6 @@ class _Step2CategoriesState extends ConsumerState<Step2Categories> {
               style: const TextStyle(color: Colors.red),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Выбрано: ${_selectedCategoryIds.length}/5',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
-          ),
-
-          // === СЕКЦИЯ УСЛУГ ===
-          if (_selectedCategoryIds.isNotEmpty) ...[
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              'Услуги и цены',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Добавьте услуги, которые вы предоставляете',
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-
-            // Кнопка выбора из шаблонов
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _showTemplateSelector,
-                icon: const Icon(Icons.auto_awesome),
-                label: const Text('Выбрать из шаблонов'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Список услуг
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _services.length,
-              itemBuilder: (context, index) => _buildServiceCard(index),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _addService,
-              icon: const Icon(Icons.add),
-              label: const Text('Добавить кастомную услугу'),
-            ),
-          ],
-
-          // === КНОПКИ НАВИГАЦИИ ===
           const SizedBox(height: 32),
           Row(
             children: [
@@ -407,87 +346,188 @@ class _Step2CategoriesState extends ConsumerState<Step2Categories> {
     );
   }
 
-  Widget _buildServiceCard(int index) {
+  Widget _buildBlock(int index, List<CategoryTreeModel> roots) {
+    final block = _blocks[index];
+    // Подкатегории (L1) выбранной главной категории (L0).
+    final root =
+        block.rootId == null ? null : _findRoot(roots, block.rootId!);
+    final subs = root?.children ?? const <CategoryTreeModel>[];
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Услуга ${index + 1}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (_services.length > 1)
+                Text('Категория ${index + 1}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
+                if (_blocks.length > 1)
                   IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _removeService(index),
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => setState(() => _blocks.removeAt(index)),
                   ),
               ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: TextEditingController(
-                  text: _services[index]['name']?.toString() ?? ''),
+            const SizedBox(height: 12),
+            // L0
+            DropdownButtonFormField<String>(
+              initialValue: block.rootId,
+              isExpanded: true,
               decoration: const InputDecoration(
-                labelText: 'Название',
+                labelText: 'Главная категория',
                 border: OutlineInputBorder(),
               ),
+              items: roots
+                  .map((r) => DropdownMenuItem(
+                        value: r.id,
+                        child: Text(r.name, overflow: TextOverflow.ellipsis),
+                      ))
+                  .toList(),
               onChanged: (value) {
-                _services[index]['name'] = value;
+                setState(() {
+                  block.rootId = value;
+                  block.subId = null; // сброс подкатегории и услуг
+                  block.services.clear();
+                });
               },
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: TextEditingController(
-                      text: _services[index]['price']?.toString() ?? '',
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Цена (₽)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      _services[index]['price'] = value;
+            // L1
+            DropdownButtonFormField<String>(
+              initialValue: block.subId,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Подкатегория',
+                border: OutlineInputBorder(),
+              ),
+              items: subs
+                  .map((s) => DropdownMenuItem(
+                        value: s.id,
+                        child: Text(s.name, overflow: TextOverflow.ellipsis),
+                      ))
+                  .toList(),
+              onChanged: block.rootId == null
+                  ? null
+                  : (value) {
+                      setState(() {
+                        block.subId = value;
+                        block.services.clear();
+                      });
+                      if (value != null) _loadTemplates(value);
                     },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: TextEditingController(
-                      text:
-                          _services[index]['duration']?.toString() ?? '60',
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Время (мин)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      _services[index]['duration'] = value;
-                    },
-                  ),
-                ),
-              ],
             ),
-            if (_services[index]['description'] != null &&
-                _services[index]['description'].toString().isNotEmpty) ...[
+
+            // Услуги
+            if (block.subId != null) ...[
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              Text('Услуги',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              Text(
-                _services[index]['description'].toString(),
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _showTemplateSelector(block),
+                  icon: const Icon(Icons.auto_awesome),
+                  label: const Text('Выбрать из шаблонов'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              for (var si = 0; si < block.services.length; si++)
+                _buildServiceCard(block, si),
+              const SizedBox(height: 4),
+              OutlinedButton.icon(
+                onPressed: () => setState(() =>
+                    block.services.add(_emptyService(block.subId!))),
+                icon: const Icon(Icons.add),
+                label: const Text('Добавить свою услугу'),
               ),
             ],
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildServiceCard(_CategoryBlock block, int index) {
+    final service = block.services[index];
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Услуга ${index + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: () =>
+                      setState(() => block.services.removeAt(index)),
+                ),
+              ],
+            ),
+            TextFormField(
+              initialValue: service['name']?.toString() ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Название',
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+              onChanged: (v) => service['name'] = v,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    initialValue: service['price']?.toString() ?? '',
+                    decoration: const InputDecoration(
+                      labelText: 'Цена (₽)',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (v) => service['price'] = v,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    initialValue: service['duration']?.toString() ?? '60',
+                    decoration: const InputDecoration(
+                      labelText: 'Время (мин)',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (v) => service['duration'] = v,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  CategoryTreeModel? _findRoot(List<CategoryTreeModel> roots, String id) {
+    for (final r in roots) {
+      if (r.id == id) return r;
+    }
+    return null;
   }
 }

@@ -937,7 +937,8 @@ class __$$CreateServiceRequestImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(includeIfNull: false)
 class _$CreateServiceRequestImpl implements _CreateServiceRequest {
   const _$CreateServiceRequestImpl(
       {@JsonKey(name: 'category_id') required this.categoryId,

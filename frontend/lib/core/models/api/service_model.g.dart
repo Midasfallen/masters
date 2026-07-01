@@ -84,19 +84,21 @@ Map<String, dynamic> _$$CreateServiceRequestImplToJson(
         _$CreateServiceRequestImpl instance) =>
     <String, dynamic>{
       'category_id': instance.categoryId,
-      'service_template_id': instance.serviceTemplateId,
-      'subcategory_id': instance.subcategoryId,
-      'name': instance.name,
-      'description': instance.description,
+      if (instance.serviceTemplateId case final value?)
+        'service_template_id': value,
+      if (instance.subcategoryId case final value?) 'subcategory_id': value,
+      if (instance.name case final value?) 'name': value,
+      if (instance.description case final value?) 'description': value,
       'price': instance.price,
-      'currency': instance.currency,
-      'price_from': instance.priceFrom,
-      'price_to': instance.priceTo,
+      if (instance.currency case final value?) 'currency': value,
+      if (instance.priceFrom case final value?) 'price_from': value,
+      if (instance.priceTo case final value?) 'price_to': value,
       'duration_minutes': instance.durationMinutes,
-      'is_bookable_online': instance.isBookableOnline,
-      'is_mobile': instance.isMobile,
-      'is_in_salon': instance.isInSalon,
-      'tags': instance.tags,
+      if (instance.isBookableOnline case final value?)
+        'is_bookable_online': value,
+      if (instance.isMobile case final value?) 'is_mobile': value,
+      if (instance.isInSalon case final value?) 'is_in_salon': value,
+      if (instance.tags case final value?) 'tags': value,
     };
 
 _$UpdateServiceRequestImpl _$$UpdateServiceRequestImplFromJson(

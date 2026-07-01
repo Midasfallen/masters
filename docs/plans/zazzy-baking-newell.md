@@ -698,3 +698,152 @@ NOT NULL колонки (`first_name`/`last_name`) → `save()` падал 500. 
 затёрты (остались «Валерьян»/«Русакова»), avatarUrl сохранён. Из браузера (свежая сборка,
 SW-кэш сброшен): PATCH только avatar_url → 200. MinIO во всех проверках исправен
 (upload 200, GET картинки 200 image/png, CORS ok, Image() loaded).
+
+---
+
+# План: Реализация флоу «Стать мастером» + скрытие кнопки для мастера
+
+## Context
+
+Пользователь прошёл флоу «стать мастером» на экране профиля, но кнопка осталась, и он не
+стал мастером. Причина найдена: **фронтовый визард — заглушка**. `_completeProfileCreation()`
+в `create_master_profile_screen.dart` только показывает диалог «Профиль создан!» и уходит
+на `/` — НИКУДА не отправляет собранные данные. Поэтому `users.is_master` остался `false`,
+записи `master_profiles` нет (проверено в БД: `is_master=f`, профиля нет). Кнопка уже
+условная (`if (!user.isMaster)`) — она не исчезла лишь потому, что данные не сохранились.
+
+Задача: реально подключить визард к backend, переработав бизнес-флоу под выбор
+**категория (L0) → подкатегория (L1) → услуги**, с возможностью добавить вторую (и более)
+категорию. После финализации мастер создаётся, услуги сохраняются, кнопка «Стать мастером»
+исчезает.
+
+Решения пользователя: (1) иерархия L0→L1→услуги; (2) минимальный объём — 4 UI-шага, но
+реально слать step1-5 на бэк; (3) услуги создаются ПОСЛЕ финализации профиля.
+
+## Что уже есть (переиспользуем)
+
+**Backend — трогать НЕ нужно, всё готово:**
+- `POST /masters` (init, setup_step=0) → `PATCH /masters/me/step/{1..5}` (последовательно,
+  step5 ставит `is_master=true`, `master_profile_completed=true`, `is_active=true`).
+- Step1 DTO: `category_ids: string[]` (L0/L1, обязательно), `subcategory_ids?: string[]`.
+- `POST /services` (CreateServiceDto: `category_id`, `service_template_id?`, `name`, `price`,
+  `duration_minutes`, ...) — требует `master_profile_completed=true` и `category_id ∈ profile.category_ids`.
+  master_id берётся из токена.
+- Категории: `GET /categories/tree?language=ru` (L0 с `children`=L1), шаблоны:
+  `GET /categories/:id/templates`.
+
+**Frontend — есть, но не подключено:**
+- `MasterRepository` (`master_repository.dart`) на `DioClient` — добавить step-методы.
+- `Step2Categories` уже собирает категории (FilterChip) + услуги (шаблоны/кастом) в
+  `{category_ids, services[{category_id, service_template_id, name, price, duration}]}`.
+- Провайдеры `categoriesTreeProvider`, `serviceTemplatesByCategoryIdProvider`,
+  `authNotifierProvider` (профиль с `isMaster`). Модель `CreateServiceRequest` готова.
+
+## Реализация
+
+### 1. Backend: НЕТ изменений
+Всё нужное уже реализовано. (Кнопка исчезнет сама после реального step5 + инвалидации
+`authNotifierProvider` на фронте — `/users/me` возвращает актуальный `isMaster`.)
+
+### 2. Frontend: репозиторий шагов мастера (`master_repository.dart`)
+Добавить методы под каждый бэк-эндпоинт (все возвращают `MasterProfileModel`):
+- `initMasterProfile()` → `POST /masters`
+- `updateStep1({categoryIds, subcategoryIds})` → `PATCH /masters/me/step/1`
+- `updateStep2({bio, ...})` → `PATCH /masters/me/step/2`
+- `updateStep4Location({...})`, `updateStep5Schedule({...})` → step/4, step/5
+  (step3 портфолио — слать пустым/скипать, но бэк требует последовательность setup_step,
+   поэтому вызвать step3 с `{}` для перехода 2→3→4).
+Добавить эндпоинты в `api_endpoints.dart`: `masterStep(n) => '/masters/me/step/$n'`.
+
+### 3. Frontend: сервис-репозиторий создания услуг
+Создать `service_repository.dart` (или добавить в существующий) метод
+`createService(CreateServiceRequest)` → `POST /services`. Модель `CreateServiceRequest` уже
+есть. Добавить `ApiEndpoints.serviceCreate` (уже есть).
+
+### 4. Frontend: переработать Step2 под иерархию L0 → L1 → услуги
+`step2_categories.dart`:
+- Вместо плоского списка L1-FilterChip — блочный выбор: пользователь добавляет «блок
+  категории»: выбирает L0 (dropdown/список корней `tree`), затем L1 (children выбранного L0),
+  затем услуги этой L1 (шаблоны через `serviceTemplatesByCategoryIdProvider` + кастомные).
+- Кнопка «Добавить ещё категорию» повторяет блок (несколько L0→L1→услуги).
+- На выходе собирать: `category_ids` = уникальные L0, `subcategory_ids` = уникальные L1,
+  `services[]` с `category_id` = L1 (важно: услуга привязана к L1, и L1 попадает в
+  `subcategory_ids` — но бэк `POST /services` требует `category_id ∈ profile.category_ids`,
+  а не subcategory_ids → **ВАЖНО:** в step1 слать в `category_ids` И L0, И L1 вместе, т.к.
+  бэк валидирует их одинаково (level 0 или 1) и хранит в profile.category_ids; тогда
+  `category_id` услуги (=L1) будет ∈ profile.category_ids). subcategory_ids дублируем L1.
+
+### 5. Frontend: подключить финализацию (`create_master_profile_screen.dart`)
+Заменить заглушку `_completeProfileCreation()` на реальную отправку (async, с лоадером и
+обработкой ошибок через существующий `ApiExceptionHandler`):
+1. `initMasterProfile()` (если профиля ещё нет; при «уже создан» — игнорировать/продолжить).
+2. `updateStep1({category_ids: [...L0, ...L1], subcategory_ids: [...L1]})` из Step2-данных.
+3. `updateStep2({bio})` из Step1(bio).
+4. `updateStep3({})` — пустой, для последовательности setup_step.
+5. `updateStep4Location({location_address, service_radius_km, is_mobile, ...})` из Step5-локации.
+6. `updateStep5Schedule({working_hours, ...})` из Step4-расписания (сконвертировать
+   `workingDays`(рус. дни→bool) + start/end в `working_hours` JSON вида
+   `{monday: {start, end, enabled}, ...}`).
+7. После step5 (профиль = мастер): для каждой услуги из `services[]` — `createService(...)`
+   (сконвертировать `price`/`duration` из String в num). Ошибки отдельных услуг собирать,
+   не прерывать весь флоу.
+8. `ref.invalidate(authNotifierProvider)` + `ref.invalidate(currentUserProfileProvider)` →
+   кнопка «Стать мастером» исчезнет. Показать успех, уйти на профиль/`/`.
+
+### 6. Frontend: кнопка «Стать мастером» — проверка статуса
+Уже `if (!user.isMaster)` в `profile_screen.dart`. Дополнительно: при возврате из визарда
+экран профиля читает `authNotifierProvider` — после инвалидации (шаг 5.8) `isMaster=true`
+скроет кнопку. Убедиться, что `authNotifierProvider` реально перечитывает `/users/me`.
+
+## Verification
+
+- **БД:** после прохождения визарда — `SELECT is_master, master_profile_completed,
+  setup_step FROM users u JOIN master_profiles mp ... WHERE email=...` → `t, t, 5`; услуги
+  в `services` с master_id=users.id, category_id ∈ profile.category_ids.
+- **API (Python/JS из браузера):** прогнать init→step1..5→createService под тестовым
+  не-мастером → 200 на каждом; GET /users/me → isMaster=true.
+- **Chrome:** пройти визард (категория→подкатегория→услуги, + вторая категория), завершить →
+  вернуться в профиль → кнопка «Стать мастером» исчезла, появился бейдж мастера; на вкладке
+  «Услуги» профиля — созданные услуги; поиск находит мастера по услугам.
+- `flutter analyze` + `npx tsc --noEmit` (бэк не меняется, но проверить) чисто; кодоген
+  freezed для новых моделей запросов шагов.
+
+## Риски
+- Последовательность setup_step строгая: каждый следующий step проверяет предыдущий →
+  вызывать строго по порядку, не параллельно.
+- `POST /services` требует L1 category_id ∈ profile.category_ids → критично слать L1 в
+  step1.category_ids (см. п.4).
+- Повторный вход в визард уже созданного профиля: `POST /masters` вернёт «уже создан» —
+  обработать (перейти к обновлению/пропустить init).
+
+## Итог (ВЫПОЛНЕНО ✅)
+
+Backend не менялся (всё было готово). Frontend:
+- `api_endpoints.dart`: `masterStep(n)`.
+- `master_repository.dart`: `initMasterProfile()`, `updateMasterStep(step, body)`.
+- Новый `service_repository.dart`: `createService(CreateServiceRequest)` + провайдер.
+  `CreateServiceRequest` получил `@JsonSerializable(includeIfNull: false)`.
+- `step2_categories.dart` полностью переписан: блочный иерархический выбор
+  L0 (dropdown корней) → L1 (dropdown children) → услуги L1 (шаблоны + кастом),
+  кнопка «Добавить ещё категорию». TextFormField с initialValue (не пересоздаём
+  контроллеры — чинит потерю курсора). На выходе: category_ids=(L0∪L1), subcategory_ids=L1,
+  services[] с category_id=L1.
+- `create_master_profile_screen.dart`: заглушка `_completeProfileCreation()` заменена на
+  реальную отправку (ConsumerStatefulWidget): init → step1(категории) → step2(bio) →
+  step3({}) → step4(локация) → step5(расписание, финализация) → создание услуг.
+  Конвертация workingDays(рус)→working_hours JSON. Оверлей-лоадер, обработка ошибок,
+  инвалидация authNotifierProvider+currentUserProfileProvider.
+
+**Проверено end-to-end:**
+- API (тестовый не-мастер sinklitikiya): init→step1..5→createService — все 200/201,
+  isMaster→true, услуга с category_id=L1 ∈ category_ids.
+- Chrome (ravinski123): пройден весь визард (Здоровье и массаж → Массаж → шаблон
+  «Массаж головы» 2500₽ → расписание → адрес). Сетевые: POST /masters 201,
+  step/1..5 все 200, POST /services 201, GET /users/me 200. Диалог «Профиль мастера
+  создан!» → на профиле появился бейдж «✓ Мастер», кнопка «Стать мастером» ИСЧЕЗЛА.
+- БД: is_master=t, master_profile_completed=t, setup_step=5, category_ids={L0,L1},
+  услуга «Массаж головы» 2500₽. Поиск «Массаж головы» находит Gleb Ravinsky + услугу
+  (автоиндексация). Консоль без ошибок.
+
+**В бэклоге:** UI-поля шагов 2 (опыт, языки), 3 (портфолио/сертификаты), 4-5 доп.настройки
+(auto_confirm, соцсети) — сейчас шлются дефолты/пусто; расширить при необходимости.

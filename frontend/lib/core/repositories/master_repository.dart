@@ -127,6 +127,35 @@ class MasterRepository {
     }
   }
 
+  /// Инициализация профиля мастера (POST /masters, setup_step=0).
+  /// Если профиль уже создан — бэк вернёт 400; вызывающий код это обрабатывает.
+  Future<MasterProfileModel> initMasterProfile() async {
+    try {
+      final response = await _client.post(ApiEndpoints.masterCreate);
+      return MasterProfileModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Пошаговое сохранение визарда: PATCH /masters/me/step/{step}.
+  /// body — snake_case тело соответствующего StepNDto. Шаги строго
+  /// последовательны (бэк проверяет setup_step). Step 5 финализирует профиль.
+  Future<MasterProfileModel> updateMasterStep(
+    int step,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.masterStep(step),
+        data: body,
+      );
+      return MasterProfileModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
   /// Update master profile
   Future<MasterProfileModel> updateMasterProfile(
     UpdateMasterProfileRequest request,

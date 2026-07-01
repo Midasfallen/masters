@@ -23,6 +23,8 @@ class ApiEndpoints {
   static const String masterCreate = '/masters';
   static const String masterUpdate = '/masters/me';
   static const String masterMe = '/masters/me';
+  /// Пошаговое сохранение визарда мастера: PATCH /masters/me/step/{1..5}
+  static String masterStep(int step) => '/masters/me/step/$step';
   /// Public services of a master profile
   /// Backend route: GET /services/master/:masterId
   static String masterServices(String masterId) => '/services/master/$masterId';
