@@ -87,24 +87,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     }
   }
 
-  Future<void> _handleLogout() async {
-    try {
-      await ref.read(authNotifierProvider.notifier).logout();
-      if (mounted) {
-        context.go('/login');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка выхода: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final currentUserAsync = ref.watch(authNotifierProvider);
@@ -119,7 +101,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () {
-              _showSettingsSheet(context);
+              context.push('/settings');
             },
           ),
         ],
@@ -766,110 +748,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showSettingsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: const Text('Редактировать профиль'),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/edit-profile');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications_outlined),
-                title: const Text('Уведомления'),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/notifications');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings_outlined),
-                title: const Text('Настройки'),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/settings');
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.help_outline),
-                title: const Text('Помощь'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Помощь (в разработке)'),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined),
-                title: const Text('Политика конфиденциальности'),
-                onTap: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Политика конфиденциальности'),
-                    ),
-                  );
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: Icon(Icons.logout, color: Colors.red[700]),
-                title: Text(
-                  'Выйти',
-                  style: TextStyle(color: Colors.red[700]),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showLogoutDialog(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Выйти из аккаунта?'),
-        content: const Text('Вы уверены, что хотите выйти?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _handleLogout();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red[700],
-            ),
-            child: const Text('Выйти'),
-          ),
-        ],
       ),
     );
   }
