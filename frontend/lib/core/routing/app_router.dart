@@ -28,6 +28,7 @@ import '../../features/search/screens/category_services_screen.dart';
 import '../../features/search/screens/service_masters_screen.dart';
 import '../../features/search/screens/template_masters_screen.dart';
 import '../../features/bookings/screens/select_master_screen.dart';
+import '../../features/master/screens/manage_services_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -202,6 +203,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'settings',
             name: 'settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+
+          // Manage master services
+          GoRoute(
+            path: 'manage-services',
+            name: 'manageServices',
+            builder: (context, state) => const ManageServicesScreen(),
           ),
 
           // Search - Category Services

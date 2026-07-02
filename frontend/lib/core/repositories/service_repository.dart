@@ -28,6 +28,31 @@ class ServiceRepository {
       throw ApiExceptionHandler.handleDioError(e);
     }
   }
+
+  /// Обновить услугу (только владелец). Обновляются лишь переданные поля.
+  Future<ServiceModel> updateService(
+    String id,
+    UpdateServiceRequest request,
+  ) async {
+    try {
+      final response = await _client.patch(
+        ApiEndpoints.serviceUpdate(id),
+        data: request.toJson(),
+      );
+      return ServiceModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
+
+  /// Удалить услугу (только владелец).
+  Future<void> deleteService(String id) async {
+    try {
+      await _client.delete(ApiEndpoints.serviceDelete(id));
+    } on DioException catch (e) {
+      throw ApiExceptionHandler.handleDioError(e);
+    }
+  }
 }
 
 @riverpod

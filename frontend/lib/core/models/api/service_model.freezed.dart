@@ -1387,7 +1387,8 @@ class __$$UpdateServiceRequestImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(includeIfNull: false)
 class _$UpdateServiceRequestImpl implements _UpdateServiceRequest {
   const _$UpdateServiceRequestImpl(
       {this.name,

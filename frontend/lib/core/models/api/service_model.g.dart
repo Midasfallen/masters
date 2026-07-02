@@ -121,16 +121,17 @@ _$UpdateServiceRequestImpl _$$UpdateServiceRequestImplFromJson(
 Map<String, dynamic> _$$UpdateServiceRequestImplToJson(
         _$UpdateServiceRequestImpl instance) =>
     <String, dynamic>{
-      'name': instance.name,
-      'description': instance.description,
-      'price': instance.price,
-      'price_from': instance.priceFrom,
-      'price_to': instance.priceTo,
-      'duration_minutes': instance.durationMinutes,
-      'is_bookable_online': instance.isBookableOnline,
-      'is_mobile': instance.isMobile,
-      'is_in_salon': instance.isInSalon,
-      'tags': instance.tags,
-      'is_active': instance.isActive,
-      'display_order': instance.displayOrder,
+      if (instance.name case final value?) 'name': value,
+      if (instance.description case final value?) 'description': value,
+      if (instance.price case final value?) 'price': value,
+      if (instance.priceFrom case final value?) 'price_from': value,
+      if (instance.priceTo case final value?) 'price_to': value,
+      if (instance.durationMinutes case final value?) 'duration_minutes': value,
+      if (instance.isBookableOnline case final value?)
+        'is_bookable_online': value,
+      if (instance.isMobile case final value?) 'is_mobile': value,
+      if (instance.isInSalon case final value?) 'is_in_salon': value,
+      if (instance.tags case final value?) 'tags': value,
+      if (instance.isActive case final value?) 'is_active': value,
+      if (instance.displayOrder case final value?) 'display_order': value,
     };

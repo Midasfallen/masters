@@ -65,6 +65,9 @@ class CreateServiceRequest with _$CreateServiceRequest {
 /// Update Service Request
 @freezed
 class UpdateServiceRequest with _$UpdateServiceRequest {
+  /// includeIfNull: false — PATCH обновляет только переданные поля, не затирая
+  /// остальные null-ами.
+  @JsonSerializable(includeIfNull: false)
   const factory UpdateServiceRequest({
     String? name,
     String? description,

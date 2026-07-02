@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:service_platform/core/providers/api/auth_provider.dart';
+import 'package:service_platform/core/providers/api/user_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -72,6 +73,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final currentUser = authState.valueOrNull?.user;
+    // isMaster берём из свежего /users/me (auth-state может отставать после
+    // становления мастером в текущей сессии).
+    final isMaster = ref.watch(currentUserProfileProvider).valueOrNull?.isMaster ??
+        currentUser?.isMaster ??
+        false;
 
     return Scaffold(
       appBar: AppBar(
@@ -143,6 +149,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               context.push('/edit-profile');
             },
           ),
+          if (isMaster)
+            ListTile(
+              leading: const Icon(Icons.work_outline),
+              title: const Text('Редактировать услуги'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                context.push('/manage-services');
+              },
+            ),
           ListTile(
             leading: const Icon(Icons.lock_outline),
             title: const Text('Изменить пароль'),

@@ -289,12 +289,12 @@ export class ServicesService {
       throw new NotFoundException('Услуга не найдена');
     }
 
-    // Проверка владельца
+    // Проверка владельца: service.master_id = users.id (см. CLAUDE.md)
     const masterProfile = await this.masterProfileRepository.findOne({
       where: { user_id: userId },
     });
 
-    if (!masterProfile || service.master_id !== masterProfile.id) {
+    if (!masterProfile || service.master_id !== userId) {
       throw new ForbiddenException('Вы можете редактировать только свои услуги');
     }
 
@@ -369,7 +369,7 @@ export class ServicesService {
       where: { user_id: userId },
     });
 
-    if (!masterProfile || service.master_id !== masterProfile.id) {
+    if (!masterProfile || service.master_id !== userId) {
       throw new ForbiddenException('Вы можете деактивировать только свои услуги');
     }
 
@@ -394,7 +394,7 @@ export class ServicesService {
       where: { user_id: userId },
     });
 
-    if (!masterProfile || service.master_id !== masterProfile.id) {
+    if (!masterProfile || service.master_id !== userId) {
       throw new ForbiddenException('Вы можете активировать только свои услуги');
     }
 

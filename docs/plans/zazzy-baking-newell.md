@@ -847,3 +847,108 @@ Backend не менялся (всё было готово). Frontend:
 
 **В бэклоге:** UI-поля шагов 2 (опыт, языки), 3 (портфолио/сертификаты), 4-5 доп.настройки
 (auto_confirm, соцсети) — сейчас шлются дефолты/пусто; расширить при необходимости.
+
+---
+
+# План: Редактирование услуг мастера («Настройки → Редактировать услуги»)
+
+## Context
+В настройках вторым пунктом (после «Редактировать профиль») добавить «Редактировать услуги»
+— экран управления услугами мастера с полным CRUD. Пункт виден только мастеру.
+
+Решения пользователя: (1) полный CRUD — список + добавить + редактировать + удалить;
+(2) форма услуги в bottom sheet; (3) категория новой услуги — только из L1-подкатегорий,
+уже выбранных в профиле мастера (бэк требует category_id ∈ profile.category_ids).
+
+## Что уже есть (переиспользуем)
+**Backend — готов полностью, НЕ меняем:**
+- `GET /services/my` (пагинация), `POST /services`, `PATCH /services/:id`,
+  `PATCH /services/:id/deactivate|activate`, `DELETE /services/:id`. Все проверяют
+  владельца (`service.master_id === user.id`).
+**Frontend:**
+- `api_endpoints`: services, serviceById, serviceCreate, serviceUpdate(id), serviceDelete(id),
+  masterServices(id). Добавить: serviceActivate/serviceDeactivate — НЕ нужно (полный CRUD
+  без вкл/выкл по решению; см. вопрос — выбран «Полный CRUD», без активности).
+- `service_repository.createService()` есть. Модели `CreateServiceRequest`,
+  `UpdateServiceRequest`, `ServiceModel` — есть.
+- `masterServicesProvider(userId)` — список услуг (переиспользуем, инвалидируем после мутаций).
+- `MasterProfileModel.subcategoryIds` (L1) + `categoriesTreeProvider` — источник выбора
+  категории для новой услуги. `getMyMasterProfile()` в master_repository.
+
+## Реализация
+
+### 1. Frontend: репозиторий — дополнить методы
+`service_repository.dart`:
+- `updateService(id, UpdateServiceRequest)` → `PATCH /services/:id`
+- `deleteService(id)` → `DELETE /services/:id`
+(createService уже есть.)
+
+### 2. Frontend: провайдер «мои услуги» для управления
+Переиспользовать `masterServicesProvider(userId)`. После create/update/delete —
+`ref.invalidate(masterServicesProvider(userId))` (+ таб профиля обновится).
+
+### 3. Frontend: экран `manage_services_screen.dart`
+- `ConsumerStatefulWidget`. В initState грузит профиль (`getMyMasterProfile`) для доступа
+  к subcategoryIds; список услуг — `masterServicesProvider(user.id)`.
+- Список карточек услуг (название, цена, длительность) с действиями: тап/иконка «редактировать»
+  → bottom sheet редактирования; иконка «удалить» → confirm-диалог → deleteService.
+- FAB/кнопка «+ Добавить услугу» → bottom sheet создания.
+- Пустое состояние: «Нет услуг» + подсказка.
+
+### 4. Frontend: bottom sheet формы услуги `_ServiceFormSheet`
+- Поля: название (обяз.), цена ₽ (обяз., число), длительность мин (обяз., число),
+  описание (опц.). Для НОВОЙ услуги — dropdown выбора подкатегории (L1) из
+  profile.subcategoryIds с названиями из дерева; для редактирования категорию не меняем.
+- Валидация; кнопка «Сохранить». По submit:
+  - создание → `createService(CreateServiceRequest(categoryId: L1, name, price, durationMinutes, description))`
+  - редактирование → `updateService(id, UpdateServiceRequest(name, price, durationMinutes, description))`
+- Использовать TextFormField с initialValue (не пересоздавать контроллеры).
+- После успеха: закрыть sheet, инвалидировать `masterServicesProvider`, snackbar.
+
+### 5. Frontend: роут + пункт настроек
+- Роут `manage-services` в `app_router.dart` → `ManageServicesScreen`.
+- В `settings_screen.dart` вторым пунктом (после «Редактировать профиль») — ListTile
+  «Редактировать услуги» (иконка work_outline), видим только если
+  `authState.user.isMaster`; onTap → `context.push('/manage-services')`.
+- `api_endpoints`: методы уже есть (serviceUpdate/serviceDelete).
+
+## Verification
+- API: под мастером create→update→delete услуги → 201/200/200; список отражает изменения.
+- Chrome (мастер ravinski123): Настройки → «Редактировать услуги» → список (Массаж головы);
+  добавить услугу через sheet → появилась; отредактировать цену → обновилась; удалить →
+  исчезла. Таб «Мои услуги» на профиле синхронно обновляется. Пункт «Редактировать услуги»
+  НЕ виден у не-мастера.
+- `flutter analyze` чисто; кодоген (если тронем модели — здесь не нужен).
+
+## Риски
+- `POST /services`: category_id обязан быть ∈ profile.category_ids (L1). Берём из
+  subcategoryIds профиля → безопасно.
+- includeIfNull:false у Create/UpdateServiceRequest — проверить, что UpdateServiceRequest
+  тоже не шлёт null (иначе PATCH затрёт поля). Если нет — добавить.
+
+## Итог (ВЫПОЛНЕНО ✅)
+
+**Backend — найден и исправлен баг проверки владельца:** в `services.service.ts`
+`update`/`deactivate`/`activate` сравнивали `service.master_id !== masterProfile.id`,
+но `service.master_id` = **users.id** (см. CLAUDE.md, как в `create`/`remove`). Из-за
+этого UPDATE любой своей услуги давал 403. Исправлено на `!== userId`. `tsc` → 0.
+
+**Frontend:**
+- `service_model.dart`: `UpdateServiceRequest` получил `@JsonSerializable(includeIfNull: false)`.
+- `service_repository.dart`: добавлены `updateService(id, req)`, `deleteService(id)`.
+- Новый экран `manage_services_screen.dart`: список услуг + FAB «Добавить услугу»;
+  карточки с иконками редактировать/удалить; bottom sheet `_ServiceFormSheet` (создание/
+  редактирование: название, цена, время, описание; для новой — dropdown подкатегории из
+  profile.subcategoryIds ∩ дерево). Удаление через confirm-диалог. Инвалидация
+  `masterServicesProvider` после мутаций → таб «Мои услуги» на профиле обновляется.
+- Роут `manage-services`; пункт «Редактировать услуги» вторым в «Настройки → Аккаунт»,
+  виден только мастеру.
+- **Фикс видимости пункта:** `isMaster` берётся из `currentUserProfileProvider` (свежий
+  /users/me), т.к. auth-state может отставать после становления мастером в сессии.
+
+**Проверено end-to-end (API + Chrome, мастер ravinski123):**
+- API: create→update→delete под мастером → 201/200/200 (после фикса владельца).
+- Chrome: Настройки → «Редактировать услуги» → список; редактирование (2500→2800 ₽) →
+  обновилось; добавление «Спортивный массаж» 3200 ₽ (подкатегория Массаж) → снекбар
+  «Услуга добавлена», появилась; удаление → confirm → «Услуга удалена», исчезла.
+  Консоль без ошибок.
