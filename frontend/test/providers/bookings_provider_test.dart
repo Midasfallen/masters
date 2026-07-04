@@ -18,7 +18,6 @@ void main() {
   final mockBooking = BookingModel(
     id: 'booking1',
     clientId: 'client1',
-    masterId: 'master1',
     serviceId: 'service1',
     startTime: now,
     endTime: now.add(const Duration(hours: 1)),
@@ -110,7 +109,6 @@ void main() {
       final notifier = container.read(bookingNotifierProvider.notifier);
       final result = await notifier.createBooking(
         CreateBookingRequest(
-          masterId: 'master1',
           serviceId: 'service1',
           startTime: now,
         ),
@@ -160,7 +158,6 @@ void main() {
       expect(
         () => notifier.createBooking(
           CreateBookingRequest(
-            masterId: 'master1',
             serviceId: 'service1',
             startTime: now,
           ),

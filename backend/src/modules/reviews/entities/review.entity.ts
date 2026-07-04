@@ -14,7 +14,7 @@ export enum ReviewerType {
 }
 
 @Entity('reviews')
-@Index(['booking_id'], { unique: true })
+@Index(['booking_id', 'reviewer_type'], { unique: true })
 @Index(['reviewer_id'])
 @Index(['reviewed_user_id'])
 @Index(['reviewer_type'])
@@ -25,7 +25,7 @@ export class Review {
   id: string;
 
   @ApiProperty({ description: 'ID записи' })
-  @Column({ type: 'uuid', unique: true })
+  @Column({ type: 'uuid' })
   booking_id: string;
 
   @ApiProperty({ description: 'Кто оставил отзыв (user_id)' })

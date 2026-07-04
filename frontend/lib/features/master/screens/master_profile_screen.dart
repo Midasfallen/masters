@@ -16,6 +16,7 @@ import '../../../core/models/api/master_model.dart';
 import '../../../core/models/api/service_model.dart';
 import '../../../core/api/api_exceptions.dart';
 import '../../../core/repositories/review_reminders_repository.dart';
+import '../../bookings/widgets/review_form_sheet.dart';
 
 class MasterProfileScreen extends ConsumerStatefulWidget {
   final String masterId;
@@ -797,12 +798,21 @@ class _BookingSheetState extends ConsumerState<_BookingSheet> {
           // Обрабатываем результат диалога
           switch (action) {
             case ReviewReminderAction.leaveReviews:
-              // Перенаправляем на экран оставления отзывов
-              if (mounted) {
-                Navigator.pop(context);
-                // Роута /bookings нет — возвращаемся на главный экран (таб «Записи»
-                // доступен в нижней навигации MainNavigationScreen).
-                context.go('/');
+              // Открываем форму отзыва для каждой неотзывленной записи,
+              // затем повторяем создание записи.
+              var anySubmitted = false;
+              for (final ub in unreviewedBookings) {
+                if (!mounted) break;
+                final submitted = await ReviewFormSheet.show(
+                  context,
+                  bookingId: ub.id,
+                  targetName: ub.reviewTargetName,
+                  aboutMaster: ub.isClient,
+                );
+                if (submitted == true) anySubmitted = true;
+              }
+              if (anySubmitted && mounted) {
+                await _handleBookingCreation();
               }
               break;
             case ReviewReminderAction.skip:

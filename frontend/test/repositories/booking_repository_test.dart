@@ -49,7 +49,6 @@ void main() {
             .thenAnswer((_) async => mockResponse);
 
         final request = CreateBookingRequest(
-          masterId: 'master1',
           serviceId: 'service1',
           startTime: DateTime(2024, 6, 15, 10, 0),
         );
@@ -74,7 +73,6 @@ void main() {
             ));
 
         final request = CreateBookingRequest(
-          masterId: 'master1',
           serviceId: 'service1',
           startTime: DateTime(2024, 6, 15, 10, 0),
         );

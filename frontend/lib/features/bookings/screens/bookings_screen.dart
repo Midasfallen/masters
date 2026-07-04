@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/models/api/booking_model.dart';
 import '../../../core/providers/api/auth_provider.dart';
 import '../../../core/providers/api/bookings_provider.dart';
+import '../widgets/review_form_sheet.dart';
 
 enum BookingMode { client, master }
 
@@ -162,6 +163,74 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
     }
   }
 
+  Future<void> _leaveReview(BookingModel booking,
+      {required bool aboutMaster}) async {
+    final submitted = await ReviewFormSheet.show(
+      context,
+      bookingId: booking.id,
+      targetName: aboutMaster ? 'Мастер' : 'Клиент',
+      aboutMaster: aboutMaster,
+    );
+    if (submitted == true) {
+      ref.invalidate(myBookingsProvider);
+    }
+  }
+
+  /// Последовательно открыть форму отзыва для всех записей без отзыва.
+  Future<void> _leaveAllReviews(List<BookingModel> bookings) async {
+    var anySubmitted = false;
+    for (final b in bookings) {
+      if (!mounted) break;
+      final submitted = await ReviewFormSheet.show(
+        context,
+        bookingId: b.id,
+        targetName: 'Мастер',
+        aboutMaster: true,
+      );
+      if (submitted == true) anySubmitted = true;
+    }
+    if (anySubmitted) {
+      ref.invalidate(myBookingsProvider);
+    }
+  }
+
+  String _bookingsWord(int n) {
+    final r10 = n % 10;
+    final r100 = n % 100;
+    if (r100 >= 11 && r100 <= 14) return 'записей';
+    if (r10 == 1) return 'запись';
+    if (r10 >= 2 && r10 <= 4) return 'записи';
+    return 'записей';
+  }
+
+  Widget _buildReviewReminderBanner(List<BookingModel> unreviewed) {
+    return Material(
+      color: Colors.amber[100],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            Icon(Icons.rate_review_outlined, color: Colors.amber[900]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'У вас ${unreviewed.length} ${_bookingsWord(unreviewed.length)} без отзыва',
+                style: TextStyle(
+                  color: Colors.amber[900],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => _leaveAllReviews(unreviewed),
+              child: const Text('Оставить отзыв'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildBookingsList({
     required List<BookingModel> bookings,
     BookingStatus? filterStatus,
@@ -314,6 +383,30 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
                 style: OutlinedButton.styleFrom(foregroundColor: Colors.red[700]),
               ),
             ],
+            if (currentMode == BookingMode.client &&
+                booking.status == BookingStatus.completed &&
+                !booking.clientReviewLeft) ...[
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: () => _leaveReview(booking, aboutMaster: true),
+                icon: const Icon(Icons.star, size: 18),
+                label: const Text('Оставить отзыв'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  minimumSize: const Size(double.infinity, 44),
+                ),
+              ),
+            ],
+            if (currentMode == BookingMode.master &&
+                booking.status == BookingStatus.completed &&
+                !booking.masterReviewLeft) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => _leaveReview(booking, aboutMaster: false),
+                icon: const Icon(Icons.star_border, size: 18),
+                label: const Text('Оценить клиента'),
+              ),
+            ],
           ],
         ),
       ),
@@ -441,6 +534,13 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
     final role = currentMode == BookingMode.client ? 'client' : 'master';
     final bookingsAsync = ref.watch(myBookingsProvider(role: role));
 
+    final unreviewed = currentMode == BookingMode.client
+        ? (bookingsAsync.valueOrNull ?? const <BookingModel>[])
+            .where((b) =>
+                b.status == BookingStatus.completed && !b.clientReviewLeft)
+            .toList()
+        : const <BookingModel>[];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Записи'),
@@ -487,9 +587,16 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _buildTabViews(currentMode, bookingsAsync),
+      body: Column(
+        children: [
+          if (unreviewed.isNotEmpty) _buildReviewReminderBanner(unreviewed),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: _buildTabViews(currentMode, bookingsAsync),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: currentMode == BookingMode.client
           ? FloatingActionButton.extended(

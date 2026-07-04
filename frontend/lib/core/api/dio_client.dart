@@ -28,8 +28,11 @@ Dio dio(DioRef ref) {
         'Accept': 'application/json',
       },
       validateStatus: (status) {
-        // Accept all status codes to handle them in interceptors
-        return status != null && status < 500;
+        // 4xx/5xx must become DioException: RefreshTokenInterceptor (401),
+        // RetryInterceptor и ErrorHandlerInterceptor слушают onError.
+        // При status < 500 ошибки 4xx парсились репозиториями как успех
+        // (ложные «Запись создана» при 403 и т.п.).
+        return status != null && status < 400;
       },
     ),
   );

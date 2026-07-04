@@ -322,12 +322,18 @@ export class BookingsService {
       );
     }
 
-    // Проверяем, что отмена не происходит слишком поздно (менее чем за 1 час)
+    // Ограничение «не позднее чем за 1 час» действует только для подтверждённых
+    // записей: pending-заявку клиент может отозвать в любой момент (иначе
+    // просроченные неподтверждённые записи невозможно отменить вообще).
     const now = new Date();
     const oneHourBeforeStart = new Date(booking.start_time);
     oneHourBeforeStart.setHours(oneHourBeforeStart.getHours() - 1);
 
-    if (now > oneHourBeforeStart && booking.client_id === userId) {
+    if (
+      booking.status === BookingStatus.CONFIRMED &&
+      now > oneHourBeforeStart &&
+      booking.client_id === userId
+    ) {
       throw new BadRequestException(
         'Нельзя отменить бронирование менее чем за 1 час до начала',
       );

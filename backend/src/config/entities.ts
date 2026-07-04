@@ -8,6 +8,7 @@ import { CategoryTranslation } from '../modules/categories/entities/category-tra
 import { Service } from '../modules/services/entities/service.entity';
 import { Booking } from '../modules/bookings/entities/booking.entity';
 import { Review } from '../modules/reviews/entities/review.entity';
+import { ReviewReminder } from '../modules/reviews/entities/review-reminder.entity';
 import { Chat } from '../modules/chats/entities/chat.entity';
 import { ChatParticipant } from '../modules/chats/entities/chat-participant.entity';
 import { Message } from '../modules/chats/entities/message.entity';
@@ -35,6 +36,7 @@ export const entities = [
   Service,
   Booking,
   Review,
+  ReviewReminder,
   Chat,
   ChatParticipant,
   Message,

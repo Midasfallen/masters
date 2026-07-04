@@ -17,7 +17,7 @@ UnreviewedBooking _$UnreviewedBookingFromJson(Map<String, dynamic> json) =>
       clientName: json['client_name'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
-      totalPrice: (json['total_price'] as num).toDouble(),
+      totalPrice: UnreviewedBooking._priceFromJson(json['total_price']),
       isClient: json['is_client'] as bool,
       reviewTarget: json['review_target'] as String,
       reviewTargetName: json['review_target_name'] as String,

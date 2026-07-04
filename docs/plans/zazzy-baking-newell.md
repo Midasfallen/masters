@@ -994,3 +994,108 @@ CONFIRMED или IN_PROGRESS». Фронт не менялся. tsc → 0.
 запись уходит из «Подтверждённые» в «Историю». Консоль без ошибок.
 
 Бэклог: мёртвый startBooking + отсутствующий /start роут — удалить или дорегистрировать.
+
+---
+
+# План: Интерфейс отзывов (клиент обязателен, мастер добровольно)
+
+## Context
+Клиент должен оставить обязательный отзыв о завершённой услуге; мастер может (не обязан)
+оставить отзыв о клиенте. Backend отзывов ПОЛНОСТЬЮ готов — менять НЕ нужно. На фронте
+не хватает главного: экрана/формы создания отзыва. Кнопка «Оставить отзывы» сейчас ведёт
+в никуда (context.go('/')).
+
+Решения пользователя: (1) обязательность = блокировка новой записи (уже на бэке);
+(2) отзыв мастера о клиенте — добровольный; (3) форма = звёзды 1-5 + комментарий.
+
+## Что уже есть (переиспользуем, НЕ трогаем backend)
+**Backend (готов):**
+- `POST /reviews` (CreateReviewDto: booking_id, rating 1-5, comment 10-1000 опц., photo_urls опц.).
+  Только на COMPLETED booking; определяет направление по client_id/master_id; ставит
+  client_review_left/master_review_left; ConflictException если уже оставлен.
+- `PendingReviewsGuard` на `POST /bookings` — блокирует новую запись КЛИЕНТА, если есть
+  завершённые без его отзыва (403 PENDING_REVIEW_REQUIRED / 400 UNREVIEWED_BOOKINGS_EXIST).
+  Мастера НЕ блокирует (его отзыв добровольный — уже так).
+- `GET /reviews/unreviewed/bookings`, `POST /reviews/skip/:id` (grace period).
+- `GET /reviews?reviewed_user_id=` — отзывы пользователя.
+
+**Frontend (готов):** `ReviewModel`, `CreateReviewRequest`, `UnreviewedBooking`,
+`ReviewRemindersRepository` (getUnreviewedBookings/skipReview), `MasterRepository.getMasterReviews`,
+`masterReviewsProvider`, `ReviewCard`, вкладка «Отзывы» на профиле мастера,
+`UnreviewedBookingsDialog`, `UnreviewedBookingsException` (ловится в master_profile_screen).
+
+**Frontend (НЕ хватает):** метод createReview в репозитории; экран/шит формы отзыва;
+навигация к нему; связка кнопок «Оставить отзыв» в bookings-истории и в диалоге напоминания.
+
+## Реализация (только frontend)
+
+### 1. Репозиторий: создание отзыва
+Создать `review_repository.dart` (или добавить в существующий) метод
+`createReview(CreateReviewRequest)` → `POST /reviews` (эндпоинт reviewCreate уже есть).
+Провайдер `reviewRepositoryProvider`. `CreateReviewRequest` уже готов.
+
+### 2. Форма отзыва — bottom sheet `ReviewFormSheet`
+Параметры: bookingId, имя того-кого-оцениваем, направление (для заголовка «Оцените мастера»/
+«Оцените клиента»). Поля: интерактивные звёзды 1-5 (обязательно), TextField комментарий
+(опц., но если введён — 10-1000 символов, как требует бэк; подсказать лимит). Кнопка
+«Отправить». По submit → createReview → при успехе закрыть, снекбар, инвалидировать
+myBookingsProvider (обновить clientReviewLeft) + masterReviewsProvider(reviewedUserId).
+Обработка ConflictException (уже оставлен) — мягко закрыть.
+
+### 3. Экран «Записи» (bookings_screen): кнопка «Оставить отзыв»
+Во вкладке «История» (completed) для КЛИЕНТА: если `!booking.clientReviewLeft` и
+status==completed → кнопка «Оставить отзыв» (акцентная) → открывает ReviewFormSheet
+(направление: отзыв о мастере). Для МАСТЕРА (режим «Мастер», completed): если
+`!booking.masterReviewLeft` → кнопка «Оценить клиента» (вторичная, т.к. добровольно).
+После отзыва кнопка исчезает (флаг стал true).
+
+Использовать существующие поля BookingModel.clientReviewLeft/masterReviewLeft (сейчас не
+используются в UI — задействовать).
+
+### 4. Диалог напоминания: связать «Оставить отзывы» с формой
+`UnreviewedBookingsDialog` action `leaveReviews` сейчас → context.go('/'). Изменить:
+после закрытия диалога открывать ReviewFormSheet по первому/каждому неотзывленному
+booking (данные есть в UnreviewedBooking: id, reviewTarget, reviewTargetName, isClient).
+Так клиент реально оставит отзыв и разблокирует создание записи. После всех отзывов —
+можно повторить создание записи (флоу уже есть в master_profile_screen).
+
+### 5. Баннер-напоминание на экране «Записи» (мягкое обязательное)
+Опционально-желательно: на вкладке «История»/сверху, если есть неотзывленные (клиент) —
+заметный баннер «У вас N записей без отзыва» с кнопкой, открывающей форму. Дополняет
+жёсткую блокировку при создании записи (чтобы клиент видел до попытки записаться).
+
+## Verification
+- API: под клиентом с completed-записью POST /reviews {booking_id, rating, comment} → 201;
+  повторно → 409. GET /reviews?reviewed_user_id=master → отзыв виден. После отзыва
+  POST /bookings больше не блокируется.
+- Chrome (клиент): «Записи»→«История»→«Оставить отзыв»→звёзды+коммент→отправка→кнопка исчезла;
+  отзыв виден на профиле мастера (вкладка «Отзывы»); новая запись создаётся без блокировки.
+- Chrome (мастер): completed-запись → «Оценить клиента» (добровольно) → отзыв создаётся;
+  без отзыва мастер НЕ заблокирован в создании своих записей.
+- flutter analyze + кодоген (review_repository.g.dart) чисто.
+
+## Риски
+- Комментарий: бэк требует 10-1000 символов ЕСЛИ передан. Пустой не слать (null), короткий —
+  валидировать на фронте до отправки.
+- Направление в форме: определять по роли/isClient, не по угадыванию.
+- Rating обязателен (1-5) — не давать отправить с 0 звёзд.
+
+
+## Итог (04.07.2026): Интерфейс отзывов — РЕАЛИЗОВАНО и проверено e2e
+
+**Frontend:**
+- `review_repository.dart` — POST /reviews; `review_form_sheet.dart` — форма (звёзды 1–5 обяз., комментарий ≥10 симв. опц., 409 закрывает форму по statusCode).
+- `bookings_screen.dart` — кнопки «Оставить отзыв» (клиент) / «Оценить клиента» (мастер) на completed-записях + баннер «У вас N записей без отзыва» с открытием формы.
+- `master_profile_screen.dart` — ветка leaveReviews диалога открывает ReviewFormSheet по каждой неотзывленной записи и авто-повторяет создание записи.
+- `unreviewed_bookings_dialog.dart` — добавлен явный текст: создание записи недоступно до отзыва, кнопка открывает форму.
+- **`dio_client.dart` — КЛЮЧЕВОЙ ФИКС:** validateStatus был `< 500`, из-за чего 4xx не становились исключениями: ошибки парсились как успех (ложные «Запись создана»/«Запись отменена»), не работали RefreshTokenInterceptor (401) и ErrorHandlerInterceptor. Теперь `< 400`.
+- `api_exceptions.dart` — 403 `PENDING_REVIEW_REQUIRED` (PendingReviewsGuard) мапится в UnreviewedBookingsException (раньше только 400 UNREVIEWED_BOOKINGS_EXIST → диалог не показывался).
+- `unreviewed_booking.dart` — total_price приходит строкой, парсинг сделан толерантным (падал fromJson → диалог не открывался).
+
+**Backend (найденные и исправленные баги):**
+- `config/entities.ts` — ReviewReminder не был зарегистрирован в DataSource → каждый POST /reviews падал 500 (EntityMetadataNotFoundError в clearReminder) уже ПОСЛЕ создания отзыва.
+- `review.entity.ts` + миграция `1783500000000-ReviewUniquePerReviewerType` — UNIQUE(booking_id) → UNIQUE(booking_id, reviewer_type): раньше второй отзыв (мастера о клиенте) на ту же запись падал 500.
+- `bookings.service.ts` — правило «нельзя отменить менее чем за 1 час» теперь только для CONFIRMED: pending-заявку клиент отменяет всегда (просроченные записи 29–30 июня были неотменяемыми навсегда).
+- Восстановлена таблица `review_reminders` (миграция значилась применённой, таблицы не было — запись удалена из `migrations`, миграция перекатана).
+
+**Проверено:** API (201/409/403-блокировка/разблокировка после отзыва, отзыв мастера 201, отмена просроченной pending 200) + Chrome e2e (баннер, кнопка в Истории, диалог блокировки с формой, авто-создание записи после отзыва, отзыв виден на профиле мастера). flutter analyze чисто; 5 падающих тестов auth/chat существовали на main до задачи.

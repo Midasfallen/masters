@@ -21,7 +21,8 @@ class UnreviewedBooking {
   final DateTime startTime;
   @JsonKey(name: 'end_time')
   final DateTime endTime;
-  @JsonKey(name: 'total_price')
+  // Бэкенд отдаёт цену строкой ("2248.00") — парсим толерантно.
+  @JsonKey(name: 'total_price', fromJson: _priceFromJson)
   final double totalPrice;
   @JsonKey(name: 'is_client')
   final bool isClient;
@@ -54,6 +55,9 @@ class UnreviewedBooking {
     required this.graceSkipAllowed,
     this.lastRemindedAt,
   });
+
+  static double _priceFromJson(dynamic value) =>
+      value == null ? 0 : (double.tryParse(value.toString()) ?? 0);
 
   factory UnreviewedBooking.fromJson(Map<String, dynamic> json) =>
       _$UnreviewedBookingFromJson(json);

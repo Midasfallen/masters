@@ -120,13 +120,34 @@ void main() {
           statusCode: 200,
         );
 
-        when(mockClient.uploadFile(any, any))
+        final uploadResponse = Response(
+          requestOptions: RequestOptions(path: ''),
+          data: {'url': 'https://example.com/avatar.jpg'},
+          statusCode: 201,
+        );
+
+        when(mockClient.uploadBytes(
+          any,
+          any,
+          filename: anyNamed('filename'),
+          data: anyNamed('data'),
+          onSendProgress: anyNamed('onSendProgress'),
+          cancelToken: anyNamed('cancelToken'),
+        )).thenAnswer((_) async => uploadResponse);
+        when(mockClient.patch(any, data: anyNamed('data')))
             .thenAnswer((_) async => mockResponse);
 
-        final result = await repository.uploadAvatar('/path/to/image.jpg');
+        final result = await repository.uploadAvatar([1, 2, 3], 'image.jpg');
 
         expect(result.avatarUrl, 'https://example.com/avatar.jpg');
-        verify(mockClient.uploadFile(any, any)).called(1);
+        verify(mockClient.uploadBytes(
+          any,
+          any,
+          filename: anyNamed('filename'),
+          data: anyNamed('data'),
+          onSendProgress: anyNamed('onSendProgress'),
+          cancelToken: anyNamed('cancelToken'),
+        )).called(1);
       });
     });
 

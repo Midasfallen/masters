@@ -174,6 +174,17 @@ class ApiExceptionHandler {
         return UnauthorizedException(message: message);
 
       case 403:
+        // PendingReviewsGuard: клиент обязан оставить отзыв перед новой записью
+        if (data is Map<String, dynamic> &&
+            data['error'] == 'PENDING_REVIEW_REQUIRED') {
+          final bookingId =
+              (data['data'] is Map<String, dynamic>) ? data['data']['booking_id'] : null;
+          return UnreviewedBookingsException(
+            message: message,
+            unreviewedBookingIds: [if (bookingId is String) bookingId],
+            data: data,
+          );
+        }
         return ForbiddenException(message: message);
 
       case 404:

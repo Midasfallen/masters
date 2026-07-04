@@ -74,6 +74,15 @@ class _UnreviewedBookingsDialogState
               style: theme.textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Создание новой записи недоступно, пока вы не оставите '
+              'отзыв о полученных услугах. Нажмите «Оставить отзывы» — '
+              'форма оценки откроется прямо здесь.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 16),
             if (_error != null) ...[
               Container(
