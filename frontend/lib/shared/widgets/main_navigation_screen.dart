@@ -6,8 +6,10 @@ import '../../features/search/screens/search_screen.dart';
 import '../../features/chats/screens/chats_list_screen.dart';
 import '../../features/bookings/screens/bookings_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../core/models/api/booking_model.dart';
+import '../../core/providers/api/auth_provider.dart';
+import '../../core/providers/api/bookings_provider.dart';
 import '../../core/providers/api/chats_provider.dart';
-import '../../core/providers/api/notifications_provider.dart';
 import '../../core/providers/main_nav_provider.dart';
 
 class MainNavigationScreen extends ConsumerWidget {
@@ -26,9 +28,23 @@ class MainNavigationScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(mainNavIndexProvider);
     final unreadMessages = ref.watch(unreadChatsCountProvider);
-    // Реальный счётчик непрочитанных уведомлений (async); до загрузки — 0
-    final unreadNotifications =
-        ref.watch(notificationsUnreadCountProvider).valueOrNull ?? 0;
+    // Бейдж «Записи» — число актуальных записей (ожидание/подтверждена/идёт):
+    // для клиента — его записи, для мастера — плюс записи к нему.
+    // myBookingsProvider инвалидируется при мутациях, бейдж обновляется сам.
+    final isMaster =
+        ref.watch(authNotifierProvider).valueOrNull?.user?.isMaster ?? false;
+    int activeCount(List<BookingModel>? list) => (list ?? const [])
+        .where((b) =>
+            b.status == BookingStatus.pending ||
+            b.status == BookingStatus.confirmed ||
+            b.status == BookingStatus.inProgress)
+        .length;
+    final activeBookings = activeCount(
+            ref.watch(myBookingsProvider(role: 'client')).valueOrNull) +
+        (isMaster
+            ? activeCount(
+                ref.watch(myBookingsProvider(role: 'master')).valueOrNull)
+            : 0);
 
     return Scaffold(
       body: IndexedStack(
@@ -66,13 +82,13 @@ class MainNavigationScreen extends ConsumerWidget {
           ),
           NavigationDestination(
             icon: Badge(
-              label: Text('$unreadNotifications'),
-              isLabelVisible: unreadNotifications > 0,
+              label: Text('$activeBookings'),
+              isLabelVisible: activeBookings > 0,
               child: const Icon(Icons.calendar_today_outlined),
             ),
             selectedIcon: Badge(
-              label: Text('$unreadNotifications'),
-              isLabelVisible: unreadNotifications > 0,
+              label: Text('$activeBookings'),
+              isLabelVisible: activeBookings > 0,
               child: const Icon(Icons.calendar_today),
             ),
             label: 'Записи',

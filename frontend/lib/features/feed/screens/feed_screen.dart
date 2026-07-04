@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/api/feed_provider.dart';
+import '../../../core/providers/api/notifications_provider.dart';
 import '../../../core/models/api/post_model.dart';
 import '../widgets/post_card.dart';
 import '../widgets/feed_filters_sheet.dart';
@@ -183,6 +184,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
     final posts = ref.watch(feedPostsListProvider);
     final hasMore = ref.watch(feedHasMoreProvider);
     final hasActiveFilters = ref.watch(feedFiltersProvider).hasActiveFilters;
+    // Непрочитанные уведомления — бейдж на колокольчике
+    final unreadNotifications =
+        ref.watch(notificationsUnreadCountProvider).valueOrNull ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -203,7 +207,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> with WidgetsBindingObse
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: Badge(
+              label: Text('$unreadNotifications'),
+              isLabelVisible: unreadNotifications > 0,
+              child: const Icon(Icons.notifications_outlined),
+            ),
             onPressed: _onNotificationsTap,
           ),
           IconButton(
