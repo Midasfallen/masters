@@ -380,9 +380,15 @@ export class BookingsService {
       throw new ForbiddenException('Вы не можете завершить это бронирование');
     }
 
-    if (booking.status !== BookingStatus.IN_PROGRESS) {
+    // Завершить можно подтверждённое или уже начатое бронирование.
+    // Статус in_progress необязателен: мастер завершает confirmed напрямую.
+    if (
+      ![BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS].includes(
+        booking.status,
+      )
+    ) {
       throw new BadRequestException(
-        'Можно завершить только бронирование в процессе',
+        'Завершить можно только подтверждённое или начатое бронирование',
       );
     }
 
