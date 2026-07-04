@@ -1153,6 +1153,7 @@ CancelBookingRequest _$CancelBookingRequestFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CancelBookingRequest {
+  @JsonKey(name: 'cancellation_reason')
   String get reason => throw _privateConstructorUsedError;
 
   /// Serializes this CancelBookingRequest to a JSON map.
@@ -1171,7 +1172,7 @@ abstract class $CancelBookingRequestCopyWith<$Res> {
           $Res Function(CancelBookingRequest) then) =
       _$CancelBookingRequestCopyWithImpl<$Res, CancelBookingRequest>;
   @useResult
-  $Res call({String reason});
+  $Res call({@JsonKey(name: 'cancellation_reason') String reason});
 }
 
 /// @nodoc
@@ -1209,7 +1210,7 @@ abstract class _$$CancelBookingRequestImplCopyWith<$Res>
       __$$CancelBookingRequestImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String reason});
+  $Res call({@JsonKey(name: 'cancellation_reason') String reason});
 }
 
 /// @nodoc
@@ -1239,12 +1240,14 @@ class __$$CancelBookingRequestImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$CancelBookingRequestImpl implements _CancelBookingRequest {
-  const _$CancelBookingRequestImpl({required this.reason});
+  const _$CancelBookingRequestImpl(
+      {@JsonKey(name: 'cancellation_reason') required this.reason});
 
   factory _$CancelBookingRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$CancelBookingRequestImplFromJson(json);
 
   @override
+  @JsonKey(name: 'cancellation_reason')
   final String reason;
 
   @override
@@ -1283,13 +1286,15 @@ class _$CancelBookingRequestImpl implements _CancelBookingRequest {
 }
 
 abstract class _CancelBookingRequest implements CancelBookingRequest {
-  const factory _CancelBookingRequest({required final String reason}) =
-      _$CancelBookingRequestImpl;
+  const factory _CancelBookingRequest(
+      {@JsonKey(name: 'cancellation_reason')
+      required final String reason}) = _$CancelBookingRequestImpl;
 
   factory _CancelBookingRequest.fromJson(Map<String, dynamic> json) =
       _$CancelBookingRequestImpl.fromJson;
 
   @override
+  @JsonKey(name: 'cancellation_reason')
   String get reason;
 
   /// Create a copy of CancelBookingRequest

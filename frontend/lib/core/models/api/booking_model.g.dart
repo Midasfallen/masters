@@ -113,11 +113,11 @@ Map<String, dynamic> _$$UpdateBookingStatusRequestImplToJson(
 _$CancelBookingRequestImpl _$$CancelBookingRequestImplFromJson(
         Map<String, dynamic> json) =>
     _$CancelBookingRequestImpl(
-      reason: json['reason'] as String,
+      reason: json['cancellation_reason'] as String,
     );
 
 Map<String, dynamic> _$$CancelBookingRequestImplToJson(
         _$CancelBookingRequestImpl instance) =>
     <String, dynamic>{
-      'reason': instance.reason,
+      'cancellation_reason': instance.reason,
     };

@@ -952,3 +952,26 @@ Backend не менялся (всё было готово). Frontend:
   обновилось; добавление «Спортивный массаж» 3200 ₽ (подкатегория Массаж) → снекбар
   «Услуга добавлена», появилась; удаление → confirm → «Услуга удалена», исчезла.
   Консоль без ошибок.
+
+---
+
+# Фикс: клиент не может отменить неподтверждённую запись
+
+## Симптом
+В роли клиента отмена записи в статусе «Ожидание» (pending) не срабатывала.
+
+## Диагноз (воспроизведено через API)
+Несоответствие имени поля причины отмены:
+- Фронт `CancelBookingRequest` слал `{reason: ...}`.
+- Бэк `CancelBookingDto` ждёт `{cancellation_reason: ...}` (@IsString, MinLength 5).
+Из-за `ValidationPipe` + `forbidNonWhitelisted` → 400: «property reason should not exist»,
+«cancellation_reason must be a string». Проверено: с `{cancellation_reason}` → 200, cancelled.
+
+## Решение (ВЫПОЛНЕНО ✅)
+- `booking_model.dart`: `CancelBookingRequest.reason` → `@JsonKey(name: 'cancellation_reason')`.
+- `bookings_screen.dart`: причина короче 5 символов (в т.ч. пустая) → дефолт «Отменено
+  клиентом» (бэк требует мин. 5). Кодоген + сборка.
+
+**Проверено (Chrome, клиент client@test.com):** отмена pending-записи →
+`POST /bookings/:id/cancel` 200, снекбар «Запись отменена», запись исчезла из «Предстоящие».
+Консоль без ошибок.

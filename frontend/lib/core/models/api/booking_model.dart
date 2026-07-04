@@ -79,11 +79,12 @@ class UpdateBookingStatusRequest with _$UpdateBookingStatusRequest {
       _$UpdateBookingStatusRequestFromJson(json);
 }
 
-/// Cancel Booking Request
+/// Cancel Booking Request.
+/// Backend ждёт поле `cancellation_reason` (мин. 5 символов).
 @freezed
 class CancelBookingRequest with _$CancelBookingRequest {
   const factory CancelBookingRequest({
-    required String reason,
+    @JsonKey(name: 'cancellation_reason') required String reason,
   }) = _CancelBookingRequest;
 
   factory CancelBookingRequest.fromJson(Map<String, dynamic> json) =>

@@ -91,7 +91,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
               child: const Text('Отмена'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(context, cancelReason.isEmpty ? 'Отменено клиентом' : cancelReason),
+              onPressed: () => Navigator.pop(context, cancelReason.trim()),
               style: FilledButton.styleFrom(backgroundColor: Colors.red[700]),
               child: const Text('Отменить запись'),
             ),
@@ -102,8 +102,13 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
 
     if (reason == null) return;
 
+    // Backend требует причину минимум 5 символов — подставляем дефолт для
+    // пустой/слишком короткой причины.
+    final cancelReason =
+        reason.trim().length >= 5 ? reason.trim() : 'Отменено клиентом';
+
     try {
-      await ref.read(bookingNotifierProvider.notifier).cancelBooking(booking.id, reason);
+      await ref.read(bookingNotifierProvider.notifier).cancelBooking(booking.id, cancelReason);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Запись отменена')),
