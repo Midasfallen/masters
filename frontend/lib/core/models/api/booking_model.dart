@@ -18,31 +18,33 @@ enum BookingStatus {
 
 @freezed
 class BookingModel with _$BookingModel {
+  /// Поля устойчивы к null (@Default / nullable), чтобы парсинг ответа не падал
+  /// с "JSNull is not a subtype of String" при неполном объекте от бэка.
   const factory BookingModel({
-    required String id,
-    required String clientId,
-    required String masterId,
-    required String serviceId,
-    required DateTime startTime,
-    required DateTime endTime,
-    required int durationMinutes,
-    required double price,
-    required BookingStatus status,
+    @Default('') String id,
+    @Default('') String clientId,
+    @Default('') String masterId,
+    @Default('') String serviceId,
+    DateTime? startTime,
+    DateTime? endTime,
+    @Default(0) int durationMinutes,
+    @Default(0.0) double price,
+    @Default(BookingStatus.pending) BookingStatus status,
     String? comment,
     String? cancellationReason,
     String? cancelledBy,
-    required bool clientReviewLeft,
-    required bool masterReviewLeft,
+    @Default(false) bool clientReviewLeft,
+    @Default(false) bool masterReviewLeft,
     DateTime? completedAt,
     String? locationAddress,
     double? locationLat,
     double? locationLng,
-    required String locationType,
-    required bool reminderSent,
+    @Default('salon') String locationType,
+    @Default(false) bool reminderSent,
     DateTime? reminderSentAt,
     Map<String, dynamic>? metadata,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _BookingModel;
 
   factory BookingModel.fromJson(Map<String, dynamic> json) =>

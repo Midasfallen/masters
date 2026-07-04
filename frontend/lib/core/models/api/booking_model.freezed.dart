@@ -24,8 +24,8 @@ mixin _$BookingModel {
   String get clientId => throw _privateConstructorUsedError;
   String get masterId => throw _privateConstructorUsedError;
   String get serviceId => throw _privateConstructorUsedError;
-  DateTime get startTime => throw _privateConstructorUsedError;
-  DateTime get endTime => throw _privateConstructorUsedError;
+  DateTime? get startTime => throw _privateConstructorUsedError;
+  DateTime? get endTime => throw _privateConstructorUsedError;
   int get durationMinutes => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
   BookingStatus get status => throw _privateConstructorUsedError;
@@ -42,8 +42,8 @@ mixin _$BookingModel {
   bool get reminderSent => throw _privateConstructorUsedError;
   DateTime? get reminderSentAt => throw _privateConstructorUsedError;
   Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this BookingModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -66,8 +66,8 @@ abstract class $BookingModelCopyWith<$Res> {
       String clientId,
       String masterId,
       String serviceId,
-      DateTime startTime,
-      DateTime endTime,
+      DateTime? startTime,
+      DateTime? endTime,
       int durationMinutes,
       double price,
       BookingStatus status,
@@ -84,8 +84,8 @@ abstract class $BookingModelCopyWith<$Res> {
       bool reminderSent,
       DateTime? reminderSentAt,
       Map<String, dynamic>? metadata,
-      DateTime createdAt,
-      DateTime updatedAt});
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -107,8 +107,8 @@ class _$BookingModelCopyWithImpl<$Res, $Val extends BookingModel>
     Object? clientId = null,
     Object? masterId = null,
     Object? serviceId = null,
-    Object? startTime = null,
-    Object? endTime = null,
+    Object? startTime = freezed,
+    Object? endTime = freezed,
     Object? durationMinutes = null,
     Object? price = null,
     Object? status = null,
@@ -125,8 +125,8 @@ class _$BookingModelCopyWithImpl<$Res, $Val extends BookingModel>
     Object? reminderSent = null,
     Object? reminderSentAt = freezed,
     Object? metadata = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -145,14 +145,14 @@ class _$BookingModelCopyWithImpl<$Res, $Val extends BookingModel>
           ? _value.serviceId
           : serviceId // ignore: cast_nullable_to_non_nullable
               as String,
-      startTime: null == startTime
+      startTime: freezed == startTime
           ? _value.startTime
           : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endTime: null == endTime
+              as DateTime?,
+      endTime: freezed == endTime
           ? _value.endTime
           : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       durationMinutes: null == durationMinutes
           ? _value.durationMinutes
           : durationMinutes // ignore: cast_nullable_to_non_nullable
@@ -217,14 +217,14 @@ class _$BookingModelCopyWithImpl<$Res, $Val extends BookingModel>
           ? _value.metadata
           : metadata // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -242,8 +242,8 @@ abstract class _$$BookingModelImplCopyWith<$Res>
       String clientId,
       String masterId,
       String serviceId,
-      DateTime startTime,
-      DateTime endTime,
+      DateTime? startTime,
+      DateTime? endTime,
       int durationMinutes,
       double price,
       BookingStatus status,
@@ -260,8 +260,8 @@ abstract class _$$BookingModelImplCopyWith<$Res>
       bool reminderSent,
       DateTime? reminderSentAt,
       Map<String, dynamic>? metadata,
-      DateTime createdAt,
-      DateTime updatedAt});
+      DateTime? createdAt,
+      DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -281,8 +281,8 @@ class __$$BookingModelImplCopyWithImpl<$Res>
     Object? clientId = null,
     Object? masterId = null,
     Object? serviceId = null,
-    Object? startTime = null,
-    Object? endTime = null,
+    Object? startTime = freezed,
+    Object? endTime = freezed,
     Object? durationMinutes = null,
     Object? price = null,
     Object? status = null,
@@ -299,8 +299,8 @@ class __$$BookingModelImplCopyWithImpl<$Res>
     Object? reminderSent = null,
     Object? reminderSentAt = freezed,
     Object? metadata = freezed,
-    Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$BookingModelImpl(
       id: null == id
@@ -319,14 +319,14 @@ class __$$BookingModelImplCopyWithImpl<$Res>
           ? _value.serviceId
           : serviceId // ignore: cast_nullable_to_non_nullable
               as String,
-      startTime: null == startTime
+      startTime: freezed == startTime
           ? _value.startTime
           : startTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endTime: null == endTime
+              as DateTime?,
+      endTime: freezed == endTime
           ? _value.endTime
           : endTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       durationMinutes: null == durationMinutes
           ? _value.durationMinutes
           : durationMinutes // ignore: cast_nullable_to_non_nullable
@@ -391,14 +391,14 @@ class __$$BookingModelImplCopyWithImpl<$Res>
           ? _value._metadata
           : metadata // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
-      createdAt: null == createdAt
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
+              as DateTime?,
+      updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ));
   }
 }
@@ -407,52 +407,59 @@ class __$$BookingModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$BookingModelImpl implements _BookingModel {
   const _$BookingModelImpl(
-      {required this.id,
-      required this.clientId,
-      required this.masterId,
-      required this.serviceId,
-      required this.startTime,
-      required this.endTime,
-      required this.durationMinutes,
-      required this.price,
-      required this.status,
+      {this.id = '',
+      this.clientId = '',
+      this.masterId = '',
+      this.serviceId = '',
+      this.startTime,
+      this.endTime,
+      this.durationMinutes = 0,
+      this.price = 0.0,
+      this.status = BookingStatus.pending,
       this.comment,
       this.cancellationReason,
       this.cancelledBy,
-      required this.clientReviewLeft,
-      required this.masterReviewLeft,
+      this.clientReviewLeft = false,
+      this.masterReviewLeft = false,
       this.completedAt,
       this.locationAddress,
       this.locationLat,
       this.locationLng,
-      required this.locationType,
-      required this.reminderSent,
+      this.locationType = 'salon',
+      this.reminderSent = false,
       this.reminderSentAt,
       final Map<String, dynamic>? metadata,
-      required this.createdAt,
-      required this.updatedAt})
+      this.createdAt,
+      this.updatedAt})
       : _metadata = metadata;
 
   factory _$BookingModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$BookingModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final String id;
   @override
+  @JsonKey()
   final String clientId;
   @override
+  @JsonKey()
   final String masterId;
   @override
+  @JsonKey()
   final String serviceId;
   @override
-  final DateTime startTime;
+  final DateTime? startTime;
   @override
-  final DateTime endTime;
+  final DateTime? endTime;
   @override
+  @JsonKey()
   final int durationMinutes;
   @override
+  @JsonKey()
   final double price;
   @override
+  @JsonKey()
   final BookingStatus status;
   @override
   final String? comment;
@@ -461,8 +468,10 @@ class _$BookingModelImpl implements _BookingModel {
   @override
   final String? cancelledBy;
   @override
+  @JsonKey()
   final bool clientReviewLeft;
   @override
+  @JsonKey()
   final bool masterReviewLeft;
   @override
   final DateTime? completedAt;
@@ -473,8 +482,10 @@ class _$BookingModelImpl implements _BookingModel {
   @override
   final double? locationLng;
   @override
+  @JsonKey()
   final String locationType;
   @override
+  @JsonKey()
   final bool reminderSent;
   @override
   final DateTime? reminderSentAt;
@@ -489,9 +500,9 @@ class _$BookingModelImpl implements _BookingModel {
   }
 
   @override
-  final DateTime createdAt;
+  final DateTime? createdAt;
   @override
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   @override
   String toString() {
@@ -595,30 +606,30 @@ class _$BookingModelImpl implements _BookingModel {
 
 abstract class _BookingModel implements BookingModel {
   const factory _BookingModel(
-      {required final String id,
-      required final String clientId,
-      required final String masterId,
-      required final String serviceId,
-      required final DateTime startTime,
-      required final DateTime endTime,
-      required final int durationMinutes,
-      required final double price,
-      required final BookingStatus status,
+      {final String id,
+      final String clientId,
+      final String masterId,
+      final String serviceId,
+      final DateTime? startTime,
+      final DateTime? endTime,
+      final int durationMinutes,
+      final double price,
+      final BookingStatus status,
       final String? comment,
       final String? cancellationReason,
       final String? cancelledBy,
-      required final bool clientReviewLeft,
-      required final bool masterReviewLeft,
+      final bool clientReviewLeft,
+      final bool masterReviewLeft,
       final DateTime? completedAt,
       final String? locationAddress,
       final double? locationLat,
       final double? locationLng,
-      required final String locationType,
-      required final bool reminderSent,
+      final String locationType,
+      final bool reminderSent,
       final DateTime? reminderSentAt,
       final Map<String, dynamic>? metadata,
-      required final DateTime createdAt,
-      required final DateTime updatedAt}) = _$BookingModelImpl;
+      final DateTime? createdAt,
+      final DateTime? updatedAt}) = _$BookingModelImpl;
 
   factory _BookingModel.fromJson(Map<String, dynamic> json) =
       _$BookingModelImpl.fromJson;
@@ -632,9 +643,9 @@ abstract class _BookingModel implements BookingModel {
   @override
   String get serviceId;
   @override
-  DateTime get startTime;
+  DateTime? get startTime;
   @override
-  DateTime get endTime;
+  DateTime? get endTime;
   @override
   int get durationMinutes;
   @override
@@ -668,9 +679,9 @@ abstract class _BookingModel implements BookingModel {
   @override
   Map<String, dynamic>? get metadata;
   @override
-  DateTime get createdAt;
+  DateTime? get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
 
   /// Create a copy of BookingModel
   /// with the given fields replaced by the non-null parameter values.

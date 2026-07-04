@@ -8,34 +8,43 @@ part of 'booking_model.dart';
 
 _$BookingModelImpl _$$BookingModelImplFromJson(Map<String, dynamic> json) =>
     _$BookingModelImpl(
-      id: json['id'] as String,
-      clientId: json['clientId'] as String,
-      masterId: json['masterId'] as String,
-      serviceId: json['serviceId'] as String,
-      startTime: DateTime.parse(json['startTime'] as String),
-      endTime: DateTime.parse(json['endTime'] as String),
-      durationMinutes: (json['durationMinutes'] as num).toInt(),
-      price: (json['price'] as num).toDouble(),
-      status: $enumDecode(_$BookingStatusEnumMap, json['status']),
+      id: json['id'] as String? ?? '',
+      clientId: json['clientId'] as String? ?? '',
+      masterId: json['masterId'] as String? ?? '',
+      serviceId: json['serviceId'] as String? ?? '',
+      startTime: json['startTime'] == null
+          ? null
+          : DateTime.parse(json['startTime'] as String),
+      endTime: json['endTime'] == null
+          ? null
+          : DateTime.parse(json['endTime'] as String),
+      durationMinutes: (json['durationMinutes'] as num?)?.toInt() ?? 0,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      status: $enumDecodeNullable(_$BookingStatusEnumMap, json['status']) ??
+          BookingStatus.pending,
       comment: json['comment'] as String?,
       cancellationReason: json['cancellationReason'] as String?,
       cancelledBy: json['cancelledBy'] as String?,
-      clientReviewLeft: json['clientReviewLeft'] as bool,
-      masterReviewLeft: json['masterReviewLeft'] as bool,
+      clientReviewLeft: json['clientReviewLeft'] as bool? ?? false,
+      masterReviewLeft: json['masterReviewLeft'] as bool? ?? false,
       completedAt: json['completedAt'] == null
           ? null
           : DateTime.parse(json['completedAt'] as String),
       locationAddress: json['locationAddress'] as String?,
       locationLat: (json['locationLat'] as num?)?.toDouble(),
       locationLng: (json['locationLng'] as num?)?.toDouble(),
-      locationType: json['locationType'] as String,
-      reminderSent: json['reminderSent'] as bool,
+      locationType: json['locationType'] as String? ?? 'salon',
+      reminderSent: json['reminderSent'] as bool? ?? false,
       reminderSentAt: json['reminderSentAt'] == null
           ? null
           : DateTime.parse(json['reminderSentAt'] as String),
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$$BookingModelImplToJson(_$BookingModelImpl instance) =>
@@ -44,8 +53,8 @@ Map<String, dynamic> _$$BookingModelImplToJson(_$BookingModelImpl instance) =>
       'clientId': instance.clientId,
       'masterId': instance.masterId,
       'serviceId': instance.serviceId,
-      'startTime': instance.startTime.toIso8601String(),
-      'endTime': instance.endTime.toIso8601String(),
+      'startTime': instance.startTime?.toIso8601String(),
+      'endTime': instance.endTime?.toIso8601String(),
       'durationMinutes': instance.durationMinutes,
       'price': instance.price,
       'status': _$BookingStatusEnumMap[instance.status]!,
@@ -62,8 +71,8 @@ Map<String, dynamic> _$$BookingModelImplToJson(_$BookingModelImpl instance) =>
       'reminderSent': instance.reminderSent,
       'reminderSentAt': instance.reminderSentAt?.toIso8601String(),
       'metadata': instance.metadata,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
 const _$BookingStatusEnumMap = {

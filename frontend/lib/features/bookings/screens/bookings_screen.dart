@@ -364,7 +364,8 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen>
     );
   }
 
-  String _formatDateTime(DateTime dt) {
+  String _formatDateTime(DateTime? dt) {
+    if (dt == null) return '—';
     final months = [
       'янв', 'фев', 'мар', 'апр', 'май', 'июн',
       'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'
