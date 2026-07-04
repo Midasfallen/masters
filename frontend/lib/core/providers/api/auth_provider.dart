@@ -57,12 +57,18 @@ class AuthNotifier extends _$AuthNotifier {
 
     if (isLoggedIn) {
       try {
-        final user = await repository.getMe();
+        // Таймаут: если getMe зависает (напр. зацикленный refresh или медленная
+        // сеть), не держим splash вечно — уходим на login.
+        final user = await repository.getMe().timeout(
+          const Duration(seconds: 12),
+        );
         _connectWebSocket();
         return AuthState(user: user, isAuthenticated: true);
       } catch (e) {
-        // If getMe fails (e.g., 401), clear tokens and return unauthenticated
-        await repository.logout();
+        // getMe упал/завис (401, таймаут и т.п.) — чистим токены, идём на login.
+        try {
+          await repository.logout();
+        } catch (_) {}
         return const AuthState(isAuthenticated: false);
       }
     }
